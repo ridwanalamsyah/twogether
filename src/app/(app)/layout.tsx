@@ -7,6 +7,7 @@ import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { QuickAddFab } from "@/components/shell/QuickAddFab";
 
 export default function AppLayout({
   children,
@@ -56,6 +57,7 @@ export default function AppLayout({
     <div className="relative mx-auto flex min-h-screen max-w-[480px] flex-col bg-bg-app">
       <main className="flex-1 pb-nav">{children}</main>
       <BottomNav />
+      <QuickAddFab />
       <LockGate />
       <OnboardingTour />
     </div>

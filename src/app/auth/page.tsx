@@ -11,6 +11,7 @@ export default function AuthPage() {
   const userId = useAuth((s) => s.userId);
   const signIn = useAuth((s) => s.signIn);
   const signUp = useAuth((s) => s.signUp);
+  const signInMagicLink = useAuth((s) => s.signInMagicLink);
 
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -20,6 +21,7 @@ export default function AuthPage() {
   const [seed, setSeed] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
 
   useEffect(() => {
     if (userId) router.replace("/home");
@@ -164,6 +166,31 @@ export default function AuthPage() {
                 : "Daftar & Mulai"}
           </button>
         </form>
+        {mode === "signin" && (
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              disabled={busy || !email || magicSent}
+              onClick={async () => {
+                setError(null);
+                setBusy(true);
+                try {
+                  await signInMagicLink(email.trim().toLowerCase());
+                  setMagicSent(true);
+                } catch (err) {
+                  setError((err as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="text-[12px] text-text-3 underline disabled:opacity-50"
+            >
+              {magicSent
+                ? `Cek email ${email} untuk link masuk`
+                : "Kirim magic link ke email saya"}
+            </button>
+          </div>
+        )}
       </div>
       <p className="px-7 pb-[calc(24px+var(--sab))] pt-6 text-center text-[11px] text-text-4">
         Data terenkripsi & disimpan lokal.

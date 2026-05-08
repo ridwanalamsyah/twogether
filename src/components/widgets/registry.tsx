@@ -11,6 +11,8 @@ import { MomentsWidget } from "./MomentsWidget";
 import { QuickAddWidget } from "./QuickAddWidget";
 import { SkripsiWidget } from "./SkripsiWidget";
 import { StreakWidget } from "./StreakWidget";
+import { PencapaianWidget } from "./PencapaianWidget";
+import { JadwalHariIniWidget } from "./JadwalHariIniWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 
 export interface WidgetMeta {
@@ -91,5 +93,19 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Konsistensi hari berturut-turut",
     emoji: "🔥",
     Component: StreakWidget,
+  },
+  pencapaian: {
+    kind: "pencapaian",
+    label: "Pencapaian",
+    description: "Total badge yang sudah unlock",
+    emoji: "🏆",
+    Component: PencapaianWidget,
+  },
+  "jadwal-hari-ini": {
+    kind: "jadwal-hari-ini",
+    label: "Jadwal Hari Ini",
+    description: "Kuliah Semester 6 hari ini",
+    emoji: "📚",
+    Component: JadwalHariIniWidget,
   },
 };

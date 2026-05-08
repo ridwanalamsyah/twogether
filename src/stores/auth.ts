@@ -23,6 +23,7 @@ interface AuthState {
   bootstrap: () => Promise<void>;
   signUp: (input: SignUpInput) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  signInMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (
     patch: Partial<Pick<UserRecord, "name" | "birthday" | "avatar">>,
@@ -457,6 +458,26 @@ export const useAuth = create<AuthState>()(
         if (hash !== user.passwordHash) throw new Error("Password salah");
         await unlockKey(password, user.encSalt);
         set({ userId: user.id, email: user.email, name: user.name, ready: true });
+      },
+
+      signInMagicLink: async (email: string) => {
+        if (!hasSupabase()) {
+          throw new Error("Magic link butuh Supabase aktif");
+        }
+        const sb = getSupabase();
+        if (!sb) throw new Error("supabase_unavailable");
+        const redirectTo =
+          typeof window !== "undefined"
+            ? `${window.location.origin}/auth`
+            : undefined;
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: true,
+            emailRedirectTo: redirectTo,
+          },
+        });
+        if (error) throw new Error(translateAuthError(error.message));
       },
 
       signOut: async () => {

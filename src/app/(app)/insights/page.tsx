@@ -6,6 +6,7 @@ import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import { useGoals, useDeposits, useTransactions } from "@/stores/data";
 import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { TrackerInsights } from "@/components/insights/TrackerInsights";
 
 export default function InsightsPage() {
   const userId = useAuth((s) => s.userId);
@@ -327,6 +328,8 @@ export default function InsightsPage() {
             </div>
           </section>
         )}
+
+        <TrackerInsights />
       </div>
     </div>
   );

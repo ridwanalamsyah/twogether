@@ -11,6 +11,7 @@ import {
   downloadCsv,
   exportAll,
   exportTransactionsCsv,
+  importBundle,
   wipeLocal,
 } from "@/services/privacy";
 import { isUnlocked } from "@/lib/crypto";
@@ -32,6 +33,23 @@ export default function PrivacyPage() {
     try {
       const bundle = await exportAll(userId);
       downloadExport(bundle);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleImport(file: File) {
+    if (!userId) return;
+    setBusy("import");
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const { imported, tables } = await importBundle(userId, json);
+      alert(
+        `Berhasil import ${imported} record dari ${tables.length} tabel:\n${tables.join(", ")}`,
+      );
+    } catch (err) {
+      alert(`Import gagal: ${(err as Error).message}`);
     } finally {
       setBusy(null);
     }
@@ -123,6 +141,26 @@ export default function PrivacyPage() {
             onClick={handleCsvExport}
             busy={busy === "csv"}
           />
+          <label className="block">
+            <ActionRow
+              emoji="⬆️"
+              label="Import dari file JSON"
+              sub="Restore backup atau migrasi dari device lain."
+              onClick={() => document.getElementById("_imp")?.click()}
+              busy={busy === "import"}
+            />
+            <input
+              id="_imp"
+              type="file"
+              accept=".json,application/json"
+              hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handleImport(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
           <ActionRow
             emoji="🧹"
             label="Hapus data dari device ini"
