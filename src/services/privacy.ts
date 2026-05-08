@@ -35,6 +35,10 @@ const DOMAIN_TABLES = [
   "reflections",
   "recurring",
   "budgets",
+  "trips",
+  "recurringGoals",
+  "entries",
+  "items",
 ] as const;
 
 export interface ExportBundle {
@@ -79,6 +83,48 @@ export async function exportAll(userId: string): Promise<ExportBundle> {
       note: "Bareng data export. All data is owned by you and was generated on-device.",
     },
   };
+}
+
+/**
+ * Import a previously exported JSON bundle. Records are written via
+ * sync.recordWrite() so they propagate to Supabase. Each record is
+ * re-stamped with the *current* userId (so importing into a fresh account
+ * works).
+ *
+ * Strategy: existing records with matching ids are overwritten; new ids are
+ * inserted. This is "merge", not "replace": local data outside the bundle
+ * is left untouched.
+ */
+export async function importBundle(
+  userId: string,
+  bundle: unknown,
+): Promise<{ imported: number; tables: string[] }> {
+  const db = getDB();
+  const { sync } = await import("@/services/sync");
+
+  const b = bundle as Partial<ExportBundle>;
+  if (!b || !b.records || typeof b.records !== "object") {
+    throw new Error("Bundle tidak valid");
+  }
+  let imported = 0;
+  const tables: string[] = [];
+  for (const tbl of DOMAIN_TABLES) {
+    const rows = b.records[tbl];
+    if (!Array.isArray(rows)) continue;
+    if (!db.tables.find((t) => t.name === tbl)) continue;
+    tables.push(tbl);
+    for (const raw of rows) {
+      if (!raw || typeof raw !== "object") continue;
+      const r = { ...(raw as Record<string, unknown>), userId, dirty: 1 };
+      try {
+        await sync.recordWrite(tbl, r as never);
+        imported++;
+      } catch {
+        // skip malformed rows silently
+      }
+    }
+  }
+  return { imported, tables };
 }
 
 export function downloadExport(bundle: ExportBundle): void {

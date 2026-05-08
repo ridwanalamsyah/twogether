@@ -962,6 +962,32 @@ export async function deleteRecurringGoal(userId: string, id: string) {
 
 /* ───── Generic Entries (water/weight/mood/sleep/exercise/journal/etc) ───── */
 
+/** All items for a user across all kinds. Used by global search. */
+export function useAllItems(userId: string | null) {
+  return useLiveQuery(async () => {
+    if (!userId) return [];
+    const db = getDB();
+    return db.items
+      .where("userId")
+      .equals(userId)
+      .filter((r) => !r.deletedAt)
+      .toArray();
+  }, [userId]);
+}
+
+/** All entries for a user across all kinds. Used by global search. */
+export function useAllEntries(userId: string | null) {
+  return useLiveQuery(async () => {
+    if (!userId) return [];
+    const db = getDB();
+    return db.entries
+      .where("userId")
+      .equals(userId)
+      .filter((r) => !r.deletedAt)
+      .toArray();
+  }, [userId]);
+}
+
 export function useEntries(userId: string | null, kind: string) {
   return useLiveQuery(async () => {
     if (!userId) return [];

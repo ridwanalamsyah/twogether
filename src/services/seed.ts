@@ -1,6 +1,7 @@
-import { getDB, newId, now, type BaseRecord, type GoalRecord, type SkripsiChapterRecord, type HabitRecord, type ChecklistRecord, type TransactionRecord, type SkripsiMetaRecord } from "@/lib/db";
+import { getDB, newId, now, type BaseRecord, type GoalRecord, type SkripsiChapterRecord, type HabitRecord, type ChecklistRecord, type TransactionRecord, type SkripsiMetaRecord, type EntryRecord, type ItemRecord } from "@/lib/db";
 import { sync } from "@/services/sync";
 import { DEFAULT_SKRIPSI_CHAPTERS } from "@/stores/data";
+import { SEMESTER_6_SCHEDULE } from "@/data/classes";
 
 /**
  * Seed sample data so a brand-new account looks like the prototype
@@ -38,7 +39,7 @@ const SAMPLE_CHECKLISTS: string[] = [
   "Senin: tulis 3 prioritas minggu ini",
   "Rabu: deep work usaha 3-4 jam",
   "Kamis: transfer tabungan 3 tujuan",
-  "Jumat: posting konten halal",
+  "Jumat: review keuangan + goal mingguan",
   "Jumat: review keuangan berdua",
 ];
 
@@ -63,11 +64,33 @@ function daysAgoISO(d: number): string {
 }
 
 async function ensureCountZero(
-  table: "goals" | "skripsiChapters" | "habits" | "checklists" | "transactions" | "skripsiMeta",
+  table:
+    | "goals"
+    | "skripsiChapters"
+    | "habits"
+    | "checklists"
+    | "transactions"
+    | "skripsiMeta"
+    | "entries"
+    | "items",
   userId: string,
 ): Promise<boolean> {
   const db = getDB();
   const n = await db.table(table).where("userId").equals(userId).count();
+  return n === 0;
+}
+
+async function ensureKindCountZero(
+  table: "entries" | "items",
+  userId: string,
+  kind: string,
+): Promise<boolean> {
+  const db = getDB();
+  const n = await db
+    .table(table)
+    .where("[userId+kind]")
+    .equals([userId, kind])
+    .count();
   return n === 0;
 }
 
@@ -168,6 +191,181 @@ export async function seedSampleData(opts: SeedOptions): Promise<void> {
         date: daysAgoISO(tx.dayOffset),
       };
       await sync.recordWrite("transactions", record);
+    }
+  }
+
+  // ───── Tracker seeds (entries) ─────
+  const names = [primaryWho, secondaryWho ?? primaryWho] as const;
+  const writeEntry = async (
+    kind: string,
+    payload: Omit<EntryRecord, keyof BaseRecord | "kind">,
+  ) => {
+    const record: EntryRecord = {
+      id: newId(),
+      userId,
+      createdAt: now(),
+      updatedAt: now(),
+      dirty: 1,
+      kind,
+      ...payload,
+    };
+    await sync.recordWrite("entries", record);
+  };
+  const writeItem = async (
+    kind: string,
+    payload: Omit<ItemRecord, keyof BaseRecord | "kind">,
+  ) => {
+    const record: ItemRecord = {
+      id: newId(),
+      userId,
+      createdAt: now(),
+      updatedAt: now(),
+      dirty: 1,
+      kind,
+      ...payload,
+    };
+    await sync.recordWrite("items", record);
+  };
+
+  // Air minum 7 hari terakhir (3-7 gelas/hari)
+  if (await ensureKindCountZero("entries", userId, "water")) {
+    for (let d = 0; d < 7; d++) {
+      const cups = 3 + Math.floor(Math.random() * 5);
+      for (let i = 0; i < cups; i++) {
+        await writeEntry("water", {
+          date: daysAgoISO(d),
+          valueNum: 1,
+          who: names[d % 2],
+        });
+      }
+    }
+  }
+  // Mood
+  if (await ensureKindCountZero("entries", userId, "mood")) {
+    const moods = [4, 5, 3, 4, 5, 4, 5];
+    for (let d = 0; d < moods.length; d++) {
+      await writeEntry("mood", {
+        date: daysAgoISO(d),
+        valueNum: moods[d],
+        who: names[0],
+      });
+    }
+  }
+  // Berat
+  if (await ensureKindCountZero("entries", userId, "weight")) {
+    for (let d = 0; d < 7; d++) {
+      await writeEntry("weight", {
+        date: daysAgoISO(d * 2),
+        valueNum: 55 + Math.random() * 0.8,
+        who: names[0],
+      });
+    }
+  }
+  // Sleep
+  if (await ensureKindCountZero("entries", userId, "sleep")) {
+    for (let d = 0; d < 7; d++) {
+      await writeEntry("sleep", {
+        date: daysAgoISO(d),
+        valueNum: 6 + Math.random() * 2,
+        who: names[d % 2],
+      });
+    }
+  }
+  // Olahraga
+  if (await ensureKindCountZero("entries", userId, "exercise")) {
+    await writeEntry("exercise", {
+      date: daysAgoISO(0),
+      valueNum: 30,
+      valueText: "Jogging",
+      who: names[0],
+    });
+    await writeEntry("exercise", {
+      date: daysAgoISO(2),
+      valueNum: 20,
+      valueText: "Yoga",
+      who: names[1],
+    });
+  }
+  // Apresiasi pasangan
+  if (await ensureKindCountZero("entries", userId, "apresiasi")) {
+    await writeEntry("apresiasi", {
+      date: daysAgoISO(0),
+      valueText: "Bantu masakin sarapan walaupun cape banget 🥹",
+      who: names[0],
+    });
+    await writeEntry("apresiasi", {
+      date: daysAgoISO(3),
+      valueText: "Selalu kasih semangat waktu bingung skripsi",
+      who: names[1],
+    });
+  }
+
+  // ───── Tracker seeds (items) ─────
+  if (await ensureKindCountZero("items", userId, "anniv")) {
+    await writeItem("anniv", {
+      title: "Jadian-versary",
+      date: "2024-02-14",
+      due: "2026-02-14",
+      who: "Bareng",
+    });
+    await writeItem("anniv", {
+      title: "Ulang tahun pasangan",
+      date: "1999-08-17",
+      due: "2026-08-17",
+      who: names[1],
+    });
+  }
+  if (await ensureKindCountZero("items", userId, "datenight")) {
+    await writeItem("datenight", {
+      title: "Coba kafe baru di Dago",
+      status: "ide",
+      who: "Bareng",
+    });
+    await writeItem("datenight", {
+      title: "Movie marathon di rumah",
+      status: "selesai",
+      date: daysAgoISO(14),
+      who: "Bareng",
+    });
+  }
+  if (await ensureKindCountZero("items", userId, "wishlist")) {
+    await writeItem("wishlist", {
+      title: "iPhone 17 Pro",
+      amount: 25_000_000,
+      status: "wishlist",
+    });
+    await writeItem("wishlist", {
+      title: "Sepatu lari Hoka",
+      amount: 2_500_000,
+      status: "wishlist",
+    });
+  }
+  if (await ensureKindCountZero("items", userId, "subscription")) {
+    await writeItem("subscription", {
+      title: "Netflix",
+      amount: 65_000,
+      due: "2026-05-10",
+      payload: JSON.stringify({ period: "monthly" }),
+    });
+    await writeItem("subscription", {
+      title: "Spotify Premium",
+      amount: 54_000,
+      due: "2026-05-15",
+      payload: JSON.stringify({ period: "monthly" }),
+    });
+  }
+
+  // Jadwal kuliah Semester 6 — auto-insert kalau belum pernah
+  if (await ensureKindCountZero("items", userId, "class")) {
+    for (const c of SEMESTER_6_SCHEDULE) {
+      await writeItem("class", {
+        title: c.title,
+        who: c.lecturer,
+        tags: [c.day, c.start, c.end, c.room ?? "", c.pj ?? "", c.cp ?? ""].filter(
+          Boolean,
+        ),
+        payload: JSON.stringify(c),
+      });
     }
   }
 }

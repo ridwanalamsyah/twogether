@@ -29,7 +29,9 @@ export type WidgetKind =
   | "transactions"
   | "goal-prediction"
   | "quick-add"
-  | "streak";
+  | "streak"
+  | "pencapaian"
+  | "jadwal-hari-ini";
 
 export interface WidgetConfig {
   id: string;
@@ -50,6 +52,8 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_transactions", kind: "transactions", size: "lg", enabled: true },
   { id: "w_skripsi", kind: "skripsi", size: "md", enabled: true },
   { id: "w_streak", kind: "streak", size: "sm", enabled: true },
+  { id: "w_pencapaian", kind: "pencapaian", size: "sm", enabled: true },
+  { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: true },
 ];
 
 interface DashboardState {

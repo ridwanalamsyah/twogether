@@ -138,6 +138,73 @@ export async function scanReminders(userId: string): Promise<void> {
     );
   }
 
+  // 3b. Subscription due in <=3 days
+  const subs = await db.items
+    .where("userId")
+    .equals(userId)
+    .filter((r) => !r.deletedAt && r.kind === "subscription" && !!r.due)
+    .toArray();
+  for (const s of subs) {
+    if (!s.due) continue;
+    const days = Math.ceil(
+      (new Date(s.due).getTime() - today.getTime()) / 86_400_000,
+    );
+    if (days < 0 || days > 3) continue;
+    const key = `bareng:notify:sub:${s.id}:${s.due}`;
+    if (sessionStorage.getItem(key)) continue;
+    sessionStorage.setItem(key, "1");
+    showNotification(
+      `Langganan: ${s.title}`,
+      days === 0 ? "Jatuh tempo hari ini" : `H-${days} sebelum tagih`,
+    );
+  }
+
+  // 3c. Anniversary / important dates H-7
+  const annivs = await db.items
+    .where("userId")
+    .equals(userId)
+    .filter((r) => !r.deletedAt && r.kind === "anniv" && !!r.due)
+    .toArray();
+  for (const a of annivs) {
+    if (!a.due) continue;
+    const days = Math.ceil(
+      (new Date(a.due).getTime() - today.getTime()) / 86_400_000,
+    );
+    if (days < 0 || days > 7) continue;
+    const key = `bareng:notify:anv:${a.id}:${a.due}`;
+    if (sessionStorage.getItem(key)) continue;
+    sessionStorage.setItem(key, "1");
+    showNotification(
+      `${a.title}`,
+      days === 0 ? "Hari ini! 🎉" : `H-${days}`,
+    );
+  }
+
+  // 3d. Smart: missing daily input (water/mood) past 21:00
+  const hour = new Date().getHours();
+  if (hour >= 21) {
+    const todayIso = todayISO();
+    const dailyKinds = [
+      { kind: "water", label: "air minum" },
+      { kind: "mood", label: "mood" },
+    ];
+    for (const dk of dailyKinds) {
+      const todayCount = await db.entries
+        .where("[userId+kind]")
+        .equals([userId, dk.kind])
+        .filter((r) => !r.deletedAt && r.date === todayIso)
+        .count();
+      if (todayCount > 0) continue;
+      const key = `bareng:notify:miss:${dk.kind}:${todayIso}`;
+      if (sessionStorage.getItem(key)) continue;
+      sessionStorage.setItem(key, "1");
+      showNotification(
+        `Lupa catat ${dk.label}?`,
+        "Tap Bareng untuk input cepat sebelum tidur.",
+      );
+    }
+  }
+
   // 4. Budget alerts (>=80% used this month)
   const month = today.toISOString().slice(0, 7);
   const budgets = await db.budgets

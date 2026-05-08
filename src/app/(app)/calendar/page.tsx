@@ -8,11 +8,31 @@ import {
   useDeadlines,
   useSkripsiBimbingan,
   useTransactions,
+  useAllItems,
+  useAllEntries,
 } from "@/stores/data";
 import { formatDateShort, todayISO } from "@/lib/utils";
+import { ALL_HOLIDAYS } from "@/data/holidays";
+import {
+  SEMESTER_6_SCHEDULE,
+  indonesianDayOf,
+} from "@/data/classes";
 
 interface Entry {
-  kind: "skripsi" | "deadline" | "tx";
+  kind:
+    | "skripsi"
+    | "deadline"
+    | "tx"
+    | "holiday"
+    | "anniv"
+    | "datenight"
+    | "maintenance"
+    | "meal"
+    | "subscription"
+    | "debt"
+    | "period"
+    | "class"
+    | "item";
   label: string;
   href?: string;
   emoji: string;
@@ -23,6 +43,8 @@ export default function CalendarPage() {
   const deadlines = useDeadlines(userId);
   const bimbingan = useSkripsiBimbingan(userId);
   const txs = useTransactions(userId);
+  const items = useAllItems(userId);
+  const entries = useAllEntries(userId);
 
   const [cursor, setCursor] = useState(() => {
     const d = new Date();
@@ -54,8 +76,93 @@ export default function CalendarPage() {
         emoji: t.kind === "in" ? "💰" : "💸",
       });
     }
+    // Hari libur Indonesia
+    for (const h of ALL_HOLIDAYS) {
+      push(h.date, {
+        kind: "holiday",
+        label: h.name,
+        emoji: h.type === "libur" ? "🇮🇩" : "📅",
+      });
+    }
+    // Items: anniv, datenight, maintenance, subscription, meal, debt
+    const ITEM_MAP: Record<string, { emoji: string; href: string; kind: Entry["kind"] }> = {
+      anniv: { emoji: "❤️", href: "/kita", kind: "anniv" },
+      datenight: { emoji: "🍽️", href: "/kita", kind: "datenight" },
+      maintenance: { emoji: "🔧", href: "/rumah", kind: "maintenance" },
+      meal: { emoji: "🍲", href: "/rumah", kind: "meal" },
+      subscription: { emoji: "📺", href: "/uang", kind: "subscription" },
+      debt: { emoji: "💳", href: "/uang", kind: "debt" },
+      gift: { emoji: "🎁", href: "/list", kind: "item" },
+      bucket: { emoji: "📌", href: "/kita", kind: "item" },
+      surprise: { emoji: "🎉", href: "/kita", kind: "item" },
+      wishlist: { emoji: "🛒", href: "/list", kind: "item" },
+    };
+    for (const it of items ?? []) {
+      const cfg = ITEM_MAP[it.kind];
+      if (!cfg) continue;
+      const date = it.due ?? it.date;
+      if (!date) continue;
+      push(date, {
+        kind: cfg.kind,
+        label: it.title,
+        emoji: cfg.emoji,
+        href: cfg.href,
+      });
+      // Recurring anniv: project to current year too
+      if (it.kind === "anniv") {
+        try {
+          const m = date.slice(5, 7);
+          const d = date.slice(8, 10);
+          for (let y = 2025; y <= 2027; y++) {
+            const projected = `${y}-${m}-${d}`;
+            if (projected !== date) {
+              push(projected, {
+                kind: "anniv",
+                label: `${it.title} (anniv)`,
+                emoji: "❤️",
+                href: "/kita",
+              });
+            }
+          }
+        } catch {}
+      }
+    }
+    // Jadwal kuliah — add markers per weekday for current viewed month + adjacent
+    const startMark = new Date(cursor.y, cursor.m - 1, 1);
+    const endMark = new Date(cursor.y, cursor.m + 2, 0);
+    for (let d = new Date(startMark); d <= endMark; d.setDate(d.getDate() + 1)) {
+      const dayName = indonesianDayOf(d);
+      const classes = SEMESTER_6_SCHEDULE.filter((c) => c.day === dayName);
+      if (classes.length > 0) {
+        const iso = d.toISOString().slice(0, 10);
+        for (const c of classes) {
+          push(iso, {
+            kind: "class",
+            label: `${c.start} ${c.title}`,
+            emoji: "📚",
+            href: "/jadwal",
+          });
+        }
+      }
+    }
+    // Period prediction (next cycle ~28 days from last log)
+    const periodEntries = (entries ?? []).filter((e) => e.kind === "period");
+    if (periodEntries.length > 0) {
+      const last = periodEntries.sort((a, b) => b.date.localeCompare(a.date))[0];
+      const lastD = new Date(last.date);
+      for (let i = 1; i <= 6; i++) {
+        const next = new Date(lastD);
+        next.setDate(next.getDate() + i * 28);
+        push(next.toISOString().slice(0, 10), {
+          kind: "period",
+          label: "Prediksi siklus",
+          emoji: "🌸",
+          href: "/sehat",
+        });
+      }
+    }
     return map;
-  }, [deadlines, bimbingan, txs]);
+  }, [deadlines, bimbingan, txs, items, entries, cursor]);
 
   const monthDays = useMemo(() => {
     const first = new Date(cursor.y, cursor.m, 1);
@@ -152,6 +259,25 @@ export default function CalendarPage() {
           <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
             {formatDateShort(focused)}
           </div>
+          {(() => {
+            const dt = new Date(focused);
+            const indoDay = indonesianDayOf(dt);
+            const classes = SEMESTER_6_SCHEDULE.filter((c) => c.day === indoDay);
+            if (classes.length === 0) return null;
+            return (
+              <div className="mb-3 rounded-md border border-border p-2">
+                <div className="mb-1 text-[10px] uppercase tracking-wider text-text-4">
+                  Jadwal kuliah {indoDay}
+                </div>
+                {classes.sort((a, b) => a.start.localeCompare(b.start)).map((c, i) => (
+                  <div key={i} className="flex items-baseline justify-between py-0.5 text-[11px]">
+                    <span className="text-text-1">{c.title}</span>
+                    <span className="text-text-3">{c.start}–{c.end}{c.room ? ` · ${c.room}` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
           {focusedEntries.length === 0 ? (
             <div className="border-y border-border py-3 text-[12px] text-text-4">
               Tidak ada agenda.

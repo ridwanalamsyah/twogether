@@ -103,9 +103,9 @@ export default function SecurityPage() {
             Notifikasi reminder
           </div>
           <p className="mb-2 text-xs text-text-3">
-            Reminder deadline skripsi/konten muncul saat app dibuka. Untuk push
-            di iOS, tambahkan Bareng ke Home Screen dulu (Safari → Share → Add
-            to Home Screen).
+            Reminder deadline, jadwal kuliah, recurring tx, dan tracker kamu
+            muncul saat app dibuka. Untuk push di iOS, tambahkan Bareng ke Home
+            Screen dulu (Safari → Share → Add to Home Screen).
           </p>
           {notif === "granted" ? (
             <div className="rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">

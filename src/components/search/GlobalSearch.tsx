@@ -4,11 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/stores/auth";
 import {
+  useAllEntries,
+  useAllItems,
   useGoals,
   useMoments,
   useSkripsiChapters,
   useTransactions,
 } from "@/stores/data";
+import { SEMESTER_6_SCHEDULE } from "@/data/classes";
 import { formatRupiah, formatDateShort } from "@/lib/utils";
 
 interface Hit {
@@ -35,6 +38,8 @@ export function GlobalSearch({
   const goals = useGoals(userId) ?? [];
   const moments = useMoments(userId) ?? [];
   const chapters = useSkripsiChapters(userId) ?? [];
+  const items = useAllItems(userId) ?? [];
+  const entries = useAllEntries(userId) ?? [];
 
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -96,8 +101,73 @@ export function GlobalSearch({
         });
       }
     }
-    return out.slice(0, 30);
-  }, [q, txs, goals, moments, chapters]);
+    // Items: wishlist, gift, book, course, langganan, hutang, etc.
+    const ITEM_HREF: Record<string, string> = {
+      wishlist: "/list",
+      gift: "/list",
+      media: "/list",
+      ootd: "/list",
+      skincare: "/list",
+      resolution: "/list",
+      dream: "/list",
+      donation: "/list",
+      anniv: "/kita",
+      datenight: "/kita",
+      bucket: "/kita",
+      surprise: "/kita",
+      qotd: "/kita",
+      argument: "/kita",
+      apresiasi: "/kita",
+      book: "/belajar",
+      course: "/belajar",
+      shopping: "/rumah",
+      pantry: "/rumah",
+      cleaning: "/rumah",
+      meal: "/rumah",
+      maintenance: "/rumah",
+      pet: "/rumah",
+      debt: "/uang",
+      subscription: "/uang",
+      payday: "/uang",
+      closing: "/uang",
+    };
+    for (const it of items) {
+      const hay = `${it.title} ${it.who ?? ""} ${(it.tags ?? []).join(" ")} ${it.payload ?? ""}`.toLowerCase();
+      if (hay.includes(needle)) {
+        out.push({
+          href: ITEM_HREF[it.kind] ?? "/home",
+          kind: it.kind,
+          label: it.title,
+          detail: it.date ? formatDateShort(it.date) : (it.status ?? undefined),
+        });
+      }
+    }
+    // Entries: journal text, exercise note, etc.
+    for (const e of entries) {
+      const hay = `${e.kind} ${e.valueText ?? ""} ${e.who ?? ""} ${(e.tags ?? []).join(" ")}`.toLowerCase();
+      if (e.valueText && hay.includes(needle)) {
+        out.push({
+          href: "/home",
+          kind: e.kind,
+          label: e.valueText.slice(0, 60),
+          detail: formatDateShort(e.date),
+        });
+      }
+    }
+    // Class schedule
+    for (const c of SEMESTER_6_SCHEDULE) {
+      const hay = `${c.title} ${c.lecturer} ${c.day} ${c.pj ?? ""} ${c.room ?? ""}`.toLowerCase();
+      if (hay.includes(needle)) {
+        out.push({
+          href: "/jadwal",
+          kind: "Kuliah",
+          label: c.title,
+          detail: `${c.day} ${c.start}–${c.end} · ${c.lecturer}`,
+        });
+      }
+    }
+    return out.slice(0, 50);
+  }, [q, txs, goals, moments, chapters, items, entries]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -121,7 +191,7 @@ export function GlobalSearch({
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari transaksi, goal, moment, BAB skripsi…"
+          placeholder="Cari transaksi, goal, tracker, jadwal kuliah…"
           className="w-full border-b border-border bg-transparent px-4 py-3 text-sm outline-none"
         />
         <ul className="max-h-[50vh] divide-y divide-border overflow-y-auto">

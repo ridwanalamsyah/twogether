@@ -61,6 +61,8 @@ export default function HomePage() {
 
 const TOOLS: { href: string; label: string }[] = [
   { href: "/pencapaian", label: "Pencapaian" },
+  { href: "/jadwal", label: "Jadwal" },
+  { href: "/grafik", label: "Grafik" },
   { href: "/insights", label: "Insights" },
   { href: "/digest", label: "Digest" },
   { href: "/uang", label: "Keuangan+" },
