@@ -39,7 +39,7 @@ export function setNotifTimes(t: NotifTimes): void {
 
 export function notificationStatus(): NotificationStatus {
   if (typeof window === "undefined") return "default";
-  if (!("Notification" in window)) return "denied";
+  if (typeof Notification === "undefined" || !("Notification" in window)) return "denied";
   return Notification.permission as NotificationStatus;
 }
 
@@ -73,7 +73,7 @@ export function showNotification(title: string, body?: string) {
  */
 export async function scanReminders(userId: string): Promise<void> {
   if (typeof window === "undefined") return;
-  if (Notification.permission !== "granted") return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -258,7 +258,7 @@ function nextOccurrence(timeStr: string): number {
 
 export function scheduleDailyReminders() {
   if (typeof window === "undefined") return;
-  if (Notification.permission !== "granted") return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
   const t = getNotifTimes();
 
   if (morningTimer) {
