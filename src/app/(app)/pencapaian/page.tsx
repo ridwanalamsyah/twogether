@@ -9,6 +9,8 @@ import { useWorkspace } from "@/stores/workspace";
 import { useEntries, useItems, upsertItem } from "@/stores/data";
 import { useTransactions, useGoals, useDeposits } from "@/stores/data";
 import { todayISO } from "@/lib/utils";
+import { konfetti } from "@/lib/konfetti";
+import { hapticUnlock } from "@/lib/haptic";
 import {
   BADGES,
   buildStreakTable,
@@ -225,9 +227,11 @@ function BadgeTab() {
   // Persist newly-met badges (one-time, idempotent via deterministic id)
   useEffect(() => {
     if (!data || !userId) return;
+    let newUnlocks = 0;
     for (const b of BADGES) {
       const p = b.check(data);
       if (p >= 1 && !unlockedSet.has(b.id)) {
+        newUnlocks += 1;
         const stableId = `badge:${userId}:${b.id}`;
         const feedId = `feed:badge:${userId}:${b.id}`;
         void upsertItem(userId, {
@@ -250,6 +254,10 @@ function BadgeTab() {
           }),
         });
       }
+    }
+    if (newUnlocks > 0) {
+      hapticUnlock();
+      konfetti({ count: 60 });
     }
   }, [data, userId, unlockedSet]);
 
@@ -373,7 +381,11 @@ function FeedTab() {
       who: me.name,
       payload: JSON.stringify({ feedId, at: Date.now() }),
     });
-    if (typeof window !== "undefined" && "Notification" in window) {
+    if (
+      typeof window !== "undefined" &&
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted"
+    ) {
       try {
         new Notification("Mantap! 🔥", {
           body: `${me.name} kasih semangat`,

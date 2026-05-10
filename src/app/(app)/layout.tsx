@@ -8,6 +8,8 @@ import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { QuickAddFab } from "@/components/shell/QuickAddFab";
+import { OfflineBanner } from "@/components/shell/OfflineBanner";
+import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
 
 export default function AppLayout({
   children,
@@ -55,9 +57,11 @@ export default function AppLayout({
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-[480px] flex-col bg-bg-app">
+      <OfflineBanner />
       <main className="flex-1 pb-nav">{children}</main>
       <BottomNav />
       <QuickAddFab />
+      <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />
     </div>
