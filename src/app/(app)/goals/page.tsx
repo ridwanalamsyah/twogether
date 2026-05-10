@@ -526,9 +526,18 @@ function GoalSheet({
             placeholder="25, 50, 75, 100"
           />
         </Field>
-        <button onClick={submit} className="btn-accent w-full text-sm">
+        <button
+          onClick={submit}
+          disabled={!name.trim() || !(parseFloat(target) > 0)}
+          className="btn-accent w-full text-sm disabled:opacity-50"
+        >
           {goal ? "Simpan perubahan" : "Bikin goal"}
         </button>
+        {(!name.trim() || !(parseFloat(target) > 0)) && (
+          <p className="text-center text-[11px] text-text-3">
+            Isi nama goal & target {">"} 0 untuk melanjutkan
+          </p>
+        )}
       </div>
     </Sheet>
   );
@@ -634,7 +643,7 @@ function Sheet({
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0">
-      <div className="mx-auto w-full max-w-[480px] rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] slide-up theme-transition">
+      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] slide-up theme-transition">
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">{title}</h2>
