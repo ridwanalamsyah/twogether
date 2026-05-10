@@ -117,12 +117,58 @@ export default function InsightsPage() {
     });
   }, [goals, deposits, members]);
 
+  /* ───── Anomaly detection (per-category vs 3-month avg) ───── */
+  const anomalies = useMemo(() => {
+    const now = new Date();
+    const monthStartT = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const threeMoStart = new Date(
+      now.getFullYear(),
+      now.getMonth() - 3,
+      1,
+    ).getTime();
+
+    const currMonth = txs.filter(
+      (t) => t.kind === "out" && new Date(t.date).getTime() >= monthStartT,
+    );
+    const baseline = txs.filter(
+      (t) =>
+        t.kind === "out" &&
+        new Date(t.date).getTime() >= threeMoStart &&
+        new Date(t.date).getTime() < monthStartT,
+    );
+
+    const currByCat = new Map<string, number>();
+    for (const t of currMonth)
+      currByCat.set(t.category, (currByCat.get(t.category) ?? 0) + t.amount);
+
+    const baseByCat = new Map<string, number>();
+    for (const t of baseline)
+      baseByCat.set(t.category, (baseByCat.get(t.category) ?? 0) + t.amount);
+
+    const flagged: { category: string; current: number; avg: number; ratio: number }[] = [];
+    for (const [cat, curr] of currByCat) {
+      const total3 = baseByCat.get(cat) ?? 0;
+      const avg = total3 / 3;
+      if (avg < 50_000) continue; // skip sub-Rp50k baselines
+      if (curr >= avg * 2) {
+        flagged.push({ category: cat, current: curr, avg, ratio: curr / avg });
+      }
+    }
+    flagged.sort((a, b) => b.ratio - a.ratio);
+    return flagged.slice(0, 3);
+  }, [txs]);
+
   /* ───── Smart insights (rule-based) ───── */
   const insights = useMemo(() => {
     const out: string[] = [];
     if (thisMonth.length === 0) {
       out.push("Bulan ini belum ada transaksi — yuk mulai catat!");
       return out;
+    }
+    for (const a of anomalies) {
+      out.push(
+        `⚠️ Pengeluaran "${a.category}" bulan ini ${a.ratio.toFixed(1)}× lipat dari rata-rata 3 bulan terakhir (${formatRupiah(a.current)} vs ${formatRupiah(Math.round(a.avg))}).`,
+      );
     }
     if (monthOut > 0) {
       out.push(
@@ -172,7 +218,7 @@ export default function InsightsPage() {
       }
     }
     return out;
-  }, [thisMonth, goals, deposits, monthIn, monthOut]);
+  }, [thisMonth, goals, deposits, monthIn, monthOut, anomalies]);
 
   return (
     <div className="animate-in">

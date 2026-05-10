@@ -6,7 +6,7 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Twogether",
-  description: "Twogether — keuangan, tracker, & moments untuk berdua. Offline-first.",
+  description: "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -19,6 +19,28 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icons/icon-192.png",
     apple: "/icons/icon-192.png",
+  },
+  openGraph: {
+    title: "Twogether",
+    description:
+      "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
+    type: "website",
+    siteName: "Twogether",
+    images: [
+      {
+        url: "/icons/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Twogether",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Twogether",
+    description:
+      "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
+    images: ["/icons/icon-512.png"],
   },
 };
 
