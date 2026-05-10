@@ -14,8 +14,8 @@ import {
 import { formatDateShort, todayISO } from "@/lib/utils";
 import { ALL_HOLIDAYS } from "@/data/holidays";
 import {
-  SEMESTER_6_SCHEDULE,
   indonesianDayOf,
+  type ClassItem,
 } from "@/data/classes";
 
 interface Entry {
@@ -127,21 +127,41 @@ export default function CalendarPage() {
         } catch {}
       }
     }
-    // Jadwal kuliah — add markers per weekday for current viewed month + adjacent
-    const startMark = new Date(cursor.y, cursor.m - 1, 1);
-    const endMark = new Date(cursor.y, cursor.m + 2, 0);
-    for (let d = new Date(startMark); d <= endMark; d.setDate(d.getDate() + 1)) {
-      const dayName = indonesianDayOf(d);
-      const classes = SEMESTER_6_SCHEDULE.filter((c) => c.day === dayName);
-      if (classes.length > 0) {
-        const iso = d.toISOString().slice(0, 10);
-        for (const c of classes) {
-          push(iso, {
-            kind: "class",
-            label: `${c.start} ${c.title}`,
-            emoji: "📚",
-            href: "/jadwal",
-          });
+    // Jadwal kuliah — read from items kind="class"
+    const userClasses: ClassItem[] = [];
+    for (const it of items ?? []) {
+      if (it.kind !== "class" || !it.payload) continue;
+      try {
+        const p = JSON.parse(it.payload) as ClassItem;
+        userClasses.push({
+          ...p,
+          title: it.title,
+          lecturer: it.who ?? p.lecturer,
+        });
+      } catch {
+        // ignore
+      }
+    }
+    if (userClasses.length > 0) {
+      const startMark = new Date(cursor.y, cursor.m - 1, 1);
+      const endMark = new Date(cursor.y, cursor.m + 2, 0);
+      for (
+        let d = new Date(startMark);
+        d <= endMark;
+        d.setDate(d.getDate() + 1)
+      ) {
+        const dayName = indonesianDayOf(d);
+        const classes = userClasses.filter((c) => c.day === dayName);
+        if (classes.length > 0) {
+          const iso = d.toISOString().slice(0, 10);
+          for (const c of classes) {
+            push(iso, {
+              kind: "class",
+              label: `${c.start} ${c.title}`,
+              emoji: "📚",
+              href: "/jadwal",
+            });
+          }
         }
       }
     }
@@ -262,7 +282,21 @@ export default function CalendarPage() {
           {(() => {
             const dt = new Date(focused);
             const indoDay = indonesianDayOf(dt);
-            const classes = SEMESTER_6_SCHEDULE.filter((c) => c.day === indoDay);
+            const userClasses: ClassItem[] = [];
+            for (const it of items ?? []) {
+              if (it.kind !== "class" || !it.payload) continue;
+              try {
+                const p = JSON.parse(it.payload) as ClassItem;
+                userClasses.push({
+                  ...p,
+                  title: it.title,
+                  lecturer: it.who ?? p.lecturer,
+                });
+              } catch {
+                // ignore
+              }
+            }
+            const classes = userClasses.filter((c) => c.day === indoDay);
             if (classes.length === 0) return null;
             return (
               <div className="mb-3 rounded-md border border-border p-2">

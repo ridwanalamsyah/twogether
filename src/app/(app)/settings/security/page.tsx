@@ -58,7 +58,7 @@ export default function SecurityPage() {
   async function enableNotif() {
     const r = await requestNotificationPermission();
     setNotif(r);
-    if (r === "granted") showNotification("Bareng aktif", "Reminder akan muncul di sini.");
+    if (r === "granted") showNotification("Twogether aktif", "Reminder akan muncul di sini.");
   }
 
   async function savePin() {
@@ -104,7 +104,7 @@ export default function SecurityPage() {
           </div>
           <p className="mb-2 text-xs text-text-3">
             Reminder deadline, jadwal kuliah, recurring tx, dan tracker kamu
-            muncul saat app dibuka. Untuk push di iOS, tambahkan Bareng ke Home
+            muncul saat app dibuka. Untuk push di iOS, tambahkan Twogether ke Home
             Screen dulu (Safari → Share → Add to Home Screen).
           </p>
           {notif === "granted" ? (

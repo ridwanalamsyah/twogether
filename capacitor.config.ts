@@ -13,7 +13,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  */
 const config: CapacitorConfig = {
   appId: "com.bareng.app",
-  appName: "Bareng",
+  appName: "Twogether",
   webDir: "out",
   server: {
     androidScheme: "https",

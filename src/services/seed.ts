@@ -306,7 +306,7 @@ export async function seedSampleData(opts: SeedOptions): Promise<void> {
       title: "Jadian-versary",
       date: "2024-02-14",
       due: "2026-02-14",
-      who: "Bareng",
+      who: "Berdua",
     });
     await writeItem("anniv", {
       title: "Ulang tahun pasangan",
@@ -319,13 +319,13 @@ export async function seedSampleData(opts: SeedOptions): Promise<void> {
     await writeItem("datenight", {
       title: "Coba kafe baru di Dago",
       status: "ide",
-      who: "Bareng",
+      who: "Berdua",
     });
     await writeItem("datenight", {
       title: "Movie marathon di rumah",
       status: "selesai",
       date: daysAgoISO(14),
-      who: "Bareng",
+      who: "Berdua",
     });
   }
   if (await ensureKindCountZero("items", userId, "wishlist")) {

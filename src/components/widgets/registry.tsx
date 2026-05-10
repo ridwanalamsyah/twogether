@@ -8,6 +8,7 @@ import { ChecklistWidget } from "./ChecklistWidget";
 import { GoalPredictionWidget } from "./GoalPredictionWidget";
 import { TransactionsWidget } from "./TransactionsWidget";
 import { MomentsWidget } from "./MomentsWidget";
+import { HariIniWidget } from "./HariIniWidget";
 import { QuickAddWidget } from "./QuickAddWidget";
 import { SkripsiWidget } from "./SkripsiWidget";
 import { StreakWidget } from "./StreakWidget";
@@ -72,6 +73,13 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Catatan & momen terbaru",
     emoji: "💌",
     Component: MomentsWidget,
+  },
+  "hari-ini": {
+    kind: "hari-ini",
+    label: "Hari Ini",
+    description: "Air, mood, tidur — quick tap",
+    emoji: "🌤️",
+    Component: HariIniWidget,
   },
   transactions: {
     kind: "transactions",

@@ -11,7 +11,7 @@ import {
   useSkripsiChapters,
   useTransactions,
 } from "@/stores/data";
-import { SEMESTER_6_SCHEDULE } from "@/data/classes";
+
 import { formatRupiah, formatDateShort } from "@/lib/utils";
 
 interface Hit {
@@ -154,16 +154,29 @@ export function GlobalSearch({
         });
       }
     }
-    // Class schedule
-    for (const c of SEMESTER_6_SCHEDULE) {
-      const hay = `${c.title} ${c.lecturer} ${c.day} ${c.pj ?? ""} ${c.room ?? ""}`.toLowerCase();
-      if (hay.includes(needle)) {
-        out.push({
-          href: "/jadwal",
-          kind: "Kuliah",
-          label: c.title,
-          detail: `${c.day} ${c.start}–${c.end} · ${c.lecturer}`,
-        });
+    // Class schedule (user-edited items kind="class")
+    for (const it of items ?? []) {
+      if (it.kind !== "class" || !it.payload) continue;
+      try {
+        const c = JSON.parse(it.payload) as {
+          day: string;
+          start: string;
+          end: string;
+          room?: string;
+          pj?: string;
+          cp?: string;
+        };
+        const hay = `${it.title} ${it.who ?? ""} ${c.day} ${c.pj ?? ""} ${c.room ?? ""}`.toLowerCase();
+        if (hay.includes(needle)) {
+          out.push({
+            href: "/jadwal",
+            kind: "Kuliah",
+            label: it.title,
+            detail: `${c.day} ${c.start}–${c.end} · ${it.who ?? ""}`,
+          });
+        }
+      } catch {
+        // ignore
       }
     }
     return out.slice(0, 50);

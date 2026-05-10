@@ -36,16 +36,15 @@ export default function ProfilePage() {
     try {
       const dataUrl = await compressImage(file, 256, 0.82);
       setAvatar(dataUrl);
-    } catch (err) {
-      console.warn("[avatar] compress failed", err);
-      alert("Gagal membaca foto");
+    } catch {
+      // ignore — keep previous avatar
     }
   }
 
   async function save() {
     setSaving(true);
     try {
-      await updateProfile({ name: name.trim() || "Bareng", birthday, avatar });
+      await updateProfile({ name: name.trim() || "Twogether", birthday, avatar });
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     } finally {

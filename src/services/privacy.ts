@@ -80,7 +80,7 @@ export async function exportAll(userId: string): Promise<ExportBundle> {
     records,
     meta: {
       recordCount: total,
-      note: "Bareng data export. All data is owned by you and was generated on-device.",
+      note: "Twogether data export. All data is owned by you and was generated on-device.",
     },
   };
 }
@@ -134,7 +134,7 @@ export function downloadExport(bundle: ExportBundle): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `bareng-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `twogether-export-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();

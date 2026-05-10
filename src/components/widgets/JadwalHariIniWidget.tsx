@@ -2,25 +2,44 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { useAuth } from "@/stores/auth";
+import { useItems } from "@/stores/data";
 import {
-  SEMESTER_6_SCHEDULE,
   indonesianDayOf,
   type ClassDay,
+  type ClassItem,
 } from "@/data/classes";
 import { WidgetShell } from "./WidgetShell";
 
 /**
  * Compact widget showing today's class schedule at a glance.
+ * Reads from items kind="class" (editable per user).
  */
 export function JadwalHariIniWidget() {
+  const userId = useAuth((s) => s.userId);
+  const items = useItems(userId, "class") ?? [];
+
   const { day, classes } = useMemo(() => {
-    const today = new Date();
-    const day: ClassDay = indonesianDayOf(today);
-    const classes = SEMESTER_6_SCHEDULE.filter((c) => c.day === day).sort(
-      (a, b) => a.start.localeCompare(b.start),
-    );
-    return { day, classes };
-  }, []);
+    const day: ClassDay = indonesianDayOf(new Date());
+    const out: ClassItem[] = [];
+    for (const it of items) {
+      if (!it.payload) continue;
+      try {
+        const p = JSON.parse(it.payload) as ClassItem;
+        if (p.day === day) {
+          out.push({
+            ...p,
+            title: it.title,
+            lecturer: it.who ?? p.lecturer,
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+    out.sort((a, b) => a.start.localeCompare(b.start));
+    return { day, classes: out };
+  }, [items]);
 
   return (
     <WidgetShell
