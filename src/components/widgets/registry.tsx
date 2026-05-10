@@ -14,6 +14,11 @@ import { SkripsiWidget } from "./SkripsiWidget";
 import { StreakWidget } from "./StreakWidget";
 import { PencapaianWidget } from "./PencapaianWidget";
 import { JadwalHariIniWidget } from "./JadwalHariIniWidget";
+import { SehatQuickWidget } from "./SehatQuickWidget";
+import { KeuanganQuickWidget } from "./KeuanganQuickWidget";
+import { HabitsQuickWidget } from "./HabitsQuickWidget";
+import { HariKitaWidget } from "./HariKitaWidget";
+import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 
 export interface WidgetMeta {
@@ -115,5 +120,40 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Kuliah Semester 6 hari ini",
     emoji: "📚",
     Component: JadwalHariIniWidget,
+  },
+  "sehat-quick": {
+    kind: "sehat-quick",
+    label: "Sehat — Cepat",
+    description: "Air, mood, berat — input langsung",
+    emoji: "💧",
+    Component: SehatQuickWidget,
+  },
+  "keuangan-quick": {
+    kind: "keuangan-quick",
+    label: "Keuangan — Cepat",
+    description: "Saldo bulan ini + catat pemasukan/pengeluaran",
+    emoji: "💰",
+    Component: KeuanganQuickWidget,
+  },
+  "habits-quick": {
+    kind: "habits-quick",
+    label: "Habits — Cepat",
+    description: "Centang kebiasaan langsung dari home",
+    emoji: "✅",
+    Component: HabitsQuickWidget,
+  },
+  "hari-kita": {
+    kind: "hari-kita",
+    label: "Hari Kita",
+    description: "Countup berapa lama bersama",
+    emoji: "💞",
+    Component: HariKitaWidget,
+  },
+  "pinned-message": {
+    kind: "pinned-message",
+    label: "Pesan Pinned",
+    description: "Pesan singkat untuk pasangan",
+    emoji: "📌",
+    Component: PinnedMessageWidget,
   },
 };

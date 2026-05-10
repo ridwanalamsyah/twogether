@@ -25,6 +25,8 @@ import {
 import type { DepositRecord, GoalRecord } from "@/lib/db";
 import { GoalSimulator } from "@/components/goals/GoalSimulator";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { konfetti } from "@/lib/konfetti";
+import { hapticUnlock, hapticTap } from "@/lib/haptic";
 
 const CATEGORY_OPTIONS: { id: GoalRecord["category"]; label: string; emoji: string }[] =
   [
@@ -123,6 +125,9 @@ export default function GoalsPage() {
       {showDeposit && (
         <DepositSheet
           goal={showDeposit}
+          savedSoFar={(deposits ?? [])
+            .filter((d) => d.goalId === showDeposit.id)
+            .reduce((s, d) => s + d.amount, 0)}
           onClose={() => setShowDeposit(null)}
         />
       )}
@@ -545,9 +550,11 @@ function GoalSheet({
 
 function DepositSheet({
   goal,
+  savedSoFar,
   onClose,
 }: {
   goal: GoalRecord;
+  savedSoFar: number;
   onClose: () => void;
 }) {
   const userId = useAuth((s) => s.userId);
@@ -567,6 +574,7 @@ function DepositSheet({
     if (!userId) return;
     const num = parseFloat(amount);
     if (!Number.isFinite(num) || num <= 0) return;
+    hapticTap();
     await addDeposit(userId, {
       goalId: goal.id,
       amount: num,
@@ -574,6 +582,12 @@ function DepositSheet({
       note: note.trim() || undefined,
       date: todayISO(),
     });
+    const wasIncomplete = savedSoFar < goal.target;
+    const willComplete = savedSoFar + num >= goal.target;
+    if (wasIncomplete && willComplete) {
+      hapticUnlock();
+      konfetti({ count: 80 });
+    }
     onClose();
   }
 

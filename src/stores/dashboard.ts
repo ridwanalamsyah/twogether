@@ -32,7 +32,12 @@ export type WidgetKind =
   | "quick-add"
   | "streak"
   | "pencapaian"
-  | "jadwal-hari-ini";
+  | "jadwal-hari-ini"
+  | "sehat-quick"
+  | "keuangan-quick"
+  | "habits-quick"
+  | "hari-kita"
+  | "pinned-message";
 
 export interface WidgetConfig {
   id: string;
@@ -43,19 +48,24 @@ export interface WidgetConfig {
 }
 
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
+  { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
+  { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
-  { id: "w_quick", kind: "quick-add", size: "lg", enabled: true },
-  { id: "w_expense", kind: "expense-chart", size: "lg", enabled: true },
+  { id: "w_sehat_q", kind: "sehat-quick", size: "lg", enabled: true },
+  { id: "w_keu_q", kind: "keuangan-quick", size: "lg", enabled: true },
+  { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
+  { id: "w_hari", kind: "hari-ini", size: "lg", enabled: false },
+  { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: true },
   { id: "w_savings", kind: "savings-progress", size: "lg", enabled: true },
   { id: "w_prediction", kind: "goal-prediction", size: "lg", enabled: true },
+  { id: "w_expense", kind: "expense-chart", size: "lg", enabled: true },
   { id: "w_checklist", kind: "checklist", size: "md", enabled: true },
-  { id: "w_hari", kind: "hari-ini", size: "lg", enabled: true },
+  { id: "w_quick", kind: "quick-add", size: "lg", enabled: false },
   { id: "w_moments", kind: "moments", size: "md", enabled: false },
   { id: "w_transactions", kind: "transactions", size: "lg", enabled: true },
   { id: "w_skripsi", kind: "skripsi", size: "md", enabled: true },
   { id: "w_streak", kind: "streak", size: "sm", enabled: true },
   { id: "w_pencapaian", kind: "pencapaian", size: "sm", enabled: true },
-  { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: true },
 ];
 
 interface DashboardState {
