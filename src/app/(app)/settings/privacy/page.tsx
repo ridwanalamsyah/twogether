@@ -69,7 +69,7 @@ export default function PrivacyPage() {
     setBusy("csv");
     try {
       const csv = await exportTransactionsCsv(userId);
-      downloadCsv(csv, "bareng-transaksi.csv");
+      downloadCsv(csv, "twogether-transaksi.csv");
     } finally {
       setBusy(null);
     }

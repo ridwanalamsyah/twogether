@@ -1,4 +1,4 @@
-# Bareng — Production-grade workspace app
+# Twogether — Production-grade workspace app
 
 Next.js + TypeScript + Zustand + Dexie + Tailwind. Apple-style UX with
 Notion-style modular dashboards. Offline-first, privacy-first, PWA + Capacitor
@@ -98,7 +98,7 @@ iOS Safari "Add to Home Screen" with proper safe-area + status-bar styling.
 
 ### 2. Custom domain
 
-Point your domain (e.g. `bareng.app`) to the static host. For Cloudflare Pages
+Point your domain (e.g. `twogether.app`) to the static host. For Cloudflare Pages
 or Vercel, just add it in the dashboard. Make sure HTTPS is enabled — the
 service worker, MediaRecorder (voice notes), and Notifications APIs all
 require HTTPS or `localhost`.

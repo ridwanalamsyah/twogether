@@ -5,7 +5,7 @@ import { SEMESTER_6_SCHEDULE } from "@/data/classes";
 
 /**
  * Seed sample data so a brand-new account looks like the prototype
- * (`bareng-v2.html`) instead of an empty shell.
+ * (`twogether-v2.html`) instead of an empty shell.
  *
  * Idempotent: checks existing counts and skips sections that already have
  * data so re-calling on bootstrap is safe.
