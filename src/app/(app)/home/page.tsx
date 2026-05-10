@@ -146,25 +146,52 @@ const FEATURES: FeatureCard[] = [
     tone: "from-yellow-100 to-yellow-50",
   },
   {
+    href: "/habits",
+    label: "Habits",
+    emoji: "✅",
+    sub: "Rutinitas harian",
+    tone: "from-fuchsia-100 to-fuchsia-50",
+  },
+  {
+    href: "/reflection",
+    label: "Refleksi",
+    emoji: "📝",
+    sub: "Jurnal harian & syukur",
+    tone: "from-lime-100 to-lime-50",
+  },
+  {
+    href: "/goals",
+    label: "Goals",
+    emoji: "🎯",
+    sub: "Target tabungan & deadline",
+    tone: "from-emerald-100 to-emerald-50",
+  },
+  {
+    href: "/travel",
+    label: "Travel",
+    emoji: "✈️",
+    sub: "Trip & itinerary bareng",
+    tone: "from-blue-100 to-blue-50",
+  },
+  {
+    href: "/skripsi",
+    label: "Skripsi",
+    emoji: "🎓",
+    sub: "Bab, bimbingan, progress",
+    tone: "from-purple-100 to-purple-50",
+  },
+  {
     href: "/moments",
     label: "Moments",
     emoji: "💌",
     sub: "Catatan & kenangan",
-    tone: "from-fuchsia-100 to-fuchsia-50",
+    tone: "from-pink-100 to-pink-50",
   },
-];
-
-const SECONDARY: { href: string; label: string }[] = [
-  { href: "/habits", label: "Habits" },
-  { href: "/reflection", label: "Refleksi" },
-  { href: "/travel", label: "Travel" },
-  { href: "/goals", label: "Goals" },
-  { href: "/skripsi", label: "Skripsi" },
 ];
 
 function ToolsRow() {
   return (
-    <div className="mt-6 px-5 pb-24">
+    <div className="mt-6 px-5 pb-28">
       <div className="mb-3 text-[11px] font-medium uppercase tracking-wider text-text-4">
         Jelajahi
       </div>
@@ -182,21 +209,6 @@ function ToolsRow() {
             <div className="text-[11px] leading-tight text-slate-600">
               {f.sub}
             </div>
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-5 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
-        Lainnya
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {SECONDARY.map((t) => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className="rounded-full border border-border bg-bg-app px-3 py-1.5 text-[12px] font-medium text-text-2 hover:bg-bg-elev1"
-          >
-            {t.label}
           </Link>
         ))}
       </div>

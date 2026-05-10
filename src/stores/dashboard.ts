@@ -26,6 +26,7 @@ export type WidgetKind =
   | "checklist"
   | "skripsi"
   | "moments"
+  | "hari-ini"
   | "transactions"
   | "goal-prediction"
   | "quick-add"
@@ -48,7 +49,8 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_savings", kind: "savings-progress", size: "lg", enabled: true },
   { id: "w_prediction", kind: "goal-prediction", size: "lg", enabled: true },
   { id: "w_checklist", kind: "checklist", size: "md", enabled: true },
-  { id: "w_moments", kind: "moments", size: "md", enabled: true },
+  { id: "w_hari", kind: "hari-ini", size: "lg", enabled: true },
+  { id: "w_moments", kind: "moments", size: "md", enabled: false },
   { id: "w_transactions", kind: "transactions", size: "lg", enabled: true },
   { id: "w_skripsi", kind: "skripsi", size: "md", enabled: true },
   { id: "w_streak", kind: "streak", size: "sm", enabled: true },

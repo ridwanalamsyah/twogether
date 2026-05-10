@@ -147,6 +147,8 @@ export default function JadwalPage() {
           + Tambah kelas
         </button>
 
+        <Recommendations day={activeDay} classes={dayClasses} />
+
         <Section title="Ringkasan minggu" defaultOpen={false}>
           <div className="space-y-1 text-[12px]">
             {DAY_ORDER.slice(0, 5).map((d) => {
@@ -400,5 +402,96 @@ function Field({
       <div className="mb-1 text-[11px] font-medium text-text-3">{label}</div>
       {children}
     </label>
+  );
+}
+
+type Slot = {
+  start: string;
+  end: string;
+  emoji: string;
+  title: string;
+  detail: string;
+};
+
+const BASE_DAY_PLAN: Slot[] = [
+  { start: "04:30", end: "05:30", emoji: "🌅", title: "Subuh + dzikir", detail: "Mulai hari dengan tenang" },
+  { start: "05:30", end: "06:30", emoji: "🏃", title: "Olahraga ringan / jalan", detail: "15–30 menit, naikkan energi" },
+  { start: "06:30", end: "07:00", emoji: "🥣", title: "Sarapan + siapkan kuliah", detail: "Protein + air 1 gelas" },
+  { start: "12:00", end: "13:00", emoji: "🍽️", title: "Makan siang + Dzuhur", detail: "Istirahat aktif, jauhi layar" },
+  { start: "13:00", end: "14:00", emoji: "💤", title: "Power nap (opsional)", detail: "Maks 20 menit, jangan kelamaan" },
+  { start: "15:30", end: "16:30", emoji: "📚", title: "Review materi kuliah", detail: "Tulis 3 poin penting hari ini" },
+  { start: "16:30", end: "17:00", emoji: "🌳", title: "Outdoor / refresh", detail: "Asar + jalan ringan" },
+  { start: "19:00", end: "21:00", emoji: "🍅", title: "Pomodoro deep work", detail: "Tugas / skripsi / usaha (25×4)" },
+  { start: "21:00", end: "21:30", emoji: "💞", title: "Check-in pasangan", detail: "Apresiasi + rencana besok" },
+  { start: "21:30", end: "22:00", emoji: "📝", title: "Jurnal + refleksi", detail: "1 hal disyukuri, 1 yang diperbaiki" },
+  { start: "22:00", end: "04:30", emoji: "🌙", title: "Tidur 7+ jam", detail: "No screen 30 menit sebelumnya" },
+];
+
+function timeOverlaps(a: { start: string; end: string }, b: { start: string; end: string }): boolean {
+  return a.start < b.end && b.start < a.end;
+}
+
+function Recommendations({
+  day,
+  classes,
+}: {
+  day: ClassDay;
+  classes: ItemPlus[];
+}) {
+  const isToday = day === indonesianDayOf(new Date());
+  const nowHM = new Date().toTimeString().slice(0, 5);
+
+  const slots = useMemo(() => {
+    return BASE_DAY_PLAN.filter((slot) => {
+      // hide slots that overlap with classes
+      return !classes.some((c) =>
+        timeOverlaps(slot, { start: c._parsed.start, end: c._parsed.end }),
+      );
+    });
+  }, [classes]);
+
+  return (
+    <div className="mt-5 rounded-md border border-border bg-bg-elev1 p-4">
+      <div className="mb-1 flex items-center justify-between">
+        <h3 className="text-[13px] font-semibold text-text-1">
+          Rekomendasi 24 jam produktif
+        </h3>
+        <span className="text-[10px] uppercase tracking-wider text-text-4">
+          {day}
+        </span>
+      </div>
+      <p className="mb-3 text-[11px] text-text-3">
+        Slot kosong di luar kuliah — tap kelas tetap muncul di atas. Disesuaikan
+        bila bentrok jadwal.
+      </p>
+      <ul className="space-y-1.5">
+        {slots.map((s) => {
+          const active = isToday && nowHM >= s.start && nowHM < s.end;
+          return (
+            <li
+              key={s.start}
+              className={`flex items-start gap-3 rounded-md px-2 py-1.5 ${
+                active ? "bg-bg-app ring-1 ring-text-1" : ""
+              }`}
+            >
+              <span className="text-base leading-tight pt-0.5">{s.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[12px] font-medium text-text-1">
+                    {s.title}
+                  </span>
+                  <span className="font-mono text-[10px] tabular-nums text-text-3">
+                    {s.start}–{s.end}
+                  </span>
+                </div>
+                <div className="text-[11px] leading-tight text-text-3">
+                  {s.detail}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

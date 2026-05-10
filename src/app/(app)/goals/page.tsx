@@ -498,10 +498,10 @@ function GoalSheet({
                 key={c.id}
                 type="button"
                 onClick={() => setCategory(c.id)}
-                className={`rounded-md p-2 text-xs font-semibold transition-colors ${
+                className={`rounded-md border p-2 text-xs font-semibold transition-colors ${
                   category === c.id
-                    ? "bg-accent text-accent-fg"
-                    : "bg-bg-elev2 text-text-2"
+                    ? "border-text-1 bg-bg-elev1 text-text-1 ring-1 ring-text-1"
+                    : "border-border bg-bg-elev1 text-text-2 hover:bg-bg-elev2"
                 }`}
               >
                 <div className="text-base">{c.emoji}</div>

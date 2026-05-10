@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { sync, type SyncSnapshot } from "@/services/sync";
 import { useTheme } from "@/stores/theme";
 import { seedSampleData } from "@/services/seed";
+import { getDB } from "@/lib/db";
 
 const SECTIONS: { title: string; rows: { href: string; label: string }[] }[] = [
   {
@@ -43,6 +46,13 @@ export default function SettingsPage() {
 
   useEffect(() => sync.subscribe(setSnap), []);
 
+  const profile = useLiveQuery(
+    async () => (auth.userId ? getDB().users.get(auth.userId) : null),
+    [auth.userId],
+  );
+  const displayName = profile?.name ?? auth.name ?? "";
+  const displayAvatar = profile?.avatar ?? auth.avatar ?? null;
+
   const [seeding, setSeeding] = useState(false);
   const [seeded, setSeeded] = useState(false);
 
@@ -68,15 +78,32 @@ export default function SettingsPage() {
       <AppHeader title="Settings" />
 
       <div className="px-5 pt-4 pb-6">
-        <div className="flex items-center gap-3 border-b border-border pb-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-text-1 text-sm font-semibold text-bg-app">
-            {(auth.name ?? "B")[0]?.toUpperCase()}
+        <Link
+          href="/settings/profile"
+          className="flex items-center gap-3 border-b border-border pb-4 active:opacity-60"
+        >
+          <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-text-1 text-sm font-semibold text-bg-app">
+            {displayAvatar ? (
+              <Image
+                src={displayAvatar}
+                alt={displayName || "avatar"}
+                fill
+                sizes="44px"
+                className="object-cover"
+                unoptimized
+              />
+            ) : (
+              (displayName || "T")[0]?.toUpperCase()
+            )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-medium text-text-1">{auth.name}</div>
+            <div className="truncate text-[15px] font-medium text-text-1">
+              {displayName || "Belum ada nama"}
+            </div>
             <div className="truncate text-[12px] text-text-3">{auth.email}</div>
           </div>
-        </div>
+          <span className="text-text-4">›</span>
+        </Link>
 
         {SECTIONS.map((sec) => (
           <div key={sec.title} className="mt-6">
