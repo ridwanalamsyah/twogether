@@ -7,8 +7,8 @@ const KEY = "bareng:onboarded:v1";
 const STEPS: { emoji: string; title: string; body: string }[] = [
   {
     emoji: "👋",
-    title: "Selamat datang di Bareng",
-    body: "Workspace bareng kamu — keuangan, goals, skripsi, momen, semua di satu tempat. Offline-first, data tetap kamu yang punya.",
+    title: "Selamat datang di Twogether",
+    body: "Untuk kalian berdua — keuangan, tracker, jadwal, dan momen di satu tempat. Offline-first, data tetap kamu yang punya.",
   },
   {
     emoji: "🧩",
@@ -17,7 +17,7 @@ const STEPS: { emoji: string; title: string; body: string }[] = [
   },
   {
     emoji: "🤝",
-    title: "Bareng = berdua (atau lebih)",
+    title: "Twogether = berdua (atau lebih)",
     body: "Tambahkan pasangan/teman di Settings → Workspace. Setiap transaksi ada label siapa yang bayar, plus opsi 'Bersama' untuk shared.",
   },
   {

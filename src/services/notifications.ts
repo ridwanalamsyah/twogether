@@ -200,7 +200,7 @@ export async function scanReminders(userId: string): Promise<void> {
       sessionStorage.setItem(key, "1");
       showNotification(
         `Lupa catat ${dk.label}?`,
-        "Tap Bareng untuk input cepat sebelum tidur.",
+        "Tap Twogether untuk input cepat sebelum tidur.",
       );
     }
   }
@@ -274,7 +274,7 @@ export function scheduleDailyReminders() {
     morningTimer = window.setTimeout(() => {
       showNotification(
         "Selamat pagi",
-        "Cek ringkasan kemarin & target hari ini di Bareng.",
+        "Cek ringkasan kemarin & target hari ini di Twogether.",
       );
       scheduleDailyReminders();
     }, nextOccurrence(t.morning));

@@ -80,19 +80,21 @@ export default function SplashPage() {
             viewBox="0 0 44 44"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.5"
+            strokeWidth="2.6"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="h-11 w-11"
+            aria-label="Twogether logo"
           >
-            <path d="M22 4L4 14v26h10V26h16v14h10V14z" />
+            <circle cx="17" cy="22" r="10" />
+            <circle cx="27" cy="22" r="10" />
           </svg>
         </div>
         <div>
           <div className="text-[28px] font-bold tracking-tight text-text-1">
-            Bareng
+            Twogether
           </div>
-          <div className="mt-1 text-sm text-text-3">Workspace bareng kamu</div>
+          <div className="mt-1 text-sm text-text-3">Untuk kalian berdua</div>
         </div>
         <div className="mt-6 h-0.5 w-12 overflow-hidden rounded-full bg-bg-elev2">
           <div className="h-full w-full origin-left animate-[spfill_1s_ease_forwards] bg-accent" />

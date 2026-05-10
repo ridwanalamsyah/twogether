@@ -22,6 +22,14 @@ export default function PrivacyPage() {
   const signOut = useAuth((s) => s.signOut);
   const [busy, setBusy] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
+    null,
+  );
+
+  function showToast(kind: "ok" | "err", text: string) {
+    setToast({ kind, text });
+    setTimeout(() => setToast(null), 3000);
+  }
 
   useEffect(() => {
     setUnlocked(isUnlocked());
@@ -45,11 +53,12 @@ export default function PrivacyPage() {
       const text = await file.text();
       const json = JSON.parse(text);
       const { imported, tables } = await importBundle(userId, json);
-      alert(
-        `Berhasil import ${imported} record dari ${tables.length} tabel:\n${tables.join(", ")}`,
+      showToast(
+        "ok",
+        `${imported} catatan dari ${tables.length} tabel berhasil dipulihkan.`,
       );
     } catch (err) {
-      alert(`Import gagal: ${(err as Error).message}`);
+      showToast("err", `Import gagal. ${(err as Error).message}`);
     } finally {
       setBusy(null);
     }
@@ -125,7 +134,7 @@ export default function PrivacyPage() {
 
         <Section
           title="Data ownership"
-          description="Kamu pemilik datanya. Bareng tidak menyimpan apa pun di luar device tanpa setoran sync explicit kamu."
+          description="Kamu pemilik datanya. Twogether tidak menyimpan apa pun di luar device tanpa sync eksplisit kamu."
         >
           <ActionRow
             emoji="⬇️"
@@ -181,7 +190,7 @@ export default function PrivacyPage() {
 
         <Section
           title="Privacy by default"
-          description="Apa yang Bareng TIDAK lakukan:"
+          description="Apa yang Twogether TIDAK lakukan:"
         >
           <ul className="space-y-1.5 text-xs text-text-2">
             <li>• Tidak mengumpulkan tracker pihak ketiga.</li>
@@ -191,6 +200,18 @@ export default function PrivacyPage() {
           </ul>
         </Section>
       </div>
+      {toast && (
+        <div
+          className={`fixed bottom-[calc(80px+var(--sab))] left-1/2 z-[60] -translate-x-1/2 rounded-full px-4 py-2.5 text-[13px] font-medium shadow-lg transition-opacity ${
+            toast.kind === "ok"
+              ? "bg-[color:var(--positive-bg)] text-[color:var(--positive)]"
+              : "bg-[color:var(--negative-bg)] text-[color:var(--negative)]"
+          }`}
+          role="status"
+        >
+          {toast.text}
+        </div>
+      )}
     </div>
   );
 }

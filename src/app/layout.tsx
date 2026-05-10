@@ -5,12 +5,12 @@ import { SyncProvider } from "@/components/sync/SyncProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export const metadata: Metadata = {
-  title: "Bareng",
-  description: "Workspace bareng — keuangan, goals, dan momen, offline-first.",
+  title: "Twogether",
+  description: "Twogether — keuangan, tracker, & moments untuk berdua. Offline-first.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Bareng",
+    title: "Twogether",
     statusBarStyle: "black-translucent",
   },
   other: {

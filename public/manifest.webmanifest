@@ -1,7 +1,7 @@
 {
-  "name": "Bareng",
-  "short_name": "Bareng",
-  "description": "Workspace bareng — keuangan, goals, moments. Offline-first & privacy-first.",
+  "name": "Twogether",
+  "short_name": "Twogether",
+  "description": "Twogether — keuangan, tracker, & moments untuk berdua. Offline-first.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

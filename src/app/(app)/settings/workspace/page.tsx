@@ -35,12 +35,22 @@ export default function WorkspaceSettingsPage() {
     setJoinMsg(null);
     try {
       const sb = getSupabase();
-      if (!sb) throw new Error("supabase_unavailable");
+      if (!sb) throw new Error("Backend belum aktif");
       const { error } = await sb.rpc("join_workspace", {
         ws: id,
         member_name: auth.name ?? "Anggota",
       });
-      if (error) throw new Error(error.message);
+      if (error) {
+        if (error.code === "PGRST202" || /join_workspace/.test(error.message)) {
+          throw new Error(
+            "Fitur join workspace belum di-setup. Hubungi admin untuk run migration.",
+          );
+        }
+        if (/workspace_not_found/i.test(error.message)) {
+          throw new Error("Workspace ID tidak ditemukan. Pastikan ID benar.");
+        }
+        throw new Error(error.message);
+      }
       // Set this as the active workspace for the user.
       if (auth.supaUserId) {
         await sb
@@ -50,10 +60,10 @@ export default function WorkspaceSettingsPage() {
             { onConflict: "id" },
           );
       }
-      setJoinMsg("Berhasil! Reload aplikasi untuk lihat data workspace baru.");
+      setJoinMsg("Berhasil! Memuat ulang data workspace…");
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      setJoinMsg(`Gagal: ${(err as Error).message}`);
+      setJoinMsg(`${(err as Error).message}`);
     } finally {
       setJoining(false);
     }
