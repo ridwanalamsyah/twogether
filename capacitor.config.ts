@@ -12,7 +12,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * inside the Capacitor wrapper (no native plugin assumptions).
  */
 const config: CapacitorConfig = {
-  appId: "com.bareng.app",
+  appId: "com.twogether.app",
   appName: "Twogether",
   webDir: "out",
   server: {

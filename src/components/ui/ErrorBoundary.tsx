@@ -23,7 +23,7 @@ export class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     if (typeof window !== "undefined") {
-      console.error("[bareng] caught:", error, info);
+      console.error("[twogether] caught:", error, info);
     }
   }
 

@@ -1,4 +1,4 @@
--- Bareng — initial schema for shared cross-device sync
+-- Twogether — initial schema for shared cross-device sync
 -- Every domain table is workspace-scoped (RLS) with last-write-wins via updated_at.
 
 -- ============================================================
