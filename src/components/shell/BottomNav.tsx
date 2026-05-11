@@ -69,8 +69,8 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/85 pb-safe backdrop-blur-xl theme-transition"
-      style={{ paddingTop: 8 }}
+      className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/85 pb-[max(8px,calc(var(--sab)*0.6))] backdrop-blur-xl theme-transition"
+      style={{ paddingTop: 4 }}
     >
       <ul className="grid grid-cols-5">
         {ITEMS.map((item) => {
@@ -81,7 +81,7 @@ export function BottomNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-1 py-1.5 text-[10px] transition-colors",
+                  "flex flex-1 flex-col items-center gap-1 py-1 text-[10px] transition-colors",
                   active ? "text-text-1" : "text-text-4",
                 )}
               >
