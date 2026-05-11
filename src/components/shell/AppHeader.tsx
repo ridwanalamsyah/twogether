@@ -30,7 +30,7 @@ export function AppHeader({ title, subtitle, actions }: AppHeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-bg-app/90 px-5 pt-[calc(var(--sat)+12px)] pb-3 backdrop-blur-xl theme-transition">
+    <header className="sticky top-0 z-20 border-b border-border bg-bg-app/90 px-5 pt-[calc(var(--sat)+20px)] pb-3 backdrop-blur-xl theme-transition">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[19px] font-semibold leading-tight tracking-tight text-text-1">
