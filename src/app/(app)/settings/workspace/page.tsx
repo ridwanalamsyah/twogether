@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
-import { useAuth } from "@/stores/auth";
+import { useAuth, loadWorkspaceContext } from "@/stores/auth";
 import { useWorkspace, type WorkspaceMember } from "@/stores/workspace";
 import { getSupabase, hasSupabase } from "@/lib/supabase";
 
@@ -51,7 +51,8 @@ export default function WorkspaceSettingsPage() {
         }
         throw new Error(error.message);
       }
-      // Set this as the active workspace for the user.
+      // Pin the joined workspace as the active one server-side so a future
+      // bootstrap on another device lands here too.
       if (auth.supaUserId) {
         await sb
           .from("profiles")
@@ -59,9 +60,29 @@ export default function WorkspaceSettingsPage() {
             { id: auth.supaUserId, active_workspace_id: id },
             { onConflict: "id" },
           );
+        // Immediately update local stores so the UI flips to the partner's
+        // workspace without waiting for a full reload — the prior
+        // implementation relied on reload but the persisted supaWorkspaceId
+        // kept the old workspace pinned on bootstrap.
+        const fallback = {
+          name: auth.name ?? "Anggota",
+          email: auth.email,
+          localId: auth.userId ?? id,
+        };
+        const ctx = await loadWorkspaceContext(
+          auth.supaUserId,
+          id,
+          fallback,
+        );
+        useAuth.setState({ supaWorkspaceId: id });
+        useWorkspace.getState().setWorkspace({
+          workspaceId: id,
+          workspaceName: ctx.workspaceName,
+          members: ctx.members,
+        });
       }
       setJoinMsg("Berhasil! Memuat ulang data workspace…");
-      setTimeout(() => window.location.reload(), 1500);
+      setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
       setJoinMsg(`${(err as Error).message}`);
     } finally {

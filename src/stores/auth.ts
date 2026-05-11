@@ -9,6 +9,7 @@ import { seedSampleData } from "@/services/seed";
 import { getSupabase, hasSupabase } from "@/lib/supabase";
 import { sync } from "@/services/sync";
 import { pullWorkspace, subscribeRealtime } from "@/services/supaSync";
+import type { WorkspaceMember } from "@/stores/workspace";
 
 interface AuthState {
   userId: string | null;
@@ -91,7 +92,7 @@ async function ensureSupaWorkspace(
     .from("profiles")
     .select("active_workspace_id")
     .eq("id", supaUserId)
-    .single();
+    .maybeSingle();
   if (profile?.active_workspace_id) {
     const { data: ms } = await sb
       .from("workspace_members")
@@ -100,6 +101,7 @@ async function ensureSupaWorkspace(
       .eq("workspace_id", profile.active_workspace_id)
       .limit(1);
     if (ms && ms.length > 0) return profile.active_workspace_id as string;
+    // Stale pointer — fall through to recover.
   }
   // Otherwise pick the first workspace the user is a member of.
   const { data: existing, error: e1 } = await sb
@@ -109,7 +111,12 @@ async function ensureSupaWorkspace(
     .limit(1);
   if (e1) throw new Error(e1.message);
   if (existing && existing.length > 0) {
-    return existing[0].workspace_id as string;
+    const wsId = existing[0].workspace_id as string;
+    // Best-effort: realign active_workspace_id so future bootstraps are fast.
+    void sb
+      .from("profiles")
+      .upsert({ id: supaUserId, active_workspace_id: wsId }, { onConflict: "id" });
+    return wsId;
   }
   // Create workspace + member row
   const { data: ws, error: e2 } = await sb
@@ -126,7 +133,119 @@ async function ensureSupaWorkspace(
     role: "owner",
   });
   if (e3) throw new Error(e3.message);
+  await sb
+    .from("profiles")
+    .upsert({ id: supaUserId, active_workspace_id: wsId }, { onConflict: "id" });
   return wsId;
+}
+
+/**
+ * Load the canonical workspace name + member roster from Supabase. Used after
+ * sign-in or join so the local UI reflects the *real* workspace (e.g. a
+ * workspace owned by a partner), not a synthesized `Workspace ${me.name}`.
+ */
+export async function loadWorkspaceContext(
+  supaUserId: string,
+  workspaceId: string,
+  fallback: { name: string; email: string | null; localId: string },
+): Promise<{ workspaceName: string; members: WorkspaceMember[] }> {
+  const sb = getSupabase();
+  if (!sb) {
+    return {
+      workspaceName: `Workspace ${fallback.name}`,
+      members: [
+        {
+          id: fallback.localId,
+          name: fallback.name,
+          email: fallback.email ?? undefined,
+          isMe: true,
+          isOwner: true,
+        },
+      ],
+    };
+  }
+  const [wsRes, wmRes] = await Promise.all([
+    sb
+      .from("workspaces")
+      .select("name, owner_id")
+      .eq("id", workspaceId)
+      .maybeSingle(),
+    sb
+      .from("workspace_members")
+      .select("user_id, member_name, role")
+      .eq("workspace_id", workspaceId),
+  ]);
+  const ws = wsRes.data;
+  const wmRows = wmRes.data ?? [];
+  const workspaceName = ws?.name ?? `Workspace ${fallback.name}`;
+  const ownerId = (ws?.owner_id ?? null) as string | null;
+
+  // Fetch profiles in one shot so we can show display names instead of the
+  // (often terse) `member_name` users set on join.
+  let profilesByUserId: Record<string, { name?: string | null }> = {};
+  if (wmRows.length > 0) {
+    const ids = wmRows.map((r) => r.user_id as string);
+    const { data: profs } = await sb
+      .from("profiles")
+      .select("id, name")
+      .in("id", ids);
+    profilesByUserId = Object.fromEntries(
+      (profs ?? []).map((p) => [p.id as string, { name: p.name as string | null }]),
+    );
+  }
+
+  const members: WorkspaceMember[] = wmRows.map((row) => {
+    const uid = row.user_id as string;
+    const isSelf = uid === supaUserId;
+    const profName = profilesByUserId[uid]?.name ?? null;
+    const displayName = profName || (row.member_name as string) || "Anggota";
+    return {
+      id: isSelf ? fallback.localId : uid,
+      name: displayName,
+      email: isSelf ? fallback.email ?? undefined : undefined,
+      isMe: isSelf,
+      isOwner: row.role === "owner" || uid === ownerId,
+    };
+  });
+
+  // Self-heal: if the current user isn't represented yet (race after
+  // join_workspace), splice them in so the UI doesn't look empty.
+  if (!members.some((m) => m.isMe)) {
+    members.push({
+      id: fallback.localId,
+      name: fallback.name,
+      email: fallback.email ?? undefined,
+      isMe: true,
+      isOwner: ownerId === supaUserId,
+    });
+  }
+
+  return { workspaceName, members };
+}
+
+/**
+ * Reconcile the local stores with the workspace that Supabase currently says
+ * is active for this user. Idempotent — safe to call from bootstrap, signIn,
+ * signUp, and after `join_workspace`. Replaces the prior pattern that wrote
+ * `Workspace ${me.name}` on every reconcile, which clobbered the partner's
+ * workspace name after a successful join.
+ */
+export async function reconcileSupaWorkspace(
+  supaUserId: string,
+  fallback: { name: string; email: string | null; localId: string },
+): Promise<string> {
+  const workspaceId = await ensureSupaWorkspace(supaUserId, fallback.name);
+  const { workspaceName, members } = await loadWorkspaceContext(
+    supaUserId,
+    workspaceId,
+    fallback,
+  );
+  useWorkspace.getState().setWorkspace({
+    workspaceId,
+    workspaceName,
+    members,
+  });
+  return workspaceId;
 }
 
 async function ensureSupaProfile(
@@ -162,7 +281,7 @@ export const useAuth = create<AuthState>()(
               if (session?.user) {
                 const supaUserId = session.user.id;
                 const email = session.user.email ?? "";
-                let { userId, name, supaWorkspaceId } = get();
+                let { userId, name } = get();
                 let user = userId ? await getDB().users.get(userId) : null;
                 if (!user) {
                   // First-run on this device: try fetch profile
@@ -170,7 +289,7 @@ export const useAuth = create<AuthState>()(
                     .from("profiles")
                     .select("name, birthday, avatar")
                     .eq("id", supaUserId)
-                    .single();
+                    .maybeSingle();
                   const localId = userId ?? newId();
                   user = {
                     id: localId,
@@ -187,12 +306,14 @@ export const useAuth = create<AuthState>()(
                   userId = localId;
                   name = user.name;
                 }
-                if (!supaWorkspaceId) {
-                  supaWorkspaceId = await ensureSupaWorkspace(
-                    supaUserId,
-                    user.name,
-                  );
-                }
+                // Always reconcile from server so a stale persisted
+                // workspaceId (e.g. after the user joined a partner's
+                // workspace and reloaded) doesn't pin the UI to a dead
+                // pointer.
+                const supaWorkspaceId = await reconcileSupaWorkspace(
+                  supaUserId,
+                  { name: user.name, email, localId: userId! },
+                );
                 set({
                   userId,
                   email,
@@ -201,19 +322,6 @@ export const useAuth = create<AuthState>()(
                   supaUserId,
                   supaWorkspaceId,
                   ready: true,
-                });
-                useWorkspace.getState().setWorkspace({
-                  workspaceId: supaWorkspaceId,
-                  workspaceName: `Workspace ${user.name}`,
-                  members: [
-                    {
-                      id: userId!,
-                      name: user.name,
-                      email,
-                      isMe: true,
-                      isOwner: true,
-                    },
-                  ],
                 });
                 await attachSupa(supaUserId, supaWorkspaceId, userId!);
                 return;
@@ -297,7 +405,6 @@ export const useAuth = create<AuthState>()(
             }
           }
           await ensureSupaProfile(supaUserId, { name, birthday, avatar: undefined });
-          const supaWorkspaceId = await ensureSupaWorkspace(supaUserId, name);
 
           const db = getDB();
           const localId = newId();
@@ -312,6 +419,11 @@ export const useAuth = create<AuthState>()(
             dirty: 0,
           };
           await db.users.put(user);
+          const supaWorkspaceId = await reconcileSupaWorkspace(supaUserId, {
+            name,
+            email,
+            localId,
+          });
           set({
             userId: localId,
             email,
@@ -319,13 +431,6 @@ export const useAuth = create<AuthState>()(
             supaUserId,
             supaWorkspaceId,
             ready: true,
-          });
-          useWorkspace.getState().setWorkspace({
-            workspaceId: supaWorkspaceId,
-            workspaceName: `Workspace ${name}`,
-            members: [
-              { id: localId, name, email, isMe: true, isOwner: true },
-            ],
           });
           await attachSupa(supaUserId, supaWorkspaceId, localId);
           if (seed) {
@@ -393,13 +498,8 @@ export const useAuth = create<AuthState>()(
             .from("profiles")
             .select("name, birthday, avatar")
             .eq("id", supaUserId)
-            .single();
+            .maybeSingle();
           const profileName = profile?.name ?? email.split("@")[0];
-
-          const supaWorkspaceId = await ensureSupaWorkspace(
-            supaUserId,
-            profileName,
-          );
 
           const db = getDB();
           // Reuse existing local user row if present, else create.
@@ -419,6 +519,11 @@ export const useAuth = create<AuthState>()(
             } as UserRecord;
             await db.users.put(user);
           }
+          const supaWorkspaceId = await reconcileSupaWorkspace(supaUserId, {
+            name: user.name,
+            email,
+            localId: user.id,
+          });
           set({
             userId: user.id,
             email,
@@ -427,19 +532,6 @@ export const useAuth = create<AuthState>()(
             supaUserId,
             supaWorkspaceId,
             ready: true,
-          });
-          useWorkspace.getState().setWorkspace({
-            workspaceId: supaWorkspaceId,
-            workspaceName: `Workspace ${user.name}`,
-            members: [
-              {
-                id: user.id,
-                name: user.name,
-                email,
-                isMe: true,
-                isOwner: true,
-              },
-            ],
           });
           await attachSupa(supaUserId, supaWorkspaceId, user.id);
           return;
