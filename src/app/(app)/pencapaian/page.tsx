@@ -18,6 +18,7 @@ import {
   type BadgeDef,
 } from "@/services/achievements";
 import type { EntryRecord, ItemRecord } from "@/lib/db";
+import { useStableArray } from "@/lib/useStableArray";
 
 type Tab = "streak" | "badge" | "feed";
 
@@ -70,26 +71,23 @@ export default function PencapaianPage() {
 
 function useAggData(): AggData | null {
   const userId = useAuth((s) => s.userId);
-  const water = useEntries(userId, "water") ?? [];
-  const pomodoro = useEntries(userId, "pomodoro") ?? [];
-  const journal = useEntries(userId, "journal") ?? [];
-  const exercise = useEntries(userId, "exercise") ?? [];
-  const mood = useEntries(userId, "mood") ?? [];
-  const sleep = useEntries(userId, "sleep") ?? [];
-  const weight = useEntries(userId, "weight") ?? [];
-  const appreciation = useEntries(userId, "apresiasi") ?? [];
-
-  const subscription = useItems(userId, "subscription") ?? [];
-  const debt = useItems(userId, "debt") ?? [];
-  const anniversary = useItems(userId, "anniv") ?? [];
-  const dateNight = useItems(userId, "datenight") ?? [];
-  const bucket = useItems(userId, "bucket") ?? [];
-  const reading = useItems(userId, "book") ?? [];
-
-  const txs = useTransactions(userId) ?? [];
-  const goals = useGoals(userId) ?? [];
-  const deposits = useDeposits(userId) ?? [];
-
+  const water = useStableArray(useEntries(userId, "water"));
+  const pomodoro = useStableArray(useEntries(userId, "pomodoro"));
+  const journal = useStableArray(useEntries(userId, "journal"));
+  const exercise = useStableArray(useEntries(userId, "exercise"));
+  const mood = useStableArray(useEntries(userId, "mood"));
+  const sleep = useStableArray(useEntries(userId, "sleep"));
+  const weight = useStableArray(useEntries(userId, "weight"));
+  const appreciation = useStableArray(useEntries(userId, "apresiasi"));
+  const subscription = useStableArray(useItems(userId, "subscription"));
+  const debt = useStableArray(useItems(userId, "debt"));
+  const anniversary = useStableArray(useItems(userId, "anniv"));
+  const dateNight = useStableArray(useItems(userId, "datenight"));
+  const bucket = useStableArray(useItems(userId, "bucket"));
+  const reading = useStableArray(useItems(userId, "book"));
+  const txs = useStableArray(useTransactions(userId));
+  const goals = useStableArray(useGoals(userId));
+  const deposits = useStableArray(useDeposits(userId));
   return useMemo<AggData>(() => {
     const entriesByKind = new Map<string, { date: string; valueNum?: number }[]>();
     const push = (kind: string, arr: EntryRecord[]) => {
@@ -218,7 +216,7 @@ function StreakTab() {
 function BadgeTab() {
   const data = useAggData();
   const userId = useAuth((s) => s.userId);
-  const unlocked = useItems(userId, "badge-unlocked") ?? [];
+  const unlocked = useStableArray(useItems(userId, "badge-unlocked"));
   const unlockedSet = useMemo(
     () => new Set(unlocked.map((i) => i.title)),
     [unlocked],
@@ -329,9 +327,8 @@ function FeedTab() {
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
   const me = members.find((m) => m.isMe);
-  const feed = useItems(userId, "kudos-feed") ?? [];
-  const kudos = useItems(userId, "kudos-given") ?? [];
-
+  const feed = useStableArray(useItems(userId, "kudos-feed"));
+  const kudos = useStableArray(useItems(userId, "kudos-given"));
   const kudosCountFor = useMemo(() => {
     const m = new Map<string, number>();
     for (const k of kudos) {

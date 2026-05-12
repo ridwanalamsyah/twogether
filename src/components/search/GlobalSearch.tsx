@@ -13,6 +13,7 @@ import {
 } from "@/stores/data";
 
 import { formatRupiah, formatDateShort } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 interface Hit {
   href: string;
@@ -34,13 +35,12 @@ export function GlobalSearch({
   onClose: () => void;
 }) {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
-  const goals = useGoals(userId) ?? [];
-  const moments = useMoments(userId) ?? [];
-  const chapters = useSkripsiChapters(userId) ?? [];
-  const items = useAllItems(userId) ?? [];
-  const entries = useAllEntries(userId) ?? [];
-
+  const txs = useStableArray(useTransactions(userId));
+  const goals = useStableArray(useGoals(userId));
+  const moments = useStableArray(useMoments(userId));
+  const chapters = useStableArray(useSkripsiChapters(userId));
+  const items = useStableArray(useAllItems(userId));
+  const entries = useStableArray(useAllEntries(userId));
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 

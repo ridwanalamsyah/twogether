@@ -17,6 +17,7 @@ import {
 import type { BudgetRecord, RecurringRecord } from "@/lib/db";
 import { formatRupiah, formatRupiahShort, todayISO } from "@/lib/utils";
 import { CURRENCIES, useCurrency } from "@/stores/currency";
+import { useStableArray } from "@/lib/useStableArray";
 
 const CATEGORIES = [
   "Makan",
@@ -33,9 +34,9 @@ const CATEGORIES = [
 
 export default function FinancePage() {
   const userId = useAuth((s) => s.userId);
-  const recurring = useRecurring(userId) ?? [];
-  const budgets = useBudgets(userId) ?? [];
-  const txs = useTransactions(userId) ?? [];
+  const recurring = useStableArray(useRecurring(userId));
+  const budgets = useStableArray(useBudgets(userId));
+  const txs = useStableArray(useTransactions(userId));
   const [editingR, setEditingR] = useState<RecurringRecord | null>(null);
   const [editingB, setEditingB] = useState<BudgetRecord | null>(null);
   const [addR, setAddR] = useState(false);

@@ -16,6 +16,7 @@ import {
   todayISO,
 } from "@/lib/utils";
 import { TagInput } from "@/components/ui/TagInput";
+import { useStableArray } from "@/lib/useStableArray";
 
 const CATEGORIES = [
   "Makan",
@@ -163,7 +164,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISO());
   const [tags, setTags] = useState<string[]>([]);
-  const trips = useTrips(userId) ?? [];
+  const trips = useStableArray(useTrips(userId));
   const tagSuggestions = useMemo(
     () => [...trips.map((t) => t.tag), "jajan", "kerja", "darurat", "hadiah"],
     [trips],

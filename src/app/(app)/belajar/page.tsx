@@ -390,7 +390,7 @@ function PomodoroSection() {
     return () => {
       if (ref.current) clearInterval(ref.current);
     };
-  }, [running, duration, userId]);
+  }, [running, duration, userId, meName]);
 
   function start() {
     setRemaining(duration * 60);

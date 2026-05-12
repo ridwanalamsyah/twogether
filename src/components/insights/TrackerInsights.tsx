@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useAuth } from "@/stores/auth";
 import { useEntries } from "@/stores/data";
+import { useStableArray } from "@/lib/useStableArray";
 
 interface InsightLine {
   emoji: string;
@@ -15,13 +16,12 @@ interface InsightLine {
  */
 export function TrackerInsights() {
   const userId = useAuth((s) => s.userId);
-  const water = useEntries(userId, "water") ?? [];
-  const sleep = useEntries(userId, "sleep") ?? [];
-  const mood = useEntries(userId, "mood") ?? [];
-  const weight = useEntries(userId, "weight") ?? [];
-  const exercise = useEntries(userId, "exercise") ?? [];
-  const pomodoro = useEntries(userId, "pomodoro") ?? [];
-
+  const water = useStableArray(useEntries(userId, "water"));
+  const sleep = useStableArray(useEntries(userId, "sleep"));
+  const mood = useStableArray(useEntries(userId, "mood"));
+  const weight = useStableArray(useEntries(userId, "weight"));
+  const exercise = useStableArray(useEntries(userId, "exercise"));
+  const pomodoro = useStableArray(useEntries(userId, "pomodoro"));
   const insights = useMemo<InsightLine[]>(() => {
     const out: InsightLine[] = [];
     const today = new Date();

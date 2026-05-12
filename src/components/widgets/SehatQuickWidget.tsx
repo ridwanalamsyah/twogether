@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useEntries, upsertEntry } from "@/stores/data";
 import { hapticTap } from "@/lib/haptic";
+import { useStableArray } from "@/lib/useStableArray";
 
 const MOODS: { emoji: string; label: string; value: number }[] = [
   { emoji: "😄", label: "Hebat", value: 5 },
@@ -20,11 +21,10 @@ function todayISO(): string {
 
 export function SehatQuickWidget() {
   const userId = useAuth((s) => s.userId);
-  const water = useEntries(userId, "water") ?? [];
-  const moods = useEntries(userId, "mood") ?? [];
-  const weights = useEntries(userId, "weight") ?? [];
-  const sleeps = useEntries(userId, "sleep") ?? [];
-
+  const water = useStableArray(useEntries(userId, "water"));
+  const moods = useStableArray(useEntries(userId, "mood"));
+  const weights = useStableArray(useEntries(userId, "weight"));
+  const sleeps = useStableArray(useEntries(userId, "sleep"));
   const today = todayISO();
   const waterToday = useMemo(
     () =>

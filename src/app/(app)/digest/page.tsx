@@ -12,15 +12,16 @@ import {
 } from "@/stores/data";
 import { useWorkspace } from "@/stores/workspace";
 import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 const DAY = 1000 * 60 * 60 * 24;
 
 export default function DigestPage() {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
-  const goals = useGoals(userId) ?? [];
-  const deposits = useDeposits(userId) ?? [];
-  const reflections = useReflections(userId) ?? [];
+  const txs = useStableArray(useTransactions(userId));
+  const goals = useStableArray(useGoals(userId));
+  const deposits = useStableArray(useDeposits(userId));
+  const reflections = useStableArray(useReflections(userId));
   const members = useWorkspace((s) => s.members);
 
   const range = useMemo(() => {
