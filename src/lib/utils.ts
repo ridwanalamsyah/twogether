@@ -1,25 +1,57 @@
 import { clsx, type ClassValue } from "clsx";
+import { getActiveCurrency } from "@/stores/currency";
 
 export function cn(...inputs: ClassValue[]): string {
   return clsx(inputs);
 }
 
-const RP = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0,
-});
+// Cache the formatter per (locale, currency) so we don't allocate on every
+// call (which happens dozens of times per render in some views).
+const formatterCache = new Map<string, Intl.NumberFormat>();
+function getFormatter(locale: string, code: string): Intl.NumberFormat {
+  const key = `${locale}|${code}`;
+  let fmt = formatterCache.get(key);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      // JPY/KRW have no decimal places; others get 0 by convention in this app.
+      maximumFractionDigits: 0,
+    });
+    formatterCache.set(key, fmt);
+  }
+  return fmt;
+}
 
+/**
+ * Format a monetary value using the user's active currency preference.
+ *
+ * Kept named `formatRupiah` for historical reasons — a rename would
+ * touch ~21 files. Treat "rupiah" here as a synonym for "money".
+ */
 export function formatRupiah(value: number): string {
-  return RP.format(Math.round(value));
+  const { locale, code } = getActiveCurrency();
+  return getFormatter(locale, code).format(Math.round(value));
 }
 
 export function formatRupiahShort(value: number): string {
+  const { symbol, code } = getActiveCurrency();
   const abs = Math.abs(value);
-  if (abs >= 1_000_000_000) return `Rp ${(value / 1_000_000_000).toFixed(1)}M`;
-  if (abs >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1)}jt`;
-  if (abs >= 1_000) return `Rp ${(value / 1_000).toFixed(0)}rb`;
-  return `Rp ${Math.round(value)}`;
+  // Indonesian uses 'rb'/'jt'/'M' as conventional shorthands; everywhere
+  // else we use English K/M/B which match the user's expectations.
+  if (code === "IDR") {
+    if (abs >= 1_000_000_000)
+      return `${symbol} ${(value / 1_000_000_000).toFixed(1)}M`;
+    if (abs >= 1_000_000)
+      return `${symbol} ${(value / 1_000_000).toFixed(1)}jt`;
+    if (abs >= 1_000) return `${symbol} ${(value / 1_000).toFixed(0)}rb`;
+    return `${symbol} ${Math.round(value)}`;
+  }
+  if (abs >= 1_000_000_000)
+    return `${symbol}${(value / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${symbol}${(value / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${symbol}${(value / 1_000).toFixed(0)}K`;
+  return `${symbol}${Math.round(value)}`;
 }
 
 export function formatDateShort(date: string | number | Date): string {

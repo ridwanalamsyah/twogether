@@ -16,6 +16,7 @@ import {
 } from "@/stores/data";
 import type { BudgetRecord, RecurringRecord } from "@/lib/db";
 import { formatRupiah, formatRupiahShort, todayISO } from "@/lib/utils";
+import { CURRENCIES, useCurrency } from "@/stores/currency";
 
 const CATEGORIES = [
   "Makan",
@@ -69,6 +70,8 @@ export default function FinancePage() {
       />
 
       <div className="space-y-4 px-4 pb-8">
+        <CurrencySection />
+
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
             <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
@@ -490,5 +493,51 @@ function Sheet({
         {children}
       </div>
     </div>
+  );
+}
+
+function CurrencySection() {
+  const code = useCurrency((s) => s.code);
+  const setCurrency = useCurrency((s) => s.setCurrency);
+  const active = CURRENCIES.find((c) => c.code === code) ?? CURRENCIES[0];
+
+  function onChange(next: string) {
+    if (next === code) return;
+    setCurrency(next);
+    // Forcing a reload is the simplest way to get every cached
+    // formatRupiah call to re-evaluate with the new locale.
+    if (typeof window !== "undefined") window.location.reload();
+  }
+
+  return (
+    <section className="surface p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+          Mata uang
+        </div>
+        <span className="text-[10px] text-text-4">
+          {active.symbol} · {active.code}
+        </span>
+      </div>
+      <label htmlFor="currency-pick" className="sr-only">
+        Pilih mata uang
+      </label>
+      <select
+        id="currency-pick"
+        value={code}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-md bg-bg-elev2 px-3 py-2 text-sm theme-transition"
+      >
+        {CURRENCIES.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.symbol} {c.code} — {c.label}
+          </option>
+        ))}
+      </select>
+      <p className="mt-2 text-[11px] text-text-4">
+        Mengubah mata uang akan me-reload halaman supaya semua angka tampil di
+        format yang baru.
+      </p>
+    </section>
   );
 }

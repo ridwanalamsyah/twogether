@@ -192,8 +192,16 @@ const FEATURES: FeatureCard[] = [
 function ToolsRow() {
   return (
     <div className="mt-6 px-5 pb-28">
-      <div className="mb-3 text-[11px] font-medium uppercase tracking-wider text-text-4">
-        Jelajahi
+      <div className="mb-3 flex items-center justify-between">
+        <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+          Jelajahi
+        </div>
+        <Link
+          href="/fitur"
+          className="text-[11px] font-semibold text-text-2 active:opacity-60"
+        >
+          Semua fitur →
+        </Link>
       </div>
       <div className="grid grid-cols-2 gap-2.5">
         {FEATURES.map((f) => (

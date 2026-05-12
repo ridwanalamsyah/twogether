@@ -21,6 +21,10 @@ const SECTIONS: { title: string; rows: { href: string; label: string }[] }[] = [
     ],
   },
   {
+    title: "Jelajah",
+    rows: [{ href: "/fitur", label: "Semua fitur" }],
+  },
+  {
     title: "Tampilan",
     rows: [
       { href: "/settings/dashboard", label: "Dashboard" },
