@@ -69,7 +69,7 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/85 pb-[max(8px,calc(var(--sab)*0.6))] backdrop-blur-xl theme-transition"
+      className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/95 pb-[max(4px,calc(var(--sab)*0.3))] backdrop-blur-xl theme-transition"
       style={{ paddingTop: 4 }}
     >
       <ul className="grid grid-cols-5">

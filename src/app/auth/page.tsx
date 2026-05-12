@@ -23,8 +23,18 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
 
+  // If the user clicked an invite link before logging in, /join stashed
+  // the token in sessionStorage. After a successful sign-in, send them back
+  // to /join so the RPC can consume the token under the new auth session.
+  function postAuthTarget(): string {
+    if (typeof window === "undefined") return "/home";
+    const pending = sessionStorage.getItem("twogether:pending-invite");
+    if (pending) return `/join?token=${encodeURIComponent(pending)}`;
+    return "/home";
+  }
+
   useEffect(() => {
-    if (userId) router.replace("/home");
+    if (userId) router.replace(postAuthTarget());
   }, [userId, router]);
 
   async function submit(e: React.FormEvent) {
@@ -43,7 +53,7 @@ export default function AuthPage() {
           seed,
         });
       }
-      router.replace("/home");
+      router.replace(postAuthTarget());
     } catch (err) {
       setError((err as Error).message);
     } finally {

@@ -53,6 +53,18 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 
+/**
+ * Inline script that runs in <head> BEFORE the body renders. Reads the
+ * persisted theme from localStorage (zustand `bareng:theme`) and sets
+ * `data-theme` / `data-accent` on <html> so the user never sees a flash
+ * of the wrong color scheme on first paint or full reload.
+ *
+ * Kept tiny and try/catched so a malformed localStorage entry can't crash
+ * the page. `ThemeProvider` still runs on mount to handle live changes
+ * (system colorscheme toggle, auto-dark schedule).
+ */
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("bareng:theme");var m="system",a="default";if(s){var p=JSON.parse(s);if(p&&p.state){m=p.state.mode||"system";a=p.state.accent||"default";}}var r=m;if(m==="system"){r=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.dataset.theme=r;document.documentElement.dataset.accent=a;}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: {
@@ -60,6 +72,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="theme-transition">
         <ErrorBoundary>
           <ThemeProvider>
