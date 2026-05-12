@@ -173,6 +173,92 @@ export async function exportTransactionsCsv(userId: string): Promise<string> {
   return out.join("\n");
 }
 
+export async function exportGoalsCsv(userId: string): Promise<string> {
+  const db = getDB();
+  const [goals, deposits] = await Promise.all([
+    db
+      .table("goals")
+      .where("userId")
+      .equals(userId)
+      .filter((r: { deletedAt?: number }) => !r.deletedAt)
+      .toArray(),
+    db
+      .table("deposits")
+      .where("userId")
+      .equals(userId)
+      .filter((r: { deletedAt?: number }) => !r.deletedAt)
+      .toArray(),
+  ]);
+  // Aggregate saved per goal so the CSV is decision-useful on its own.
+  const savedByGoal = new Map<string, number>();
+  for (const d of deposits as { goalId: string; amount: number }[]) {
+    savedByGoal.set(d.goalId, (savedByGoal.get(d.goalId) ?? 0) + d.amount);
+  }
+  const header = [
+    "id",
+    "name",
+    "category",
+    "target",
+    "saved",
+    "progress_pct",
+    "deadline",
+  ];
+  const out = [header.join(",")];
+  for (const g of goals as {
+    id: string;
+    name: string;
+    category: string;
+    target: number;
+    deadline?: string;
+  }[]) {
+    const saved = savedByGoal.get(g.id) ?? 0;
+    const pct = g.target > 0 ? Math.round((saved / g.target) * 100) : 0;
+    out.push(
+      [g.id, g.name, g.category, g.target, saved, pct, g.deadline ?? ""]
+        .map(escapeCsv)
+        .join(","),
+    );
+  }
+  return out.join("\n");
+}
+
+export async function exportMomentsCsv(userId: string): Promise<string> {
+  const db = getDB();
+  const rows = await db
+    .table("moments")
+    .where("userId")
+    .equals(userId)
+    .filter((r: { deletedAt?: number }) => !r.deletedAt)
+    .toArray();
+  const header = ["date", "title", "body", "emoji", "encrypted", "tags"];
+  const out = [header.join(",")];
+  for (const r of rows as {
+    date: string;
+    title: string;
+    body: string;
+    emoji?: string;
+    encrypted: 0 | 1;
+    tags?: string[];
+  }[]) {
+    // Skip body for E2E-encrypted moments; the export should never leak
+    // ciphertext into a CSV (looks like garbage anyway).
+    const body = r.encrypted ? "[ENCRYPTED — gunakan JSON export]" : r.body;
+    out.push(
+      [
+        r.date,
+        r.title,
+        body,
+        r.emoji ?? "",
+        r.encrypted ? "yes" : "no",
+        (r.tags ?? []).join(";"),
+      ]
+        .map(escapeCsv)
+        .join(","),
+    );
+  }
+  return out.join("\n");
+}
+
 function escapeCsv(v: unknown): string {
   const s = String(v ?? "");
   if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;

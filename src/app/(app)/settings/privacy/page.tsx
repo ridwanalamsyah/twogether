@@ -10,6 +10,8 @@ import {
   downloadExport,
   downloadCsv,
   exportAll,
+  exportGoalsCsv,
+  exportMomentsCsv,
   exportTransactionsCsv,
   importBundle,
   wipeLocal,
@@ -70,6 +72,28 @@ export default function PrivacyPage() {
     try {
       const csv = await exportTransactionsCsv(userId);
       downloadCsv(csv, "twogether-transaksi.csv");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleGoalsCsv() {
+    if (!userId) return;
+    setBusy("csvGoals");
+    try {
+      const csv = await exportGoalsCsv(userId);
+      downloadCsv(csv, "twogether-goals.csv");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleMomentsCsv() {
+    if (!userId) return;
+    setBusy("csvMoments");
+    try {
+      const csv = await exportMomentsCsv(userId);
+      downloadCsv(csv, "twogether-moments.csv");
     } finally {
       setBusy(null);
     }
@@ -149,6 +173,20 @@ export default function PrivacyPage() {
             sub="Buat buka di Numbers / Excel / Google Sheets"
             onClick={handleCsvExport}
             busy={busy === "csv"}
+          />
+          <ActionRow
+            emoji="🎯"
+            label="Export goals (CSV)"
+            sub="Termasuk total tabungan & progress per goal"
+            onClick={handleGoalsCsv}
+            busy={busy === "csvGoals"}
+          />
+          <ActionRow
+            emoji="📖"
+            label="Export moments (CSV)"
+            sub="Catatan momen. Entri terenkripsi disembunyikan — pakai JSON untuk versi lengkap"
+            onClick={handleMomentsCsv}
+            busy={busy === "csvMoments"}
           />
           <label className="block">
             <ActionRow
