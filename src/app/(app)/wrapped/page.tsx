@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
+import { useStableArray } from "@/lib/useStableArray";
 import {
   useTransactions,
   useDeposits,
@@ -24,11 +25,10 @@ function formatRupiah(n: number): string {
 
 export default function WrappedPage() {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
-  const deps = useDeposits(userId) ?? [];
-  const entries = useAllEntries(userId) ?? [];
-  const moments = useMoments(userId) ?? [];
-
+  const txs = useStableArray(useTransactions(userId));
+  const deps = useStableArray(useDeposits(userId));
+  const entries = useStableArray(useAllEntries(userId));
+  const moments = useStableArray(useMoments(userId));
   const stats = useMemo(() => {
     const yearStart = new Date(YEAR, 0, 1).getTime();
     const yearEnd = new Date(YEAR + 1, 0, 1).getTime();

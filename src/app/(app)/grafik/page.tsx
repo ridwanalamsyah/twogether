@@ -12,18 +12,18 @@ import {
   useDeposits,
 } from "@/stores/data";
 import { todayISO } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 export default function GrafikPage() {
   const userId = useAuth((s) => s.userId);
-  const water = useEntries(userId, "water") ?? [];
-  const weight = useEntries(userId, "weight") ?? [];
-  const sleep = useEntries(userId, "sleep") ?? [];
-  const mood = useEntries(userId, "mood") ?? [];
-  const exercise = useEntries(userId, "exercise") ?? [];
-  const pomodoro = useEntries(userId, "pomodoro") ?? [];
-  const txs = useTransactions(userId) ?? [];
-  const deposits = useDeposits(userId) ?? [];
-
+  const water = useStableArray(useEntries(userId, "water"));
+  const weight = useStableArray(useEntries(userId, "weight"));
+  const sleep = useStableArray(useEntries(userId, "sleep"));
+  const mood = useStableArray(useEntries(userId, "mood"));
+  const exercise = useStableArray(useEntries(userId, "exercise"));
+  const pomodoro = useStableArray(useEntries(userId, "pomodoro"));
+  const txs = useStableArray(useTransactions(userId));
+  const deposits = useStableArray(useDeposits(userId));
   const expensePts = useMemo(
     () =>
       txs

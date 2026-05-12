@@ -10,6 +10,7 @@ import {
   type ClassItem,
 } from "@/data/classes";
 import { WidgetShell } from "./WidgetShell";
+import { useStableArray } from "@/lib/useStableArray";
 
 /**
  * Compact widget showing today's class schedule at a glance.
@@ -17,8 +18,7 @@ import { WidgetShell } from "./WidgetShell";
  */
 export function JadwalHariIniWidget() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "class") ?? [];
-
+  const items = useStableArray(useItems(userId, "class"));
   const { day, classes } = useMemo(() => {
     const day: ClassDay = indonesianDayOf(new Date());
     const out: ClassItem[] = [];

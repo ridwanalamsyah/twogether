@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useTransactions, addTransaction } from "@/stores/data";
 import { hapticTap, hapticSuccess } from "@/lib/haptic";
+import { useStableArray } from "@/lib/useStableArray";
 
 const QUICK_INCOME = ["Gaji", "Bonus", "Lainnya"];
 const QUICK_EXPENSE = ["Makan", "Transport", "Belanja", "Lainnya"];
@@ -23,7 +24,7 @@ function formatRupiahShort(n: number): string {
 
 export function KeuanganQuickWidget() {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
+  const txs = useStableArray(useTransactions(userId));
   const [mode, setMode] = useState<"in" | "out" | null>(null);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<string>("");

@@ -20,6 +20,7 @@ import {
   useItems,
 } from "@/stores/data";
 import { todayISO, formatDateShort } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 export default function SehatPage() {
   return (
@@ -54,7 +55,7 @@ export default function SehatPage() {
 /* ───── Water ───── */
 function WaterSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "water") ?? [];
+  const entries = useStableArray(useEntries(userId, "water"));
   const today = todayISO();
   const todayTotal = entries
     .filter((e) => e.date === today)
@@ -106,7 +107,7 @@ function WaterSection() {
 /* ───── Weight ───── */
 function WeightSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "weight") ?? [];
+  const entries = useStableArray(useEntries(userId, "weight"));
   const [val, setVal] = useState("");
 
   async function add() {
@@ -178,7 +179,7 @@ function WeightSection() {
 /* ───── Sleep ───── */
 function SleepSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "sleep") ?? [];
+  const entries = useStableArray(useEntries(userId, "sleep"));
   const [hours, setHours] = useState("");
   const [quality, setQuality] = useState(3);
 
@@ -263,7 +264,7 @@ function SleepSection() {
 /* ───── Exercise ───── */
 function ExerciseSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "exercise") ?? [];
+  const entries = useStableArray(useEntries(userId, "exercise"));
   const [type, setType] = useState("");
   const [mins, setMins] = useState("");
 
@@ -333,7 +334,7 @@ function ExerciseSection() {
 /* ───── Mood ───── */
 function MoodSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "mood") ?? [];
+  const entries = useStableArray(useEntries(userId, "mood"));
   const today = todayISO();
   const todayMood = entries.find((e) => e.date === today);
 
@@ -384,7 +385,7 @@ function moodEmoji(n: number): string {
 /* ───── Period (cycle) ───── */
 function PeriodSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "cycle") ?? [];
+  const entries = useStableArray(useEntries(userId, "cycle"));
   const [date, setDate] = useState(todayISO());
   const [marker, setMarker] = useState<"start" | "end" | "spotting">("start");
 
@@ -474,7 +475,7 @@ function PeriodSection() {
 /* ───── Body metrics ───── */
 function BodyMetricsSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "body") ?? [];
+  const entries = useStableArray(useEntries(userId, "body"));
   const [waist, setWaist] = useState("");
   const [chest, setChest] = useState("");
   const [hip, setHip] = useState("");
@@ -559,7 +560,7 @@ function BodyMetricsSection() {
 /* ───── Meds & supplements ───── */
 function MedsSection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "med") ?? [];
+  const items = useStableArray(useItems(userId, "med"));
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
   const [dose, setDose] = useState("");

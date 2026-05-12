@@ -9,6 +9,7 @@ import {
   toggleHabitLog,
 } from "@/stores/data";
 import { hapticTap } from "@/lib/haptic";
+import { useStableArray } from "@/lib/useStableArray";
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -16,10 +17,9 @@ function todayISO(): string {
 
 export function HabitsQuickWidget() {
   const userId = useAuth((s) => s.userId);
-  const habits = useHabits(userId) ?? [];
+  const habits = useStableArray(useHabits(userId));
   const today = todayISO();
-  const logs = useHabitLogsForDate(userId, today) ?? [];
-
+  const logs = useStableArray(useHabitLogsForDate(userId, today));
   const doneSet = useMemo(() => {
     const s = new Set<string>();
     for (const l of logs) if (l.done) s.add(l.habitId);

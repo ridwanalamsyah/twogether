@@ -20,6 +20,7 @@ import {
   useItems,
 } from "@/stores/data";
 import { todayISO, formatDateShort } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 export default function KitaPage() {
   return (
@@ -53,7 +54,7 @@ export default function KitaPage() {
 /* ───── Anniversary / important dates ───── */
 function AnniversarySection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "anniv") ?? [];
+  const items = useStableArray(useItems(userId, "anniv"));
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -159,7 +160,7 @@ function AnniversarySection() {
 /* ───── Date night ideas ───── */
 function DateNightSection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "datenight") ?? [];
+  const items = useStableArray(useItems(userId, "datenight"));
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState("");
   const [type, setType] = useState("makan");
@@ -268,7 +269,7 @@ function DateNightSection() {
 /* ───── Appreciation log ───── */
 function AppreciationSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "apresiasi") ?? [];
+  const entries = useStableArray(useEntries(userId, "apresiasi"));
   const [text, setText] = useState("");
 
   async function add() {
@@ -326,7 +327,7 @@ function AppreciationSection() {
 /* ───── Argument log ───── */
 function ArgumentSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "argument") ?? [];
+  const entries = useStableArray(useEntries(userId, "argument"));
   const [topic, setTopic] = useState("");
   const [resolution, setResolution] = useState("");
 
@@ -401,7 +402,7 @@ function ArgumentSection() {
 /* ───── Bucket list ───── */
 function BucketListSection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "bucket") ?? [];
+  const items = useStableArray(useItems(userId, "bucket"));
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState("");
 
@@ -494,7 +495,7 @@ function BucketListSection() {
 /* ───── Surprise tracker ───── */
 function SurpriseSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "surprise") ?? [];
+  const entries = useStableArray(useEntries(userId, "surprise"));
   const [from, setFrom] = useState("");
   const [what, setWhat] = useState("");
 
@@ -579,7 +580,7 @@ const QOTD_POOL = [
 
 function QotdSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "qotd") ?? [];
+  const entries = useStableArray(useEntries(userId, "qotd"));
   const today = todayISO();
   const todayQ = useMemo(() => {
     // Deterministic per day so partner sees same question

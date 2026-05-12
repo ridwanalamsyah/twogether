@@ -13,6 +13,7 @@ import {
   type ClassItem,
 } from "@/data/classes";
 import type { ItemRecord } from "@/lib/db";
+import { useStableArray } from "@/lib/useStableArray";
 
 type ItemPlus = ItemRecord & { _parsed: ClassItem };
 
@@ -42,8 +43,7 @@ export default function JadwalPage() {
   const [editing, setEditing] = useState<ItemPlus | null>(null);
   const [adding, setAdding] = useState(false);
 
-  const items = useItems(userId, "class") ?? [];
-
+  const items = useStableArray(useItems(userId, "class"));
   const grouped = useMemo(() => {
     const m = new Map<ClassDay, ItemPlus[]>();
     for (const raw of items) {

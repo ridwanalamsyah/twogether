@@ -7,12 +7,13 @@ import { useWorkspace } from "@/stores/workspace";
 import { useGoals, useDeposits, useTransactions } from "@/stores/data";
 import { formatRupiah, formatRupiahShort } from "@/lib/utils";
 import { TrackerInsights } from "@/components/insights/TrackerInsights";
+import { useStableArray } from "@/lib/useStableArray";
 
 export default function InsightsPage() {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
-  const goals = useGoals(userId) ?? [];
-  const deposits = useDeposits(userId) ?? [];
+  const txs = useStableArray(useTransactions(userId));
+  const goals = useStableArray(useGoals(userId));
+  const deposits = useStableArray(useDeposits(userId));
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
 

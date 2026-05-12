@@ -22,6 +22,7 @@ import {
   useTransactions,
 } from "@/stores/data";
 import { formatRupiah, formatDateShort, todayISO } from "@/lib/utils";
+import { useStableArray } from "@/lib/useStableArray";
 
 export default function UangPage() {
   return (
@@ -52,7 +53,7 @@ export default function UangPage() {
 /* ───── Hutang / Piutang ───── */
 function DebtSection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "debt") ?? [];
+  const items = useStableArray(useItems(userId, "debt"));
   const [t, setT] = useState("");
   const [who, setWho] = useState("");
   const [amount, setAmount] = useState("");
@@ -244,7 +245,7 @@ function DebtSection() {
 /* ───── Subscription manager ───── */
 function SubscriptionSection() {
   const userId = useAuth((s) => s.userId);
-  const items = useItems(userId, "subscription") ?? [];
+  const items = useStableArray(useItems(userId, "subscription"));
   const [t, setT] = useState("");
   const [amount, setAmount] = useState("");
   const [day, setDay] = useState("1");
@@ -401,7 +402,7 @@ function SubscriptionSection() {
 /* ───── Pay day mode ───── */
 function PaydaySection() {
   const userId = useAuth((s) => s.userId);
-  const goals = useGoals(userId) ?? [];
+  const goals = useStableArray(useGoals(userId));
   const [salary, setSalary] = useState("");
   const [savePct, setSavePct] = useState("20");
   const [needPct, setNeedPct] = useState("50");
@@ -554,9 +555,9 @@ function Row({ label, v }: { label: string; v: number }) {
 /* ───── Monthly closing ritual ───── */
 function ClosingSection() {
   const userId = useAuth((s) => s.userId);
-  const txs = useTransactions(userId) ?? [];
-  const goals = useGoals(userId) ?? [];
-  const budgets = useBudgets(userId) ?? [];
+  const txs = useStableArray(useTransactions(userId));
+  const goals = useStableArray(useGoals(userId));
+  const budgets = useStableArray(useBudgets(userId));
   const [transferGoalId, setTransferGoalId] = useState<string>("");
   const [reflection, setReflection] = useState("");
   const [done, setDone] = useState<string | null>(null);
