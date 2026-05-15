@@ -1,4 +1,4 @@
-const VERSION = "twogether-v3";
+const VERSION = "twogether-v4";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const APP_SHELL = [
