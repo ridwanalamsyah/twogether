@@ -3,10 +3,36 @@
   "short_name": "Twogether",
   "description": "Twogether — keuangan, tracker, & moments untuk berdua. Offline-first.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
+  "categories": ["productivity", "finance", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Tambah transaksi",
+      "short_name": "Transaksi",
+      "description": "Catat pemasukan atau pengeluaran cepat",
+      "url": "/tracker?add=out",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Catat moment",
+      "short_name": "Moment",
+      "description": "Simpan catatan atau momen baru",
+      "url": "/moments?add=1",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Lihat dashboard",
+      "short_name": "Home",
+      "description": "Buka dashboard Twogether",
+      "url": "/home",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",

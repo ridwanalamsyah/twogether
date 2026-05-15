@@ -64,7 +64,7 @@ export function PWAUpdateBanner() {
   if (!available) return null;
 
   return (
-    <div className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 flex items-center gap-2 rounded-lg border border-border bg-bg-elev2 px-3 py-2 shadow-lg">
+    <div className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 mx-auto flex max-w-[456px] items-center gap-2 rounded-lg border border-border bg-bg-elev2 px-3 py-2 shadow-lg">
       <span className="text-base">✨</span>
       <div className="flex-1">
         <div className="text-[12px] font-semibold text-text-1">

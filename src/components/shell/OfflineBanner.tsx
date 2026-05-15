@@ -15,7 +15,7 @@ export function OfflineBanner() {
   if (snap.connection === "online") return null;
 
   return (
-    <div className="sticky top-[calc(var(--sat)+64px)] z-30 mx-4 mt-2 flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+    <div className="sticky top-[calc(var(--header-top-pad)+48px)] z-30 mx-4 mt-2 flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
       <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
       <span className="flex-1 font-medium">
         Mode offline — perubahan akan tersinkron setelah online
