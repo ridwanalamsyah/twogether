@@ -59,7 +59,9 @@ export function predictGoal(
   const saved = relevant.reduce((sum, d) => sum + d.amount, 0);
   const remaining = Math.max(goal.target - saved, 0);
 
-  if (!relevant.length) {
+  const extraPerWeek = whatIf.extraPerWeek ?? 0;
+
+  if (!relevant.length && extraPerWeek <= 0) {
     return {
       weeklyRate: 0,
       trend: 0,
@@ -76,12 +78,13 @@ export function predictGoal(
 
   const weekly = bucketWeekly(relevant);
   const recent = weekly.slice(-SMA_WINDOW);
-  const sma = mean(recent.map((w) => w.amount));
-  const trend = linearSlope(recent.map((w) => w.amount));
-  const cv = consistencyScore(recent.map((w) => w.amount));
+  const recentAmounts = recent.map((w) => w.amount);
+  const sma = recentAmounts.length > 0 ? mean(recentAmounts) : 0;
+  const trend = recentAmounts.length > 0 ? linearSlope(recentAmounts) : 0;
+  const cv = recentAmounts.length > 0 ? consistencyScore(recentAmounts) : 0;
 
   const baseRate = whatIf.overrideRate ?? sma;
-  const effectiveRate = Math.max(0, baseRate + (whatIf.extraPerWeek ?? 0));
+  const effectiveRate = Math.max(0, baseRate + extraPerWeek);
 
   const weeksLeft =
     remaining === 0 ? 0 : effectiveRate <= 0 ? Infinity : remaining / effectiveRate;
