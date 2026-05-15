@@ -52,7 +52,11 @@
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
-  --nav-h: calc(60px + var(--sab));
+  --app-h: 100dvh;
+  --header-top-pad: calc(var(--sat) + 10px);
+  --nav-content-h: 54px;
+  --nav-bottom-pad: max(8px, var(--sab));
+  --nav-h: calc(var(--nav-content-h) + var(--nav-bottom-pad));
 
   /* Animation */
   --ease-ios: cubic-bezier(0.4, 0, 0.2, 1);
@@ -173,6 +177,10 @@ body {
   -webkit-touch-callout: none;
 }
 
+.app-shell {
+  min-height: var(--app-h);
+}
+
 /* allow text selection inside content surfaces */
 input,
 textarea,
@@ -243,7 +251,7 @@ button {
   padding-bottom: var(--sab);
 }
 .pb-nav {
-  padding-bottom: calc(var(--nav-h) + 16px);
+  padding-bottom: calc(var(--nav-h) + 12px);
 }
 
 /* ── REUSABLE PRIMITIVES ──────────────────────────────── */

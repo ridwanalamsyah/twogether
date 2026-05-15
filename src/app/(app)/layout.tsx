@@ -56,7 +56,7 @@ export default function AppLayout({
   if (!userId) return null;
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-[480px] flex-col bg-bg-app">
+    <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app">
       <OfflineBanner />
       <main className="flex-1 pb-nav">{children}</main>
       <BottomNav />
