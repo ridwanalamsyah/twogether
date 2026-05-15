@@ -68,7 +68,7 @@ const ITEMS: NavItem[] = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/95 pb-[var(--nav-bottom-pad)] backdrop-blur-xl theme-transition">
+    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/95 pb-[var(--nav-bottom-pad)] pt-1 backdrop-blur-xl theme-transition">
       <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
         {ITEMS.map((item) => {
           const active =
@@ -78,11 +78,11 @@ export function BottomNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex flex-1 flex-col items-center justify-center gap-0 text-[10px] transition-colors",
+                  "flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-colors",
                   active ? "text-text-1" : "text-text-4",
                 )}
               >
-                <span className="h-[19px] w-[19px]">{item.icon}</span>
+                <span className="h-[21px] w-[21px]">{item.icon}</span>
                 <span className="font-medium">{item.label}</span>
               </Link>
             </li>

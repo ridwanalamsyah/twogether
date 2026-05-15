@@ -26,6 +26,7 @@ export function GoalSimulator({
     () => predictGoal(goal, deposits, { extraPerWeek: extra }),
     [goal, deposits, extra],
   );
+  const hasProjection = Number.isFinite(projected.weeksLeft);
 
   const baseWeeks = baseline.weeksLeft;
   const newWeeks = projected.weeksLeft;
@@ -46,7 +47,9 @@ export function GoalSimulator({
       </div>
 
       <p className="text-sm leading-relaxed text-text-2">
-        {projected.summary}
+        {extra > 0 && hasProjection
+          ? `Kalau rutin tambah ${formatRupiahShort(extra)}/minggu, target ini diproyeksikan tercapai dalam ${fmtWeeks(projected.weeksLeft)}.`
+          : projected.summary}
       </p>
 
       <div className="mt-3">
@@ -90,10 +93,16 @@ export function GoalSimulator({
             Proyeksi
           </div>
           <div className="font-mono text-sm font-bold text-accent">
-            {fmtWeeks(newWeeks)}
+            {hasProjection ? fmtWeeks(newWeeks) : "atur slider"}
           </div>
         </div>
       </div>
+
+      {extra > 0 && !Number.isFinite(baseWeeks) && hasProjection && (
+        <p className="mt-2 text-xs text-[color:var(--positive)]">
+          Proyeksi dibuat dari rencana setoran mingguanmu.
+        </p>
+      )}
 
       {saved && saved >= 1 && (
         <p className="mt-2 text-xs text-[color:var(--positive)]">
