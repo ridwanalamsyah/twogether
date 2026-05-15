@@ -54,8 +54,8 @@
   --sar: env(safe-area-inset-right, 0px);
   --app-h: 100dvh;
   --header-top-pad: calc(var(--sat) + 10px);
-  --nav-content-h: 54px;
-  --nav-bottom-pad: max(6px, calc(var(--sab) * 0.35));
+  --nav-content-h: 50px;
+  --nav-bottom-pad: 2px;
   --nav-h: calc(var(--nav-content-h) + var(--nav-bottom-pad));
 
   /* Animation */
