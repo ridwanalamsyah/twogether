@@ -10,14 +10,38 @@ const serviceWorker = readFileSync(new URL("../public/sw.js", import.meta.url), 
 
 assert.match(
   css,
-  /--nav-bottom-pad:\s*2px;/,
+  /--nav-visual-bottom-pad:\s*2px;/,
   "bottom nav should sit close to the viewport bottom without a large visual gap",
 );
 
 assert.match(
   css,
-  /--nav-h:\s*calc\(var\(--nav-content-h\) \+ var\(--nav-bottom-pad\)\);/,
+  /--nav-safe-bottom:\s*max\(var\(--sab\),\s*0px\);/,
+  "bottom nav should know the iOS safe-area height",
+);
+
+assert.match(
+  css,
+  /--nav-bottom-offset:\s*min\(var\(--nav-safe-bottom\),\s*28px\);/,
+  "bottom nav should pull into the iOS safe area without fully hiding itself",
+);
+
+assert.match(
+  css,
+  /--nav-bottom-pad:\s*calc\(var\(--nav-visual-bottom-pad\) \+ var\(--nav-bottom-offset\)\);/,
+  "bottom nav background should continue through the pulled-up safe area",
+);
+
+assert.match(
+  css,
+  /--nav-h:\s*calc\(\s*var\(--nav-content-h\) \+ var\(--nav-visual-bottom-pad\) \+\s*max\(var\(--nav-safe-bottom\) - var\(--nav-bottom-offset\), 0px\)\s*\);/,
   "content padding should keep using the shared bottom nav height token",
+);
+
+assert.match(
+  bottomNav,
+  /-bottom-\[var\(--nav-bottom-offset\)\]/,
+  "bottom nav should extend into the iOS safe area instead of floating above it",
 );
 
 assert.doesNotMatch(
@@ -34,6 +58,6 @@ assert.match(
 
 assert.match(
   serviceWorker,
-  /const VERSION = "twogether-v5";/,
+  /const VERSION = "twogether-v6";/,
   "service worker cache version should bump when shell spacing changes",
 );
