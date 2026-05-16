@@ -55,7 +55,7 @@
   --app-h: 100dvh;
   --header-top-pad: calc(var(--sat) + 10px);
   --nav-content-h: 56px;
-  --nav-bottom-pad: max(10px, calc(var(--sab) * 0.45));
+  --nav-bottom-pad: 2px;
   --nav-h: calc(var(--nav-content-h) + var(--nav-bottom-pad));
 
   /* Animation */
