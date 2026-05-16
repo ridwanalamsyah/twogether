@@ -68,7 +68,7 @@ const ITEMS: NavItem[] = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/95 pb-[var(--nav-bottom-pad)] pt-1 backdrop-blur-xl theme-transition">
+    <nav className="fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/95 pb-[var(--nav-bottom-pad)] backdrop-blur-xl theme-transition">
       <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
         {ITEMS.map((item) => {
           const active =

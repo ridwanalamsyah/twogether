@@ -55,8 +55,14 @@
   --app-h: 100dvh;
   --header-top-pad: calc(var(--sat) + 10px);
   --nav-content-h: 56px;
-  --nav-bottom-pad: max(10px, calc(var(--sab) * 0.45));
-  --nav-h: calc(var(--nav-content-h) + var(--nav-bottom-pad));
+  --nav-visual-bottom-pad: 2px;
+  --nav-safe-bottom: max(var(--sab), 0px);
+  --nav-bottom-offset: min(var(--nav-safe-bottom), 28px);
+  --nav-bottom-pad: calc(var(--nav-visual-bottom-pad) + var(--nav-bottom-offset));
+  --nav-h: calc(
+    var(--nav-content-h) + var(--nav-visual-bottom-pad) +
+      max(var(--nav-safe-bottom) - var(--nav-bottom-offset), 0px)
+  );
 
   /* Animation */
   --ease-ios: cubic-bezier(0.4, 0, 0.2, 1);
