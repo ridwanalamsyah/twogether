@@ -22,8 +22,8 @@ assert.match(
 
 assert.match(
   css,
-  /--nav-bottom-offset:\s*min\(var\(--nav-safe-bottom\),\s*28px\);/,
-  "bottom nav should pull into the iOS safe area without fully hiding itself",
+  /--nav-bottom-offset:\s*var\(--nav-safe-bottom\);/,
+  "bottom nav should pull fully into the iOS safe area",
 );
 
 assert.match(
@@ -34,8 +34,8 @@ assert.match(
 
 assert.match(
   css,
-  /--nav-h:\s*calc\(\s*var\(--nav-content-h\) \+ var\(--nav-visual-bottom-pad\) \+\s*max\(var\(--nav-safe-bottom\) - var\(--nav-bottom-offset\), 0px\)\s*\);/,
-  "content padding should keep using the shared bottom nav height token",
+  /--nav-h:\s*calc\(var\(--nav-content-h\) \+ var\(--nav-visual-bottom-pad\)\);/,
+  "visible bottom nav height should stay compact even when covering iOS safe area",
 );
 
 assert.match(
@@ -58,6 +58,6 @@ assert.match(
 
 assert.match(
   serviceWorker,
-  /const VERSION = "twogether-v6";/,
+  /const VERSION = "twogether-v7";/,
   "service worker cache version should bump when shell spacing changes",
 );

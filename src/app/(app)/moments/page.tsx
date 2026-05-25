@@ -194,14 +194,17 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
   const [voice, setVoice] = useState<string | undefined>(undefined);
   const [encrypt, setEncrypt] = useState(false);
   const unlocked = isUnlocked();
+  const canSubmit = Boolean(title.trim() || body.trim() || voice);
 
   async function submit() {
-    if (!userId || !title.trim()) return;
+    if (!userId || !canSubmit) return;
+    const cleanBody = body.trim();
+    const cleanTitle = title.trim() || cleanBody.slice(0, 40) || (voice ? "Voice note" : "");
     await upsertMoment(
       userId,
       {
-        title: title.trim(),
-        body,
+        title: cleanTitle,
+        body: cleanBody,
         date: todayISO(),
         emoji,
         tags,
@@ -269,7 +272,7 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
           </label>
           <button
             onClick={submit}
-            disabled={!title.trim()}
+            disabled={!canSubmit}
             className="btn-accent w-full text-sm disabled:opacity-50"
           >
             Simpan moment
