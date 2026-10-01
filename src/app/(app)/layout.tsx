@@ -7,7 +7,6 @@ import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
-import { QuickAddFab } from "@/components/shell/QuickAddFab";
 import { OfflineBanner } from "@/components/shell/OfflineBanner";
 import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
 
@@ -23,6 +22,12 @@ export default function AppLayout({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // We reached a real app route — clear the splash's recovery marker.
+    try {
+      sessionStorage.removeItem("twogether:recover");
+    } catch {
+      /* private mode */
+    }
     let cancelled = false;
     const finish = () => {
       if (cancelled) return;
@@ -33,7 +38,7 @@ export default function AppLayout({
       finish();
     } else {
       const unsub = useAuth.persist.onFinishHydration(finish);
-      const safety = setTimeout(finish, 800);
+      const safety = setTimeout(finish, 400);
       return () => {
         cancelled = true;
         unsub();
@@ -47,11 +52,7 @@ export default function AppLayout({
   }, [hydrated, ready, userId, router]);
 
   if (!hydrated || !ready) {
-    return (
-      <main className="fixed inset-0 flex items-center justify-center bg-bg-app text-sm text-text-3">
-        Memuat workspace…
-      </main>
-    );
+    return <BootScreen />;
   }
   if (!userId) return null;
 
@@ -60,7 +61,6 @@ export default function AppLayout({
       <OfflineBanner />
       <main className="flex-1 pb-nav">{children}</main>
       <BottomNav />
-      <QuickAddFab />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />
@@ -73,4 +73,28 @@ function LockGate() {
   const locked = useSecurity((s) => s.locked);
   if (!pinHash || !locked) return null;
   return <LockScreen />;
+}
+
+/** Calm loading state that matches the splash, instead of bare text. */
+function BootScreen() {
+  return (
+    <main className="fixed inset-0 flex items-center justify-center bg-bg-app">
+      <div className="flex flex-col items-center gap-4 animate-in">
+        <div className="boot-pulse flex h-14 w-14 items-center justify-center rounded-[18px] bg-accent text-accent-fg">
+          <svg
+            viewBox="0 0 44 44"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.8"
+            className="h-8 w-8"
+            aria-hidden
+          >
+            <circle cx="17" cy="22" r="10" />
+            <circle cx="27" cy="22" r="10" />
+          </svg>
+        </div>
+        <span className="text-[12px] text-text-4">Menyiapkan ruang kalian…</span>
+      </div>
+    </main>
+  );
 }

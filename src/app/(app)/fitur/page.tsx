@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 
 interface FeatureItem {
@@ -20,37 +21,14 @@ interface FeatureGroup {
 // repeated here so this page works as a single "table of contents".
 const GROUPS: FeatureGroup[] = [
   {
-    title: "Pintasan utama",
+    title: "Uang & keuangan",
     items: [
-      {
-        href: "/home",
-        emoji: "🏠",
-        title: "Home",
-        subtitle: "Dashboard utama harian",
-      },
-      {
-        href: "/tracker",
-        emoji: "📊",
-        title: "Tracker",
-        subtitle: "Catat & lihat transaksi",
-      },
       {
         href: "/goals",
         emoji: "🎯",
         title: "Goals",
         subtitle: "Tabungan & target bersama",
       },
-      {
-        href: "/moments",
-        emoji: "💝",
-        title: "Moments",
-        subtitle: "Jurnal momen berdua",
-      },
-    ],
-  },
-  {
-    title: "Uang & keuangan",
-    items: [
       {
         href: "/uang",
         emoji: "💰",
@@ -109,6 +87,12 @@ const GROUPS: FeatureGroup[] = [
   {
     title: "Kehidupan berdua",
     items: [
+      {
+        href: "/moments",
+        emoji: "💌",
+        title: "Moments",
+        subtitle: "Jurnal & kenangan berdua",
+      },
       {
         href: "/kita",
         emoji: "👫",
@@ -175,71 +159,42 @@ const GROUPS: FeatureGroup[] = [
       },
     ],
   },
-  {
-    title: "Pengaturan",
-    items: [
-      {
-        href: "/settings/profile",
-        emoji: "👤",
-        title: "Profil",
-        subtitle: "Nama, ulang tahun, avatar",
-      },
-      {
-        href: "/settings/workspace",
-        emoji: "🤝",
-        title: "Workspace",
-        subtitle: "Anggota & undangan",
-      },
-      {
-        href: "/settings/dashboard",
-        emoji: "🧩",
-        title: "Dashboard",
-        subtitle: "Atur widget di Home",
-      },
-      {
-        href: "/settings/theme",
-        emoji: "🎨",
-        title: "Tema",
-        subtitle: "Mode terang / gelap / sistem",
-      },
-      {
-        href: "/settings/finance",
-        emoji: "💳",
-        title: "Keuangan",
-        subtitle: "Kategori & default keuangan",
-      },
-      {
-        href: "/settings/security",
-        emoji: "🔒",
-        title: "Keamanan",
-        subtitle: "PIN, enkripsi end-to-end",
-      },
-      {
-        href: "/settings/privacy",
-        emoji: "🛡️",
-        title: "Privasi",
-        subtitle: "Export, import, hapus data",
-      },
-      {
-        href: "/settings/trash",
-        emoji: "🗑️",
-        title: "Sampah",
-        subtitle: "Pulihkan data yang dihapus",
-      },
-    ],
-  },
 ];
 
 export default function AllFeaturesPage() {
-  return (
-    <div className="animate-in">
-      <AppHeader
-        title="Semua Fitur"
-        subtitle="Pintasan ke setiap modul Twogether"
-      />
+  const [q, setQ] = useState("");
+  const groups = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return GROUPS;
+    return GROUPS.map((g) => ({
+      ...g,
+      items: g.items.filter((it) =>
+        `${it.title} ${it.subtitle}`.toLowerCase().includes(needle),
+      ),
+    })).filter((g) => g.items.length > 0);
+  }, [q]);
 
-      <div className="space-y-6 px-4 pb-8">
-        {GROUPS.map((group) => (
+  return (
+    <div>
+      <AppHeader title="Jelajah" subtitle="Semua ruang kalian berdua" />
+
+      <div className="px-4 pt-3 pb-1">
+        <input
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Cari fitur… (mis. hutang, tidur, trip)"
+          className="input-base h-10 bg-bg-elev1 text-[14px]"
+        />
+      </div>
+
+      <div className="space-y-6 px-4 pt-3 pb-8">
+        {groups.length === 0 && (
+          <div className="py-10 text-center text-[13px] text-text-4">
+            Tidak ada fitur yang cocok dengan “{q}”.
+          </div>
+        )}
+        {groups.map((group) => (
           <section key={group.title}>
             <div className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-text-4">
               {group.title}
@@ -249,7 +204,7 @@ export default function AllFeaturesPage() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="flex h-full flex-col gap-1 rounded-xl border border-border bg-bg-elev1 p-3 active:scale-[0.98] active:opacity-80"
+                    className="pressable flex h-full flex-col gap-1 rounded-xl border border-border bg-bg-elev1 p-3"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-xl leading-none">{item.emoji}</span>

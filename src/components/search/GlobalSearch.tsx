@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/stores/auth";
 import {
   addTransaction,
@@ -357,14 +358,16 @@ export function GlobalSearch({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
-  return (
+  if (!open || typeof document === "undefined") return null;
+  // Portal to <body>: the sticky header uses backdrop-filter, which would
+  // otherwise trap this fixed overlay inside the header's box.
+  return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/50 pt-[10vh]"
+      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/50 pt-[10vh] backdrop-in"
       onClick={onClose}
     >
       <div
-        className="mx-4 w-full max-w-[480px] overflow-hidden rounded-lg bg-bg-app shadow-2xl theme-transition"
+        className="pop-in mx-4 w-full max-w-[480px] overflow-hidden rounded-xl bg-bg-app shadow-2xl theme-transition"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-border">
@@ -420,6 +423,7 @@ export function GlobalSearch({
           )}
         </ul>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

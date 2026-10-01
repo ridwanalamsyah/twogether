@@ -9,6 +9,8 @@ import { isInDarkHours, useSecurity } from "@/stores/security";
  * theme store. Listens for system color-scheme changes when mode === "system".
  * Also honors the auto-dark schedule (overrides mode in the configured hours).
  */
+let firstApply = true;
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const mode = useTheme((s) => s.mode);
   const accent = useTheme((s) => s.accent);
@@ -27,6 +29,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             : "light"
           : mode;
       if (autoDark && isInDarkHours(darkFrom, darkTo)) resolved = "dark";
+      const changed =
+        root.dataset.theme !== resolved || root.dataset.accent !== accent;
+      if (changed && !firstApply) {
+        // Animate colors only for the duration of the switch.
+        root.classList.add("theme-switching");
+        window.setTimeout(() => root.classList.remove("theme-switching"), 350);
+      }
+      firstApply = false;
       root.dataset.theme = resolved;
       root.dataset.accent = accent;
       const meta = document.querySelector('meta[name="theme-color"]');

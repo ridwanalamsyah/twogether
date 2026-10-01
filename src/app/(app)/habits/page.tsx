@@ -195,11 +195,11 @@ function HabitSheet({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in"
       onClick={onClose}
     >
       <div
-        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] slide-up theme-transition"
+        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />

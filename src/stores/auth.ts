@@ -259,6 +259,121 @@ async function ensureSupaProfile(
     .upsert({ id: supaUserId, ...patch }, { onConflict: "id" });
 }
 
+/** Rejects with `timeout` when `p` doesn't settle within `ms`. */
+function withTimeout<T>(p: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`timeout:${label}`)), ms);
+    Promise.resolve(p).then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
+/** Seed the local-only workspace so the UI always has a roster to show. */
+function ensureLocalWorkspace(user: Pick<UserRecord, "id" | "name" | "email">) {
+  const ws = useWorkspace.getState();
+  if (!ws.workspaceId || ws.members.length === 0) {
+    ws.setWorkspace({
+      workspaceId: `ws_${user.id}`,
+      workspaceName: `Workspace ${user.name}`,
+      members: [
+        { id: user.id, name: user.name, email: user.email, isMe: true, isOwner: true },
+      ],
+    });
+  } else {
+    ws.upsertMember({ id: user.id, name: user.name, email: user.email, isMe: true });
+  }
+}
+
+/** Find (or create) the local Dexie user that mirrors a Supabase account. */
+async function ensureLocalUserForSupa(
+  supaUserId: string,
+  email: string,
+  preferredLocalId: string | null,
+  fallbackName?: string | null,
+): Promise<UserRecord> {
+  const db = getDB();
+  let user: UserRecord | undefined = preferredLocalId
+    ? await db.users.get(preferredLocalId)
+    : undefined;
+  if (!user || user.deletedAt) {
+    user = await db.users.where("email").equals(email).first();
+  }
+  if (user && !user.deletedAt) return user;
+
+  let profile: { name?: string; birthday?: string; avatar?: string } | null = null;
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const res = await withTimeout(
+        sb
+          .from("profiles")
+          .select("name, birthday, avatar")
+          .eq("id", supaUserId)
+          .maybeSingle(),
+        6000,
+        "profile",
+      );
+      profile = res.data;
+    } catch (err) {
+      console.warn("[auth] profile fetch failed:", err);
+    }
+  }
+  const localId = preferredLocalId ?? newId();
+  const created: UserRecord = {
+    id: localId,
+    userId: localId,
+    email,
+    name: profile?.name || fallbackName || email.split("@")[0],
+    birthday: profile?.birthday ?? undefined,
+    avatar: profile?.avatar ?? undefined,
+    createdAt: now(),
+    updatedAt: now(),
+    dirty: 0,
+  };
+  await db.users.put(created);
+  return created;
+}
+
+/**
+ * Connect the signed-in Supabase user to their workspace. Never throws: if
+ * the backend is unreachable or misconfigured the app keeps working in
+ * local mode and retries on the next launch.
+ */
+async function connectSupa(
+  supaUserId: string,
+  user: UserRecord,
+  set: (p: Partial<AuthState>) => void,
+): Promise<void> {
+  try {
+    const supaWorkspaceId = await withTimeout(
+      reconcileSupaWorkspace(supaUserId, {
+        name: user.name,
+        email: user.email,
+        localId: user.id,
+      }),
+      10000,
+      "workspace",
+    );
+    set({ supaUserId, supaWorkspaceId });
+    // Pulling every table can take a while on slow networks — never block
+    // the UI on it.
+    void attachSupa(supaUserId, supaWorkspaceId, user.id);
+  } catch (err) {
+    console.warn("[auth] workspace connect failed, staying local:", err);
+    ensureLocalWorkspace(user);
+  }
+}
+
+let bootstrapPromise: Promise<void> | null = null;
+
 export const useAuth = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -270,110 +385,81 @@ export const useAuth = create<AuthState>()(
       supaWorkspaceId: null,
       ready: false,
 
-      bootstrap: async () => {
-        try {
-          // Try to recover Supabase session first.
-          if (hasSupabase()) {
-            const sb = getSupabase();
-            if (sb) {
-              const { data } = await sb.auth.getSession();
-              const session = data.session;
+      bootstrap: () => {
+        if (bootstrapPromise) return bootstrapPromise;
+        bootstrapPromise = (async () => {
+          try {
+            // 1) Fast path: a local session exists → show the app right
+            //    away from IndexedDB, then reconnect to Supabase in the
+            //    background. The UI never waits for the network.
+            const { userId } = get();
+            const local = userId ? await getDB().users.get(userId) : undefined;
+            if (local && !local.deletedAt) {
+              set({
+                userId: local.id,
+                email: local.email,
+                name: local.name,
+                avatar: local.avatar ?? null,
+                ready: true,
+              });
+              ensureLocalWorkspace(local);
+              if (hasSupabase()) void refreshSupaSession(local);
+              return;
+            }
+
+            // 2) No local user (fresh device, cleared storage, or returning
+            //    from a magic link) → ask Supabase, but with a hard timeout.
+            if (hasSupabase()) {
+              const sb = getSupabase();
+              const res = sb
+                ? await withTimeout(sb.auth.getSession(), 8000, "session").catch(
+                    () => null,
+                  )
+                : null;
+              const session = res?.data.session;
               if (session?.user) {
-                const supaUserId = session.user.id;
                 const email = session.user.email ?? "";
-                let { userId, name } = get();
-                let user = userId ? await getDB().users.get(userId) : null;
-                if (!user) {
-                  // First-run on this device: try fetch profile
-                  const { data: profile } = await sb
-                    .from("profiles")
-                    .select("name, birthday, avatar")
-                    .eq("id", supaUserId)
-                    .maybeSingle();
-                  const localId = userId ?? newId();
-                  user = {
-                    id: localId,
-                    userId: localId,
-                    email,
-                    name: profile?.name ?? name ?? email.split("@")[0],
-                    birthday: profile?.birthday ?? undefined,
-                    avatar: profile?.avatar ?? undefined,
-                    createdAt: now(),
-                    updatedAt: now(),
-                    dirty: 0,
-                  } as UserRecord;
-                  await getDB().users.put(user);
-                  userId = localId;
-                  name = user.name;
-                }
-                // Always reconcile from server so a stale persisted
-                // workspaceId (e.g. after the user joined a partner's
-                // workspace and reloaded) doesn't pin the UI to a dead
-                // pointer.
-                const supaWorkspaceId = await reconcileSupaWorkspace(
-                  supaUserId,
-                  { name: user.name, email, localId: userId! },
+                const user = await ensureLocalUserForSupa(
+                  session.user.id,
+                  email,
+                  null,
+                  get().name,
                 );
                 set({
-                  userId,
+                  userId: user.id,
                   email,
                   name: user.name,
                   avatar: user.avatar ?? null,
-                  supaUserId,
-                  supaWorkspaceId,
+                  supaUserId: session.user.id,
                   ready: true,
                 });
-                await attachSupa(supaUserId, supaWorkspaceId, userId!);
+                ensureLocalWorkspace(user);
+                void connectSupa(session.user.id, user, set);
                 return;
               }
             }
-          }
-
-          // No Supabase session — fall back to local-only.
-          const { userId } = get();
-          if (!userId) {
-            set({ ready: true });
-            return;
-          }
-          const db = getDB();
-          const user = await db.users.get(userId);
-          if (user && !user.deletedAt) {
-            set({
-              userId: user.id,
-              email: user.email,
-              name: user.name,
-              avatar: user.avatar ?? null,
-              ready: true,
-            });
-            const ws = useWorkspace.getState();
-            if (!ws.workspaceId || ws.members.length === 0) {
-              ws.setWorkspace({
-                workspaceId: `ws_${user.id}`,
-                workspaceName: `Workspace ${user.name}`,
-                members: [
-                  {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    isMe: true,
-                    isOwner: true,
-                  },
-                ],
-              });
-            } else {
-              ws.upsertMember({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                isMe: true,
-              });
-            }
-          } else {
             set({ userId: null, email: null, name: null, ready: true });
+          } catch (err) {
+            console.warn("[auth] bootstrap failed:", err);
+            set({ ready: true });
+          } finally {
+            bootstrapPromise = null;
           }
-        } catch (err) {
-          console.warn("[auth] bootstrap failed:", err);
-          set({ ready: true });
+        })();
+        return bootstrapPromise;
+
+        async function refreshSupaSession(local: UserRecord) {
+          const sb = getSupabase();
+          if (!sb) return;
+          try {
+            const { data } = await withTimeout(sb.auth.getSession(), 8000, "session");
+            const supaUser = data.session?.user;
+            if (!supaUser) return;
+            if (get().userId !== local.id) return; // signed out meanwhile
+            await connectSupa(supaUser.id, local, set);
+          } catch (err) {
+            console.warn("[auth] background session refresh failed:", err);
+          }
         }
       },
 
@@ -381,30 +467,38 @@ export const useAuth = create<AuthState>()(
         if (hasSupabase()) {
           const sb = getSupabase();
           if (!sb) throw new Error("supabase_unavailable");
-          const { data, error } = await sb.auth.signUp({ email, password });
-          if (error) throw new Error(translateAuthError(error.message));
+          const { data, error } = await withTimeout(
+            sb.auth.signUp({ email, password, options: { data: { name } } }),
+            15000,
+            "signup",
+          ).catch((err: Error) => ({ data: null, error: err }));
+          if (error || !data) throw new Error(translateAuthError(error?.message ?? ""));
           const supaUserId = data.user?.id;
           if (!supaUserId) {
-            throw new Error(
-              "Cek email kamu untuk konfirmasi, lalu coba login.",
-            );
+            throw new Error("Cek email kamu untuk konfirmasi, lalu coba login.");
           }
-          // If session is null but user returned, email confirmation is on;
-          // best to advise the user. For now, we still create profile/workspace
-          // assuming auto-confirm or developer setting.
           if (!data.session) {
-            // Try to sign in immediately (works if email confirmation is off).
+            // Email confirmation is probably on. Try signing in right away
+            // (works when the project auto-confirms).
             const { error: signinErr } = await sb.auth.signInWithPassword({
               email,
               password,
             });
             if (signinErr) {
               throw new Error(
-                "Kami kirim email konfirmasi. Klik link di email lalu coba login.",
+                "Akun dibuat! Kami kirim email konfirmasi — klik link di email, lalu login di sini.",
               );
             }
           }
-          await ensureSupaProfile(supaUserId, { name, birthday, avatar: undefined });
+          try {
+            await withTimeout(
+              ensureSupaProfile(supaUserId, { name, birthday, avatar: undefined }),
+              6000,
+              "profile",
+            );
+          } catch (err) {
+            console.warn("[auth] profile upsert failed:", err);
+          }
 
           const db = getDB();
           const localId = newId();
@@ -419,20 +513,9 @@ export const useAuth = create<AuthState>()(
             dirty: 0,
           };
           await db.users.put(user);
-          const supaWorkspaceId = await reconcileSupaWorkspace(supaUserId, {
-            name,
-            email,
-            localId,
-          });
-          set({
-            userId: localId,
-            email,
-            name,
-            supaUserId,
-            supaWorkspaceId,
-            ready: true,
-          });
-          await attachSupa(supaUserId, supaWorkspaceId, localId);
+          set({ userId: localId, email, name, supaUserId, ready: true });
+          ensureLocalWorkspace(user);
+          await connectSupa(supaUserId, user, set);
           if (seed) {
             try {
               await seedSampleData({ userId: localId, primaryWho: name });
@@ -447,7 +530,7 @@ export const useAuth = create<AuthState>()(
         const db = getDB();
         const existing = await db.users.where("email").equals(email).first();
         if (existing && !existing.deletedAt) {
-          throw new Error("Email sudah terdaftar");
+          throw new Error("Email sudah terdaftar — coba login");
         }
         const salt = generateSalt();
         const hash = await hashPassword(password, salt);
@@ -485,71 +568,40 @@ export const useAuth = create<AuthState>()(
         if (hasSupabase()) {
           const sb = getSupabase();
           if (!sb) throw new Error("supabase_unavailable");
-          const { data, error } = await sb.auth.signInWithPassword({
-            email,
-            password,
-          });
-          if (error) throw new Error(translateAuthError(error.message));
-          const supaUserId = data.user?.id;
-          if (!supaUserId) throw new Error("Login gagal");
-
-          // Load profile
-          const { data: profile } = await sb
-            .from("profiles")
-            .select("name, birthday, avatar")
-            .eq("id", supaUserId)
-            .maybeSingle();
-          const profileName = profile?.name ?? email.split("@")[0];
-
-          const db = getDB();
-          // Reuse existing local user row if present, else create.
-          let user = await db.users.where("email").equals(email).first();
-          if (!user) {
-            const localId = newId();
-            user = {
-              id: localId,
-              userId: localId,
-              email,
-              name: profileName,
-              birthday: profile?.birthday ?? undefined,
-              avatar: profile?.avatar ?? undefined,
-              createdAt: now(),
-              updatedAt: now(),
-              dirty: 0,
-            } as UserRecord;
-            await db.users.put(user);
+          const { data, error } = await withTimeout(
+            sb.auth.signInWithPassword({ email, password }),
+            15000,
+            "signin",
+          ).catch((err: Error) => ({ data: null, error: err }));
+          if (error || !data?.user) {
+            // An account created before Supabase was wired lives only on
+            // this device — let it in instead of a confusing failure.
+            const local = await signInLocal(email, password).catch(() => null);
+            if (local) {
+              set({ ...local, ready: true });
+              ensureLocalWorkspace({ id: local.userId, name: local.name, email });
+              return;
+            }
+            throw new Error(translateAuthError(error?.message ?? "Login gagal"));
           }
-          const supaWorkspaceId = await reconcileSupaWorkspace(supaUserId, {
-            name: user.name,
-            email,
-            localId: user.id,
-          });
+          const supaUserId = data.user.id;
+          const user = await ensureLocalUserForSupa(supaUserId, email, null);
           set({
             userId: user.id,
             email,
             name: user.name,
             avatar: user.avatar ?? null,
             supaUserId,
-            supaWorkspaceId,
             ready: true,
           });
-          await attachSupa(supaUserId, supaWorkspaceId, user.id);
+          ensureLocalWorkspace(user);
+          await connectSupa(supaUserId, user, set);
           return;
         }
 
-        // Local-only fallback
-        const db = getDB();
-        const user = (await db.users.where("email").equals(email).first()) as
-          | (UserRecord & { passwordHash?: string })
-          | undefined;
-        if (!user || user.deletedAt) throw new Error("Akun tidak ditemukan");
-        if (!user.encSalt || !user.passwordHash) {
-          throw new Error("Akun tidak valid — daftar ulang");
-        }
-        const hash = await hashPassword(password, user.encSalt);
-        if (hash !== user.passwordHash) throw new Error("Password salah");
-        await unlockKey(password, user.encSalt);
-        set({ userId: user.id, email: user.email, name: user.name, ready: true });
+        const local = await signInLocal(email, password);
+        set({ ...local, ready: true });
+        ensureLocalWorkspace({ id: local.userId, name: local.name, email });
       },
 
       signInMagicLink: async (email: string) => {
@@ -575,7 +627,12 @@ export const useAuth = create<AuthState>()(
       signOut: async () => {
         if (hasSupabase()) {
           const sb = getSupabase();
-          if (sb) await sb.auth.signOut();
+          if (sb) {
+            // Don't let a dead network keep the user signed in.
+            await withTimeout(sb.auth.signOut(), 4000, "signout").catch(
+              () => undefined,
+            );
+          }
         }
         detachSupa();
         lockKey();
@@ -583,6 +640,7 @@ export const useAuth = create<AuthState>()(
           userId: null,
           email: null,
           name: null,
+          avatar: null,
           supaUserId: null,
           supaWorkspaceId: null,
         });
@@ -627,8 +685,38 @@ export const useAuth = create<AuthState>()(
   ),
 );
 
+/** Verify a device-local (PBKDF2) account. */
+async function signInLocal(
+  email: string,
+  password: string,
+): Promise<{ userId: string; email: string; name: string; avatar: string | null }> {
+  const db = getDB();
+  const user = (await db.users.where("email").equals(email).first()) as
+    | (UserRecord & { passwordHash?: string })
+    | undefined;
+  if (!user || user.deletedAt) throw new Error("Akun tidak ditemukan — coba daftar dulu");
+  if (!user.encSalt || !user.passwordHash) {
+    throw new Error("Akun ini login lewat server — cek koneksi internet");
+  }
+  const hash = await hashPassword(password, user.encSalt);
+  if (hash !== user.passwordHash) throw new Error("Password salah");
+  await unlockKey(password, user.encSalt);
+  return {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    avatar: user.avatar ?? null,
+  };
+}
+
 function translateAuthError(msg: string): string {
   const m = msg.toLowerCase();
+  if (m.startsWith("timeout") || m.includes("failed to fetch") || m.includes("network"))
+    return "Tidak bisa terhubung ke server. Cek internet kamu lalu coba lagi.";
+  if (m.includes("email not confirmed"))
+    return "Email belum dikonfirmasi — buka link di inbox kamu dulu.";
+  if (m.includes("rate limit") || m.includes("too many"))
+    return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
   if (m.includes("invalid login")) return "Email atau password salah";
   if (m.includes("already registered") || m.includes("user already"))
     return "Email sudah terdaftar — coba login";
@@ -636,5 +724,5 @@ function translateAuthError(msg: string): string {
     return "Password minimal 6 karakter";
   if (m.includes("email") && m.includes("invalid"))
     return "Format email tidak valid";
-  return msg;
+  return msg || "Terjadi kesalahan, coba lagi.";
 }

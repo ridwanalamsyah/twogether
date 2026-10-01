@@ -59,13 +59,26 @@ export default function SplashPage() {
 
     const fire = () => {
       if (isHardRefreshRecovery) {
-        window.location.replace(next + ".html");
+        // Guard against a host that also rewrites *.html to /index.html,
+        // which would bounce us here forever.
+        const key = "twogether:recover";
+        const tried = sessionStorage.getItem(key);
+        if (tried === next) {
+          sessionStorage.removeItem(key);
+          router.replace(next);
+          return;
+        }
+        sessionStorage.setItem(key, next);
+        window.location.replace(next + ".html" + window.location.search);
       } else {
         router.replace(next);
       }
     };
-    const t1 = setTimeout(fire, 600);
-    const t2 = setTimeout(fire, 1500);
+    // Prefetch the target so the hand-off is instant, then go right away —
+    // the old fixed 600ms delay made every cold start feel sluggish.
+    router.prefetch(next);
+    const t1 = setTimeout(fire, 60);
+    const t2 = setTimeout(fire, 2000);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);

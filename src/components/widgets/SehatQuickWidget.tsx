@@ -160,7 +160,7 @@ export function SehatQuickWidget() {
           <span className="text-base">⚖️</span>
           <div className="text-right">
             <div className="text-[12px] font-semibold text-text-1">
-              {lastWeight?.valueNum != null ? `${lastWeight.valueNum} kg` : "Catat"}
+              {lastWeight?.valueNum != null ? `${Math.round(lastWeight.valueNum * 10) / 10} kg` : "Catat"}
             </div>
             <div className="text-[9px] text-text-3">berat</div>
           </div>
@@ -172,7 +172,7 @@ export function SehatQuickWidget() {
           <span className="text-base">🌙</span>
           <div className="text-right">
             <div className="text-[12px] font-semibold text-text-1">
-              {lastSleep?.valueNum != null ? `${lastSleep.valueNum}j` : "—"}
+              {lastSleep?.valueNum != null ? `${Math.round(lastSleep.valueNum * 10) / 10}j` : "—"}
             </div>
             <div className="text-[9px] text-text-3">tidur</div>
           </div>

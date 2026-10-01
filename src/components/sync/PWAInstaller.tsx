@@ -24,7 +24,20 @@ export function PWAInstaller() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    let reg: ServiceWorkerRegistration | null = null;
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((r) => {
+        reg = r;
+      })
+      .catch(() => undefined);
+    // Installed PWAs can stay alive for days — look for a new deploy every
+    // time the app comes back to the foreground.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void reg?.update().catch(() => undefined);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
 
   async function install() {

@@ -17,6 +17,12 @@ export function getSupabase(): SupabaseClient | null {
         persistSession: true,
         autoRefreshToken: true,
         storageKey: "bareng:sb-auth",
+        detectSessionInUrl: true,
+        // The default navigator.locks based lock can dead-lock in iOS
+        // standalone PWAs (and when a tab is suspended mid-refresh), which
+        // left `getSession()` pending forever and the app stuck on the
+        // loading screen. A single-tab PWA doesn't need cross-tab locking.
+        lock: async (_name, _acquireTimeout, fn) => await fn(),
       },
       realtime: { params: { eventsPerSecond: 5 } },
     });

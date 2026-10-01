@@ -13,12 +13,12 @@ const STEPS: { emoji: string; title: string; body: string }[] = [
   {
     emoji: "🧩",
     title: "Dashboard yang bisa kamu atur",
-    body: "Tahan & geser tile di home untuk reorder. Aktif/nonaktifkan widget di Settings → Customize Dashboard.",
+    body: "Tap \"Susun\" di Beranda untuk geser urutan widget. Tombol ＋ di tengah bawah untuk catat apa saja dalam 2 detik.",
   },
   {
     emoji: "🤝",
     title: "Twogether = berdua (atau lebih)",
-    body: "Tambahkan pasangan/teman di Settings → Workspace. Setiap transaksi ada label siapa yang bayar, plus opsi 'Bersama' untuk shared.",
+    body: "Undang pasangan lewat ⚙️ → Workspace. Setiap transaksi ada label siapa yang bayar, plus opsi 'Bersama' untuk shared.",
   },
   {
     emoji: "🔐",
@@ -28,7 +28,7 @@ const STEPS: { emoji: string; title: string; body: string }[] = [
   {
     emoji: "🎯",
     title: "Mulai dari yang penting",
-    body: "Kamu sudah punya beberapa contoh data. Hapus & ganti dengan punya kamu, atau mulai dari nol di Settings.",
+    body: "Kamu sudah punya beberapa contoh data. Hapus & ganti dengan punya kamu. Fitur lainnya ada di tab Jelajah.",
   },
 ];
 
@@ -51,8 +51,8 @@ export function OnboardingTour() {
   const last = step >= STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50">
-      <div className="mx-auto w-full max-w-[480px] rounded-t-[24px] bg-bg-app p-6 pb-[calc(20px+var(--sab))] slide-up theme-transition">
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-in">
+      <div className="mx-auto w-full max-w-[480px] rounded-t-[24px] bg-bg-app p-6 pb-[calc(20px+var(--sab))] sheet-up theme-transition">
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-4 flex justify-center text-5xl">{s.emoji}</div>
         <div className="text-center text-lg font-bold">{s.title}</div>

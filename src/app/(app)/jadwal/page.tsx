@@ -264,11 +264,11 @@ function ClassEditor({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-in"
       onClick={onClose}
     >
       <div
-        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] slide-up"
+        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
