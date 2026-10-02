@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useTheme } from "@/stores/theme";
 import { isInDarkHours, useSecurity } from "@/stores/security";
+import { bootNative, setNativeStatusBar } from "@/lib/native";
 
 /**
  * Applies `data-theme` and `data-accent` to <html> based on the Zustand
@@ -17,6 +18,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const autoDark = useSecurity((s) => s.autoDark);
   const darkFrom = useSecurity((s) => s.darkFrom);
   const darkTo = useSecurity((s) => s.darkTo);
+
+  useEffect(() => {
+    bootNative();
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -39,6 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       firstApply = false;
       root.dataset.theme = resolved;
       root.dataset.accent = accent;
+      setNativeStatusBar(resolved);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
         meta.setAttribute(

@@ -116,17 +116,40 @@ NEXT_PUBLIC_SYNC_URL=...   # optional fallback HTTP endpoint
 The sync queue is backend-agnostic. Without keys the app runs local-only
 (IndexedDB) — every feature still works on a single device.
 
-### 4. iOS App Store (Capacitor)
+### 4. Aplikasi iOS (Capacitor)
+
+Proyek Xcode sudah ada di `ios/` (Swift Package Manager, tanpa CocoaPods).
+Kode web yang sama dibundel ke dalam app, jadi app terbuka instan dan jalan
+offline. Bedanya dengan PWA: haptic asli (Taptic Engine), status bar ikut
+tema, splash screen, dan ikon di Home Screen seperti app biasa.
+
+Butuh **Mac dengan Xcode** (gratis dari App Store).
 
 ```bash
-npm run build
-npx cap add ios          # one-time
-npx cap copy ios         # after each build
-npx cap open ios         # opens Xcode
-# In Xcode: Product → Archive → upload to App Store Connect
+npm install
+npm run ios          # build web → salin ke ios/ → buka Xcode
 ```
 
-Requires Xcode (macOS) and an Apple Developer Program membership ($99/year).
+Di Xcode:
+
+1. Pilih target **App** → tab **Signing & Capabilities** → *Team*: login
+   dengan Apple ID kamu. Ganti *Bundle Identifier* kalau `com.twogether.app`
+   sudah dipakai orang lain (mis. `com.namakamu.twogether`).
+2. Colok iPhone, pilih iPhone-nya di atas, tekan ▶︎ Run.
+3. Di iPhone: Settings → General → VPN & Device Management → percayai
+   developer-nya (sekali saja).
+
+Pilihan distribusi:
+
+| Cara | Biaya | Catatan |
+|---|---|---|
+| Apple ID gratis | Rp0 | App harus di-install ulang dari Xcode tiap 7 hari |
+| Apple Developer Program | $99/tahun | Install permanen; bisa kirim ke HP pasangan lewat **TestFlight** atau rilis ke App Store |
+| PWA (Safari → Bagikan → *Add to Home Screen*) | Rp0 | Tanpa Mac; fiturnya hampir sama |
+
+Setiap kali kode web berubah: `npm run ios:sync` lalu Run lagi di Xcode.
+Login magic link disembunyikan di app native (link email terbuka di Safari);
+pakai email + password.
 
 ## Backend (optional)
 

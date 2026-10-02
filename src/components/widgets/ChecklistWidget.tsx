@@ -88,7 +88,7 @@ export function ChecklistWidget() {
             </span>
             <button
               onClick={() => userId && deleteChecklist(userId, i.id)}
-              className="text-text-5 opacity-0 transition-opacity group-hover:opacity-100 hover:text-[color:var(--negative)]"
+              className="text-text-5 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:text-[color:var(--negative)]"
               aria-label="Hapus"
             >
               ×

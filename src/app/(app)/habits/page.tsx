@@ -134,7 +134,7 @@ export default function HabitsPage() {
                       </span>
                       <button
                         onClick={() => setEditing(h)}
-                        className="text-[11px] text-text-4 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="text-[11px] text-text-4 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                       >
                         Edit
                       </button>

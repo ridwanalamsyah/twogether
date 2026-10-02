@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -9,6 +8,7 @@ import {
   GhostBtn,
   ListBox,
   Section,
+  SectionTabs,
 } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -28,23 +28,16 @@ export default function BelajarPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Belajar"
-        subtitle="Reading, kursus, jurnal, pomodoro, time"
-        actions={
-          <Link
-            href="/home"
-            className="text-[12px] text-text-3 active:opacity-50"
-          >
-            Tutup
-          </Link>
-        }
       />
 
       <div className="px-5">
+        <SectionTabs storageKey="belajar">
         <ReadingSection />
         <CourseSection />
         <JournalSection />
         <PomodoroSection />
         <TimeSection />
+        </SectionTabs>
       </div>
     </div>
   );

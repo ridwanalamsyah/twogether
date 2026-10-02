@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/stores/auth";
+import { isNative } from "@/lib/native";
 
 type Mode = "signin" | "signup";
 
@@ -14,6 +15,9 @@ export default function AuthPage() {
   const signInMagicLink = useAuth((s) => s.signInMagicLink);
   const bootstrap = useAuth((s) => s.bootstrap);
   const [showPw, setShowPw] = useState(false);
+  // Magic links open in Safari, not inside the native app — hide them there.
+  const [canMagic, setCanMagic] = useState(true);
+  useEffect(() => setCanMagic(!isNative()), []);
 
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -62,7 +66,10 @@ export default function AuthPage() {
           seed,
         });
       }
-      router.replace(postAuthTarget());
+      // No navigation here: the `userId` effect above already redirects as
+      // soon as the session exists. Navigating again after the await (sign
+      // up keeps seeding sample data) yanked people back to Home after
+      // they had already tapped another tab.
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -214,7 +221,7 @@ export default function AuthPage() {
                 : "Daftar & Mulai"}
           </button>
         </form>
-        {mode === "signin" && (
+        {mode === "signin" && canMagic && (
           <div className="mt-4 text-center">
             <button
               type="button"

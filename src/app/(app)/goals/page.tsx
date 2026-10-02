@@ -45,6 +45,7 @@ export default function GoalsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [showDeposit, setShowDeposit] = useState<GoalRecord | null>(null);
   const [editing, setEditing] = useState<GoalRecord | null>(null);
+  const [panel, setPanel] = useState<"predict" | "sim" | "auto">("predict");
 
   const focus = useMemo(
     () => (goals ?? []).find((g) => g.id === focusId) ?? (goals ?? [])[0],
@@ -75,10 +76,10 @@ export default function GoalsPage() {
             <button
               key={g.id}
               onClick={() => setFocusId(g.id)}
-              className={`flex-shrink-0 rounded-md border px-2.5 py-1 text-[12px] font-medium transition-colors ${
+              className={`flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
                 focus?.id === g.id
-                  ? "border-text-1 bg-text-1 text-bg-app"
-                  : "border-border bg-bg-app text-text-2"
+                  ? "bg-text-1 text-bg-app shadow-sm"
+                  : "bg-bg-elev2 text-text-3"
               }`}
             >
               {g.name}
@@ -101,9 +102,40 @@ export default function GoalsPage() {
                 setFocusId(null);
               }}
             />
-            <PredictionPanel goal={focus} />
-            <GoalSimulator goal={focus} deposits={deposits ?? []} />
-            <RecurringGoalsPanel goal={focus} />
+            {/* One analysis panel at a time instead of three stacked cards. */}
+            <div className="relative grid grid-cols-3 rounded-[10px] bg-bg-elev2 p-0.5 text-[12px]">
+              <span
+                aria-hidden
+                className="absolute bottom-0.5 left-0.5 top-0.5 w-[calc((100%-4px)/3)] rounded-[8px] bg-bg-app shadow-sm transition-transform duration-300 ease-ios"
+                style={{
+                  transform: `translateX(${["predict", "sim", "auto"].indexOf(panel) * 100}%)`,
+                }}
+              />
+              {(
+                [
+                  ["predict", "Prediksi"],
+                  ["sim", "Simulasi"],
+                  ["auto", "Otomatis"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => setPanel(id)}
+                  className={`relative py-1.5 font-medium transition-colors ${
+                    panel === id ? "text-text-1" : "text-text-3"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div key={panel + focus.id} className="tab-in-right">
+              {panel === "predict" && <PredictionPanel goal={focus} />}
+              {panel === "sim" && (
+                <GoalSimulator goal={focus} deposits={deposits ?? []} />
+              )}
+              {panel === "auto" && <RecurringGoalsPanel goal={focus} />}
+            </div>
           </>
         )}
 

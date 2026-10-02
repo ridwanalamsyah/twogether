@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -9,6 +8,7 @@ import {
   GhostBtn,
   ListBox,
   Section,
+  SectionTabs,
 } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
 import {
@@ -26,18 +26,10 @@ export default function KitaPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Kita"
-        subtitle="Tanggal penting, date night, apresiasi, dll"
-        actions={
-          <Link
-            href="/home"
-            className="text-[12px] text-text-3 active:opacity-50"
-          >
-            Tutup
-          </Link>
-        }
       />
 
       <div className="px-5">
+        <SectionTabs storageKey="kita">
         <AnniversarySection />
         <DateNightSection />
         <AppreciationSection />
@@ -45,6 +37,7 @@ export default function KitaPage() {
         <BucketListSection />
         <SurpriseSection />
         <QotdSection />
+        </SectionTabs>
       </div>
     </div>
   );

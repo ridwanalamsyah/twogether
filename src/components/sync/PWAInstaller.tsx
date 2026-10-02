@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isNative } from "@/lib/native";
 
 export function PWAInstaller() {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
@@ -11,7 +12,7 @@ export function PWAInstaller() {
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    setStandalone(isStandalone);
+    setStandalone(isStandalone || isNative());
 
     function onBeforeInstallPrompt(e: Event) {
       e.preventDefault();
@@ -24,6 +25,9 @@ export function PWAInstaller() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
+    // The native iOS app bundles its files; a service worker isn't needed
+    // (and isn't supported on the capacitor:// scheme).
+    if (isNative()) return;
     let reg: ServiceWorkerRegistration | null = null;
     navigator.serviceWorker
       .register("/sw.js")

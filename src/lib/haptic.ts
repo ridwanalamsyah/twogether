@@ -4,6 +4,8 @@
  * exposes Haptics natively if installed later).
  */
 
+import { nativeHaptic } from "@/lib/native";
+
 function vibrate(ms: number | number[]) {
   if (typeof navigator === "undefined") return;
   // navigator.vibrate undefined on iOS Safari; guard gracefully.
@@ -25,20 +27,24 @@ function vibrate(ms: number | number[]) {
 
 /** Short tap — confirms a click landed. */
 export function hapticTap() {
+  if (nativeHaptic("light")) return;
   vibrate(8);
 }
 
 /** Light double-buzz — small celebrate. */
 export function hapticSuccess() {
+  if (nativeHaptic("success")) return;
   vibrate([20, 40, 20]);
 }
 
 /** Heavier — for unlocks or major events. */
 export function hapticUnlock() {
+  if (nativeHaptic("heavy")) return;
   vibrate([40, 60, 40, 60, 80]);
 }
 
 /** Warning — short triple. */
 export function hapticWarn() {
+  if (nativeHaptic("warning")) return;
   vibrate([10, 30, 10, 30, 10]);
 }
