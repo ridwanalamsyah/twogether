@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+let reloadRequested = false;
+
 /**
  * Listens to service-worker updates. When a new SW takes control, show a
  * subtle banner with a "Reload" button so users always run the latest UI.
@@ -33,7 +35,11 @@ export function PWAUpdateBanner() {
     });
 
     const onControllerChange = () => {
-      // Reload once new SW takes over, when user tapped reload.
+      // Only reload when the user asked for it. The very first install also
+      // fires controllerchange (clients.claim) and used to reload the page
+      // in the middle of logging in.
+      if (!reloadRequested) return;
+      reloadRequested = false;
       window.location.reload();
     };
     navigator.serviceWorker.addEventListener(
@@ -52,6 +58,7 @@ export function PWAUpdateBanner() {
 
   function reload() {
     if (!("serviceWorker" in navigator)) return;
+    reloadRequested = true;
     navigator.serviceWorker.getRegistration().then((reg) => {
       if (reg?.waiting) {
         reg.waiting.postMessage({ type: "SKIP_WAITING" });

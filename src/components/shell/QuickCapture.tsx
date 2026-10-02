@@ -176,11 +176,11 @@ export function QuickCapture({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40"
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-in"
       onClick={onClose}
     >
       <div
-        className="mx-auto w-full max-w-[480px] rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-2xl slide-up theme-transition"
+        className="mx-auto w-full max-w-[480px] rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-2xl sheet-up theme-transition"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />

@@ -19,11 +19,19 @@ export function HariKitaWidget() {
     return () => clearInterval(id);
   }, []);
 
-  // pick the earliest anniv with a date
+  // Prefer the relationship start ("jadian", anniversary, nikah). Birthdays
+  // are also stored as anniv items — counting "together since" from a
+  // partner's birth date produced nonsense like 9.907 hari.
   const anchor = (() => {
     const withDate = annivs.filter((a) => !!a.date);
     if (!withDate.length) return null;
-    return withDate.reduce((earliest, cur) =>
+    const isBirthday = (t: string) => /ultah|ulang tahun|birthday|lahir/i.test(t);
+    const isRelationship = (t: string) =>
+      /jadian|anniv|pacaran|nikah|menikah|bersama|kenal/i.test(t);
+    const rel = withDate.filter((a) => isRelationship(a.title ?? ""));
+    const nonBirthday = withDate.filter((a) => !isBirthday(a.title ?? ""));
+    const pool = rel.length ? rel : nonBirthday.length ? nonBirthday : withDate;
+    return pool.reduce((earliest, cur) =>
       !earliest || (cur.date! < earliest.date!) ? cur : earliest,
     );
   })();

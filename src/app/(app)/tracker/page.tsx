@@ -12,10 +12,39 @@ import {
 } from "@/stores/data";
 import {
   formatRupiah,
-  formatDateShort,
+  formatRupiahShort,
   todayISO,
 } from "@/lib/utils";
 import { TagInput } from "@/components/ui/TagInput";
+import { SwipeRow } from "@/components/ui/SwipeRow";
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  Makan: "🍜",
+  Bensin: "⛽️",
+  Laundry: "🧺",
+  Skincare: "🧴",
+  Kuliah: "🎓",
+  Usaha: "💼",
+  Ortu: "👪",
+  Tabungan: "🏦",
+  Jajan: "🧋",
+  Lainnya: "🧾",
+};
+
+function dayLabel(iso: string): string {
+  const today = todayISO();
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, "0")}-${String(y.getDate()).padStart(2, "0")}`;
+  if (iso === today) return "Hari ini";
+  if (iso === yesterday) return "Kemarin";
+  const [yy, mm, dd] = iso.split("-").map(Number);
+  return new Date(yy, mm - 1, dd).toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+  });
+}
 
 const CATEGORIES = [
   "Makan",
@@ -51,35 +80,96 @@ export default function TrackerPage() {
       });
   }, [txs, filter, search]);
 
+  const month = useMemo(() => {
+    const prefix = todayISO().slice(0, 7);
+    let inc = 0;
+    let out = 0;
+    for (const t of txs ?? []) {
+      if (!t.date.startsWith(prefix)) continue;
+      if (t.kind === "in") inc += t.amount;
+      else out += t.amount;
+    }
+    return { inc, out, net: inc - out };
+  }, [txs]);
+
+  const groups = useMemo(() => {
+    const map = new Map<string, typeof filtered>();
+    for (const t of filtered) {
+      const key = t.date.slice(0, 10);
+      const list = map.get(key);
+      if (list) list.push(t);
+      else map.set(key, [t]);
+    }
+    return Array.from(map.entries()).map(([date, items]) => ({
+      date,
+      items,
+      total: items.reduce((sum, t) => sum + (t.kind === "in" ? t.amount : -t.amount), 0),
+    }));
+  }, [filtered]);
+
   return (
-    <div className="animate-in">
+    <div>
       <AppHeader
-        title="Tracker"
+        title="Uang"
         actions={
           <button
             onClick={() => setShowAdd(true)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg"
+            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg active:scale-95"
           >
             Tambah
           </button>
         }
       />
       <div className="px-5 pt-4">
-        <input
-          className="input-base h-10"
-          placeholder="Cari…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <div className="mt-3 flex gap-4 border-b border-border text-xs">
+        <div className="surface grid grid-cols-3 divide-x divide-border py-3 text-center">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-text-4">Masuk</div>
+            <div className="mt-0.5 font-mono text-[14px] font-semibold text-[color:var(--positive)]">
+              {formatRupiahShort(month.inc)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-text-4">Keluar</div>
+            <div className="mt-0.5 font-mono text-[14px] font-semibold text-text-1">
+              {formatRupiahShort(month.out)}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-text-4">Sisa</div>
+            <div
+              className={`mt-0.5 font-mono text-[14px] font-semibold ${
+                month.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"
+              }`}
+            >
+              {formatRupiahShort(month.net)}
+            </div>
+          </div>
+        </div>
+        <div className="mt-1.5 text-center text-[10px] text-text-4">Bulan ini</div>
+
+        <div className="mt-3 flex items-center gap-2">
+          <input
+            className="input-base h-9 flex-1 bg-bg-elev1 text-[14px]"
+            type="search"
+            placeholder="Cari catatan, kategori, nama…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="relative mt-3 grid grid-cols-3 rounded-[10px] bg-bg-elev2 p-0.5 text-[12px]">
+          <span
+            aria-hidden
+            className="absolute bottom-0.5 top-0.5 left-0.5 w-[calc((100%-4px)/3)] rounded-[8px] bg-bg-app shadow-sm transition-transform duration-300 ease-ios"
+            style={{
+              transform: `translateX(${["all", "out", "in"].indexOf(filter) * 100}%)`,
+            }}
+          />
           {(["all", "out", "in"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`-mb-px border-b pb-2 font-medium transition-colors ${
-                filter === f
-                  ? "border-text-1 text-text-1"
-                  : "border-transparent text-text-4"
+              className={`relative py-1.5 font-medium transition-colors ${
+                filter === f ? "text-text-1" : "text-text-3"
               }`}
             >
               {f === "all" ? "Semua" : f === "out" ? "Keluar" : "Masuk"}
@@ -88,50 +178,79 @@ export default function TrackerPage() {
         </div>
       </div>
 
-      <div className="px-5 pt-2 pb-6">
-        {filtered.length === 0 ? (
-          <div className="py-12 text-center text-sm text-text-3">
-            Belum ada transaksi.
+      <div className="pt-2 pb-6">
+        {groups.length === 0 ? (
+          <div className="px-5 py-14 text-center">
+            <div className="text-3xl">🧾</div>
+            <div className="mt-2 text-sm text-text-3">
+              {search ? "Tidak ada yang cocok." : "Belum ada transaksi."}
+            </div>
+            {!search && (
+              <button
+                onClick={() => setShowAdd(true)}
+                className="btn-accent mt-4 px-5 py-2 text-[13px]"
+              >
+                Catat transaksi pertama
+              </button>
+            )}
           </div>
         ) : (
-          <ul className="divide-y divide-border">
-            {filtered.map((t) => (
-              <li
-                key={t.id}
-                className="group flex items-center justify-between gap-3 py-3"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-[14px] text-text-1">
-                    {t.note || t.category}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-text-4">
-                    <span>
-                      {t.who} · {formatDateShort(t.date)} · {t.category}
-                    </span>
-                    {(t.tags ?? []).map((tag) => (
-                      <span key={tag} className="text-text-3">#{tag}</span>
-                    ))}
-                  </div>
-                </div>
-                <div
-                  className={`font-mono text-[14px] font-medium tabular-nums ${
-                    t.kind === "in"
-                      ? "text-[color:var(--positive)]"
-                      : "text-text-1"
-                  }`}
-                >
-                  {t.kind === "in" ? "+" : "−"}{formatRupiah(t.amount)}
-                </div>
-                <button
-                  onClick={() => userId && deleteTransaction(userId, t.id)}
-                  className="text-text-5 opacity-0 transition-opacity group-hover:opacity-100 hover:text-[color:var(--negative)]"
-                  aria-label="Hapus"
-                >
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
+          groups.map((g) => (
+            <section key={g.date} className="slide-up">
+              <div className="flex items-baseline justify-between px-5 pb-1 pt-4">
+                <span className="text-[12px] font-semibold text-text-2">
+                  {dayLabel(g.date)}
+                </span>
+                <span className="font-mono text-[11px] text-text-4">
+                  {g.total >= 0 ? "+" : "−"}
+                  {formatRupiahShort(Math.abs(g.total))}
+                </span>
+              </div>
+              <ul>
+                {g.items.map((t) => (
+                  <li key={t.id}>
+                    <SwipeRow onDelete={() => userId && deleteTransaction(userId, t.id)}>
+                      <div className="flex items-center gap-3 px-5 py-2.5">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[11px] bg-bg-elev2 text-[17px]">
+                          {CATEGORY_EMOJI[t.category] ?? "🧾"}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[14px] text-text-1">
+                            {t.note || t.category}
+                          </div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-text-4">
+                            <span>
+                              {t.who} · {t.category}
+                            </span>
+                            {(t.tags ?? []).map((tag) => (
+                              <span key={tag} className="text-text-3">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div
+                          className={`font-mono text-[14px] font-medium tabular-nums ${
+                            t.kind === "in"
+                              ? "text-[color:var(--positive)]"
+                              : "text-text-1"
+                          }`}
+                        >
+                          {t.kind === "in" ? "+" : "−"}
+                          {formatRupiah(t.amount)}
+                        </div>
+                      </div>
+                    </SwipeRow>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
+        {groups.length > 0 && (
+          <p className="px-5 pt-4 text-center text-[11px] text-text-5">
+            Geser ke kiri untuk menghapus
+          </p>
         )}
       </div>
 
@@ -186,8 +305,8 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40">
-      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] slide-up theme-transition">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in">
+      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition">
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">Tambah transaksi</h2>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -9,6 +8,7 @@ import {
   GhostBtn,
   ListBox,
   Section,
+  SectionTabs,
 } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
 import {
@@ -26,18 +26,10 @@ export default function KitaPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Kita"
-        subtitle="Tanggal penting, date night, apresiasi, dll"
-        actions={
-          <Link
-            href="/home"
-            className="text-[12px] text-text-3 active:opacity-50"
-          >
-            Tutup
-          </Link>
-        }
       />
 
       <div className="px-5">
+        <SectionTabs storageKey="kita">
         <AnniversarySection />
         <DateNightSection />
         <AppreciationSection />
@@ -45,6 +37,7 @@ export default function KitaPage() {
         <BucketListSection />
         <SurpriseSection />
         <QotdSection />
+        </SectionTabs>
       </div>
     </div>
   );
@@ -78,14 +71,24 @@ function AnniversarySection() {
     today.setHours(0, 0, 0, 0);
     return items
       .map((it) => {
-        const d = new Date(it.date ?? today);
-        const p = JSON.parse(it.payload ?? "{}");
-        if (p.recurring) {
+        // Parse as a local date — `new Date("YYYY-MM-DD")` is UTC and shifts
+        // a day in Indonesian timezones.
+        const [y, m, dd] = (it.date ?? "").split("-").map(Number);
+        const d = y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(today);
+        let p: { recurring?: boolean } = {};
+        try {
+          p = JSON.parse(it.payload ?? "{}");
+        } catch {
+          /* legacy row */
+        }
+        // Birthdays & anniversaries repeat unless explicitly one-off.
+        if (p.recurring !== false) {
           d.setFullYear(today.getFullYear());
           if (d < today) d.setFullYear(today.getFullYear() + 1);
         }
         const days = Math.ceil((d.getTime() - today.getTime()) / 86_400_000);
-        return { ...it, days, when: d.toISOString().slice(0, 10) };
+        const when = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        return { ...it, days, when };
       })
       .sort((a, b) => a.days - b.days);
   }, [items]);
@@ -136,7 +139,7 @@ function AnniversarySection() {
             <div key={it.id} className="flex items-center gap-3 py-2.5">
               <div className="w-12 text-center">
                 <div className="font-mono text-[15px] font-semibold tabular-nums">
-                  {it.days === 0 ? "hari ini" : `H-${it.days}`}
+                  {it.days === 0 ? "🎉" : it.days < 0 ? "lewat" : `H-${it.days}`}
                 </div>
               </div>
               <div className="flex-1">

@@ -3,18 +3,25 @@
 import { useEffect } from "react";
 import { useTheme } from "@/stores/theme";
 import { isInDarkHours, useSecurity } from "@/stores/security";
+import { bootNative, setNativeStatusBar } from "@/lib/native";
 
 /**
  * Applies `data-theme` and `data-accent` to <html> based on the Zustand
  * theme store. Listens for system color-scheme changes when mode === "system".
  * Also honors the auto-dark schedule (overrides mode in the configured hours).
  */
+let firstApply = true;
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const mode = useTheme((s) => s.mode);
   const accent = useTheme((s) => s.accent);
   const autoDark = useSecurity((s) => s.autoDark);
   const darkFrom = useSecurity((s) => s.darkFrom);
   const darkTo = useSecurity((s) => s.darkTo);
+
+  useEffect(() => {
+    bootNative();
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -27,8 +34,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             : "light"
           : mode;
       if (autoDark && isInDarkHours(darkFrom, darkTo)) resolved = "dark";
+      const changed =
+        root.dataset.theme !== resolved || root.dataset.accent !== accent;
+      if (changed && !firstApply) {
+        // Animate colors only for the duration of the switch.
+        root.classList.add("theme-switching");
+        window.setTimeout(() => root.classList.remove("theme-switching"), 350);
+      }
+      firstApply = false;
       root.dataset.theme = resolved;
       root.dataset.accent = accent;
+      setNativeStatusBar(resolved);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
         meta.setAttribute(

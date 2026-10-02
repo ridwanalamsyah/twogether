@@ -1,25 +1,35 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Capacitor wrapper config. To produce the iOS app:
+ * Native iOS wrapper. The same static export (./out) that powers the PWA is
+ * bundled inside the app, so it opens instantly and works offline.
  *
- *   npm run build && npm run export   # static export to ./out
- *   npx cap add ios
- *   npx cap copy ios
- *   npx cap open ios                  # opens Xcode
+ *   npm run ios        # build web + copy into ios/ + open Xcode (Mac only)
  *
- * The Next.js app is set up so the same code runs as a PWA in iOS Safari OR
- * inside the Capacitor wrapper (no native plugin assumptions).
+ * See README → "Aplikasi iOS" for the full walkthrough.
  */
 const config: CapacitorConfig = {
   appId: "com.twogether.app",
   appName: "Twogether",
   webDir: "out",
-  server: {
-    androidScheme: "https",
-  },
   ios: {
-    contentInset: "always",
+    // Safe areas are handled in CSS via env(safe-area-inset-*), exactly like
+    // the PWA, so the web view must not add its own insets on top.
+    contentInset: "never",
+    backgroundColor: "#ffffff",
+    scrollEnabled: true,
+  },
+  plugins: {
+    SplashScreen: {
+      // Hidden from JS once the first screen has painted (lib/native.ts).
+      launchAutoHide: false,
+      backgroundColor: "#ffffff",
+      showSpinner: false,
+    },
+    Keyboard: {
+      // Resize the web view so inputs in bottom sheets stay visible.
+      resize: "native",
+    },
   },
 };
 

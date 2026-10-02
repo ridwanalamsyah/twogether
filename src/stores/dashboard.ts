@@ -47,26 +47,32 @@ export interface WidgetConfig {
   props?: Record<string, unknown>;
 }
 
+// A calm, focused Home: the few things a couple checks every day. Everything
+// else stays one tap away (Jelajah tab) and can be re-enabled in "Atur".
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
-  { id: "w_sehat_q", kind: "sehat-quick", size: "lg", enabled: true },
-  { id: "w_keu_q", kind: "keuangan-quick", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
-  { id: "w_hari", kind: "hari-ini", size: "lg", enabled: false },
   { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: true },
   { id: "w_savings", kind: "savings-progress", size: "lg", enabled: true },
-  { id: "w_prediction", kind: "goal-prediction", size: "lg", enabled: true },
-  { id: "w_expense", kind: "expense-chart", size: "lg", enabled: true },
-  { id: "w_checklist", kind: "checklist", size: "md", enabled: true },
-  { id: "w_quick", kind: "quick-add", size: "lg", enabled: false },
-  { id: "w_moments", kind: "moments", size: "md", enabled: false },
-  { id: "w_transactions", kind: "transactions", size: "lg", enabled: true },
-  { id: "w_skripsi", kind: "skripsi", size: "md", enabled: true },
   { id: "w_streak", kind: "streak", size: "sm", enabled: true },
   { id: "w_pencapaian", kind: "pencapaian", size: "sm", enabled: true },
+  { id: "w_transactions", kind: "transactions", size: "lg", enabled: false },
+  { id: "w_sehat_q", kind: "sehat-quick", size: "lg", enabled: false },
+  { id: "w_keu_q", kind: "keuangan-quick", size: "lg", enabled: false },
+  { id: "w_hari", kind: "hari-ini", size: "lg", enabled: false },
+  { id: "w_prediction", kind: "goal-prediction", size: "lg", enabled: false },
+  { id: "w_expense", kind: "expense-chart", size: "lg", enabled: false },
+  { id: "w_checklist", kind: "checklist", size: "md", enabled: false },
+  { id: "w_quick", kind: "quick-add", size: "lg", enabled: false },
+  { id: "w_moments", kind: "moments", size: "md", enabled: false },
+  { id: "w_skripsi", kind: "skripsi", size: "md", enabled: false },
 ];
+
+/** Bump to re-apply the default (decluttered) Home once for existing users. */
+const LAYOUT_VERSION = 2;
+const layoutVersionKey = (userId: string) => `twogether:home-layout-v:${userId}`;
 
 interface DashboardState {
   layout: WidgetConfig[];
@@ -89,6 +95,19 @@ export const useDashboard = create<DashboardState>((set, get) => ({
     if (typeof window === "undefined") return;
     const db = getDB();
     const stored = await db.dashboards.where("userId").equals(userId).first();
+    let migrated = false;
+    try {
+      migrated = Number(localStorage.getItem(layoutVersionKey(userId))) >= LAYOUT_VERSION;
+      if (!migrated) localStorage.setItem(layoutVersionKey(userId), String(LAYOUT_VERSION));
+    } catch {
+      migrated = true;
+    }
+    if (stored && !migrated) {
+      // One-time switch to the simpler Home. The old layout is replaced by
+      // the new default; every widget can be re-enabled from "Atur".
+      set({ layout: DEFAULT_LAYOUT, loaded: true });
+      return;
+    }
     if (stored) {
       try {
         const parsed = JSON.parse(stored.layout) as WidgetConfig[];

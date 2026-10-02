@@ -254,8 +254,8 @@ function TripSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40">
-      <div className="mx-auto max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] slide-up theme-transition">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in">
+      <div className="mx-auto max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] sheet-up theme-transition">
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">{trip ? "Edit trip" : "Trip baru"}</h2>

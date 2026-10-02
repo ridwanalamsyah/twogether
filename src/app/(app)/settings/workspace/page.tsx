@@ -565,7 +565,7 @@ function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center backdrop-in"
       onClick={onCancel}
     >
       <div
@@ -623,7 +623,7 @@ function AddMemberSheet({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center backdrop-in"
       onClick={onClose}
     >
       <div
