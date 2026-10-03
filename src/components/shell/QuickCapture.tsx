@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   addTransaction,
   upsertEntry,
@@ -40,7 +39,6 @@ export function QuickCapture({
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const people = useMemo(
     () =>
@@ -140,7 +138,7 @@ export function QuickCapture({
         });
         setTitle("");
         setBody("");
-        setSaved("Task tersimpan");
+        setSaved("Tugas tersimpan");
       }
       hapticSuccess();
     } finally {
@@ -158,20 +156,6 @@ export function QuickCapture({
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  function openFullPage() {
-    hapticTap();
-    const href =
-      mode === "transaction"
-        ? "/tracker"
-        : mode === "moment"
-          ? "/moments"
-          : mode === "task"
-            ? "/list"
-            : "/reflection";
-    onClose();
-    router.push(href);
-  }
-
   if (!open) return null;
 
   return (
@@ -186,11 +170,8 @@ export function QuickCapture({
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="text-[15px] font-semibold text-text-1">
-              Quick capture
-            </div>
-            <div className="text-[11px] text-text-3">
-              Offline-first · tersinkron nanti
+            <div className="text-[17px] font-semibold text-text-1">
+              Catat apa?
             </div>
           </div>
           <button onClick={onClose} className="text-[12px] font-medium text-text-3">
@@ -202,8 +183,8 @@ export function QuickCapture({
           {[
             ["transaction", "Uang"],
             ["moment", "Moment"],
-            ["note", "Note"],
-            ["task", "Task"],
+            ["note", "Catatan"],
+            ["task", "Tugas"],
           ].map(([id, label]) => (
             <button
               key={id}
@@ -310,17 +291,11 @@ export function QuickCapture({
 
         <div className="mt-4 flex gap-2">
           <button
-            onClick={openFullPage}
-            className="rounded-full border border-border px-4 py-2.5 text-[13px] font-semibold text-text-2"
-          >
-            Buka halaman
-          </button>
-          <button
             onClick={submit}
             disabled={busy}
-            className="flex-1 rounded-full bg-accent py-2.5 text-[13px] font-semibold text-accent-fg disabled:opacity-50"
+            className="flex-1 rounded-full bg-accent py-3 text-[14px] font-semibold active:scale-[0.98] text-accent-fg disabled:opacity-50"
           >
-            {busy ? "Menyimpan…" : "Simpan cepat"}
+            {busy ? "Menyimpan…" : "Simpan"}
           </button>
         </div>
       </div>

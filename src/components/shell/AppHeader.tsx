@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SyncIndicator } from "@/components/sync/SyncIndicator";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 
 interface AppHeaderProps {
@@ -59,7 +58,6 @@ export function AppHeader({ title, subtitle, actions }: AppHeaderProps) {
               <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
             </svg>
           </button>
-          <SyncIndicator />
           {actions}
           <Link
             href="/settings"

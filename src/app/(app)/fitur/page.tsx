@@ -1,226 +1,132 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { FEATURES } from "@/data/features";
+import { useFeatures } from "@/stores/features";
+import { hapticTap } from "@/lib/haptic";
 
-interface FeatureItem {
-  href: string;
-  emoji: string;
-  title: string;
-  subtitle: string;
-}
+export default function JelajahPage() {
+  const enabled = useFeatures((s) => s.enabled);
+  const toggle = useFeatures((s) => s.toggle);
+  const [editing, setEditing] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
-interface FeatureGroup {
-  title: string;
-  items: FeatureItem[];
-}
-
-// Curated list of every reachable feature in the app, grouped by
-// intent. Bottom-nav features (home/tracker/goals/moments/settings) are
-// repeated here so this page works as a single "table of contents".
-const GROUPS: FeatureGroup[] = [
-  {
-    title: "Uang & keuangan",
-    items: [
-      {
-        href: "/goals",
-        emoji: "🎯",
-        title: "Goals",
-        subtitle: "Tabungan & target bersama",
-      },
-      {
-        href: "/uang",
-        emoji: "💰",
-        title: "Keuangan+",
-        subtitle: "Hutang, langganan, payday, closing bulanan",
-      },
-      {
-        href: "/grafik",
-        emoji: "📈",
-        title: "Grafik",
-        subtitle: "Tren 30 hari terakhir",
-      },
-      {
-        href: "/insights",
-        emoji: "🔎",
-        title: "Insights",
-        subtitle: "Insight pengeluaran & saving",
-      },
-      {
-        href: "/digest",
-        emoji: "📬",
-        title: "Digest",
-        subtitle: "Ringkasan harian / mingguan",
-      },
-    ],
-  },
-  {
-    title: "Habits & rutinitas",
-    items: [
-      {
-        href: "/habits",
-        emoji: "🌱",
-        title: "Habits",
-        subtitle: "Kebiasaan harian & streak",
-      },
-      {
-        href: "/pencapaian",
-        emoji: "🏆",
-        title: "Pencapaian",
-        subtitle: "Streak · badge · apresiasi",
-      },
-      {
-        href: "/sehat",
-        emoji: "💪",
-        title: "Sehat",
-        subtitle: "Body, tidur, air, olahraga, mood, obat",
-      },
-      {
-        href: "/reflection",
-        emoji: "🪞",
-        title: "Refleksi",
-        subtitle: "Refleksi harian / mingguan",
-      },
-    ],
-  },
-  {
-    title: "Kehidupan berdua",
-    items: [
-      {
-        href: "/moments",
-        emoji: "💌",
-        title: "Moments",
-        subtitle: "Jurnal & kenangan berdua",
-      },
-      {
-        href: "/kita",
-        emoji: "👫",
-        title: "Kita",
-        subtitle: "Tanggal penting, date night, apresiasi",
-      },
-      {
-        href: "/calendar",
-        emoji: "🗓️",
-        title: "Kalender",
-        subtitle: "Lihat semua jadwal di satu tempat",
-      },
-      {
-        href: "/rumah",
-        emoji: "🏘️",
-        title: "Rumah",
-        subtitle: "Belanja, stok, meal plan, maintenance",
-      },
-      {
-        href: "/travel",
-        emoji: "✈️",
-        title: "Travel",
-        subtitle: "Rencana trip & catatan perjalanan",
-      },
-    ],
-  },
-  {
-    title: "Studi & produktivitas",
-    items: [
-      {
-        href: "/belajar",
-        emoji: "📚",
-        title: "Belajar",
-        subtitle: "Reading, kursus, jurnal, pomodoro",
-      },
-      {
-        href: "/jadwal",
-        emoji: "📅",
-        title: "Jadwal kuliah",
-        subtitle: "Atur kelas mingguan",
-      },
-      {
-        href: "/skripsi",
-        emoji: "🎓",
-        title: "Skripsi",
-        subtitle: "Bab, bimbingan, deadline",
-      },
-      {
-        href: "/list",
-        emoji: "📝",
-        title: "List",
-        subtitle: "Wishlist, gift, media, OOTD, skincare",
-      },
-    ],
-  },
-  {
-    title: "Tahunan & spesial",
-    items: [
-      {
-        href: "/wrapped",
-        emoji: "🎁",
-        title: "Wrapped",
-        subtitle: "Ringkasan tahunan kalian",
-      },
-    ],
-  },
-];
-
-export default function AllFeaturesPage() {
-  const [q, setQ] = useState("");
-  const groups = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle) return GROUPS;
-    return GROUPS.map((g) => ({
-      ...g,
-      items: g.items.filter((it) =>
-        `${it.title} ${it.subtitle}`.toLowerCase().includes(needle),
-      ),
-    })).filter((g) => g.items.length > 0);
-  }, [q]);
+  const mine = enabled
+    .map((href) => FEATURES.find((f) => f.href === href))
+    .filter((f): f is (typeof FEATURES)[number] => Boolean(f));
+  const others = FEATURES.filter((f) => !enabled.includes(f.href));
 
   return (
     <div>
-      <AppHeader title="Jelajah" subtitle="Semua ruang kalian berdua" />
+      <AppHeader
+        title="Jelajah"
+        actions={
+          mine.length > 0 ? (
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                editing ? "bg-accent text-accent-fg" : "text-text-2"
+              }`}
+            >
+              {editing ? "Selesai" : "Atur"}
+            </button>
+          ) : null
+        }
+      />
 
-      <div className="px-4 pt-3 pb-1">
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari fitur… (mis. hutang, tidur, trip)"
-          className="input-base h-10 bg-bg-elev1 text-[14px]"
-        />
-      </div>
-
-      <div className="space-y-6 px-4 pt-3 pb-8">
-        {groups.length === 0 && (
-          <div className="py-10 text-center text-[13px] text-text-4">
-            Tidak ada fitur yang cocok dengan “{q}”.
+      <div className="px-5 pt-4 pb-8">
+        {mine.length === 0 ? (
+          <div className="py-10 text-center text-[13px] text-text-3">
+            Belum ada ruang. Tambahkan yang kalian butuhkan di bawah.
           </div>
-        )}
-        {groups.map((group) => (
-          <section key={group.title}>
-            <div className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-text-4">
-              {group.title}
-            </div>
-            <ul className="grid grid-cols-2 gap-2">
-              {group.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="pressable flex h-full flex-col gap-1 rounded-xl border border-border bg-bg-elev1 p-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl leading-none">{item.emoji}</span>
-                      <span className="truncate text-[13px] font-semibold text-text-1">
-                        {item.title}
-                      </span>
-                    </div>
-                    <span className="text-[11px] leading-snug text-text-3">
-                      {item.subtitle}
+        ) : (
+          <ul className="grid grid-cols-2 gap-2.5">
+            {mine.map((f) => (
+              <li key={f.href} className="relative slide-up">
+                <Link
+                  href={f.href}
+                  onClick={(e) => editing && e.preventDefault()}
+                  className={`pressable flex h-full flex-col gap-2 rounded-2xl border border-border bg-bg-elev1 p-4 ${
+                    editing ? "animate-[wiggle_0.3s_ease-in-out_infinite_alternate]" : ""
+                  }`}
+                >
+                  <span className="text-[28px] leading-none">{f.emoji}</span>
+                  <span>
+                    <span className="block text-[15px] font-semibold text-text-1">
+                      {f.title}
                     </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    <span className="block text-[12px] leading-snug text-text-3">
+                      {f.subtitle}
+                    </span>
+                  </span>
+                </Link>
+                {editing && (
+                  <button
+                    aria-label={`Sembunyikan ${f.title}`}
+                    onClick={() => {
+                      hapticTap();
+                      toggle(f.href);
+                    }}
+                    className="pop-in absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full bg-text-1 text-[14px] font-bold leading-none text-bg-app shadow"
+                  >
+                    −
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {others.length > 0 && (
+          <section className="mt-8">
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              className="flex w-full items-center justify-between py-2 text-left active:opacity-60"
+            >
+              <span>
+                <span className="block text-[14px] font-semibold text-text-1">
+                  Tambah ruang
+                </span>
+                <span className="block text-[12px] text-text-3">
+                  {others.length} ruang lain siap dipakai kapan saja
+                </span>
+              </span>
+              <span
+                className={`text-text-3 transition-transform duration-300 ease-ios ${
+                  showMore ? "rotate-90" : ""
+                }`}
+              >
+                ›
+              </span>
+            </button>
+            {showMore && (
+              <ul className="slide-up mt-2 divide-y divide-border border-y border-border">
+                {others.map((f) => (
+                  <li key={f.href} className="flex items-center gap-3 py-2.5">
+                    <span className="text-[20px] leading-none">{f.emoji}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[14px] text-text-1">{f.title}</span>
+                      <span className="block truncate text-[12px] text-text-4">
+                        {f.subtitle}
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => {
+                        hapticTap();
+                        toggle(f.href);
+                      }}
+                      className="rounded-full bg-bg-elev2 px-3 py-1 text-[12px] font-semibold text-text-1 active:scale-95"
+                    >
+                      + Tambah
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
-        ))}
+        )}
       </div>
     </div>
   );

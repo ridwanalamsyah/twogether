@@ -26,7 +26,7 @@ export function HabitsQuickWidget() {
     return s;
   }, [logs]);
 
-  const visible = habits.slice(0, 5);
+  const visible = habits.slice(0, 3);
   const total = habits.length;
   const done = doneSet.size;
 
@@ -36,7 +36,7 @@ export function HabitsQuickWidget() {
         <div>
           <div className="flex items-center gap-1.5">
             <span className="text-base">✅</span>
-            <h3 className="text-[13px] font-semibold text-text-1">Habits</h3>
+            <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           </div>
           <div className="mt-0.5 text-[11px] text-text-3">
             Belum ada kebiasaan
@@ -57,7 +57,7 @@ export function HabitsQuickWidget() {
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="text-base">✅</span>
-          <h3 className="text-[13px] font-semibold text-text-1">Habits</h3>
+          <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           <span className="text-[10px] font-medium text-text-3">
             {done}/{total}
           </span>
@@ -102,12 +102,12 @@ export function HabitsQuickWidget() {
           );
         })}
       </div>
-      {total > 5 && (
+      {total > 3 && (
         <Link
           href="/habits"
-          className="mt-2 block rounded-md border border-border py-1.5 text-center text-[11px] font-medium text-text-2 active:bg-bg-elev2"
+          className="mt-2 block py-1 text-center text-[12px] font-medium text-text-3 active:opacity-60"
         >
-          + {total - 5} habit lainnya
+          Lihat {total - 3} lainnya ›
         </Link>
       )}
     </div>

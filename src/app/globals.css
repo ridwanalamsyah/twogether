@@ -534,3 +534,13 @@ html.theme-switching *::after {
 .tab-in-left {
   animation: tab-in-left 260ms var(--ease-out) backwards;
 }
+
+/* Jelajah "Atur" mode — gentle iOS-style jiggle. */
+@keyframes wiggle {
+  from {
+    transform: rotate(-0.8deg);
+  }
+  to {
+    transform: rotate(0.8deg);
+  }
+}
