@@ -44,7 +44,7 @@ export default function HomePage() {
       />
       {editing && (
         <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-md border border-border bg-bg-elev1 px-3 py-2 text-[12px] text-text-3">
-          <span>Tahan & geser widget untuk menyusun ulang.</span>
+          <span>Tahan & geser kartu untuk mengatur urutan.</span>
           <Link
             href="/settings/dashboard"
             className="font-medium text-text-1 underline underline-offset-2"

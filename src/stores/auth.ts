@@ -3,7 +3,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { getDB, newId, now, type UserRecord } from "@/lib/db";
-import { generateSalt, hashPassword, lockKey, unlockKey } from "@/lib/crypto";
+import {
+  decryptString,
+  encryptString,
+  generateSalt,
+  hashPassword,
+  lockKey,
+  unlockKey,
+} from "@/lib/crypto";
 import { useWorkspace } from "@/stores/workspace";
 import { seedSampleData } from "@/services/seed";
 import { getSupabase, hasSupabase } from "@/lib/supabase";
@@ -26,6 +33,12 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signInMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Change password while signed in (verifies the current one first). */
+  changePassword: (current: string, next: string) => Promise<void>;
+  /** Set a new password from a "lupa password" email link session. */
+  setRecoveredPassword: (next: string) => Promise<void>;
+  /** Email a reset link (server accounts only). */
+  requestPasswordReset: (email: string) => Promise<void>;
   updateProfile: (
     patch: Partial<Pick<UserRecord, "name" | "birthday" | "avatar">>,
   ) => Promise<void>;
@@ -86,7 +99,7 @@ async function ensureSupaWorkspace(
   name: string,
 ): Promise<string> {
   const sb = getSupabase();
-  if (!sb) throw new Error("supabase_unavailable");
+  if (!sb) throw new Error("Tidak bisa terhubung ke server");
   // Prefer profile.active_workspace_id if set & user is a member of it.
   const { data: profile } = await sb
     .from("profiles")
@@ -466,7 +479,7 @@ export const useAuth = create<AuthState>()(
       signUp: async ({ email, password, name, birthday, seed = true }) => {
         if (hasSupabase()) {
           const sb = getSupabase();
-          if (!sb) throw new Error("supabase_unavailable");
+          if (!sb) throw new Error("Tidak bisa terhubung ke server");
           const { data, error } = await withTimeout(
             sb.auth.signUp({ email, password, options: { data: { name } } }),
             15000,
@@ -567,7 +580,7 @@ export const useAuth = create<AuthState>()(
       signIn: async (email, password) => {
         if (hasSupabase()) {
           const sb = getSupabase();
-          if (!sb) throw new Error("supabase_unavailable");
+          if (!sb) throw new Error("Tidak bisa terhubung ke server");
           const { data, error } = await withTimeout(
             sb.auth.signInWithPassword({ email, password }),
             15000,
@@ -606,10 +619,10 @@ export const useAuth = create<AuthState>()(
 
       signInMagicLink: async (email: string) => {
         if (!hasSupabase()) {
-          throw new Error("Magic link butuh Supabase aktif");
+          throw new Error("Masuk lewat link email belum tersedia");
         }
         const sb = getSupabase();
-        if (!sb) throw new Error("supabase_unavailable");
+        if (!sb) throw new Error("Tidak bisa terhubung ke server");
         const redirectTo =
           typeof window !== "undefined"
             ? `${window.location.origin}/auth`
@@ -645,6 +658,112 @@ export const useAuth = create<AuthState>()(
           supaWorkspaceId: null,
         });
         useWorkspace.getState().reset();
+      },
+
+      changePassword: async (current, next) => {
+        if (next.length < 6) throw new Error("Password baru minimal 6 karakter");
+        if (current === next) throw new Error("Password baru harus beda dari yang lama");
+        const { userId, email, supaUserId } = get();
+        if (!userId || !email) throw new Error("Masuk dulu untuk ganti password");
+
+        const db = getDB();
+        const local = (await db.users.get(userId)) as
+          | (UserRecord & { passwordHash?: string })
+          | undefined;
+
+        // Device-only account: verify locally, then re-encrypt locked
+        // Moments, because their key is derived from the password.
+        if (local?.passwordHash && local.encSalt) {
+          const salt = local.encSalt;
+          if ((await hashPassword(current, salt)) !== local.passwordHash) {
+            throw new Error("Password lama salah");
+          }
+          await unlockKey(current, salt);
+          const locked = (await db.moments.where("userId").equals(userId).toArray()).filter(
+            (m) => m.encrypted && m.cipher && !m.deletedAt,
+          );
+          const plain: { id: string; text: string }[] = [];
+          for (const m of locked) {
+            try {
+              plain.push({ id: m.id, text: await decryptString(m.cipher!) });
+            } catch {
+              // Already unreadable — leave as is.
+            }
+          }
+          await unlockKey(next, salt);
+          for (const { id, text } of plain) {
+            const m = await db.moments.get(id);
+            if (!m) continue;
+            await sync.recordWrite("moments", {
+              ...m,
+              cipher: await encryptString(text),
+              updatedAt: now(),
+              dirty: 1 as const,
+            });
+          }
+          await db.users.put({
+            ...local,
+            passwordHash: await hashPassword(next, salt),
+            updatedAt: now(),
+          } as UserRecord);
+          return;
+        }
+
+        if (!hasSupabase() || !supaUserId) {
+          throw new Error("Akun ini tidak punya password yang bisa diganti di sini");
+        }
+        const sb = getSupabase();
+        if (!sb) throw new Error("Tidak bisa terhubung ke server");
+        const check = await withTimeout(
+          sb.auth.signInWithPassword({ email, password: current }),
+          15000,
+          "verify",
+        ).catch((err: Error) => ({ error: err }));
+        if (check.error) {
+          const m = check.error.message.toLowerCase();
+          if (m.includes("invalid login")) throw new Error("Password lama salah");
+          throw new Error(translateAuthError(check.error.message));
+        }
+        const { error } = await withTimeout(
+          sb.auth.updateUser({ password: next }),
+          15000,
+          "update",
+        ).catch((err: Error) => ({ error: err }));
+        if (error) throw new Error(translateAuthError(error.message));
+      },
+
+      setRecoveredPassword: async (next) => {
+        if (next.length < 6) throw new Error("Password baru minimal 6 karakter");
+        const sb = getSupabase();
+        if (!sb) throw new Error("Tidak bisa terhubung ke server");
+        const { error } = await withTimeout(
+          sb.auth.updateUser({ password: next }),
+          15000,
+          "update",
+        ).catch((err: Error) => ({ error: err }));
+        if (error) throw new Error(translateAuthError(error.message));
+      },
+
+      requestPasswordReset: async (email) => {
+        const db = getDB();
+        const local = (await db.users.where("email").equals(email).first()) as
+          | (UserRecord & { passwordHash?: string })
+          | undefined;
+        if (!hasSupabase() || local?.passwordHash) {
+          throw new Error(
+            "Akun ini cuma tersimpan di HP ini, jadi password-nya tidak bisa direset lewat email.",
+          );
+        }
+        const sb = getSupabase();
+        if (!sb) throw new Error("Tidak bisa terhubung ke server");
+        const { error } = await withTimeout(
+          sb.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth?reset=1`,
+          }),
+          15000,
+          "reset",
+        ).catch((err: Error) => ({ error: err }));
+        if (error) throw new Error(translateAuthError(error.message));
       },
 
       updateProfile: async (patch) => {
@@ -715,6 +834,10 @@ function translateAuthError(msg: string): string {
     return "Tidak bisa terhubung ke server. Cek internet kamu lalu coba lagi.";
   if (m.includes("email not confirmed"))
     return "Email belum dikonfirmasi — buka link di inbox kamu dulu.";
+  if (m.includes("should be different") || m.includes("same password"))
+    return "Password baru harus beda dari yang lama";
+  if (m.includes("weak") || (m.includes("password") && m.includes("characters")))
+    return "Password terlalu lemah — pakai minimal 6 karakter";
   if (m.includes("rate limit") || m.includes("too many"))
     return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
   if (m.includes("invalid login")) return "Email atau password salah";

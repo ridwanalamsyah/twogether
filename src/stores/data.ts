@@ -262,11 +262,11 @@ export async function upsertMoment(
 
 export async function readMomentBody(record: MomentRecord): Promise<string> {
   if (record.encrypted && record.cipher) {
-    if (!isUnlocked()) return "🔒 Terkunci — masuk ulang untuk membaca";
+    if (!isUnlocked()) return "🔒 Terkunci — keluar lalu masuk lagi untuk membaca";
     try {
       return await decryptString(record.cipher);
     } catch {
-      return "🔒 Gagal mendekripsi";
+      return "🔒 Tidak bisa dibuka";
     }
   }
   return record.body;

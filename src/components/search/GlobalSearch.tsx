@@ -87,20 +87,20 @@ export function GlobalSearch({
         {
           href: "/settings/dashboard",
           kind: "Aksi",
-          label: "Atur dashboard",
-          detail: "Tambah, resize, dan susun widget",
+          label: "Susun Beranda",
+          detail: "Pilih dan atur kartu di Beranda",
         },
         {
           href: "/settings/workspace",
           kind: "Aksi",
-          label: "Invite partner",
-          detail: "Bagikan workspace Twogether",
+          label: "Undang pasangan",
+          detail: "Kirim link supaya bisa pakai bareng",
         },
         {
           href: "/settings/theme",
           kind: "Aksi",
           label: "Ganti tema",
-          detail: "Light, dark, auto, dan aksen",
+          detail: "Terang, gelap, dan warna",
         },
       );
       return out;
@@ -110,7 +110,7 @@ export function GlobalSearch({
       out.push(
         {
           href: "/tracker",
-          kind: "Quick Add",
+          kind: "Catat cepat",
           label: `Catat pengeluaran ${formatRupiah(money)}`,
           detail: "Kategori Lainnya · hari ini",
           action: async () => {
@@ -128,7 +128,7 @@ export function GlobalSearch({
         },
         {
           href: "/tracker",
-          kind: "Quick Add",
+          kind: "Catat cepat",
           label: `Catat pemasukan ${formatRupiah(money)}`,
           detail: "Kategori Lainnya · hari ini",
           action: async () => {
@@ -150,7 +150,7 @@ export function GlobalSearch({
       const text = q.trim().replace(/^(note|catat)\s+/i, "");
       out.push({
         href: "/reflection",
-        kind: "Quick Add",
+        kind: "Catat cepat",
         label: `Simpan note: ${text.slice(0, 42)}`,
         detail: "Masuk journal hari ini",
         action: async () => {
@@ -168,9 +168,9 @@ export function GlobalSearch({
       const text = q.trim().replace(/^moment\s+/i, "");
       out.push({
         href: "/moments",
-        kind: "Quick Add",
+        kind: "Catat cepat",
         label: `Buat moment: ${text.slice(0, 40)}`,
-        detail: "Tersimpan offline-first",
+        detail: "Simpan sebagai moment",
         action: async () => {
           if (!userId || !text.trim()) return;
           await upsertMoment(userId, {
@@ -187,7 +187,7 @@ export function GlobalSearch({
       const text = q.trim().replace(/^task\s+/i, "");
       out.push({
         href: "/list",
-        kind: "Quick Add",
+        kind: "Catat cepat",
         label: `Buat task: ${text.slice(0, 42)}`,
         detail: "Masuk list sebagai task",
         action: async () => {
@@ -206,11 +206,11 @@ export function GlobalSearch({
       out.push({
         href: "/settings",
         kind: "Aksi",
-        label: "Sync sekarang",
-        detail: "Drain antrean offline ke backend",
+        label: "Simpan ulang sekarang",
+        detail: "Kirim catatan yang belum tersimpan",
         action: async () => {
           await sync.drain();
-          setActionMsg("Sync dijalankan");
+          setActionMsg("Sedang disimpan…");
         },
       });
     }

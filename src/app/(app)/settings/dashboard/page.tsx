@@ -67,8 +67,8 @@ export default function CustomizeDashboardPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Customize Dashboard"
-        subtitle="Notion-style widgets"
+        title="Susun Beranda"
+        subtitle="Pilih kartu yang mau tampil"
         actions={
           <Link
             href="/home"
@@ -81,8 +81,8 @@ export default function CustomizeDashboardPage() {
 
       <div className="px-4 pb-8">
         <div className="mb-3 rounded-lg bg-accent-soft px-4 py-3 text-sm text-accent">
-          Drag untuk menyusun ulang. Tap toggle untuk menampilkan/menyembunyikan.
-          Tap S/M/L untuk ubah ukuran.
+          Geser ⠿ untuk mengatur urutan. Nyalakan kartu yang mau tampil di
+          Beranda. S/M/L untuk ukuran kecil, sedang, besar.
         </div>
 
         <DndContext
@@ -141,7 +141,7 @@ export default function CustomizeDashboardPage() {
           onClick={reset}
           className="btn-ghost mt-5 w-full text-sm"
         >
-          Reset ke default
+          Kembalikan susunan awal
         </button>
       </div>
     </div>

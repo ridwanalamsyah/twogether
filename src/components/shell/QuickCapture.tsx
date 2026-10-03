@@ -94,7 +94,7 @@ export function QuickCapture({
         });
         setAmount("");
         setTitle("");
-        setSaved("Transaksi tersimpan offline");
+        setSaved("Transaksi tersimpan");
       } else if (mode === "moment") {
         const cleanTitle = title.trim() || body.trim().slice(0, 40);
         if (!cleanTitle) {
