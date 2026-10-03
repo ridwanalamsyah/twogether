@@ -49,14 +49,14 @@ export default function JoinPage() {
         return;
       }
       if (!hasSupabase()) {
-        setError("Backend Supabase belum aktif.");
+        setError("Fitur pasangan belum aktif di app ini.");
         setStatus("error");
         return;
       }
       setStatus("joining");
       try {
         const sb = getSupabase();
-        if (!sb) throw new Error("Backend belum aktif");
+        if (!sb) throw new Error("Fitur pasangan belum aktif di app ini");
         const { data, error: rpcError } = await sb.rpc(
           "consume_workspace_invite",
           {
@@ -70,24 +70,24 @@ export default function JoinPage() {
             /consume_workspace_invite/.test(rpcError.message)
           ) {
             throw new Error(
-              "Fitur invite link belum aktif. Admin perlu jalankan migration 0005.",
+              "Link undangan belum bisa dipakai. Coba lagi nanti.",
             );
           }
           if (/invite_not_found/.test(rpcError.message)) {
             throw new Error("Link sudah tidak berlaku atau salah ketik.");
           }
           if (/invite_expired/.test(rpcError.message)) {
-            throw new Error("Link sudah expired. Minta partner kamu buat baru.");
+            throw new Error("Link-nya sudah kedaluwarsa. Minta pasanganmu kirim link baru.");
           }
           if (/invite_already_used/.test(rpcError.message)) {
             throw new Error(
-              "Link sudah dipakai user lain. Minta partner kamu buat baru.",
+              "Link ini sudah dipakai. Minta pasanganmu kirim link baru.",
             );
           }
           throw new Error(rpcError.message);
         }
         const workspaceId = data as string;
-        if (!workspaceId) throw new Error("Workspace ID tidak diterima.");
+        if (!workspaceId) throw new Error("Gagal tersambung. Coba lagi.");
         sessionStorage.removeItem(PENDING_INVITE_KEY);
 
         // Hydrate local stores immediately so /home lands on the right
@@ -148,8 +148,7 @@ export default function JoinPage() {
               Sedang menggabungkan…
             </h1>
             <p className="text-[13px] text-text-3">
-              Tunggu sebentar, kami lagi nyambungin akun kamu ke workspace
-              partner.
+              Tunggu sebentar, kami lagi nyambungin akunmu dengan pasanganmu.
             </p>
           </>
         )}
@@ -159,7 +158,7 @@ export default function JoinPage() {
               Berhasil bergabung!
             </h1>
             <p className="text-[13px] text-text-3">
-              Sebentar lagi kamu masuk ke workspace bersama.
+              Sebentar lagi kalian sudah tersambung.
             </p>
           </>
         )}

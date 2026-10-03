@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
+import { useFeatures } from "@/stores/features";
+import { FEATURES } from "@/data/features";
 
 export default function HomePage() {
   const name = useAuth((s) => s.name);
@@ -44,7 +46,7 @@ export default function HomePage() {
       />
       {editing && (
         <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-md border border-border bg-bg-elev1 px-3 py-2 text-[12px] text-text-3">
-          <span>Tahan & geser widget untuk menyusun ulang.</span>
+          <span>Tahan & geser kartu untuk mengatur urutan.</span>
           <Link
             href="/settings/dashboard"
             className="font-medium text-text-1 underline underline-offset-2"
@@ -59,28 +61,20 @@ export default function HomePage() {
   );
 }
 
-type Shortcut = { href: string; label: string; emoji: string };
-
-// Just the most-used spaces; the full catalogue lives in the Jelajah tab.
-const SHORTCUTS: Shortcut[] = [
-  { href: "/goals", label: "Goals", emoji: "🎯" },
-  { href: "/moments", label: "Moments", emoji: "💌" },
-  { href: "/kita", label: "Kita", emoji: "💞" },
-  { href: "/sehat", label: "Sehat", emoji: "💧" },
-  { href: "/jadwal", label: "Jadwal", emoji: "🎓" },
-  { href: "/calendar", label: "Kalender", emoji: "📅" },
-  { href: "/rumah", label: "Rumah", emoji: "🏠" },
-  { href: "/fitur", label: "Semua", emoji: "✨" },
-];
-
+// The couple's own spaces (picked in Jelajah) — nothing they don't use.
 function ToolsRow() {
+  const enabled = useFeatures((st) => st.enabled);
+  const spaces = enabled
+    .map((href) => FEATURES.find((f) => f.href === href))
+    .filter((f): f is (typeof FEATURES)[number] => Boolean(f))
+    .slice(0, 7);
   return (
     <section className="mt-6 px-5 pb-6">
       <div className="mb-3 text-[11px] font-medium uppercase tracking-wider text-text-4">
-        Pintasan
+        Ruang kalian
       </div>
       <div className="grid grid-cols-4 gap-y-4">
-        {SHORTCUTS.map((f) => (
+        {spaces.map((f) => (
           <Link
             key={f.href}
             href={f.href}
@@ -89,9 +83,17 @@ function ToolsRow() {
             <span className="grid h-[52px] w-[52px] place-items-center rounded-[16px] border border-border bg-bg-elev1 text-[24px] leading-none">
               {f.emoji}
             </span>
-            <span className="text-[11px] font-medium text-text-2">{f.label}</span>
+            <span className="max-w-[72px] truncate text-[11px] font-medium text-text-2">
+              {f.title}
+            </span>
           </Link>
         ))}
+        <Link href="/fitur" className="pressable flex flex-col items-center gap-1.5">
+          <span className="grid h-[52px] w-[52px] place-items-center rounded-[16px] border border-dashed border-border-strong text-[22px] leading-none text-text-3">
+            +
+          </span>
+          <span className="text-[11px] font-medium text-text-3">Tambah</span>
+        </Link>
       </div>
     </section>
   );

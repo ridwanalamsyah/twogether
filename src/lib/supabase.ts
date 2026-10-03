@@ -34,6 +34,11 @@ export function hasSupabase(): boolean {
   return Boolean(URL && KEY);
 }
 
+/** True when changes are sent anywhere beyond this device. */
+export function hasRemoteSync(): boolean {
+  return hasSupabase() || Boolean(process.env.NEXT_PUBLIC_SYNC_URL);
+}
+
 /** Maps local Dexie table name to Supabase table name (snake_case). */
 export const TABLE_MAP: Record<string, string> = {
   transactions: "transactions",

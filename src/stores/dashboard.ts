@@ -54,10 +54,10 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
-  { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: true },
-  { id: "w_savings", kind: "savings-progress", size: "lg", enabled: true },
-  { id: "w_streak", kind: "streak", size: "sm", enabled: true },
-  { id: "w_pencapaian", kind: "pencapaian", size: "sm", enabled: true },
+  { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: false },
+  { id: "w_savings", kind: "savings-progress", size: "lg", enabled: false },
+  { id: "w_streak", kind: "streak", size: "sm", enabled: false },
+  { id: "w_pencapaian", kind: "pencapaian", size: "sm", enabled: false },
   { id: "w_transactions", kind: "transactions", size: "lg", enabled: false },
   { id: "w_sehat_q", kind: "sehat-quick", size: "lg", enabled: false },
   { id: "w_keu_q", kind: "keuangan-quick", size: "lg", enabled: false },
@@ -71,7 +71,7 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
 ];
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
-const LAYOUT_VERSION = 2;
+const LAYOUT_VERSION = 3;
 const layoutVersionKey = (userId: string) => `twogether:home-layout-v:${userId}`;
 
 interface DashboardState {
