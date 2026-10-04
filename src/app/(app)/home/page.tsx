@@ -55,13 +55,13 @@ export default function HomePage() {
         }
       />
       {editing && (
-        <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-md border border-border bg-bg-elev1 px-3 py-2 text-[12px] text-text-3">
-          <span>Tahan & geser kartu untuk mengatur urutan.</span>
+        <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-[13px] text-text-2">
+          <span>✋ Geser kartu untuk pindah posisi. Tap − untuk sembunyikan.</span>
           <Link
             href="/settings/dashboard"
-            className="font-medium text-text-1 underline underline-offset-2"
+            className="shrink-0 font-semibold text-accent"
           >
-            Pilih kartu
+            + Kartu lain
           </Link>
         </div>
       )}
@@ -79,11 +79,11 @@ function ToolsRow() {
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f))
     .slice(0, 7);
   return (
-    <section className="mt-6 px-5 pb-6">
+    <section className="mt-6 px-5 pb-6 md:px-8">
       <div className="mb-3 text-[16px] font-extrabold tracking-tight text-text-1">
         Ruang kalian
       </div>
-      <div className="grid grid-cols-4 gap-y-4">
+      <div className="grid grid-cols-4 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
         {spaces.map((f) => (
           <Link
             key={f.href}

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BottomNav } from "@/components/shell/BottomNav";
+import { Sidebar } from "@/components/shell/Sidebar";
+import { QuickCapture } from "@/components/shell/QuickCapture";
+import { useUi } from "@/stores/ui";
 import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
@@ -57,15 +60,38 @@ export default function AppLayout({
   if (!userId) return null;
 
   return (
-    <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app">
+    <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app md:max-w-none md:pl-[var(--sidebar-w)]">
+      <Sidebar />
       <OfflineBanner />
-      <main className="flex-1 pb-nav">{children}</main>
+      <main className="flex-1 pb-nav">
+        <div className="md:mx-auto md:max-w-[1080px]">{children}</div>
+      </main>
       <BottomNav />
+      <CaptureHost />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />
     </div>
   );
+}
+
+/** One quick-capture sheet for the whole app; "N" opens it on a keyboard. */
+function CaptureHost() {
+  const open = useUi((s) => s.captureOpen);
+  const openCapture = useUi((s) => s.openCapture);
+  const close = useUi((s) => s.closeCapture);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key.toLowerCase() !== "n" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      openCapture();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openCapture]);
+  return <QuickCapture open={open} onClose={close} />;
 }
 
 function LockGate() {

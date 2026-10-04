@@ -31,7 +31,7 @@ export function AppHeader({ title, subtitle, eyebrow, actions }: AppHeaderProps)
   }, []);
 
   return (
-    <header className="app-header sticky top-0 z-20 px-5 pt-[var(--header-top-pad)] pb-3 theme-transition">
+    <header className="app-header sticky top-0 z-20 px-5 pt-[var(--header-top-pad)] pb-3 theme-transition md:px-8 md:pt-6">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           {eyebrow && (
