@@ -262,7 +262,7 @@ export function QuickCapture({
                 mode === "moment"
                   ? "Judul moment"
                   : mode === "task"
-                    ? "Task baru"
+                    ? "Tugas baru"
                     : "Judul singkat"
               }
               value={title}

@@ -27,7 +27,7 @@ export default function PencapaianPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Pencapaian"
-        subtitle="Streak · badge · apresiasi"
+        subtitle="Lencana & hari beruntun"
         actions={
           <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
             Tutup
@@ -39,8 +39,8 @@ export default function PencapaianPage() {
         <div className="mb-2 flex gap-6 border-b border-border text-[13px]">
           {(
             [
-              ["streak", "Streak"],
-              ["badge", "Badge"],
+              ["streak", "Beruntun"],
+              ["badge", "Lencana"],
               ["feed", "Aktivitas"],
             ] as const
           ).map(([k, label]) => (
@@ -184,7 +184,7 @@ function StreakTab() {
   if (anyTotal === 0) {
     return (
       <Empty>
-        Streak akan muncul setelah kamu mulai catat pomodoro, air, jurnal, olahraga, atau mood.
+        Hitungan hari beruntun muncul setelah kamu mulai mencatat air, jurnal, olahraga, atau mood.
       </Empty>
     );
   }
@@ -270,7 +270,7 @@ function BadgeTab() {
         const list = BADGES.filter((b) => b.category === cat);
         return (
           <div key={cat}>
-            <div className="mb-2 text-[10px] uppercase tracking-wider text-text-3">
+            <div className="mb-2 text-[10px] section-label text-text-3">
               {cat}
             </div>
             <div className="grid grid-cols-2 gap-2">

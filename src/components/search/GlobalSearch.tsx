@@ -408,7 +408,7 @@ export function GlobalSearch({
                     <span className="truncate text-sm font-semibold text-text-1">
                       {h.label}
                     </span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-3">
+                    <span className="text-[10px] font-bold section-label text-text-3">
                       {h.kind}
                     </span>
                   </div>

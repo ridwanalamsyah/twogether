@@ -120,7 +120,7 @@ export function TrackerInsights() {
     } else if (exercise.length > 0) {
       out.push({
         emoji: "🏃",
-        text: "Belum olahraga minggu ini — yuk bangun streak lagi.",
+        text: "Belum olahraga minggu ini — yuk mulai lagi.",
       });
     }
 
@@ -141,8 +141,8 @@ export function TrackerInsights() {
 
   return (
     <section className="surface px-4 py-3 mt-3">
-      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-text-3">
-        Insight tracker
+      <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+        Pola kebiasaan
       </div>
       <ul className="space-y-2">
         {insights.map((i, idx) => (

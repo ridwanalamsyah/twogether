@@ -7,6 +7,8 @@ import { GlobalSearch } from "@/components/search/GlobalSearch";
 interface AppHeaderProps {
   title: string;
   subtitle?: string;
+  /** Small line above the title (e.g. today's date on Beranda). */
+  eyebrow?: string;
   actions?: React.ReactNode;
 }
 
@@ -14,7 +16,7 @@ interface AppHeaderProps {
  * Minimalist sticky header. Single-line title with optional faint subtitle
  * underneath. No avatar circle — settings is reachable from bottom nav.
  */
-export function AppHeader({ title, subtitle, actions }: AppHeaderProps) {
+export function AppHeader({ title, subtitle, eyebrow, actions }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -29,10 +31,19 @@ export function AppHeader({ title, subtitle, actions }: AppHeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-bg-app/90 px-5 pt-[var(--header-top-pad)] pb-3 backdrop-blur-xl theme-transition">
+    <header className="app-header sticky top-0 z-20 px-5 pt-[var(--header-top-pad)] pb-3 theme-transition">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[19px] font-semibold leading-tight tracking-tight text-text-1">
+          {eyebrow && (
+            <div className="mb-0.5 truncate text-[12px] font-semibold text-accent">
+              {eyebrow}
+            </div>
+          )}
+          <h1
+            className={`${
+              eyebrow ? "line-clamp-2 text-[24px]" : "truncate text-[22px]"
+            } font-extrabold leading-tight tracking-[-0.03em] text-text-1`}
+          >
             {title}
           </h1>
           {subtitle && (

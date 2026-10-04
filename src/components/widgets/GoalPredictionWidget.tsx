@@ -31,7 +31,7 @@ export function GoalPredictionWidget() {
     return (
       <WidgetShell title="Prediksi goal">
         <p className="text-sm text-text-3">
-          Tambahkan goal & setoran untuk melihat ETA otomatis di sini.
+          Tambahkan goal & setoran untuk melihat kira-kira kapan tercapai.
         </p>
       </WidgetShell>
     );
@@ -62,7 +62,7 @@ export function GoalPredictionWidget() {
           <span className="truncate text-[15px] font-medium text-text-1">
             {goal.name}
           </span>
-          <span className={`flex-shrink-0 text-[10px] uppercase tracking-wider ${tone}`}>
+          <span className={`flex-shrink-0 text-[10px] section-label ${tone}`}>
             {pred.confidence}
           </span>
         </div>

@@ -68,20 +68,37 @@ export function HariKitaWidget() {
   // Suppress unused tick warning
   void tick;
 
+  // Next round number worth celebrating (every 100 days).
+  const nextMilestone = Math.ceil((days + 1) / 100) * 100;
+  const toMilestone = nextMilestone - days;
+
   return (
     <Link
       href="/kita"
-      className="surface flex flex-col items-center gap-1 p-4 active:scale-[0.99]"
+      className="pressable relative block overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+      style={{
+        background:
+          "radial-gradient(120% 140% at 100% 0%, var(--accent-2) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 70%, #5b1f3a) 100%)",
+      }}
     >
-      <div className="text-[11px] font-medium uppercase tracking-wider text-text-3">
-        Bersama {anchor.title}
+      <span aria-hidden className="float-heart absolute right-6 top-4 text-[22px] opacity-90">
+        💗
+      </span>
+      <span aria-hidden className="float-heart-slow absolute right-16 top-12 text-[13px] opacity-70">
+        💗
+      </span>
+      <div className="text-[13px] font-semibold text-white/85">Sudah bersama</div>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className="font-mono text-[44px] font-extrabold leading-none tracking-tight">
+          {days.toLocaleString("id-ID")}
+        </span>
+        <span className="text-[16px] font-semibold text-white/85">hari</span>
       </div>
-      <div className="font-mono text-[28px] font-bold leading-tight text-text-1">
-        {days.toLocaleString("id-ID")}
-        <span className="ml-1 text-[14px] font-medium text-text-3">hari</span>
+      <div className="mt-1 text-[12px] text-white/75">
+        {Math.floor(yrs)} tahun {Math.floor((yrs % 1) * 12)} bulan · {hours} jam {mins} menit
       </div>
-      <div className="text-[12px] text-text-2">
-        {hours}j {mins}m · {yrs.toFixed(2)} tahun
+      <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[12px] font-semibold backdrop-blur">
+        🎉 {toMilestone} hari lagi menuju {nextMilestone.toLocaleString("id-ID")}
       </div>
     </Link>
   );

@@ -7,8 +7,8 @@
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#faf6f1",
+  "theme_color": "#faf6f1",
   "categories": ["productivity", "finance", "lifestyle"],
   "shortcuts": [
     {

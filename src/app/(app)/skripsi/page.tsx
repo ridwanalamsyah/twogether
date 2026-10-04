@@ -102,7 +102,7 @@ export default function SkripsiPage() {
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-3">
+                    <div className="font-mono text-[10px] font-bold section-label text-text-3">
                       BAB {c.number}
                     </div>
                     <div className="truncate font-semibold text-text-1">
@@ -452,7 +452,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}

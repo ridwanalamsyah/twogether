@@ -128,7 +128,7 @@ function TripCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className="truncate text-[15px] font-medium text-text-1">{trip.destination}</span>
-            <span className="text-[10px] uppercase tracking-wider text-text-4">
+            <span className="text-[10px] section-label text-text-4">
               {statusLabel}
             </span>
           </div>
@@ -137,7 +137,7 @@ function TripCard({
           </div>
         </div>
         <button onClick={onEdit} className="text-[11px] text-text-3 active:opacity-50">
-          Edit
+          Ubah
         </button>
       </div>
 

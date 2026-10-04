@@ -88,7 +88,8 @@ export default function SplashPage() {
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-bg-app theme-transition">
       <div className="flex flex-col items-center gap-5 text-center">
-        <div className="flex h-[76px] w-[76px] items-center justify-center rounded-[22px] bg-accent text-accent-fg">
+        <div className="flex h-[76px] w-[76px] items-center justify-center rounded-[22px] bg-accent text-accent-fg"
+          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}>
           <svg
             viewBox="0 0 44 44"
             fill="none"

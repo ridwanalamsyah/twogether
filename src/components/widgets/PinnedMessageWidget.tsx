@@ -49,11 +49,11 @@ export function PinnedMessageWidget() {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="surface flex w-full items-center gap-2 p-3 text-left active:scale-[0.99]"
+        className="note-card pressable flex w-full items-center gap-2.5 p-3.5 text-left"
       >
-        <span className="text-base">📌</span>
+        <span className="text-[18px]">💌</span>
         <span className="text-[12px] text-text-3">
-          Pin pesan singkat untuk pasangan…
+          Tulis pesan manis untuk pasanganmu…
         </span>
       </button>
     );
@@ -61,8 +61,8 @@ export function PinnedMessageWidget() {
 
   if (editing) {
     return (
-      <div className="surface flex items-center gap-2 p-3">
-        <span className="text-base">📌</span>
+      <div className="note-card flex items-center gap-2 p-3">
+        <span className="text-[18px]">💌</span>
         <input
           autoFocus
           value={draft}
@@ -78,9 +78,9 @@ export function PinnedMessageWidget() {
         <button
           onClick={save}
           disabled={!draft.trim()}
-          className="rounded-md bg-text-1 px-2.5 py-1 text-[11px] font-semibold text-bg-app disabled:opacity-50"
+          className="rounded-full bg-accent px-3 py-1.5 text-[12px] font-semibold text-accent-fg disabled:opacity-50"
         >
-          Pin
+          Simpan
         </button>
         <button
           onClick={() => setEditing(false)}
@@ -93,8 +93,8 @@ export function PinnedMessageWidget() {
   }
 
   return (
-    <div className="surface flex items-center gap-2.5 p-3">
-      <span className="text-base">📌</span>
+    <div className="note-card flex items-center gap-2.5 p-3.5">
+      <span className="text-[18px]">💌</span>
       <div className="flex-1 truncate">
         <div className="truncate text-[13px] font-medium text-text-1">
           {pin!.title}
@@ -110,7 +110,7 @@ export function PinnedMessageWidget() {
         }}
         className="text-[11px] text-text-3 active:opacity-60"
       >
-        Edit
+        Ubah
       </button>
       <button onClick={clearPin} className="text-[11px] text-text-3 active:opacity-60">
         ×

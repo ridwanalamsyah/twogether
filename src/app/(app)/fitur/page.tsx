@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
-import { FEATURES } from "@/data/features";
+import { FEATURES, tintBg } from "@/data/features";
 import { useFeatures } from "@/stores/features";
 import { hapticTap } from "@/lib/haptic";
 
@@ -48,13 +48,16 @@ export default function JelajahPage() {
                 <Link
                   href={f.href}
                   onClick={(e) => editing && e.preventDefault()}
-                  className={`pressable flex h-full flex-col gap-2 rounded-2xl border border-border bg-bg-elev1 p-4 ${
+                  style={{ background: tintBg(f.tint, 14) }}
+                  className={`pressable flex h-full flex-col gap-3 rounded-[22px] p-4 ${
                     editing ? "animate-[wiggle_0.3s_ease-in-out_infinite_alternate]" : ""
                   }`}
                 >
-                  <span className="text-[28px] leading-none">{f.emoji}</span>
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-card text-[24px] leading-none shadow-card">
+                    {f.emoji}
+                  </span>
                   <span>
-                    <span className="block text-[15px] font-semibold text-text-1">
+                    <span className="block text-[16px] font-bold tracking-tight text-text-1">
                       {f.title}
                     </span>
                     <span className="block text-[12px] leading-snug text-text-3">
@@ -105,7 +108,12 @@ export default function JelajahPage() {
               <ul className="slide-up mt-2 divide-y divide-border border-y border-border">
                 {others.map((f) => (
                   <li key={f.href} className="flex items-center gap-3 py-2.5">
-                    <span className="text-[20px] leading-none">{f.emoji}</span>
+                    <span
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[20px] leading-none"
+                      style={{ background: tintBg(f.tint, 16) }}
+                    >
+                      {f.emoji}
+                    </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-[14px] text-text-1">{f.title}</span>
                       <span className="block truncate text-[12px] text-text-4">

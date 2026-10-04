@@ -43,7 +43,7 @@ export function PencapaianWidget() {
         </p>
       ) : (
         <p className="mt-2 text-[11px] text-text-3">
-          Mulai catat aktivitas untuk unlock badge.
+          Mulai mencatat untuk dapat lencana pertama.
         </p>
       )}
     </WidgetShell>

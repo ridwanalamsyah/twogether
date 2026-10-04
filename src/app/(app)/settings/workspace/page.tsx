@@ -266,7 +266,7 @@ export default function WorkspaceSettingsPage() {
       />
 
       <div className="px-5 pb-8">
-        <div className="mt-4 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+        <div className="mt-4 mb-2 text-[11px] font-medium section-label text-text-4">
           Nama
         </div>
         <div className="flex items-center gap-2 border-b border-border pb-3">
@@ -286,7 +286,7 @@ export default function WorkspaceSettingsPage() {
 
         {hasSupabase() && supaWorkspaceId && (
           <>
-            <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
               Undang pasangan
             </div>
             <div className="border-y border-border py-3">
@@ -336,7 +336,7 @@ export default function WorkspaceSettingsPage() {
               </details>
             </div>
 
-            <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
               Punya kode dari pasangan?
             </div>
             <div className="border-y border-border py-3">
@@ -364,7 +364,7 @@ export default function WorkspaceSettingsPage() {
         )}
 
         <div className="mt-6 mb-2 flex items-end justify-between">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="text-[11px] font-medium section-label text-text-4">
             Anggota
           </div>
           <button
@@ -396,7 +396,7 @@ export default function WorkspaceSettingsPage() {
 
         {hasSupabase() && supaWorkspaceId && otherMembersCount > 0 && (
           <>
-            <div className="mt-8 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mt-8 mb-2 text-[11px] font-medium section-label text-text-4">
               Lainnya
             </div>
             <div className="border-y border-border py-3">
@@ -504,17 +504,17 @@ function MemberRow({
         <div className="truncate text-[13px] text-text-1">
           {member.name}
           {member.isMe && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               kamu
             </span>
           )}
           {member.isOwner && !member.isMe && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               pembuat
             </span>
           )}
           {member.pending && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               menunggu
             </span>
           )}

@@ -73,7 +73,7 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+            <div className="text-[11px] font-bold section-label text-text-3">
               Transaksi rutin
             </div>
             <button
@@ -122,7 +122,7 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+            <div className="text-[11px] font-bold section-label text-text-3">
               Anggaran per kategori
             </div>
             <button
@@ -456,7 +456,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}
@@ -511,7 +511,7 @@ function CurrencySection() {
   return (
     <section className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+        <div className="text-[11px] font-bold section-label text-text-3">
           Mata uang
         </div>
         <span className="text-[10px] text-text-4">

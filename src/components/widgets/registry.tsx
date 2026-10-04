@@ -102,7 +102,7 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
   },
   streak: {
     kind: "streak",
-    label: "Streak",
+    label: "Hari beruntun",
     description: "Konsistensi hari berturut-turut",
     emoji: "🔥",
     Component: StreakWidget,

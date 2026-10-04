@@ -6,37 +6,47 @@ import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
 import { useFeatures } from "@/stores/features";
-import { FEATURES } from "@/data/features";
+import { FEATURES, tintBg } from "@/data/features";
 
 export default function HomePage() {
   const name = useAuth((s) => s.name);
   const [editing, setEditing] = useState(false);
-  const [greeting, setGreeting] = useState("Selamat datang");
+  const [greeting, setGreeting] = useState("Halo");
+  const [today, setToday] = useState("");
 
   useEffect(() => {
-    const h = new Date().getHours();
+    const now = new Date();
+    const h = now.getHours();
+    const n = name ? name.split(" ")[0] : "";
+    const hi = (word: string, emoji: string) => (n ? `${word}, ${n} ${emoji}` : `${word} ${emoji}`);
     setGreeting(
       h < 4
-        ? "Belum tidur"
+        ? n
+          ? `Belum tidur, ${n}? 🌙`
+          : "Belum tidur? 🌙"
         : h < 11
-          ? "Selamat pagi"
+          ? hi("Pagi", "☀️")
           : h < 15
-            ? "Selamat siang"
+            ? hi("Siang", "🌤️")
             : h < 18
-              ? "Selamat sore"
-              : "Selamat malam",
+              ? hi("Sore", "🌇")
+              : hi("Malam", "🌙"),
     );
-  }, []);
+    setToday(
+      now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }),
+    );
+  }, [name]);
 
   return (
     <div>
       <AppHeader
-        title={greeting + (name ? `, ${name.split(" ")[0]}` : "")}
+        eyebrow={today}
+        title={greeting}
         actions={
           <button
             onClick={() => setEditing((v) => !v)}
-            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-              editing ? "bg-accent text-accent-fg" : "text-text-2 hover:bg-bg-elev2"
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              editing ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"
             }`}
             aria-pressed={editing}
           >
@@ -51,7 +61,7 @@ export default function HomePage() {
             href="/settings/dashboard"
             className="font-medium text-text-1 underline underline-offset-2"
           >
-            Pilih widget
+            Pilih kartu
           </Link>
         </div>
       )}
@@ -70,7 +80,7 @@ function ToolsRow() {
     .slice(0, 7);
   return (
     <section className="mt-6 px-5 pb-6">
-      <div className="mb-3 text-[11px] font-medium uppercase tracking-wider text-text-4">
+      <div className="mb-3 text-[16px] font-extrabold tracking-tight text-text-1">
         Ruang kalian
       </div>
       <div className="grid grid-cols-4 gap-y-4">
@@ -80,7 +90,10 @@ function ToolsRow() {
             href={f.href}
             className="pressable flex flex-col items-center gap-1.5"
           >
-            <span className="grid h-[52px] w-[52px] place-items-center rounded-[16px] border border-border bg-bg-elev1 text-[24px] leading-none">
+            <span
+              className="grid h-[56px] w-[56px] place-items-center rounded-[18px] text-[26px] leading-none"
+              style={{ background: tintBg(f.tint, 18) }}
+            >
               {f.emoji}
             </span>
             <span className="max-w-[72px] truncate text-[11px] font-medium text-text-2">
@@ -89,7 +102,7 @@ function ToolsRow() {
           </Link>
         ))}
         <Link href="/fitur" className="pressable flex flex-col items-center gap-1.5">
-          <span className="grid h-[52px] w-[52px] place-items-center rounded-[16px] border border-dashed border-border-strong text-[22px] leading-none text-text-3">
+          <span className="grid h-[56px] w-[56px] place-items-center rounded-[18px] border-2 border-dashed border-border-strong text-[22px] leading-none text-text-3">
             +
           </span>
           <span className="text-[11px] font-medium text-text-3">Tambah</span>

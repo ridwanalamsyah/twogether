@@ -101,7 +101,7 @@ export default function SecurityPage() {
       <div className="space-y-4 px-4 pb-8">
         <PasswordSection />
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-text-3">
+          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
             Pengingat
           </div>
           <p className="mb-2 text-xs text-text-3">
@@ -125,7 +125,7 @@ export default function SecurityPage() {
 
           {notif === "granted" && (
             <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+              <div className="text-[11px] font-medium section-label text-text-4">
                 Pengingat harian
               </div>
               <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export default function SecurityPage() {
         </section>
 
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-text-3">
+          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
             Kunci dengan PIN
           </div>
           {pinHash ? (
@@ -233,7 +233,7 @@ export default function SecurityPage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+            <div className="text-[11px] font-bold section-label text-text-3">
               Mode gelap otomatis
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
@@ -252,7 +252,7 @@ export default function SecurityPage() {
           </p>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
                 Dari jam
               </div>
               <select
@@ -271,7 +271,7 @@ export default function SecurityPage() {
               </select>
             </label>
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
                 Sampai jam
               </div>
               <select

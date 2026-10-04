@@ -64,7 +64,7 @@ export function SwipeRow({
             settle(0);
           }
         }}
-        className="relative bg-bg-app"
+        className="relative bg-bg-card"
       >
         {children}
       </motion.div>

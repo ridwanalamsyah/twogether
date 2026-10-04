@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export type ThemeMode = "light" | "dark" | "system";
-export type Accent = "default" | "blue" | "purple" | "green" | "orange" | "pink";
+export type Accent = "default" | "blue" | "purple" | "green" | "orange" | "pink" | "mono";
 
 interface ThemeState {
   mode: ThemeMode;
@@ -16,12 +16,13 @@ interface ThemeState {
 }
 
 export const ACCENT_OPTIONS: { id: Accent; label: string; swatch: string }[] = [
-  { id: "default", label: "Mono", swatch: "#0d0d0d" },
+  { id: "default", label: "Rose", swatch: "#f0566a" },
   { id: "blue", label: "Biru", swatch: "#2563eb" },
   { id: "purple", label: "Ungu", swatch: "#7c3aed" },
   { id: "green", label: "Hijau", swatch: "#16a34a" },
   { id: "orange", label: "Oranye", swatch: "#ea580c" },
   { id: "pink", label: "Pink", swatch: "#db2777" },
+  { id: "mono", label: "Hitam", swatch: "#2a1f1a" },
 ];
 
 export const useTheme = create<ThemeState>()(

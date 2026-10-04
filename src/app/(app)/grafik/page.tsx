@@ -54,7 +54,7 @@ export default function GrafikPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Grafik"
-        subtitle="Trend 30 hari terakhir"
+        subtitle="Tren 30 hari terakhir"
         actions={
           <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
             Tutup

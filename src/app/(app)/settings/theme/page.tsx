@@ -31,7 +31,7 @@ export default function ThemePage() {
       />
 
       <div className="px-5 pt-4 pb-8">
-        <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+        <div className="mb-2 text-[11px] font-medium section-label text-text-4">
           Mode
         </div>
         <div className="flex gap-4 border-b border-border text-xs">
@@ -50,7 +50,7 @@ export default function ThemePage() {
           ))}
         </div>
 
-        <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+        <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
           Aksen
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -73,7 +73,7 @@ export default function ThemePage() {
           ))}
         </div>
 
-        <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+        <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
           Preview
         </div>
         <div className="space-y-2">

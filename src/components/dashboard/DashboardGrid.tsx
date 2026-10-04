@@ -99,7 +99,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
           ))}
           {visible.length === 0 && (
             <div className="col-span-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-text-3">
-              Semua widget dimatikan. Buka Customize untuk mengaktifkan.
+              Belum ada kartu. Tap Susun untuk menambahkan.
             </div>
           )}
         </div>

@@ -8,32 +8,31 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { sync, type SyncSnapshot } from "@/services/sync";
-import { seedSampleData } from "@/services/seed";
 import { getDB } from "@/lib/db";
 import { hasRemoteSync } from "@/lib/supabase";
 
-const SECTIONS: { title: string; rows: { href: string; label: string; hint?: string }[] }[] = [
+const SECTIONS: { title: string; rows: { href: string; icon: string; label: string; hint?: string }[] }[] = [
   {
     title: "Akun",
     rows: [
-      { href: "/settings/profile", label: "Profil", hint: "Nama, foto, ulang tahun" },
-      { href: "/settings/security", label: "Password & keamanan", hint: "Ganti password, PIN" },
-      { href: "/settings/workspace", label: "Pasangan", hint: "Undang & kelola anggota" },
+      { href: "/settings/profile", icon: "🙂", label: "Profil", hint: "Nama, foto, ulang tahun" },
+      { href: "/settings/security", icon: "🔐", label: "Password & keamanan", hint: "Ganti password, PIN" },
+      { href: "/settings/workspace", icon: "💞", label: "Pasangan", hint: "Undang & kelola anggota" },
     ],
   },
   {
     title: "Tampilan",
     rows: [
-      { href: "/settings/dashboard", label: "Susun Beranda" },
-      { href: "/settings/theme", label: "Tema & warna" },
+      { href: "/settings/dashboard", icon: "🧩", label: "Susun Beranda" },
+      { href: "/settings/theme", icon: "🎨", label: "Tema & warna" },
     ],
   },
   {
     title: "Lainnya",
     rows: [
-      { href: "/settings/finance", label: "Uang & anggaran" },
-      { href: "/settings/privacy", label: "Data & cadangan", hint: "Unduh atau hapus data" },
-      { href: "/settings/trash", label: "Baru dihapus" },
+      { href: "/settings/finance", icon: "💰", label: "Uang & anggaran" },
+      { href: "/settings/privacy", icon: "📦", label: "Data & cadangan", hint: "Unduh atau hapus data" },
+      { href: "/settings/trash", icon: "🗑️", label: "Baru dihapus" },
     ],
   },
 ];
@@ -52,24 +51,9 @@ export default function SettingsPage() {
   const displayName = profile?.name ?? auth.name ?? "";
   const displayAvatar = profile?.avatar ?? auth.avatar ?? null;
 
-  const [seeding, setSeeding] = useState(false);
-  const [seeded, setSeeded] = useState(false);
-
   async function logout() {
     await auth.signOut();
     router.replace("/auth");
-  }
-
-  async function seedNow() {
-    if (!auth.userId || !auth.name) return;
-    setSeeding(true);
-    try {
-      await seedSampleData({ userId: auth.userId, primaryWho: auth.name });
-      setSeeded(true);
-      setTimeout(() => setSeeded(false), 2000);
-    } finally {
-      setSeeding(false);
-    }
   }
 
   return (
@@ -79,9 +63,12 @@ export default function SettingsPage() {
       <div className="px-5 pt-4 pb-6">
         <Link
           href="/settings/profile"
-          className="flex items-center gap-3 border-b border-border pb-4 active:opacity-60"
+          className="pressable flex items-center gap-3 rounded-[22px] bg-bg-card p-4 shadow-card"
         >
-          <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-text-1 text-sm font-semibold text-bg-app">
+          <div
+            className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-lg font-bold text-accent-fg"
+            style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+          >
             {displayAvatar ? (
               <Image
                 src={displayAvatar}
@@ -106,17 +93,20 @@ export default function SettingsPage() {
 
         {SECTIONS.map((sec) => (
           <div key={sec.title} className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               {sec.title}
             </div>
-            <ul className="divide-y divide-border border-y border-border">
+            <ul className="divide-y divide-border overflow-hidden rounded-[20px] bg-bg-card shadow-card">
               {sec.rows.map((r) => (
                 <li key={r.href}>
                   <Link
                     href={r.href}
-                    className="flex items-center justify-between py-3 text-[14px] text-text-1 active:opacity-60"
+                    className="flex items-center gap-3 px-4 py-3 text-[15px] text-text-1 active:bg-bg-elev1"
                   >
-                    <span className="min-w-0">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-bg-elev1 text-[18px]">
+                      {r.icon}
+                    </span>
+                    <span className="min-w-0 flex-1">
                       <span className="block">{r.label}</span>
                       {r.hint && (
                         <span className="block text-[12px] text-text-4">{r.hint}</span>
@@ -133,20 +123,8 @@ export default function SettingsPage() {
         <SaveStatus snap={snap} />
 
         <button
-          onClick={seedNow}
-          disabled={seeding}
-          className="mt-3 w-full rounded-md border border-border py-2 text-[12px] font-medium text-text-2 disabled:opacity-60"
-        >
-          {seeding
-            ? "Mengisi…"
-            : seeded
-              ? "Contoh data ditambahkan"
-              : "Isi contoh data"}
-        </button>
-
-        <button
           onClick={logout}
-          className="mt-3 w-full rounded-md py-2 text-[12px] font-medium text-[color:var(--negative)]"
+          className="mt-4 w-full rounded-[18px] bg-bg-card py-3.5 text-[14px] font-semibold text-[color:var(--negative)] shadow-card active:scale-[0.99]"
         >
           Keluar
         </button>
@@ -168,7 +146,7 @@ function SaveStatus({ snap }: { snap: SyncSnapshot }) {
         ? "Semua catatan tersimpan di HP ini."
         : "Semua catatan sudah tersimpan.";
   return (
-    <div className="mt-6 flex items-center justify-between gap-3 rounded-lg bg-bg-elev1 px-3.5 py-3">
+    <div className="mt-6 flex items-center justify-between gap-3 rounded-[18px] bg-bg-card px-4 py-3.5 shadow-card">
       <div className="flex items-center gap-2.5 text-[13px] text-text-2">
         <span
           className={`h-2 w-2 shrink-0 rounded-full ${

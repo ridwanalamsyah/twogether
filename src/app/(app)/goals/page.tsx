@@ -208,7 +208,7 @@ function GoalCard({
         </div>
         <div className="flex gap-3 text-[11px]">
           <button onClick={onEdit} className="text-text-3 hover:text-text-1">
-            Edit
+            Ubah
           </button>
           <button onClick={onDelete} className="text-text-4 hover:text-[color:var(--negative)]">
             Hapus
@@ -247,7 +247,7 @@ function GoalCard({
       </div>
       {byMember.length >= 2 && (
         <div className="mt-3 border-t border-border pt-3">
-          <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-1.5 text-[10px] font-medium section-label text-text-4">
             Kontribusi
           </div>
           <div className="space-y-1">
@@ -286,7 +286,7 @@ function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+        <div className="text-[11px] font-bold section-label text-text-3">
           Auto-deposit
         </div>
         <button
@@ -423,7 +423,7 @@ function PredictionPanel({ goal }: { goal: GoalRecord }) {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+        <div className="text-[11px] font-bold section-label text-text-3">
           Prediksi (data historis)
         </div>
         <span
@@ -461,7 +461,7 @@ function PredStat({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-md bg-bg-elev2 p-2 text-center theme-transition">
       <div className="font-mono text-sm font-bold">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-text-3">
+      <div className="text-[10px] section-label text-text-3">
         {label}
       </div>
     </div>
@@ -670,7 +670,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-text-3">
+      <span className="mb-1 block text-[10px] font-bold section-label text-text-3">
         {label}
       </span>
       {children}

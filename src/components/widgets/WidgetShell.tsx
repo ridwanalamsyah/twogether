@@ -25,7 +25,7 @@ export function WidgetShell({
       {(title || action) && (
         <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-1.5">
           {title && (
-            <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="text-[11px] font-medium section-label text-text-4">
               {title}
             </div>
           )}

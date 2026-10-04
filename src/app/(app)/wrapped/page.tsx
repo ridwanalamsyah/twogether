@@ -148,7 +148,7 @@ export default function WrappedPage() {
           </div>
           {stats.topCats.length > 0 && (
             <div className="mt-3 space-y-1">
-              <div className="text-[10px] uppercase tracking-wider text-text-3">
+              <div className="text-[10px] section-label text-text-3">
                 Top 3 kategori boros
               </div>
               {stats.topCats.map(([cat, amt], i) => (
@@ -213,7 +213,7 @@ function Card({
     <div className="surface p-4">
       <div className="mb-1.5 flex items-center gap-1.5">
         <span className="text-base">{emoji}</span>
-        <h2 className="text-[12px] font-semibold uppercase tracking-wider text-text-3">
+        <h2 className="text-[12px] font-semibold section-label text-text-3">
           {title}
         </h2>
       </div>
@@ -251,7 +251,7 @@ function Stat({
         : "bg-bg-elev1 text-text-1";
   return (
     <div className={`rounded-lg p-2 text-center ${toneClass}`}>
-      <div className="text-[9px] font-medium uppercase tracking-wider opacity-80">
+      <div className="text-[9px] font-medium section-label opacity-80">
         {label}
       </div>
       <div className="font-mono text-[12px] font-bold">{value}</div>

@@ -138,8 +138,8 @@ export function SectionTabs({
               onClick={() => select(t.title)}
               className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
                 on
-                  ? "bg-text-1 text-bg-app shadow-sm"
-                  : "bg-bg-elev2 text-text-3"
+                  ? "bg-accent text-accent-fg shadow-[0_6px_14px_-8px_var(--accent)]"
+                  : "bg-bg-card text-text-3 shadow-card"
               }`}
             >
               {t.title}
@@ -216,7 +216,7 @@ export function Section({
           onClick={() => setOpen(!open)}
           className="text-left active:opacity-50"
         >
-          <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="text-[11px] font-medium section-label text-text-4">
             {title}
           </div>
           {caption && (
@@ -240,7 +240,7 @@ export function Section({
 
 export function ListBox({ children }: { children: ReactNode }) {
   return (
-    <div className="divide-y divide-border border-y border-border">
+    <div className="divide-y divide-border rounded-[20px] bg-bg-card px-4 shadow-card">
       {children}
     </div>
   );
@@ -248,7 +248,7 @@ export function ListBox({ children }: { children: ReactNode }) {
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="border-y border-border py-4 text-center text-[12px] text-text-4">
+    <div className="rounded-[20px] border-2 border-dashed border-border py-8 text-center text-[13px] text-text-3">
       {children}
     </div>
   );
@@ -267,7 +267,7 @@ export function AccentBtn({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
+      className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg shadow-[0_6px_14px_-8px_var(--accent)] active:scale-95 disabled:opacity-40"
     >
       {children}
     </button>

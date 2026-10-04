@@ -248,7 +248,7 @@ function Section({
 }) {
   return (
     <div className="surface p-4">
-      <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="text-[11px] font-bold section-label text-text-3">
         {title}
       </div>
       {description && <p className="mt-1 text-xs text-text-3">{description}</p>}

@@ -63,7 +63,7 @@ export function HabitsQuickWidget() {
           </span>
         </div>
         <Link href="/habits" className="text-[11px] text-text-3 active:opacity-60">
-          Detail ›
+          Lihat ›
         </Link>
       </div>
       <div className="space-y-1">
@@ -95,7 +95,7 @@ export function HabitsQuickWidget() {
               >
                 {h.label}
               </span>
-              <span className="text-[9px] uppercase tracking-wider text-text-4">
+              <span className="text-[9px] section-label text-text-4">
                 {h.bucket}
               </span>
             </button>

@@ -123,19 +123,19 @@ export default function TrackerPage() {
       <div className="px-5 pt-4">
         <div className="surface grid grid-cols-3 divide-x divide-border py-3 text-center">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-text-4">Masuk</div>
+            <div className="text-[10px] section-label text-text-4">Masuk</div>
             <div className="mt-0.5 font-mono text-[14px] font-semibold text-[color:var(--positive)]">
               {formatRupiahShort(month.inc)}
             </div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-text-4">Keluar</div>
+            <div className="text-[10px] section-label text-text-4">Keluar</div>
             <div className="mt-0.5 font-mono text-[14px] font-semibold text-text-1">
               {formatRupiahShort(month.out)}
             </div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-text-4">Sisa</div>
+            <div className="text-[10px] section-label text-text-4">Sisa</div>
             <div
               className={`mt-0.5 font-mono text-[14px] font-semibold ${
                 month.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"
@@ -197,7 +197,7 @@ export default function TrackerPage() {
         ) : (
           groups.map((g) => (
             <section key={g.date} className="slide-up">
-              <div className="flex items-baseline justify-between px-5 pb-1 pt-4">
+              <div className="flex items-baseline justify-between px-5 pb-2 pt-5">
                 <span className="text-[12px] font-semibold text-text-2">
                   {dayLabel(g.date)}
                 </span>
@@ -206,11 +206,11 @@ export default function TrackerPage() {
                   {formatRupiahShort(Math.abs(g.total))}
                 </span>
               </div>
-              <ul>
+              <ul className="mx-4 overflow-hidden rounded-[20px] bg-bg-card shadow-card">
                 {g.items.map((t) => (
                   <li key={t.id}>
                     <SwipeRow onDelete={() => userId && deleteTransaction(userId, t.id)}>
-                      <div className="flex items-center gap-3 px-5 py-2.5">
+                      <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
                         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[11px] bg-bg-elev2 text-[17px]">
                           {CATEGORY_EMOJI[t.category] ?? "🧾"}
                         </span>
