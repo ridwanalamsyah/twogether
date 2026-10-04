@@ -79,11 +79,11 @@ function ToolsRow() {
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f))
     .slice(0, 7);
   return (
-    <section className="mt-6 px-5 pb-6">
+    <section className="mt-6 px-5 pb-6 md:px-8">
       <div className="mb-3 text-[16px] font-extrabold tracking-tight text-text-1">
         Ruang kalian
       </div>
-      <div className="grid grid-cols-4 gap-y-4">
+      <div className="grid grid-cols-4 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
         {spaces.map((f) => (
           <Link
             key={f.href}

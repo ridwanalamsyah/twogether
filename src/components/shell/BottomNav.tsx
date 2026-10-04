@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { hapticTap } from "@/lib/haptic";
-import { QuickCapture } from "@/components/shell/QuickCapture";
+import { useUi } from "@/stores/ui";
 
-interface NavItem {
+export interface NavItem {
   href: string;
   label: string;
   /** Extra route prefixes that should light this tab up. */
@@ -16,7 +15,7 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-const ITEMS: NavItem[] = [
+export const ITEMS: NavItem[] = [
   {
     href: "/home",
     label: "Beranda",
@@ -101,20 +100,20 @@ const ITEMS: NavItem[] = [
   },
 ];
 
-function isActive(pathname: string | null, item: NavItem) {
+export function isActive(pathname: string | null, item: NavItem) {
   if (!pathname) return false;
   return item.match.some((m) => pathname === m || pathname.startsWith(m + "/"));
 }
 
 export function BottomNav() {
   const pathname = usePathname();
-  const [captureOpen, setCaptureOpen] = useState(false);
+  const openCapture = useUi((s) => s.openCapture);
   const left = ITEMS.slice(0, 2);
   const right = ITEMS.slice(2);
 
   return (
     <>
-      <nav className="fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 app-nav pb-[var(--nav-bottom-pad)]">
+      <nav className="md:hidden fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 app-nav pb-[var(--nav-bottom-pad)]">
         <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
           {left.map((item) => (
             <NavLink
@@ -129,7 +128,7 @@ export function BottomNav() {
               aria-label="Catat cepat"
               onClick={() => {
                 hapticTap();
-                setCaptureOpen(true);
+                openCapture();
               }}
               className="-mt-3 grid h-[52px] w-[52px] place-items-center rounded-full text-accent-fg shadow-[0_10px_22px_-8px_var(--accent)] ring-4 ring-[color:var(--bg-card)] transition-transform duration-150 ease-ios active:scale-90"
               style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
@@ -155,7 +154,6 @@ export function BottomNav() {
           ))}
         </ul>
       </nav>
-      <QuickCapture open={captureOpen} onClose={() => setCaptureOpen(false)} />
     </>
   );
 }

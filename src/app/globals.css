@@ -61,6 +61,7 @@
   --app-h: 100dvh;
   --header-top-pad: calc(var(--sat) + 10px);
   --nav-content-h: 56px;
+  --sidebar-w: 0px;
   --nav-visual-bottom-pad: 2px;
   --nav-safe-bottom: max(var(--sab), 0px);
   --nav-bottom-offset: var(--nav-safe-bottom);
@@ -661,4 +662,52 @@ html.theme-switching *::after {
   backdrop-filter: saturate(160%) blur(18px);
   border-top: 1px solid var(--border);
   box-shadow: 0 -8px 24px -18px rgba(80, 40, 30, 0.35);
+}
+
+/* ── WIDE SCREENS (iPad & laptop, ≥768px) ─────────────── */
+.app-sidebar {
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+}
+@media (min-width: 768px) {
+  :root {
+    --sidebar-w: 232px;
+  }
+  /* Roomier side gutters for every page on a big screen. */
+  main .px-5,
+  main .px-4 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  main .-mx-5 {
+    margin-left: -2rem;
+    margin-right: -2rem;
+  }
+  main .mx-4,
+  main .mx-5 {
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  /* No bottom tab bar here, so no need to reserve space for it. */
+  .pb-nav {
+    padding-bottom: 40px;
+  }
+  /* Bottom sheets become centred dialogs. */
+  .backdrop-in {
+    align-items: center !important;
+    padding: 24px;
+  }
+  .sheet-up {
+    border-radius: 26px !important;
+    max-height: min(86vh, 760px) !important;
+    padding-bottom: 24px !important;
+    box-shadow: var(--shadow-float);
+    animation-name: pop-in;
+    animation-duration: 240ms;
+  }
+}
+@media (min-width: 1200px) {
+  :root {
+    --sidebar-w: 260px;
+  }
 }

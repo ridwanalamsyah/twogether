@@ -42,7 +42,7 @@ export default function JelajahPage() {
             Belum ada ruang. Tambahkan yang kalian butuhkan di bawah.
           </div>
         ) : (
-          <ul className="grid grid-cols-2 gap-2.5">
+          <ul className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
             {mine.map((f) => (
               <li key={f.href} className="relative slide-up">
                 <Link

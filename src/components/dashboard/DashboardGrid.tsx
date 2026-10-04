@@ -93,7 +93,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
         items={visible.map((w) => w.id)}
         strategy={rectSortingStrategy}
       >
-        <div className="grid grid-cols-2 gap-2.5 px-5 pb-6 pt-4">
+        <div className="grid grid-cols-2 gap-2.5 px-5 pb-6 pt-4 md:gap-4 md:px-8 lg:grid-cols-4">
           {visible.map((w) => (
             <SortableWidget key={w.id} widget={w} editing={editing} />
           ))}
