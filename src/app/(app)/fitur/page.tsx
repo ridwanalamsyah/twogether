@@ -5,11 +5,35 @@ import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { FEATURES, tintBg } from "@/data/features";
 import { useFeatures } from "@/stores/features";
-import { hapticTap } from "@/lib/haptic";
+import { hapticSuccess, hapticTap } from "@/lib/haptic";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { Feature } from "@/data/features";
 
 export default function JelajahPage() {
   const enabled = useFeatures((s) => s.enabled);
   const toggle = useFeatures((s) => s.toggle);
+  const move = useFeatures((s) => s.move);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 160, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   const [editing, setEditing] = useState(false);
   const [showMore, setShowMore] = useState(false);
 
@@ -30,7 +54,7 @@ export default function JelajahPage() {
                 editing ? "bg-accent text-accent-fg" : "text-text-2"
               }`}
             >
-              {editing ? "Selesai" : "Atur"}
+              {editing ? "Selesai" : "Susun"}
             </button>
           ) : null
         }
@@ -42,44 +66,34 @@ export default function JelajahPage() {
             Belum ada ruang. Tambahkan yang kalian butuhkan di bawah.
           </div>
         ) : (
-          <ul className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-            {mine.map((f) => (
-              <li key={f.href} className="relative slide-up">
-                <Link
-                  href={f.href}
-                  onClick={(e) => editing && e.preventDefault()}
-                  style={{ background: tintBg(f.tint, 14) }}
-                  className={`pressable flex h-full flex-col gap-3 rounded-[22px] p-4 ${
-                    editing ? "animate-[wiggle_0.3s_ease-in-out_infinite_alternate]" : ""
-                  }`}
-                >
-                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-card text-[24px] leading-none shadow-card">
-                    {f.emoji}
-                  </span>
-                  <span>
-                    <span className="block text-[16px] font-bold tracking-tight text-text-1">
-                      {f.title}
-                    </span>
-                    <span className="block text-[12px] leading-snug text-text-3">
-                      {f.subtitle}
-                    </span>
-                  </span>
-                </Link>
-                {editing && (
-                  <button
-                    aria-label={`Sembunyikan ${f.title}`}
-                    onClick={() => {
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={() => hapticTap()}
+            onDragEnd={(e: DragEndEvent) => {
+              if (e.over && e.active.id !== e.over.id) {
+                move(String(e.active.id), String(e.over.id));
+                hapticSuccess();
+              }
+            }}
+          >
+            <SortableContext items={mine.map((f) => f.href)} strategy={rectSortingStrategy}>
+              <ul className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                {mine.map((f, i) => (
+                  <SpaceCard
+                    key={f.href}
+                    feature={f}
+                    index={i}
+                    editing={editing}
+                    onHide={() => {
                       hapticTap();
                       toggle(f.href);
                     }}
-                    className="pop-in absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full bg-text-1 text-[14px] font-bold leading-none text-bg-app shadow"
-                  >
-                    −
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
 
         {others.length > 0 && (
@@ -137,5 +151,68 @@ export default function JelajahPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function SpaceCard({
+  feature: f,
+  index,
+  editing,
+  onHide,
+}: {
+  feature: Feature;
+  index: number;
+  editing: boolean;
+  onHide: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: f.href, disabled: !editing });
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        touchAction: editing ? "manipulation" : undefined,
+      }}
+      className={`relative slide-up ${editing ? "cursor-grab active:cursor-grabbing" : ""} ${
+        isDragging ? "is-dragging" : ""
+      }`}
+      {...attributes}
+      {...(editing ? listeners : {})}
+    >
+      <Link
+        href={f.href}
+        onClick={(e) => editing && e.preventDefault()}
+        style={{
+          background: tintBg(f.tint, 14),
+          animationDelay: editing ? `${(index % 3) * -0.11}s` : undefined,
+        }}
+        className={`pressable flex h-full flex-col gap-3 rounded-[22px] p-4 ${
+          editing ? "edit-jiggle pointer-events-none select-none" : ""
+        }`}
+      >
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-card text-[24px] leading-none shadow-card">
+          {f.emoji}
+        </span>
+        <span>
+          <span className="block text-[16px] font-bold tracking-tight text-text-1">
+            {f.title}
+          </span>
+          <span className="block text-[12px] leading-snug text-text-3">{f.subtitle}</span>
+        </span>
+      </Link>
+      {editing && (
+        <button
+          aria-label={`Sembunyikan ${f.title}`}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onClick={onHide}
+          className="pop-in absolute -left-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-text-1 text-[16px] font-bold leading-none text-bg-app shadow-float"
+        >
+          −
+        </button>
+      )}
+    </li>
   );
 }

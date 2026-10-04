@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
   TouchSensor,
   closestCenter,
@@ -14,8 +15,10 @@ import {
   SortableContext,
   arrayMove,
   rectSortingStrategy,
+  sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
+import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { CSS } from "@dnd-kit/utilities";
 import { useDashboard, type WidgetConfig } from "@/stores/dashboard";
 import { useAuth } from "@/stores/auth";
@@ -56,10 +59,13 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
   }, [layout, hydrated, userId, save]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // Mouse: start after a small move. Finger: short press, so normal
+    // scrolling still works while arranging.
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 180, tolerance: 8 },
+      activationConstraint: { delay: 160, tolerance: 6 },
     }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const visible = layout.filter((w) => w.enabled);
@@ -71,6 +77,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
     const to = layout.findIndex((w) => w.id === over.id);
     if (from === -1 || to === -1) return;
     reorder(from, to);
+    hapticSuccess();
   }
 
   if (!loaded) {
@@ -87,6 +94,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={() => hapticTap()}
       onDragEnd={onDragEnd}
     >
       <SortableContext
@@ -94,8 +102,8 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
         strategy={rectSortingStrategy}
       >
         <div className="grid grid-cols-2 gap-2.5 px-5 pb-6 pt-4 md:gap-4 md:px-8 lg:grid-cols-4">
-          {visible.map((w) => (
-            <SortableWidget key={w.id} widget={w} editing={editing} />
+          {visible.map((w, i) => (
+            <SortableWidget key={w.id} widget={w} editing={editing} index={i} />
           ))}
           {visible.length === 0 && (
             <div className="col-span-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-text-3">
@@ -111,12 +119,15 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
 function SortableWidget({
   widget,
   editing,
+  index,
 }: {
   widget: WidgetConfig;
   editing: boolean;
+  index: number;
 }) {
   const meta = WIDGET_REGISTRY[widget.kind];
   const Component = meta.Component;
+  const toggle = useDashboard((s) => s.toggle);
   const sortable = useSortable({ id: widget.id, disabled: !editing });
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     sortable;
@@ -127,31 +138,47 @@ function SortableWidget({
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
+        touchAction: editing ? "manipulation" : undefined,
       }}
       className={cn(
         SIZE_TO_SPAN[widget.size],
-        isDragging && "is-dragging",
         "relative",
+        editing && "cursor-grab active:cursor-grabbing",
+        isDragging && "is-dragging",
       )}
       {...attributes}
+      {...(editing ? listeners : {})}
     >
+      {/* While arranging, the whole card is the handle and its own buttons
+          are paused, so a drag never turns into an accidental tap. */}
+      <div
+        className={cn(
+          editing && "pointer-events-none select-none",
+          editing && !isDragging && "edit-jiggle",
+        )}
+        style={editing ? { animationDelay: `${(index % 3) * -0.11}s` } : undefined}
+      >
+        <Component />
+      </div>
       {editing && (
-        <button
-          {...listeners}
-          aria-label="Geser kartu"
-          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-bg-app/80 text-text-3 backdrop-blur"
-        >
-          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor">
-            <circle cx="5" cy="4" r="1.4" />
-            <circle cx="11" cy="4" r="1.4" />
-            <circle cx="5" cy="8" r="1.4" />
-            <circle cx="11" cy="8" r="1.4" />
-            <circle cx="5" cy="12" r="1.4" />
-            <circle cx="11" cy="12" r="1.4" />
-          </svg>
-        </button>
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-1 rounded-[26px] border-2 border-dashed opacity-50"
+            style={{ borderColor: "var(--accent)" }}
+          />
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={() => toggle(widget.id)}
+            aria-label={`Sembunyikan ${meta.label}`}
+            className="pop-in absolute -left-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-text-1 text-[16px] font-bold leading-none text-bg-app shadow-float"
+          >
+            −
+          </button>
+        </>
       )}
-      <Component />
     </div>
   );
 }
