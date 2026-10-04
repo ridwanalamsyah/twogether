@@ -38,7 +38,7 @@ export function GoalSimulator({
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+        <div className="text-[11px] font-bold section-label text-text-3">
           What-if simulator
         </div>
         <span className="font-mono text-xs text-text-3">
@@ -81,7 +81,7 @@ export function GoalSimulator({
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div className="rounded-md bg-bg-elev2 p-2.5 theme-transition">
-          <div className="text-[10px] uppercase tracking-wider text-text-3">
+          <div className="text-[10px] section-label text-text-3">
             Saat ini
           </div>
           <div className="font-mono text-sm font-bold text-text-1">
@@ -89,7 +89,7 @@ export function GoalSimulator({
           </div>
         </div>
         <div className="rounded-md bg-accent-soft p-2.5 theme-transition">
-          <div className="text-[10px] uppercase tracking-wider text-accent">
+          <div className="text-[10px] section-label text-accent">
             Proyeksi
           </div>
           <div className="font-mono text-sm font-bold text-accent">

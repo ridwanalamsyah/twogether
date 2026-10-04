@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { sync, type SyncSnapshot } from "@/services/sync";
 import { cn } from "@/lib/utils";
-import { hasSupabase } from "@/lib/supabase";
+import { hasRemoteSync } from "@/lib/supabase";
 
-const HAS_REMOTE = hasSupabase() || Boolean(process.env.NEXT_PUBLIC_SYNC_URL);
+const HAS_REMOTE = hasRemoteSync();
 
 /**
  * Minimalist sync status — small dot only. Tooltip on hover for details.
@@ -33,12 +33,12 @@ export function SyncIndicator({ className }: { className?: string }) {
   }
 
   const title = offline
-    ? "Offline"
+    ? "Tidak ada internet"
     : syncing
-      ? "Mensinkron…"
+      ? "Menyimpan…"
       : dirty
-        ? `${pending} belum sinkron${failed > 0 ? ` · ${failed} gagal` : ""}`
-        : "Tersinkron";
+        ? `${pending + failed} perubahan belum tersimpan`
+        : "Semua tersimpan";
 
   const dotColor = offline
     ? "bg-[color:var(--warning)]"

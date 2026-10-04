@@ -11,6 +11,7 @@ const config: Config = {
       colors: {
         bg: {
           app: "var(--bg-app)",
+          card: "var(--bg-card)",
           elev1: "var(--bg-elev1)",
           elev2: "var(--bg-elev2)",
           elev3: "var(--bg-elev3)",
@@ -30,6 +31,7 @@ const config: Config = {
           DEFAULT: "var(--accent)",
           fg: "var(--accent-fg)",
           soft: "var(--accent-soft)",
+          2: "var(--accent-2)",
         },
         positive: {
           DEFAULT: "var(--positive)",
@@ -57,6 +59,10 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font)"],
         mono: ["var(--mono)"],
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
+        float: "var(--shadow-float)",
       },
       transitionTimingFunction: {
         ios: "var(--ease-ios)",

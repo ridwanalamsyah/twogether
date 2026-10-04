@@ -57,8 +57,7 @@ export default function FinancePage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Keuangan"
-        subtitle="Recurring & budget"
+        title="Uang & anggaran"
         actions={
           <Link
             href="/settings"
@@ -74,8 +73,8 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
-              Transaksi berulang
+            <div className="text-[11px] font-bold section-label text-text-3">
+              Transaksi rutin
             </div>
             <button
               onClick={() => setAddR(true)}
@@ -123,8 +122,8 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
-              Budget per kategori
+            <div className="text-[11px] font-bold section-label text-text-3">
+              Anggaran per kategori
             </div>
             <button
               onClick={() => setAddB(true)}
@@ -268,7 +267,7 @@ function RecurringSheet({
 
   return (
     <Sheet
-      title={record ? "Edit recurring" : "Tambah recurring"}
+      title={record ? "Ubah transaksi rutin" : "Transaksi rutin baru"}
       onClose={onClose}
     >
       <div className="space-y-3">
@@ -406,13 +405,13 @@ function BudgetSheet({
 
   async function del() {
     if (!userId || !record) return;
-    if (!confirm("Hapus budget ini?")) return;
+    if (!confirm("Hapus anggaran ini?")) return;
     await deleteBudget(userId, record.id);
     onClose();
   }
 
   return (
-    <Sheet title={record ? "Edit budget" : "Set budget"} onClose={onClose}>
+    <Sheet title={record ? "Ubah anggaran" : "Atur anggaran"} onClose={onClose}>
       <div className="space-y-3">
         <Field label="Kategori">
           <select
@@ -457,7 +456,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}
@@ -512,7 +511,7 @@ function CurrencySection() {
   return (
     <section className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+        <div className="text-[11px] font-bold section-label text-text-3">
           Mata uang
         </div>
         <span className="text-[10px] text-text-4">

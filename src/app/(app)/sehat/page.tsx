@@ -450,7 +450,7 @@ function PeriodSection() {
               <span className="text-[12px] text-text-2">
                 {formatDateShort(e.date)}
               </span>
-              <span className="text-[11px] uppercase tracking-wider text-text-4">
+              <span className="text-[11px] section-label text-text-4">
                 {e.valueText}
               </span>
               <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>

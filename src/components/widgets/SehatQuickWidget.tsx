@@ -96,7 +96,7 @@ export function SehatQuickWidget() {
           <h3 className="text-[13px] font-semibold text-text-1">Sehat</h3>
         </div>
         <Link href="/sehat" className="text-[11px] text-text-3 active:opacity-60">
-          Detail ›
+          Lihat ›
         </Link>
       </div>
 

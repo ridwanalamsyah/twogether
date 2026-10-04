@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useSecurity } from "@/stores/security";
+import { useAuth } from "@/stores/auth";
 import {
   notificationStatus,
   requestNotificationPermission,
@@ -78,7 +79,7 @@ export default function SecurityPage() {
   }
 
   function disablePin() {
-    if (!confirm("Matikan PIN lock?")) return;
+    if (!confirm("Matikan kunci PIN?")) return;
     clearPin();
   }
 
@@ -86,7 +87,7 @@ export default function SecurityPage() {
     <div className="animate-in">
       <AppHeader
         title="Keamanan"
-        subtitle="PIN & auto-dark"
+        subtitle="PIN & pengingat"
         actions={
           <Link
             href="/settings"
@@ -98,14 +99,15 @@ export default function SecurityPage() {
       />
 
       <div className="space-y-4 px-4 pb-8">
+        <PasswordSection />
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-text-3">
-            Notifikasi reminder
+          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+            Pengingat
           </div>
           <p className="mb-2 text-xs text-text-3">
-            Reminder deadline, jadwal kuliah, recurring tx, dan tracker kamu
-            muncul saat app dibuka. Untuk push di iOS, tambahkan Twogether ke Home
-            Screen dulu (Safari → Share → Add to Home Screen).
+            Pengingat deadline, jadwal kuliah, dan tagihan rutin muncul saat
+            app dibuka. Di iPhone, pasang Twogether ke Layar Utama dulu
+            (Safari → Bagikan → Tambah ke Layar Utama).
           </p>
           {notif === "granted" ? (
             <div className="rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
@@ -113,7 +115,7 @@ export default function SecurityPage() {
             </div>
           ) : notif === "denied" ? (
             <div className="rounded-md bg-warning-bg px-3 py-2 text-xs font-semibold text-[color:var(--warning)]">
-              Diblokir oleh browser. Atur ulang di Settings → Safari → Notifications.
+              Notifikasi dimatikan. Nyalakan lagi lewat Pengaturan iPhone → Notifikasi.
             </div>
           ) : (
             <button onClick={enableNotif} className="btn-accent w-full text-sm">
@@ -123,8 +125,8 @@ export default function SecurityPage() {
 
           {notif === "granted" && (
             <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
-                Jadwal harian (custom)
+              <div className="text-[11px] font-medium section-label text-text-4">
+                Pengingat harian
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -163,16 +165,15 @@ export default function SecurityPage() {
                 Simpan jadwal
               </button>
               <p className="text-[10px] text-text-4">
-                Notif fire saat app terbuka. Untuk push proper di iOS, install
-                ke Home Screen lewat Safari.
+                Pengingat muncul saat app sedang dibuka.
               </p>
             </div>
           )}
         </section>
 
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-text-3">
-            PIN lock
+          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+            Kunci dengan PIN
           </div>
           {pinHash ? (
             <div className="space-y-2 text-sm">
@@ -224,8 +225,7 @@ export default function SecurityPage() {
                 Simpan PIN
               </button>
               <p className="text-[11px] text-text-3">
-                PIN disimpan dalam bentuk hash (SHA-256) di device ini saja —
-                tidak dikirim ke server.
+                PIN hanya tersimpan di HP ini.
               </p>
             </div>
           )}
@@ -233,8 +233,8 @@ export default function SecurityPage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
-              Auto-dark schedule
+            <div className="text-[11px] font-bold section-label text-text-3">
+              Mode gelap otomatis
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
               <input
@@ -248,11 +248,11 @@ export default function SecurityPage() {
             </label>
           </div>
           <p className="mb-3 text-xs text-text-3">
-            Paksa dark mode antara jam tertentu (misal 18.00 – 06.00).
+            Pakai tema gelap otomatis di jam tertentu, misalnya 18.00 – 06.00.
           </p>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
                 Dari jam
               </div>
               <select
@@ -271,7 +271,7 @@ export default function SecurityPage() {
               </select>
             </label>
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
                 Sampai jam
               </div>
               <select
@@ -293,5 +293,147 @@ export default function SecurityPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+/** Ganti password — or set a new one after opening a "lupa password" link. */
+function PasswordSection() {
+  const changePassword = useAuth((s) => s.changePassword);
+  const setRecoveredPassword = useAuth((s) => s.setRecoveredPassword);
+  const [recovery, setRecovery] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [next2, setNext2] = useState("");
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("reset") === "1") {
+      setRecovery(true);
+      setOpen(true);
+    }
+  }, []);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (next !== next2) {
+      setError("Password baru dan ulangnya belum sama");
+      return;
+    }
+    setBusy(true);
+    try {
+      if (recovery) await setRecoveredPassword(next);
+      else await changePassword(current, next);
+      setDone(true);
+      setOpen(false);
+      setRecovery(false);
+      setCurrent("");
+      setNext("");
+      setNext2("");
+      window.history.replaceState(null, "", window.location.pathname);
+      setTimeout(() => setDone(false), 4000);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const type = show ? "text" : "password";
+
+  return (
+    <section className="surface p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-[14px] font-semibold text-text-1">Password</div>
+          <div className="text-[12px] text-text-3">
+            {recovery ? "Buat password baru untuk akunmu" : "Ganti password untuk masuk"}
+          </div>
+        </div>
+        {!open && (
+          <button
+            onClick={() => setOpen(true)}
+            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-1 active:scale-95"
+          >
+            Ganti
+          </button>
+        )}
+      </div>
+
+      {done && (
+        <div className="pop-in mt-3 rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
+          Password berhasil diganti ✓
+        </div>
+      )}
+
+      {open && (
+        <form onSubmit={submit} className="slide-up mt-3 space-y-2.5">
+          {!recovery && (
+            <input
+              className="input-base"
+              type={type}
+              autoComplete="current-password"
+              placeholder="Password sekarang"
+              value={current}
+              onChange={(e) => setCurrent(e.target.value)}
+              required
+            />
+          )}
+          <input
+            className="input-base"
+            type={type}
+            autoComplete="new-password"
+            placeholder="Password baru (min. 6 karakter)"
+            minLength={6}
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            required
+          />
+          <input
+            className="input-base"
+            type={type}
+            autoComplete="new-password"
+            placeholder="Ulangi password baru"
+            minLength={6}
+            value={next2}
+            onChange={(e) => setNext2(e.target.value)}
+            required
+          />
+          <label className="flex items-center gap-2 text-[12px] text-text-3">
+            <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />
+            Tampilkan password
+          </label>
+          {error && (
+            <div
+              role="alert"
+              className="pop-in rounded-md bg-negative-bg px-3 py-2 text-xs font-medium text-[color:var(--negative)]"
+            >
+              {error}
+            </div>
+          )}
+          <div className="flex gap-2 pt-1">
+            {!recovery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setError(null);
+                }}
+                className="btn-ghost flex-1"
+              >
+                Batal
+              </button>
+            )}
+            <button type="submit" disabled={busy} className="btn-accent flex-1 disabled:opacity-60">
+              {busy ? "Menyimpan…" : "Simpan password"}
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
   );
 }

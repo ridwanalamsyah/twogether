@@ -48,7 +48,7 @@ function describeCounts(c: LocalCounts): string {
   if (c.goals) parts.push(`${c.goals} goals`);
   if (c.moments) parts.push(`${c.moments} momen`);
   if (c.habits) parts.push(`${c.habits} kebiasaan`);
-  return parts.length === 0 ? "tidak ada data lokal" : parts.join(", ");
+  return parts.length === 0 ? "belum ada catatan" : parts.join(", ");
 }
 
 export default function WorkspaceSettingsPage() {
@@ -82,14 +82,14 @@ export default function WorkspaceSettingsPage() {
 
   async function actuallyJoin(id: string) {
     if (!hasSupabase()) {
-      setJoinMsg("Backend Supabase belum aktif");
+      setJoinMsg("Fitur pasangan belum aktif di app ini");
       return;
     }
     setJoining(true);
     setJoinMsg(null);
     try {
       const sb = getSupabase();
-      if (!sb) throw new Error("Backend belum aktif");
+      if (!sb) throw new Error("Fitur pasangan belum aktif di app ini");
       const { error } = await sb.rpc("join_workspace", {
         ws: id,
         member_name: auth.name ?? "Anggota",
@@ -97,11 +97,11 @@ export default function WorkspaceSettingsPage() {
       if (error) {
         if (error.code === "PGRST202" || /join_workspace/.test(error.message)) {
           throw new Error(
-            "Fitur join workspace belum di-setup. Hubungi admin untuk run migration.",
+            "Fitur gabung belum siap. Coba lagi nanti.",
           );
         }
         if (/workspace_not_found/i.test(error.message)) {
-          throw new Error("Workspace ID tidak ditemukan. Pastikan ID benar.");
+          throw new Error("Kode tidak ditemukan. Cek lagi kodenya.");
         }
         throw new Error(error.message);
       }
@@ -125,7 +125,7 @@ export default function WorkspaceSettingsPage() {
           members: ctx.members,
         });
       }
-      setJoinMsg("Berhasil! Memuat ulang data workspace…");
+      setJoinMsg("Berhasil tersambung! Memuat catatan kalian…");
       setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
       setJoinMsg(`${(err as Error).message}`);
@@ -148,7 +148,7 @@ export default function WorkspaceSettingsPage() {
     setShareLink(null);
     try {
       const sb = getSupabase();
-      if (!sb) throw new Error("Backend belum aktif");
+      if (!sb) throw new Error("Fitur pasangan belum aktif di app ini");
       const { data, error } = await sb.rpc("create_workspace_invite", {
         p_workspace_id: supaWorkspaceId,
         p_expires_in_hours: 168,
@@ -159,7 +159,7 @@ export default function WorkspaceSettingsPage() {
           /create_workspace_invite/.test(error.message)
         ) {
           throw new Error(
-            "Fitur invite link belum aktif. Admin perlu jalankan migration 0005.",
+            "Link undangan belum bisa dibuat. Coba lagi nanti.",
           );
         }
         throw new Error(error.message);
@@ -171,8 +171,8 @@ export default function WorkspaceSettingsPage() {
       try {
         if (typeof navigator !== "undefined" && navigator.share) {
           await navigator.share({
-            title: "Twogether — Gabung workspace",
-            text: "Ayo gabung workspace di Twogether",
+            title: "Gabung Twogether bareng aku",
+            text: "Yuk pakai Twogether bareng — buka link ini:",
             url: link,
           });
           setShareMsg("Link sudah dibagikan.");
@@ -198,7 +198,7 @@ export default function WorkspaceSettingsPage() {
     setLeaveMsg(null);
     try {
       const sb = getSupabase();
-      if (!sb) throw new Error("Backend belum aktif");
+      if (!sb) throw new Error("Fitur pasangan belum aktif di app ini");
       const { data, error } = await sb.rpc("leave_workspace");
       if (error) {
         if (
@@ -206,13 +206,13 @@ export default function WorkspaceSettingsPage() {
           /leave_workspace/.test(error.message)
         ) {
           throw new Error(
-            "Fitur keluar workspace belum aktif. Admin perlu jalankan migration 0005.",
+            "Belum bisa keluar sekarang. Coba lagi nanti.",
           );
         }
         throw new Error(error.message);
       }
       const newWorkspaceId = data as string;
-      if (!newWorkspaceId) throw new Error("Workspace baru tidak terbentuk");
+      if (!newWorkspaceId) throw new Error("Gagal keluar. Coba lagi.");
       // Refresh local state.
       const ctx = await loadWorkspaceContext(auth.supaUserId, newWorkspaceId, {
         name: auth.name ?? "Anggota",
@@ -253,7 +253,7 @@ export default function WorkspaceSettingsPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Workspace"
+        title="Pasangan"
         subtitle={`${members.length} anggota`}
         actions={
           <Link
@@ -266,7 +266,7 @@ export default function WorkspaceSettingsPage() {
       />
 
       <div className="px-5 pb-8">
-        <div className="mt-4 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+        <div className="mt-4 mb-2 text-[11px] font-medium section-label text-text-4">
           Nama
         </div>
         <div className="flex items-center gap-2 border-b border-border pb-3">
@@ -274,7 +274,7 @@ export default function WorkspaceSettingsPage() {
             className="flex-1 bg-transparent text-[14px] text-text-1 outline-none"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={`Workspace ${auth.name ?? ""}`}
+            placeholder={`Ruang ${auth.name ?? "kita"}`}
           />
           <button
             onClick={() => renameWorkspace(name.trim() || workspaceName)}
@@ -286,8 +286,8 @@ export default function WorkspaceSettingsPage() {
 
         {hasSupabase() && supaWorkspaceId && (
           <>
-            <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
-              Bagikan ke partner
+            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
+              Undang pasangan
             </div>
             <div className="border-y border-border py-3">
               <button
@@ -314,13 +314,13 @@ export default function WorkspaceSettingsPage() {
                 <p className="mt-2 text-[11px] text-text-3">{shareMsg}</p>
               )}
               <p className="mt-3 text-[11px] text-text-4">
-                Link berlaku 7 hari, satu kali pakai. Partner tinggal klik link
-                lalu login — workspace langsung tersambung.
+                Link berlaku 7 hari dan cuma bisa dipakai sekali. Pasanganmu
+                tinggal buka link-nya lalu masuk — langsung tersambung.
               </p>
 
               <details className="mt-4">
                 <summary className="cursor-pointer text-[11px] text-text-4">
-                  Atau pakai ID workspace manual
+                  Atau pakai kode
                 </summary>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="flex-1 truncate font-mono text-[11px] text-text-2">
@@ -336,15 +336,15 @@ export default function WorkspaceSettingsPage() {
               </details>
             </div>
 
-            <div className="mt-6 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
-              Gabung workspace
+            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
+              Punya kode dari pasangan?
             </div>
             <div className="border-y border-border py-3">
               <input
                 className="w-full bg-transparent text-[12px] font-mono text-text-1 outline-none"
                 value={joinId}
                 onChange={(e) => setJoinId(e.target.value)}
-                placeholder="Paste workspace ID dari partner"
+                placeholder="Tempel kode dari pasanganmu"
               />
               <button
                 onClick={handleJoinClick}
@@ -357,15 +357,14 @@ export default function WorkspaceSettingsPage() {
                 <p className="mt-2 text-[11px] text-text-3">{joinMsg}</p>
               )}
               <p className="mt-2 text-[11px] text-text-4">
-                Tip: lebih enak pakai &quot;Buat link undangan&quot; di atas —
-                gak perlu paste UUID panjang.
+                Lebih gampang: minta pasanganmu kirim link undangan.
               </p>
             </div>
           </>
         )}
 
         <div className="mt-6 mb-2 flex items-end justify-between">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="text-[11px] font-medium section-label text-text-4">
             Anggota
           </div>
           <button
@@ -391,14 +390,14 @@ export default function WorkspaceSettingsPage() {
         </div>
 
         <div className="mt-6 text-[11px] text-text-4">
-          Pseudo-member <span className="font-mono">{sharedLabel}</span> otomatis
-          tersedia untuk pengeluaran bersama ketika anggota ≥ 2.
+          Kalau sudah berdua, pilihan <b>{sharedLabel}</b> muncul untuk
+          pengeluaran bersama.
         </div>
 
         {hasSupabase() && supaWorkspaceId && otherMembersCount > 0 && (
           <>
-            <div className="mt-8 mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
-              Zona berbahaya
+            <div className="mt-8 mb-2 text-[11px] font-medium section-label text-text-4">
+              Lainnya
             </div>
             <div className="border-y border-border py-3">
               <button
@@ -406,11 +405,11 @@ export default function WorkspaceSettingsPage() {
                 disabled={leaving}
                 className="w-full rounded-md border border-[color:var(--negative)] px-3 py-2 text-[12px] font-medium text-[color:var(--negative)] active:opacity-60 disabled:opacity-40"
               >
-                {leaving ? "Memproses…" : "Keluar dari workspace"}
+                {leaving ? "Memproses…" : "Keluar dari ruang berdua"}
               </button>
               <p className="mt-2 text-[11px] text-text-4">
-                Kamu akan otomatis dapat workspace solo baru. Data di workspace
-                bersama tetap aman buat partner.
+                Kamu akan punya ruang sendiri lagi. Catatan bersama tetap aman
+                untuk pasanganmu.
               </p>
               {leaveMsg && (
                 <p className="mt-2 text-[11px] text-text-3">{leaveMsg}</p>
@@ -432,17 +431,16 @@ export default function WorkspaceSettingsPage() {
 
       {confirmJoin && (
         <ConfirmDialog
-          title="Gabung workspace partner?"
+          title="Gabung dengan pasangan?"
           body={
             <>
               <p>
-                Data lokal kamu (<b>{describeCounts(confirmJoin.counts)}</b>)
-                akan otomatis ikut ter-sync ke workspace partner saat kamu join.
+                Catatanmu (<b>{describeCounts(confirmJoin.counts)}</b>) akan
+                ikut digabung dan bisa dilihat pasanganmu.
               </p>
               <p className="mt-2">
-                Pastikan ini yang kamu mau. Kalau ragu, backup dulu via{" "}
-                <span className="font-medium">Settings → Privacy</span> sebelum
-                lanjut.
+                Kalau ragu, unduh cadangan dulu di{" "}
+                <span className="font-medium">Pengaturan → Data &amp; cadangan</span>.
               </p>
             </>
           }
@@ -460,17 +458,16 @@ export default function WorkspaceSettingsPage() {
 
       {confirmLeave && (
         <ConfirmDialog
-          title="Keluar dari workspace?"
+          title="Keluar dari ruang berdua?"
           body={
             <>
               <p>
-                Kamu akan keluar dari <b>{workspaceName}</b> dan otomatis dapat
-                workspace solo baru.
+                Kamu akan keluar dari <b>{workspaceName}</b> dan kembali punya
+                ruang sendiri.
               </p>
               <p className="mt-2 text-[12px] text-text-4">
-                Data di workspace bersama tetap utuh — partner masih bisa pakai
-                seperti biasa. Kamu cuma kehilangan akses ke workspace ini dari
-                akunmu.
+                Catatan bersama tetap utuh dan pasanganmu masih bisa pakai
+                seperti biasa.
               </p>
             </>
           }
@@ -507,17 +504,17 @@ function MemberRow({
         <div className="truncate text-[13px] text-text-1">
           {member.name}
           {member.isMe && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               kamu
             </span>
           )}
           {member.isOwner && !member.isMe && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               pembuat
             </span>
           )}
           {member.pending && (
-            <span className="ml-1.5 text-[10px] uppercase tracking-wider text-text-4">
+            <span className="ml-1.5 text-[10px] section-label text-text-4">
               menunggu
             </span>
           )}

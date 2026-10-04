@@ -114,7 +114,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-bg-app/90 pb-[var(--nav-bottom-pad)] backdrop-blur-xl backdrop-saturate-150">
+      <nav className="fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 app-nav pb-[var(--nav-bottom-pad)]">
         <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
           {left.map((item) => (
             <NavLink
@@ -131,7 +131,8 @@ export function BottomNav() {
                 hapticTap();
                 setCaptureOpen(true);
               }}
-              className="grid h-11 w-11 place-items-center rounded-[14px] bg-accent text-accent-fg shadow-[0_6px_16px_-6px_rgba(0,0,0,0.35)] transition-transform duration-150 ease-ios active:scale-90"
+              className="-mt-3 grid h-[52px] w-[52px] place-items-center rounded-full text-accent-fg shadow-[0_10px_22px_-8px_var(--accent)] ring-4 ring-[color:var(--bg-card)] transition-transform duration-150 ease-ios active:scale-90"
+              style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -170,13 +171,13 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         aria-current={active ? "page" : undefined}
         className={cn(
           "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-colors duration-200 active:opacity-70",
-          active ? "text-text-1" : "text-text-4",
+          active ? "text-accent" : "text-text-4",
         )}
       >
         {active && (
           <motion.span
             layoutId="nav-active-pill"
-            className="absolute top-[5px] h-[30px] w-[52px] rounded-full bg-bg-elev2"
+            className="absolute top-[5px] h-[30px] w-[52px] rounded-full bg-accent-soft"
             transition={{ type: "spring", stiffness: 520, damping: 38 }}
           />
         )}

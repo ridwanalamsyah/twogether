@@ -49,7 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (meta) {
         meta.setAttribute(
           "content",
-          resolved === "dark" ? "#000000" : "#ffffff",
+          resolved === "dark" ? "#141015" : "#faf6f1",
         );
       }
     };

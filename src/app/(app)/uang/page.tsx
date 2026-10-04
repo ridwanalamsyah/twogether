@@ -27,7 +27,7 @@ export default function UangPage() {
   return (
     <div className="animate-in pb-12">
       <AppHeader
-        title="Keuangan +"
+        title="Hutang & langganan"
       />
 
       <div className="px-5">
@@ -159,7 +159,7 @@ function DebtSection() {
 
       {Object.keys(byPerson).length > 0 && (
         <div className="mt-2 border-y border-border py-2">
-          <div className="mb-1 text-[11px] uppercase tracking-wider text-text-4">
+          <div className="mb-1 text-[11px] section-label text-text-4">
             Per orang
           </div>
           {Object.entries(byPerson).map(([name, sums]) => {
@@ -370,7 +370,7 @@ function SubscriptionSection() {
                 </div>
               </div>
               {days <= 3 && (
-                <span className="text-[10px] uppercase tracking-wider text-[color:var(--warning)]">
+                <span className="text-[10px] section-label text-[color:var(--warning)]">
                   H-{days}
                 </span>
               )}
@@ -454,7 +454,7 @@ function PaydaySection() {
           />
         </div>
 
-        <div className="text-[11px] uppercase tracking-wider text-text-4">
+        <div className="text-[11px] section-label text-text-4">
           Aturan distribusi (%)
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -510,7 +510,7 @@ function PaydaySection() {
 
         {salaryN > 0 && (
           <div className="rounded-md border border-border p-2">
-            <div className="text-[11px] uppercase tracking-wider text-text-4">
+            <div className="text-[11px] section-label text-text-4">
               Preview
             </div>
             <div className="mt-1 space-y-0.5 text-[12px]">
@@ -615,7 +615,7 @@ function ClosingSection() {
     setDone(
       stats.surplus > 0 && transferGoalId
         ? `Surplus ${formatRupiah(stats.surplus)} sudah ditabung.`
-        : "Closing tersimpan.",
+        : "Tutup buku tersimpan.",
     );
     setReflection("");
     setTransferGoalId("");
@@ -641,7 +641,7 @@ function ClosingSection() {
 
         {stats.topCat.length > 0 && (
           <div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-text-4">
+            <div className="mt-1 text-[10px] section-label text-text-4">
               Top 3 kategori
             </div>
             {stats.topCat.map(([cat, v]) => (
@@ -690,7 +690,7 @@ function ClosingSection() {
         />
 
         <AccentBtn onClick={close} disabled={stats.monthTx.length === 0}>
-          Closing bulan ini
+          Tutup buku bulan ini
         </AccentBtn>
 
         {done && (
@@ -716,7 +716,7 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-text-4">
+      <div className="text-[10px] section-label text-text-4">
         {label}
       </div>
       <div

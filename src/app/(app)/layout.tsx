@@ -80,7 +80,8 @@ function BootScreen() {
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-bg-app">
       <div className="flex flex-col items-center gap-4 animate-in">
-        <div className="boot-pulse flex h-14 w-14 items-center justify-center rounded-[18px] bg-accent text-accent-fg">
+        <div className="boot-pulse flex h-14 w-14 items-center justify-center rounded-[18px] bg-accent text-accent-fg"
+          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}>
           <svg
             viewBox="0 0 44 44"
             fill="none"

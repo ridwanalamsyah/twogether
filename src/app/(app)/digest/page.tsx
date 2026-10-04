@@ -121,7 +121,7 @@ export default function DigestPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Digest"
+        title="Ringkasan"
         subtitle={dateRangeText}
         actions={
           <Link
@@ -155,7 +155,7 @@ export default function DigestPage() {
 
         {stats.topCat.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Top pengeluaran
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -181,7 +181,7 @@ export default function DigestPage() {
 
         {members.length >= 2 && stats.byMember.size > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Per anggota
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -199,7 +199,7 @@ export default function DigestPage() {
 
         {targets.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Target minggu ini
             </div>
             <ul className="divide-y divide-border border-y border-border">

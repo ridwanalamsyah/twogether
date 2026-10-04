@@ -231,7 +231,7 @@ export default function InsightsPage() {
         </section>
 
         <section className="mt-5">
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
             Insights
           </div>
           <ul className="space-y-1.5 text-[13px] text-text-2">
@@ -246,7 +246,7 @@ export default function InsightsPage() {
 
         {perMember.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Per anggota
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -274,7 +274,7 @@ export default function InsightsPage() {
 
         {splitBill && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Split bill
             </div>
             <div className="border-y border-border py-3">
@@ -293,7 +293,7 @@ export default function InsightsPage() {
         )}
 
         <section className="mt-6">
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
             Heatmap (12 minggu)
           </div>
           <div className="grid grid-flow-col grid-rows-7 gap-0.5">
@@ -338,7 +338,7 @@ export default function InsightsPage() {
 
         {goalBreakdown.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
               Kontribusi goal
             </div>
             <div className="space-y-3">

@@ -44,7 +44,7 @@ export function StreakWidget() {
       </div>
       <p className="mt-2 text-[11px] leading-relaxed text-text-3">
         {streak === 0
-          ? "Catat setoran atau habit untuk memulai."
+          ? "Catat setoran atau kebiasaan untuk memulai."
           : streak < 7
             ? `${7 - streak} hari lagi ke milestone pertama.`
             : streak < 30

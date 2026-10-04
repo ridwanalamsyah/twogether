@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -16,14 +16,12 @@ import {
   importBundle,
   wipeLocal,
 } from "@/services/privacy";
-import { isUnlocked } from "@/lib/crypto";
 
 export default function PrivacyPage() {
   const router = useRouter();
   const userId = useAuth((s) => s.userId);
   const signOut = useAuth((s) => s.signOut);
   const [busy, setBusy] = useState<string | null>(null);
-  const [unlocked, setUnlocked] = useState(false);
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
     null,
   );
@@ -32,10 +30,6 @@ export default function PrivacyPage() {
     setToast({ kind, text });
     setTimeout(() => setToast(null), 3000);
   }
-
-  useEffect(() => {
-    setUnlocked(isUnlocked());
-  }, []);
 
   async function handleExport() {
     if (!userId) return;
@@ -54,13 +48,13 @@ export default function PrivacyPage() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      const { imported, tables } = await importBundle(userId, json);
+      const { imported } = await importBundle(userId, json);
       showToast(
         "ok",
-        `${imported} catatan dari ${tables.length} tabel berhasil dipulihkan.`,
+        `${imported} catatan berhasil dipulihkan.`,
       );
-    } catch (err) {
-      showToast("err", `Import gagal. ${(err as Error).message}`);
+    } catch {
+      showToast("err", "File cadangan tidak bisa dibaca. Pastikan memilih file dari Twogether.");
     } finally {
       setBusy(null);
     }
@@ -101,7 +95,7 @@ export default function PrivacyPage() {
 
   async function handleWipe() {
     if (!userId) return;
-    if (!confirm("Hapus semua data dari device ini? Server tidak terpengaruh.")) return;
+    if (!confirm("Hapus semua catatan dari HP ini? Data yang sudah tersimpan di akunmu tetap aman.")) return;
     setBusy("wipe");
     try {
       await wipeLocal(userId);
@@ -116,7 +110,7 @@ export default function PrivacyPage() {
     if (!userId) return;
     if (
       !confirm(
-        "Hapus akun? Semua data akan ditandai untuk dihapus dari server saat online. Tindakan ini tidak bisa dibatalkan.",
+        "Hapus akun dan semua catatan? Ini tidak bisa dibatalkan.",
       )
     )
       return;
@@ -133,8 +127,7 @@ export default function PrivacyPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Privacy"
-        subtitle="Kontrol penuh atas data kamu"
+        title="Data & cadangan"
         actions={
           <Link
             href="/settings"
@@ -146,53 +139,43 @@ export default function PrivacyPage() {
       />
 
       <div className="space-y-3 px-4 pb-8 text-sm">
-        <Section title="Status keamanan">
-          <Row
-            label="Enkripsi end-to-end"
-            value={unlocked ? "🔓 Terbuka di sesi ini" : "🔒 Terkunci"}
-          />
-          <Row label="Penyimpanan" value="Lokal (IndexedDB)" />
-          <Row label="Transport" value="HTTPS / TLS" />
-          <Row label="Analytics" value="Anonim & opt-in" />
-        </Section>
-
         <Section
-          title="Data ownership"
-          description="Kamu pemilik datanya. Twogether tidak menyimpan apa pun di luar device tanpa sync eksplisit kamu."
+          title="Cadangan"
+          description="Simpan salinan catatan kalian, atau pindahkan ke HP lain."
         >
           <ActionRow
             emoji="⬇️"
-            label="Export semua data (JSON)"
-            sub="Bundle lengkap (transaksi, goal, moments, skripsi, dst.)"
+            label="Unduh cadangan lengkap"
+            sub="Semua catatan dalam satu file, bisa dipulihkan lagi nanti"
             onClick={handleExport}
             busy={busy === "export"}
           />
           <ActionRow
             emoji="📄"
-            label="Export transaksi (CSV)"
-            sub="Buat buka di Numbers / Excel / Google Sheets"
+            label="Unduh transaksi (spreadsheet)"
+            sub="Bisa dibuka di Excel, Numbers, atau Google Sheets"
             onClick={handleCsvExport}
             busy={busy === "csv"}
           />
           <ActionRow
             emoji="🎯"
-            label="Export goals (CSV)"
-            sub="Termasuk total tabungan & progress per goal"
+            label="Unduh goals (spreadsheet)"
+            sub="Termasuk total tabungan tiap goal"
             onClick={handleGoalsCsv}
             busy={busy === "csvGoals"}
           />
           <ActionRow
             emoji="📖"
-            label="Export moments (CSV)"
-            sub="Catatan momen. Entri terenkripsi disembunyikan — pakai JSON untuk versi lengkap"
+            label="Unduh moments (spreadsheet)"
+            sub="Moment yang dikunci tidak ikut — pakai cadangan lengkap"
             onClick={handleMomentsCsv}
             busy={busy === "csvMoments"}
           />
           <label className="block">
             <ActionRow
               emoji="⬆️"
-              label="Import dari file JSON"
-              sub="Restore backup atau migrasi dari device lain."
+              label="Pulihkan dari cadangan"
+              sub="Pilih file cadangan yang pernah kamu unduh"
               onClick={() => document.getElementById("_imp")?.click()}
               busy={busy === "import"}
             />
@@ -210,16 +193,16 @@ export default function PrivacyPage() {
           </label>
           <ActionRow
             emoji="🧹"
-            label="Hapus data dari device ini"
-            sub="Cloud copy tetap aman. Untuk lepas device dari workspace."
+            label="Hapus catatan dari HP ini"
+            sub="Misalnya sebelum ganti HP. Data di akunmu tetap aman."
             onClick={handleWipe}
             busy={busy === "wipe"}
             tone="warning"
           />
           <ActionRow
             emoji="🗑️"
-            label="Hapus akun permanen"
-            sub="Tombstone semua data; sync queue propagasi ke server."
+            label="Hapus akun"
+            sub="Menghapus akun dan semua catatan untuk selamanya"
             onClick={handleDelete}
             busy={busy === "delete"}
             tone="danger"
@@ -227,14 +210,14 @@ export default function PrivacyPage() {
         </Section>
 
         <Section
-          title="Privacy by default"
-          description="Apa yang Twogether TIDAK lakukan:"
+          title="Privasi kalian"
+          description="Yang Twogether tidak pernah lakukan:"
         >
           <ul className="space-y-1.5 text-xs text-text-2">
-            <li>• Tidak mengumpulkan tracker pihak ketiga.</li>
-            <li>• Tidak menyimpan password plaintext (PBKDF2 SHA-256, 210k iter).</li>
-            <li>• Tidak meminta izin yang tidak relevan.</li>
-            <li>• Tidak mengirim catatan terenkripsi dalam bentuk plaintext.</li>
+            <li>• Tidak memasang pelacak atau iklan.</li>
+            <li>• Tidak menyimpan password dalam bentuk yang bisa dibaca.</li>
+            <li>• Tidak meminta izin yang tidak perlu.</li>
+            <li>• Moment yang dikunci hanya bisa dibaca dengan password kamu.</li>
           </ul>
         </Section>
       </div>
@@ -265,20 +248,11 @@ function Section({
 }) {
   return (
     <div className="surface p-4">
-      <div className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="text-[11px] font-bold section-label text-text-3">
         {title}
       </div>
       {description && <p className="mt-1 text-xs text-text-3">{description}</p>}
       <div className="mt-2 space-y-1.5">{children}</div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-md bg-bg-elev2 px-3 py-2 theme-transition">
-      <span className="text-xs text-text-3">{label}</span>
-      <span className="text-xs font-semibold text-text-1">{value}</span>
     </div>
   );
 }

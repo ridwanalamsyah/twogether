@@ -13,6 +13,8 @@ export default function AuthPage() {
   const signIn = useAuth((s) => s.signIn);
   const signUp = useAuth((s) => s.signUp);
   const signInMagicLink = useAuth((s) => s.signInMagicLink);
+  const requestPasswordReset = useAuth((s) => s.requestPasswordReset);
+  const [info, setInfo] = useState<string | null>(null);
   const bootstrap = useAuth((s) => s.bootstrap);
   const [showPw, setShowPw] = useState(false);
   // Magic links open in Safari, not inside the native app — hide them there.
@@ -34,6 +36,10 @@ export default function AuthPage() {
   // to /join so the RPC can consume the token under the new auth session.
   function postAuthTarget(): string {
     if (typeof window === "undefined") return "/home";
+    // Opened from a "lupa password" email → go straight to setting a new one.
+    if (new URLSearchParams(window.location.search).get("reset") === "1") {
+      return "/settings/security?reset=1";
+    }
     const pending = sessionStorage.getItem("twogether:pending-invite");
     if (pending) return `/join?token=${encodeURIComponent(pending)}`;
     return "/home";
@@ -78,9 +84,23 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-bg-app pt-safe theme-transition">
-      <div className="flex flex-1 flex-col justify-center px-7 pt-6">
-        <div className="pop-in mb-7 flex h-[52px] w-[52px] items-center justify-center rounded-[15px] bg-accent text-accent-fg">
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-bg-app pt-safe theme-transition">
+      {/* Soft colour blobs behind the form */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-40 blur-3xl"
+        style={{ background: "var(--accent)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-20 top-40 h-56 w-56 rounded-full opacity-30 blur-3xl"
+        style={{ background: "var(--accent-2)" }}
+      />
+      <div className="relative flex flex-1 flex-col justify-center px-7 pt-6">
+        <div
+          className="pop-in mb-7 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] text-accent-fg shadow-float"
+          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+        >
           <svg
             viewBox="0 0 44 44"
             fill="none"
@@ -94,12 +114,12 @@ export default function AuthPage() {
             <circle cx="27" cy="22" r="10" />
           </svg>
         </div>
-        <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-text-1">
-          {mode === "signin" ? "Masuk" : "Buat akun"}
+        <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em] text-text-1">
+          {mode === "signin" ? "Halo lagi 👋" : "Mulai berdua 💞"}
         </h1>
         <p className="mt-1.5 text-[13px] text-text-3">
           {mode === "signin"
-            ? "Senang lihat kamu lagi 👋"
+            ? "Masuk untuk lanjut cerita kalian."
             : "Satu ruang untuk kalian berdua — uang, jadwal, kenangan."}
         </p>
 
@@ -198,6 +218,11 @@ export default function AuthPage() {
             </div>
           )}
 
+          {info && (
+            <div className="pop-in rounded-md bg-positive-bg px-3 py-2 text-xs font-medium text-[color:var(--positive)]">
+              {info}
+            </div>
+          )}
           {error && (
             <div
               role="alert"
@@ -221,34 +246,61 @@ export default function AuthPage() {
                 : "Daftar & Mulai"}
           </button>
         </form>
-        {mode === "signin" && canMagic && (
-          <div className="mt-4 text-center">
+        {mode === "signin" && (
+          <div className="mt-5 flex flex-col items-center gap-3 text-[12px]">
             <button
               type="button"
-              disabled={busy || !email || magicSent}
+              disabled={busy}
               onClick={async () => {
                 setError(null);
+                setInfo(null);
+                const clean = email.trim().toLowerCase();
+                if (!clean) {
+                  setError("Isi email kamu dulu, lalu tap Lupa password lagi.");
+                  return;
+                }
                 setBusy(true);
                 try {
-                  await signInMagicLink(email.trim().toLowerCase());
-                  setMagicSent(true);
+                  await requestPasswordReset(clean);
+                  setInfo(`Link untuk buat password baru sudah dikirim ke ${clean}.`);
                 } catch (err) {
                   setError((err as Error).message);
                 } finally {
                   setBusy(false);
                 }
               }}
-              className="text-[12px] text-text-3 underline disabled:opacity-50"
+              className="font-medium text-text-2 active:opacity-60 disabled:opacity-50"
             >
-              {magicSent
-                ? `Cek email ${email} untuk link masuk`
-                : "Kirim magic link ke email saya"}
+              Lupa password?
             </button>
+            {canMagic && (
+              <button
+                type="button"
+                disabled={busy || !email || magicSent}
+                onClick={async () => {
+                  setError(null);
+                  setInfo(null);
+                  setBusy(true);
+                  try {
+                    await signInMagicLink(email.trim().toLowerCase());
+                    setMagicSent(true);
+                    setInfo(`Cek email ${email} — tap link-nya untuk langsung masuk.`);
+                  } catch (err) {
+                    setError((err as Error).message);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                className="text-text-3 underline underline-offset-2 active:opacity-60 disabled:opacity-50"
+              >
+                Masuk tanpa password (lewat link di email)
+              </button>
+            )}
           </div>
         )}
       </div>
-      <p className="px-7 pb-[calc(24px+var(--sab))] pt-6 text-center text-[11px] text-text-4">
-        Data tersimpan di perangkat & tetap jalan saat offline.
+      <p className="relative px-7 pb-[calc(24px+var(--sab))] pt-6 text-center text-[12px] text-text-4">
+        Catatan kalian tetap aman, bahkan tanpa internet 💕
       </p>
     </main>
   );

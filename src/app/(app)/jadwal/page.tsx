@@ -62,7 +62,7 @@ export default function JadwalPage() {
     <div className="animate-in pb-12">
       <AppHeader
         title="Jadwal Kuliah"
-        subtitle="Tap kelas untuk edit · tombol + untuk tambah"
+        subtitle="Tap kelas untuk mengubah"
         actions={
           <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
             Tutup
@@ -129,7 +129,7 @@ export default function JadwalPage() {
                       {c._parsed.start}–{c._parsed.end}
                     </div>
                     {c._parsed.room && (
-                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-text-4">
+                      <div className="mt-0.5 text-[10px] section-label text-text-4">
                         Ruang {c._parsed.room}
                       </div>
                     )}
@@ -456,7 +456,7 @@ function Recommendations({
         <h3 className="text-[13px] font-semibold text-text-1">
           Rekomendasi 24 jam produktif
         </h3>
-        <span className="text-[10px] uppercase tracking-wider text-text-4">
+        <span className="text-[10px] section-label text-text-4">
           {day}
         </span>
       </div>

@@ -89,7 +89,7 @@ export default function ProfilePage() {
               </span>
             )}
             <span className="absolute bottom-0 right-0 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-fg">
-              Edit
+              Ubah
             </span>
           </button>
           <input
@@ -149,7 +149,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}

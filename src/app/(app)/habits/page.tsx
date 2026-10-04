@@ -51,13 +51,13 @@ export default function HabitsPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Habits"
+        title="Kebiasaan"
         actions={
           <button
             onClick={() => setShowAdd(true)}
             className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg"
           >
-            Habit
+            Kebiasaan
           </button>
         }
       />
@@ -100,7 +100,7 @@ export default function HabitsPage() {
           if (items.length === 0) return null;
           return (
             <section key={b}>
-              <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+              <div className="mb-2 text-[11px] font-medium section-label text-text-4">
                 {b}
               </div>
               <ul className="divide-y divide-border border-y border-border">
@@ -136,7 +136,7 @@ export default function HabitsPage() {
                         onClick={() => setEditing(h)}
                         className="text-[11px] text-text-4 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                       >
-                        Edit
+                        Ubah
                       </button>
                     </li>
                   );
@@ -213,8 +213,8 @@ function HabitSheet({
         </div>
         <div className="space-y-3">
           <label className="block">
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
-              Habit
+            <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+              Kebiasaan
             </div>
             <input
               className="input-base"
@@ -225,7 +225,7 @@ function HabitSheet({
             />
           </label>
           <label className="block">
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">
+            <div className="mb-1 text-[11px] font-bold section-label text-text-3">
               Waktu
             </div>
             <select

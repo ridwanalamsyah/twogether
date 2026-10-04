@@ -8,22 +8,22 @@ const STEPS: { emoji: string; title: string; body: string }[] = [
   {
     emoji: "👋",
     title: "Selamat datang di Twogether",
-    body: "Untuk kalian berdua — keuangan, tracker, jadwal, dan momen di satu tempat. Offline-first, data tetap kamu yang punya.",
+    body: "Untuk kalian berdua — uang, jadwal, kebiasaan, dan kenangan di satu tempat. Tetap jalan walau tanpa internet.",
   },
   {
     emoji: "🧩",
-    title: "Dashboard yang bisa kamu atur",
-    body: "Tap \"Susun\" di Beranda untuk geser urutan widget. Tombol ＋ di tengah bawah untuk catat apa saja dalam 2 detik.",
+    title: "Beranda yang bisa kamu atur",
+    body: "Tap \"Susun\" di Beranda untuk menggeser urutan kartu. Tombol ＋ di tengah bawah untuk catat apa saja dalam 2 detik.",
   },
   {
     emoji: "🤝",
     title: "Twogether = berdua (atau lebih)",
-    body: "Undang pasangan lewat ⚙️ → Workspace. Setiap transaksi ada label siapa yang bayar, plus opsi 'Bersama' untuk shared.",
+    body: "Undang pasangan lewat ⚙️ → Pasangan. Tiap transaksi tercatat siapa yang bayar, ada juga pilihan 'Bersama'.",
   },
   {
     emoji: "🔐",
     title: "Privasi bukan tambahan",
-    body: "Data di-encrypt, password di-hash, moments bisa kamu kunci end-to-end. Kapan pun bisa export atau hapus akun.",
+    body: "Catatan kalian cuma untuk kalian. Moment bisa dikunci, dan kapan pun kamu bisa unduh atau hapus semuanya.",
   },
   {
     emoji: "🎯",

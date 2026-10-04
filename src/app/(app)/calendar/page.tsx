@@ -276,7 +276,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="mt-6">
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
             {formatDateShort(focused)}
           </div>
           {(() => {
@@ -300,7 +300,7 @@ export default function CalendarPage() {
             if (classes.length === 0) return null;
             return (
               <div className="mb-3 rounded-md border border-border p-2">
-                <div className="mb-1 text-[10px] uppercase tracking-wider text-text-4">
+                <div className="mb-1 text-[10px] section-label text-text-4">
                   Jadwal kuliah {indoDay}
                 </div>
                 {classes.sort((a, b) => a.start.localeCompare(b.start)).map((c, i) => (

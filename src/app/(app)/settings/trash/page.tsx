@@ -24,8 +24,8 @@ export default function TrashPage() {
   return (
     <div className="animate-in">
       <AppHeader
-        title="Sampah"
-        subtitle={`${items.length} item terhapus`}
+        title="Baru dihapus"
+        subtitle={`${items.length} catatan`}
         actions={
           <Link
             href="/settings"

@@ -1,12 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { SyncProvider } from "@/components/sync/SyncProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
+// Plus Jakarta Sans — rounded, warm, and designed in Indonesia. Bundled
+// locally so it works offline and inside the iOS app.
+const jakarta = localFont({
+  src: "../../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2",
+  variable: "--font-jakarta",
+  weight: "200 800",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Twogether",
-  description: "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
+  description: "Uang, jadwal, kebiasaan & kenangan untuk berdua.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -23,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Twogether",
     description:
-      "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
+      "Uang, jadwal, kebiasaan & kenangan untuk berdua.",
     type: "website",
     siteName: "Twogether",
     images: [
@@ -39,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Twogether",
     description:
-      "Keuangan, tracker, jadwal & moments untuk berdua — offline-first PWA.",
+      "Uang, jadwal, kebiasaan & kenangan untuk berdua.",
     images: ["/icons/icon-512.png"],
   },
 };
@@ -50,7 +60,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#ffffff",
+  themeColor: "#faf6f1",
 };
 
 /**
@@ -71,7 +81,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html lang="id" className={jakarta.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

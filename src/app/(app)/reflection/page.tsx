@@ -92,7 +92,7 @@ export default function ReflectionPage() {
         )}
 
         <div className="mt-5">
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
             Mood · {formatDateShort(today)}
           </div>
           <div className="flex justify-between">
@@ -112,7 +112,7 @@ export default function ReflectionPage() {
         </div>
 
         <div className="mt-5">
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
             3 highlight
           </div>
           <textarea
@@ -136,7 +136,7 @@ function HistoryList({ items }: { items: ReflectionRecord[] }) {
   const userId = useAuth((s) => s.userId);
   return (
     <div className="mt-6">
-      <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-text-4">
+      <div className="mb-2 text-[11px] font-medium section-label text-text-4">
         Histori
       </div>
       {items.length === 0 ? (

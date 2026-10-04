@@ -14,6 +14,13 @@ interface Stat {
   tone?: "positive" | "negative" | "neutral";
 }
 
+const TINTS = [
+  { emoji: "👛", bg: "color-mix(in srgb, var(--positive) 12%, transparent)" },
+  { emoji: "🐷", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
+  { emoji: "🧾", bg: "color-mix(in srgb, var(--warning) 14%, transparent)" },
+  { emoji: "💸", bg: "color-mix(in srgb, var(--info) 12%, transparent)" },
+];
+
 export function BalanceWidget() {
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
@@ -93,12 +100,17 @@ export function BalanceWidget() {
   }, [txs, deps, members, sharedLabel]);
 
   return (
-    <WidgetShell title="Ringkasan">
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-        {stats.map((s) => (
-          <div key={s.label}>
+    <WidgetShell title="Uang kita">
+      <div className="grid grid-cols-2 gap-2">
+        {stats.map((s, i) => (
+          <div
+            key={s.label}
+            className="rounded-2xl px-3 py-2.5"
+            style={{ background: TINTS[i % TINTS.length].bg }}
+          >
+            <div className="text-[16px] leading-none">{TINTS[i % TINTS.length].emoji}</div>
             <div
-              className={`font-mono text-[17px] font-semibold tracking-tight ${
+              className={`mt-1.5 font-mono text-[17px] font-bold tracking-tight ${
                 s.tone === "negative"
                   ? "text-[color:var(--negative)]"
                   : "text-text-1"

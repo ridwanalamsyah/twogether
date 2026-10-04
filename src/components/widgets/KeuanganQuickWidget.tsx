@@ -72,13 +72,13 @@ export function KeuanganQuickWidget() {
           <h3 className="text-[13px] font-semibold text-text-1">Keuangan</h3>
         </div>
         <Link href="/uang" className="text-[11px] text-text-3 active:opacity-60">
-          Detail ›
+          Lihat ›
         </Link>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="rounded-lg bg-emerald-500/10 p-2 text-center">
-          <div className="text-[9px] font-medium uppercase tracking-wider text-emerald-700/80 dark:text-emerald-400">
+          <div className="text-[9px] font-medium section-label text-emerald-700/80 dark:text-emerald-400">
             Masuk
           </div>
           <div className="font-mono text-[12px] font-bold text-emerald-700 dark:text-emerald-300">
@@ -86,7 +86,7 @@ export function KeuanganQuickWidget() {
           </div>
         </div>
         <div className="rounded-lg bg-rose-500/10 p-2 text-center">
-          <div className="text-[9px] font-medium uppercase tracking-wider text-rose-700/80 dark:text-rose-400">
+          <div className="text-[9px] font-medium section-label text-rose-700/80 dark:text-rose-400">
             Keluar
           </div>
           <div className="font-mono text-[12px] font-bold text-rose-700 dark:text-rose-300">
@@ -94,7 +94,7 @@ export function KeuanganQuickWidget() {
           </div>
         </div>
         <div className="rounded-lg bg-bg-elev1 p-2 text-center">
-          <div className="text-[9px] font-medium uppercase tracking-wider text-text-3">
+          <div className="text-[9px] font-medium section-label text-text-3">
             Net
           </div>
           <div className="font-mono text-[12px] font-bold text-text-1">

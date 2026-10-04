@@ -222,7 +222,7 @@ function PantrySection() {
                   </div>
                 </div>
                 {daysToExp != null && daysToExp <= 3 && (
-                  <span className="text-[10px] uppercase tracking-wider text-[color:var(--negative)]">
+                  <span className="text-[10px] section-label text-[color:var(--negative)]">
                     {daysToExp <= 0 ? "expired" : `H-${daysToExp}`}
                   </span>
                 )}
@@ -328,7 +328,7 @@ function CleaningSection() {
                   </div>
                 </div>
                 {overdue && (
-                  <span className="text-[10px] uppercase tracking-wider text-[color:var(--negative)]">
+                  <span className="text-[10px] section-label text-[color:var(--negative)]">
                     Telat
                   </span>
                 )}
@@ -411,7 +411,7 @@ function MealPlanSection() {
         <div className="mt-2 divide-y divide-border border-y border-border">
           {dates.map((d) => (
             <div key={d} className="py-2.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-text-4">
+              <div className="text-[11px] font-medium section-label text-text-4">
                 {formatDateShort(d)}
               </div>
               <div className="mt-1 space-y-1">
@@ -504,7 +504,7 @@ function MaintenanceSection() {
                     </div>
                   </div>
                   {days != null && days <= 7 && (
-                    <span className="text-[10px] uppercase tracking-wider text-[color:var(--negative)]">
+                    <span className="text-[10px] section-label text-[color:var(--negative)]">
                       {days <= 0 ? "telat" : `H-${days}`}
                     </span>
                   )}

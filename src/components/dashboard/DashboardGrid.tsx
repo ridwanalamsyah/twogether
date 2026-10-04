@@ -99,7 +99,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
           ))}
           {visible.length === 0 && (
             <div className="col-span-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-text-3">
-              Semua widget dimatikan. Buka Customize untuk mengaktifkan.
+              Belum ada kartu. Tap Susun untuk menambahkan.
             </div>
           )}
         </div>
@@ -138,7 +138,7 @@ function SortableWidget({
       {editing && (
         <button
           {...listeners}
-          aria-label="Drag widget"
+          aria-label="Geser kartu"
           className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-bg-app/80 text-text-3 backdrop-blur"
         >
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor">

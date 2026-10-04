@@ -30,7 +30,7 @@ export function SavingsProgressWidget() {
           href="/goals"
           className="text-[11px] text-text-3 hover:text-text-1"
         >
-          Detail
+          Lihat ›
         </Link>
       }
     >
