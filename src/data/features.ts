@@ -12,6 +12,10 @@ export interface Feature {
   tint: string;
   /** On by default for new couples. */
   core?: boolean;
+  /** Shows a "Baru" badge in Tambah ruang. */
+  isNew?: boolean;
+  /** Candidate for the future paid plan (not locked yet). */
+  premium?: boolean;
 }
 
 export const FEATURES: Feature[] = [
@@ -20,6 +24,13 @@ export const FEATURES: Feature[] = [
   { href: "/kita", tint: "#ec4899", emoji: "💞", title: "Kita", subtitle: "Tanggal penting & date night", core: true },
   { href: "/habits", tint: "#84cc16", emoji: "🌱", title: "Kebiasaan", subtitle: "Rutinitas harian", core: true },
   { href: "/calendar", tint: "#6366f1", emoji: "📅", title: "Kalender", subtitle: "Semua jadwal di satu tempat", core: true },
+  { href: "/catatan", tint: "#64748b", emoji: "📒", title: "Catatan", subtitle: "Halaman & checklist berdua", isNew: true },
+  { href: "/shalat", tint: "#10b981", emoji: "🕌", title: "Shalat", subtitle: "Jadwal, centang 5 waktu, kiblat", isNew: true },
+  { href: "/siklus", tint: "#f43f5e", emoji: "🌸", title: "Siklus", subtitle: "Kalender haid & perkiraan", isNew: true },
+  { href: "/patungan", tint: "#f59e0b", emoji: "🤝", title: "Patungan", subtitle: "Siapa perlu ganti siapa", isNew: true },
+  { href: "/belanja", tint: "#22c55e", emoji: "🛒", title: "Belanja bareng", subtitle: "Daftar belanja langsung sinkron", isNew: true },
+  { href: "/nikah", tint: "#b76e79", emoji: "💍", title: "Rencana nikah", subtitle: "Budget, persiapan, seserahan, tamu", isNew: true, premium: true },
+  { href: "/peta", tint: "#0ea5e9", emoji: "🗺️", title: "Peta kenangan", subtitle: "Tempat-tempat kalian & lokasi", isNew: true, premium: true },
   { href: "/jadwal", tint: "#8b5cf6", emoji: "🎓", title: "Jadwal kuliah", subtitle: "Kelas tiap minggu" },
   { href: "/skripsi", tint: "#a855f7", emoji: "📚", title: "Skripsi", subtitle: "Bab & bimbingan" },
   { href: "/uang", tint: "#f59e0b", emoji: "💰", title: "Hutang & langganan", subtitle: "Hutang, langganan, gajian" },

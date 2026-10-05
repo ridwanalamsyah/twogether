@@ -57,8 +57,10 @@
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Twogether memakai mikrofon untuk merekam voice note di Moments.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Twogether memakai lokasi untuk jadwal shalat, menandai tempat kenangan, dan berbagi lokasi ke pasangan saat kamu menyalakannya.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Twogether memakai kamera untuk foto profil dan foto momen.</string>
+	<string>Twogether memakai kamera untuk foto profil, foto momen, dan scan struk belanja.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Twogether membuka galeri untuk memilih foto profil dan foto momen.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>

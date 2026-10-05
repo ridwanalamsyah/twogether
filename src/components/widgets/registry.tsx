@@ -20,6 +20,7 @@ import { HabitsQuickWidget } from "./HabitsQuickWidget";
 import { HariKitaWidget } from "./HariKitaWidget";
 import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
+import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
 
 export interface WidgetMeta {
   kind: WidgetKind;
@@ -155,5 +156,26 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Pesan singkat untuk pasangan",
     emoji: "📌",
     Component: PinnedMessageWidget,
+  },
+  shalat: {
+    kind: "shalat",
+    label: "Shalat berikutnya",
+    description: "Jadwal terdekat & centang hari ini",
+    emoji: "🕌",
+    Component: ShalatWidget,
+  },
+  siklus: {
+    kind: "siklus",
+    label: "Siklus",
+    description: "Fase & perkiraan haid",
+    emoji: "🌸",
+    Component: SiklusWidget,
+  },
+  patungan: {
+    kind: "patungan",
+    label: "Patungan",
+    description: "Siapa perlu ganti siapa",
+    emoji: "🤝",
+    Component: PatunganWidget,
   },
 };

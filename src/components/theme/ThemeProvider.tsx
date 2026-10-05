@@ -15,6 +15,7 @@ let firstApply = true;
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const mode = useTheme((s) => s.mode);
   const accent = useTheme((s) => s.accent);
+  const icon = useTheme((s) => s.icon);
   const autoDark = useSecurity((s) => s.autoDark);
   const darkFrom = useSecurity((s) => s.darkFrom);
   const darkTo = useSecurity((s) => s.darkTo);
@@ -22,6 +23,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     bootNative();
   }, []);
+
+  // Chosen app icon → browser tab + "Add to Home Screen" icon.
+  useEffect(() => {
+    const href = icon === "rose" ? "/icons/icon-192.png" : `/icons/alt/${icon}-180.png`;
+    const set = (rel: string) => {
+      let link = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      link.href = href;
+    };
+    set("icon");
+    set("apple-touch-icon");
+  }, [icon]);
 
   useEffect(() => {
     const root = document.documentElement;

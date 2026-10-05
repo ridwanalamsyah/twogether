@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
@@ -376,90 +377,21 @@ function moodEmoji(n: number): string {
 
 /* ───── Period (cycle) ───── */
 function PeriodSection() {
-  const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "cycle") ?? [];
-  const [date, setDate] = useState(todayISO());
-  const [marker, setMarker] = useState<"start" | "end" | "spotting">("start");
-
-  async function add() {
-    if (!userId) return;
-    await upsertEntry(userId, {
-      kind: "cycle",
-      date,
-      valueText: marker,
-    });
-  }
-
-  const last = entries.find((e) => e.valueText === "start");
-  const prediction = useMemo(() => {
-    const starts = entries
-      .filter((e) => e.valueText === "start")
-      .map((e) => e.date)
-      .sort();
-    if (starts.length < 2) return null;
-    // Average cycle length
-    const diffs: number[] = [];
-    for (let i = 1; i < starts.length; i += 1) {
-      const a = new Date(starts[i - 1]).getTime();
-      const b = new Date(starts[i]).getTime();
-      diffs.push((b - a) / 86_400_000);
-    }
-    const avg = Math.round(diffs.reduce((s, n) => s + n, 0) / diffs.length);
-    const next = new Date(starts[starts.length - 1]);
-    next.setDate(next.getDate() + avg);
-    return { avg, next: next.toISOString().slice(0, 10) };
-  }, [entries]);
-
+  // Cycle tracking now lives in its own space (/siklus) with a calendar,
+  // predictions and partner view; this tab just points there.
   return (
-    <Section
-      title="Periode"
-      caption={
-        prediction
-          ? `Siklus rata-rata ${prediction.avg} hari · prediksi ${formatDateShort(prediction.next)}`
-          : last
-            ? `Terakhir: ${formatDateShort(last.date)}`
-            : "Catat hari pertama"
-      }
-    >
-      <div className="border-y border-border py-2.5">
-        <div className="flex gap-2">
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="flex-1 bg-transparent text-[13px] outline-none"
-          />
-          <select
-            value={marker}
-            onChange={(e) =>
-              setMarker(e.target.value as "start" | "end" | "spotting")
-            }
-            className="bg-transparent text-[13px] text-text-2 outline-none"
-          >
-            <option value="start">Mulai</option>
-            <option value="end">Selesai</option>
-            <option value="spotting">Spotting</option>
-          </select>
-          <AccentBtn onClick={add}>Catat</AccentBtn>
-        </div>
-      </div>
-      {entries.slice(0, 5).length > 0 && (
-        <div className="mt-2 divide-y divide-border border-y border-border">
-          {entries.slice(0, 5).map((e) => (
-            <div key={e.id} className="flex items-center justify-between py-2.5">
-              <span className="text-[12px] text-text-2">
-                {formatDateShort(e.date)}
-              </span>
-              <span className="text-[11px] section-label text-text-4">
-                {e.valueText}
-              </span>
-              <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
-                Hapus
-              </GhostBtn>
-            </div>
-          ))}
-        </div>
-      )}
+    <Section title="Siklus">
+      <Link
+        href="/siklus"
+        className="pressable flex items-center gap-3 rounded-[20px] bg-bg-card p-4 shadow-card"
+      >
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent-soft text-[22px]">🌸</span>
+        <span className="flex-1">
+          <span className="block text-[15px] font-bold text-text-1">Buka Siklus</span>
+          <span className="block text-[12px] text-text-3">Kalender haid, perkiraan & catatan harian</span>
+        </span>
+        <span className="text-text-4">›</span>
+      </Link>
     </Section>
   );
 }

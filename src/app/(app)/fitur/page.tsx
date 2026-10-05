@@ -108,6 +108,11 @@ export default function JelajahPage() {
                 </span>
                 <span className="block text-[12px] text-text-3">
                   {others.length} ruang lain siap dipakai kapan saja
+                  {others.some((f) => f.isNew) && (
+                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
+                      {others.filter((f) => f.isNew).length} baru
+                    </span>
+                  )}
                 </span>
               </span>
               <span
@@ -129,7 +134,14 @@ export default function JelajahPage() {
                       {f.emoji}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14px] text-text-1">{f.title}</span>
+                      <span className="flex items-center gap-1.5 text-[14px] text-text-1">
+                        {f.title}
+                        {f.isNew && (
+                          <span className="rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
+                            Baru
+                          </span>
+                        )}
+                      </span>
                       <span className="block truncate text-[12px] text-text-4">
                         {f.subtitle}
                       </span>
@@ -178,7 +190,7 @@ function SpaceCard({
       className={`relative slide-up ${editing ? "cursor-grab active:cursor-grabbing" : ""} ${
         isDragging ? "is-dragging" : ""
       }`}
-      {...attributes}
+      {...(editing ? attributes : {})}
       {...(editing ? listeners : {})}
     >
       <Link

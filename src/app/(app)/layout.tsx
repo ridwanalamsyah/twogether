@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/shell/BottomNav";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { QuickCapture } from "@/components/shell/QuickCapture";
 import { useUi } from "@/stores/ui";
+import { LocationSharer } from "@/components/sync/LocationSharer";
 import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
@@ -68,6 +69,7 @@ export default function AppLayout({
       </main>
       <BottomNav />
       <CaptureHost />
+      <LocationSharer />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />

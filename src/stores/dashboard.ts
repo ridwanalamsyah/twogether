@@ -37,7 +37,10 @@ export type WidgetKind =
   | "keuangan-quick"
   | "habits-quick"
   | "hari-kita"
-  | "pinned-message";
+  | "pinned-message"
+  | "shalat"
+  | "siklus"
+  | "patungan";
 
 export interface WidgetConfig {
   id: string;
@@ -68,6 +71,9 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_quick", kind: "quick-add", size: "lg", enabled: false },
   { id: "w_moments", kind: "moments", size: "md", enabled: false },
   { id: "w_skripsi", kind: "skripsi", size: "md", enabled: false },
+  { id: "w_shalat", kind: "shalat", size: "lg", enabled: false },
+  { id: "w_siklus", kind: "siklus", size: "lg", enabled: false },
+  { id: "w_patungan", kind: "patungan", size: "lg", enabled: false },
 ];
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
