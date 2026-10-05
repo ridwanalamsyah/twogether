@@ -30,7 +30,6 @@ export const FEATURES: Feature[] = [
   { href: "/patungan", tint: "#f59e0b", emoji: "🤝", title: "Patungan", subtitle: "Siapa perlu ganti siapa", isNew: true },
   { href: "/belanja", tint: "#22c55e", emoji: "🛒", title: "Belanja bareng", subtitle: "Daftar belanja langsung sinkron", isNew: true },
   { href: "/nikah", tint: "#b76e79", emoji: "💍", title: "Rencana nikah", subtitle: "Budget, persiapan, seserahan, tamu", isNew: true, premium: true },
-  { href: "/peta", tint: "#0ea5e9", emoji: "🗺️", title: "Peta kenangan", subtitle: "Tempat-tempat kalian & lokasi", isNew: true, premium: true },
   { href: "/jadwal", tint: "#8b5cf6", emoji: "🎓", title: "Jadwal kuliah", subtitle: "Kelas tiap minggu" },
   { href: "/skripsi", tint: "#a855f7", emoji: "📚", title: "Skripsi", subtitle: "Bab & bimbingan" },
   { href: "/uang", tint: "#f59e0b", emoji: "💰", title: "Hutang & langganan", subtitle: "Hutang, langganan, gajian" },

@@ -26,6 +26,7 @@ import {
   type ItemRecord,
 } from "@/lib/db";
 import { sync } from "@/services/sync";
+import { useWorkspace } from "@/stores/workspace";
 import { decryptString, encryptString, isUnlocked } from "@/lib/crypto";
 
 /**
@@ -328,12 +329,52 @@ export function useSkripsiChapters(userId: string | null) {
   return useLiveQuery(async () => {
     if (!userId) return [];
     const db = getDB();
-    return db.skripsiChapters
+    const rows = await db.skripsiChapters
       .where("userId")
       .equals(userId)
       .filter((r) => !r.deletedAt)
       .sortBy("order");
+    return dedupeChapters(rows);
   }, [userId]);
+}
+
+/** Has anyone actually worked on this chapter? */
+function touched(c: SkripsiChapterRecord): boolean {
+  return (c.progress ?? 0) > 0 || !!c.note || (c.status !== "Belum mulai" && !!c.status);
+}
+
+/**
+ * One chapter per BAB number. Both partners' phones used to create the
+ * default chapters before syncing, which showed "BAB I" two or three
+ * times; keep the most worked-on copy.
+ */
+function dedupeChapters(rows: SkripsiChapterRecord[]): SkripsiChapterRecord[] {
+  // Deterministic winner so both phones keep the *same* copy: most
+  // progress, then edited copies, then the shared default id, then id.
+  const rank = (r: SkripsiChapterRecord) =>
+    [-(r.progress ?? 0), touched(r) ? 0 : 1, r.id.startsWith("bab-") ? 0 : 1, r.id] as const;
+  const better = (a: SkripsiChapterRecord, b: SkripsiChapterRecord) => {
+    const x = rank(a);
+    const y = rank(b);
+    for (let i = 0; i < x.length; i += 1) {
+      if (x[i] < y[i]) return true;
+      if (x[i] > y[i]) return false;
+    }
+    return false;
+  };
+  const best = new Map<string, SkripsiChapterRecord>();
+  for (const r of rows) {
+    const key = `${r.number}|${r.title.trim().toLowerCase()}`;
+    const cur = best.get(key);
+    if (!cur || better(r, cur)) best.set(key, r);
+  }
+  return rows.filter((r) => best.get(`${r.number}|${r.title.trim().toLowerCase()}`) === r);
+}
+
+/** Stable id so every phone in a workspace creates the *same* default rows. */
+export function defaultChapterId(number: string): string {
+  const ws = useWorkspace.getState().workspaceId ?? "local";
+  return `bab-${ws}-${number}`;
 }
 
 export function useSkripsiBimbingan(userId: string | null) {
@@ -361,14 +402,22 @@ export function useSkripsiMeta(userId: string | null) {
 
 export async function ensureDefaultSkripsiChapters(userId: string) {
   const db = getDB();
-  const count = await db.skripsiChapters
+  const rows = await db.skripsiChapters
     .where("userId")
     .equals(userId)
-    .count();
-  if (count > 0) return;
+    .filter((r) => !r.deletedAt)
+    .toArray();
+  if (rows.length > 0) {
+    // Clean up untouched duplicates left by earlier versions.
+    const keep = new Set(dedupeChapters(rows).map((r) => r.id));
+    for (const r of rows) {
+      if (!keep.has(r.id) && !touched(r)) await sync.recordDelete("skripsiChapters", r.id, userId);
+    }
+    return;
+  }
   for (const c of DEFAULT_SKRIPSI_CHAPTERS) {
     const record: SkripsiChapterRecord = {
-      id: newId(),
+      id: defaultChapterId(c.number),
       userId,
       createdAt: now(),
       updatedAt: now(),

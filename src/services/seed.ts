@@ -1,6 +1,6 @@
 import { getDB, newId, now, type BaseRecord, type GoalRecord, type SkripsiChapterRecord, type HabitRecord, type ChecklistRecord, type TransactionRecord, type SkripsiMetaRecord, type EntryRecord, type ItemRecord } from "@/lib/db";
 import { sync } from "@/services/sync";
-import { DEFAULT_SKRIPSI_CHAPTERS } from "@/stores/data";
+import { DEFAULT_SKRIPSI_CHAPTERS, defaultChapterId } from "@/stores/data";
 import { SEMESTER_6_SCHEDULE } from "@/data/classes";
 
 /**
@@ -118,7 +118,7 @@ export async function seedSampleData(opts: SeedOptions): Promise<void> {
   if (await ensureCountZero("skripsiChapters", userId)) {
     for (const c of DEFAULT_SKRIPSI_CHAPTERS) {
       const record: SkripsiChapterRecord = {
-        id: newId(),
+        id: defaultChapterId(c.number),
         userId,
         createdAt: now(),
         updatedAt: now(),

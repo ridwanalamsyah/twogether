@@ -52,7 +52,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/kita",
     label: "Kita",
-    match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/peta", "/nikah"],
+    match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/nikah"],
     icon: (
       <svg
         viewBox="0 0 24 24"
