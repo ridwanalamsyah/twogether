@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
@@ -18,6 +19,7 @@ import { hapticSuccess, hapticTap } from "@/lib/haptic";
 export default function ShalatPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const place = useShalatPrefs();
   const hijriOffset = useIbadahPrefs((s) => s.hijriOffset);
   const logs = useEntries(userId, "shalat") ?? [];
@@ -209,7 +211,7 @@ export default function ShalatPage() {
           <div className="surface flex items-center gap-3 p-4">
             <span className="text-[22px]">🤝</span>
             <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-bold text-text-1">{partner} hari ini</div>
+              <div className="text-[14px] font-bold text-text-1">{nick(partner)} hari ini</div>
               <div className="mt-1.5 flex gap-1.5">
                 {onPeriodFor(partner) ? (
                   <span className="text-[12px] text-text-3">🌸 Sedang libur</span>

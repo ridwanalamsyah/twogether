@@ -1,5 +1,6 @@
 "use client";
 
+import { Toaster } from "@/components/ui/Toaster";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FEATURES } from "@/data/features";
@@ -71,6 +72,7 @@ export default function AppLayout({
       <BottomNav />
       <CaptureHost />
       <PingListener />
+      <Toaster />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />

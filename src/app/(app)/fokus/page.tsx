@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -41,6 +42,8 @@ function mmss(ms: number) {
 export default function FokusPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
+  const partnerName = partner ? nick(partner) : null;
   const sessions = useEntries(userId, "fokus") ?? [];
   const [now, setNow] = useState(() => Date.now());
   const [minutes, setMinutes] = useState(25);
@@ -137,7 +140,7 @@ export default function FokusPage() {
               <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[14px] font-bold text-text-1">{partner} lagi fokus</div>
+              <div className="truncate text-[14px] font-bold text-text-1">{partnerName} lagi fokus</div>
               <div className="truncate text-[12px] text-text-3">
                 {partnerActive?.valueText ? `${partnerActive.valueText} · ` : ""}sisa {mmss(endOf(partnerP) - now)}
               </div>
@@ -172,7 +175,7 @@ export default function FokusPage() {
                 {myP ? mmss(remaining) : `${String(minutes).padStart(2, "0")}:00`}
               </div>
               <div className="mt-2 max-w-[150px] truncate text-[12px] text-text-3">
-                {myP ? myActive?.valueText || (myP.with ? `Bareng ${partner}` : "Fokus…") : justDone ? "Selesai! Istirahat 5 menit ☕" : "Siap?"}
+                {myP ? myActive?.valueText || (myP.with ? `Bareng ${partnerName}` : "Fokus…") : justDone ? "Selesai! Istirahat 5 menit ☕" : "Siap?"}
               </div>
             </div>
           </div>
@@ -204,7 +207,7 @@ export default function FokusPage() {
                 Mulai fokus
               </button>
               {partner && !partnerP && (
-                <p className="mt-2 text-center text-[12px] text-text-4">{partner} akan lihat kamu sedang fokus dan bisa ikut.</p>
+                <p className="mt-2 text-center text-[12px] text-text-4">{partnerName} akan lihat kamu sedang fokus dan bisa ikut.</p>
               )}
             </>
           )}
@@ -226,7 +229,7 @@ export default function FokusPage() {
                   />
                   {partner && (
                     <span
-                      title={`${partner} ${weekTheirs[i]} mnt`}
+                      title={`${partnerName} ${weekTheirs[i]} mnt`}
                       className="w-full max-w-[12px] rounded-t-[4px]"
                       style={{ height: `${(weekTheirs[i] / maxDay) * 100}%`, background: "color-mix(in srgb, var(--accent) 40%, var(--bg-elev2))" }}
                     />
@@ -244,7 +247,7 @@ export default function FokusPage() {
             </span>
             {partner && (
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-sm" style={{ background: "color-mix(in srgb, var(--accent) 40%, var(--bg-elev2))" }} /> {partner} · {sumFor(theirs, today)} mnt
+                <span className="h-2.5 w-2.5 rounded-sm" style={{ background: "color-mix(in srgb, var(--accent) 40%, var(--bg-elev2))" }} /> {partnerName} · {sumFor(theirs, today)} mnt
               </span>
             )}
           </div>

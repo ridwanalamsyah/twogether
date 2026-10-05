@@ -22,6 +22,7 @@ import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
 import { KabarWidget } from "@/components/kabar/Kabar";
+import { FokusWidget, RamadhanWidget, TantanganWidget } from "./SpaceWidgets";
 
 export interface WidgetMeta {
   kind: WidgetKind;
@@ -185,5 +186,26 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Siapa perlu ganti siapa",
     emoji: "🤝",
     Component: PatunganWidget,
+  },
+  tantangan: {
+    kind: "tantangan",
+    label: "Tantangan hari ini",
+    description: "Centang tantangan berdua langsung dari Beranda",
+    emoji: "🔥",
+    Component: TantanganWidget,
+  },
+  fokus: {
+    kind: "fokus",
+    label: "Fokus bareng",
+    description: "Lihat kalau pasangan lagi fokus, lalu ikut",
+    emoji: "🎧",
+    Component: FokusWidget,
+  },
+  ramadhan: {
+    kind: "ramadhan",
+    label: "Ramadhan",
+    description: "Hitung mundur imsak & buka puasa",
+    emoji: "🏮",
+    Component: RamadhanWidget,
   },
 };

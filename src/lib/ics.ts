@@ -84,22 +84,6 @@ export function googleCalendarUrl(e: CalEvent): string {
 
 /** Share (iOS) or download the .ics file. */
 export async function saveIcs(ics: string, filename = "twogether.ics") {
-  const file = new File([ics], filename, { type: "text/calendar" });
-  const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-  if (nav.canShare?.({ files: [file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
-    try {
-      await nav.share({ files: [file], title: "Agenda Twogether" });
-      return;
-    } catch {
-      /* fall back to download */
-    }
-  }
-  const url = URL.createObjectURL(file);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  const { saveFile } = await import("@/lib/share");
+  await saveFile(ics, filename, "text/calendar");
 }

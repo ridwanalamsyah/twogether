@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, FieldGroup, Chips } from "@/components/ui/Sheet";
@@ -117,6 +118,7 @@ function ChallengeCard({
   userId: string;
 }) {
   const p = parsePayload<ChallengePayload>(c.payload, { emoji: "🔥" });
+  const { nick } = useNick();
   const start = c.date ?? today;
   const end = c.due ?? addDays(start, 29);
   const total = daysBetween(start, end) + 1;
@@ -195,7 +197,7 @@ function ChallengeCard({
       </div>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-text-3">
         <span>Kamu {mine}/{total}</span>
-        {partner && <span>{partner} {days.filter((d) => did(partner, d)).length}/{total}</span>}
+        {partner && <span>{nick(partner)} {days.filter((d) => did(partner, d)).length}/{total}</span>}
         {partner && <span>Berdua {both}</span>}
       </div>
 
@@ -203,7 +205,7 @@ function ChallengeCard({
         <div className="mt-3 flex gap-2 text-[12px]">
           {people.map((w) => (
             <span key={w} className={`rounded-full px-2.5 py-1 font-semibold ${did(w, today) ? "bg-accent/10 text-accent" : "bg-bg-elev2 text-text-3"}`}>
-              {w === me ? "Kamu" : w} {did(w, today) ? "✓ hari ini" : "belum"}
+              {w === me ? "Kamu" : nick(w)} {did(w, today) ? "✓ hari ini" : "belum"}
             </span>
           ))}
         </div>

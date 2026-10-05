@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, FieldGroup, Chips } from "@/components/ui/Sheet";
@@ -24,6 +25,7 @@ interface KhatamPayload {
 export default function TilawahPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const offset = useIbadahPrefs((s) => s.hijriOffset);
   const khatams = useItems(userId, "khatam") ?? [];
   const logs = useEntries(userId, "tilawah") ?? [];
@@ -156,7 +158,7 @@ export default function TilawahPage() {
                 <div className="mb-3 text-[14px] font-bold text-text-1">Kontribusi</div>
                 {[
                   { name: "Kamu", pages: myPages },
-                  { name: partner, pages: partnerPages },
+                  { name: nick(partner), pages: partnerPages },
                 ].map((x) => (
                   <div key={x.name} className="mb-2.5">
                     <div className="mb-1 flex justify-between text-[13px]">
@@ -192,7 +194,7 @@ export default function TilawahPage() {
                         <SwipeRow onDelete={() => userId && deleteEntry(userId, l.id)}>
                           <div className="flex items-center justify-between bg-bg-card px-4 py-3 text-[14px]">
                             <span className="text-text-1">
-                              {(l.who || me) === me ? "Kamu" : l.who} · {l.valueNum} halaman
+                              {(l.who || me) === me ? "Kamu" : nick(l.who)} · {l.valueNum} halaman
                             </span>
                             <span className="text-[12px] text-text-4">
                               {fromIsoDay(l.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}

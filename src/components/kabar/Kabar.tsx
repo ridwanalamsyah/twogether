@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -12,10 +13,11 @@ import { hapticSuccess } from "@/lib/haptic";
 /** Beranda card: partner's status + one-tap pings. */
 export function KabarWidget() {
   const { partner, partnerStatus, myStatus, pings, me, sendPing } = useKabar();
+  const { nick } = useNick();
   const [sent, setSent] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const lastFromPartner = pings.find((p) => p.who && p.who !== me);
-  const name = partner ?? "Pasanganmu";
+  const name = partner ? nick(partner) : "Pasanganmu";
 
   async function ping(id: string) {
     await sendPing(id);
@@ -40,7 +42,7 @@ export function KabarWidget() {
             </div>
           ) : lastFromPartner ? (
             <div className="mt-0.5 truncate text-[11px] text-text-4">
-              {pingText(lastFromPartner.valueText ?? "kangen", lastFromPartner.who ?? name).emoji}{" "}
+              {pingText(lastFromPartner.valueText ?? "kangen", name).emoji}{" "}
               {timeAgo(lastFromPartner.createdAt)}
             </div>
           ) : null}
@@ -152,6 +154,7 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
  * the background (if allowed). Push (app closed) is handled by the SW.
  */
 export function PingListener() {
+  const { nick } = useNick();
   const { pings, me, sendPing } = useKabar();
   const [toast, setToast] = useState<{ id: string; emoji: string; text: string } | null>(null);
   const seen = useRef<number | null>(null);
@@ -179,7 +182,7 @@ export function PingListener() {
       /* ignore */
     }
     const custom = parsePayload(latest.payload, { text: "" }).text;
-    const t = pingText(latest.valueText ?? "kangen", latest.who ?? "Pasangan", custom);
+    const t = pingText(latest.valueText ?? "kangen", nick(latest.who) || "Pasangan", custom);
     setToast({ id: latest.id, ...t });
     hapticSuccess();
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {

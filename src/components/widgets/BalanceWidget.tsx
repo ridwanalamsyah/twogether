@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -38,6 +39,7 @@ export function BalanceWidget() {
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
   const txs = useTransactions(userId);
   const deps = useDeposits(userId);
+  const { nick } = useNick();
 
   const stats: Stat[] = useMemo(() => {
     const tx = txs ?? [];
@@ -64,7 +66,7 @@ export function BalanceWidget() {
         const sisa = sum(inM) - sum(outM);
         result.push({
           key: `member:${m.name}`,
-          label: `Sisa ${m.name.split(" ")[0]}`,
+          label: `Sisa ${nick(m.name) !== m.name ? nick(m.name) : m.name.split(" ")[0]}`,
           value: formatRupiahShort(sisa),
           hint: `${inM.length + outM.length} transaksi`,
           tone: sisa >= 0 ? "positive" : "negative",
@@ -113,7 +115,7 @@ export function BalanceWidget() {
     }
 
     return result.slice(0, 4);
-  }, [txs, deps, members, sharedLabel]);
+  }, [txs, deps, members, sharedLabel, nick]);
 
   // Icon choices are synced so both phones show the same faces.
   const picks = useItems(userId, "tile-icon");

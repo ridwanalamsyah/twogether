@@ -1,6 +1,9 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { budgetAlert } from "@/lib/budget";
+import { toast } from "@/lib/toast";
 import {
   addTransaction,
   upsertEntry,
@@ -39,6 +42,7 @@ export function QuickCapture({
   initialMode?: QuickCaptureMode;
   onClose: () => void;
 }) {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
@@ -95,6 +99,7 @@ export function QuickCapture({
           date: todayISO(),
           tags: withWallet(undefined, walletId),
         });
+        void budgetAlert(userId, { kind, category, amount: num, date: todayISO() }).then((a) => a && toast(a.text, a.tone));
         setAmount("");
         setTitle("");
         setSaved("Transaksi tersimpan");
@@ -268,7 +273,7 @@ export function QuickCapture({
                 onChange={(e) => setWho(e.target.value)}
               >
                 {people.map((p) => (
-                  <option key={p}>{p}</option>
+                  <option key={p} value={p}>{nick(p)}</option>
                 ))}
               </select>
             </div>

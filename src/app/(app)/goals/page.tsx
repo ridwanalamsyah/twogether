@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -278,6 +279,7 @@ function GoalCard({
 }
 
 function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const all = useRecurringGoals(userId) ?? [];
   const recurring = all.filter((r) => r.goalId === goal.id);
@@ -309,7 +311,7 @@ function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
             >
               <div className="text-xs">
                 <div className="font-semibold">
-                  {formatRupiah(r.amount)} · {r.who}
+                  {formatRupiah(r.amount)} · {nick(r.who)}
                 </div>
                 <div className="text-[10px] text-text-3">
                   Tiap tanggal {r.dayOfMonth} · berikutnya {r.nextDue}

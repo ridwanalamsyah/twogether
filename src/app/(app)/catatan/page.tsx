@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -39,6 +40,7 @@ function Catatan() {
 /* ───────────────────────── List ───────────────────────── */
 
 function NoteList() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const { me } = usePeople();
   const router = useRouter();
@@ -134,7 +136,7 @@ function NoteList() {
                         {preview(p.blocks) || "Kosong"}
                       </span>
                       <span className="mt-1.5 block text-[11px] text-text-4">
-                        {n.who ? `${n.who} · ` : ""}
+                        {n.who ? `${nick(n.who)} · ` : ""}
                         {new Date(n.updatedAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                         {kids > 0 ? ` · ${kids} sub-halaman` : ""}
                       </span>

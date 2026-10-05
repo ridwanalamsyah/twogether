@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useKabar } from "@/components/kabar/useKabar";
@@ -9,6 +10,7 @@ import { parsePayload } from "@/lib/people";
 
 export default function KabarPage() {
   const { me, partner, pings, myStatus, partnerStatus, sendPing } = useKabar();
+  const { nick } = useNick();
   const [text, setText] = useState("");
   const [editing, setEditing] = useState(false);
   const weekAgo = Date.now() - 7 * 86_400_000;
@@ -22,7 +24,7 @@ export default function KabarPage() {
         <div className="grid grid-cols-2 gap-2.5">
           {[
             { who: "Kamu", s: myStatus, onClick: () => setEditing(true) },
-            { who: partner ?? "Pasangan", s: partnerStatus },
+            { who: partner ? nick(partner) : "Pasangan", s: partnerStatus },
           ].map((x) => (
             <button
               key={x.who}
@@ -44,7 +46,7 @@ export default function KabarPage() {
         </div>
 
         <div className="surface p-4">
-          <div className="mb-2 text-[14px] font-bold text-text-1">Kirim ke {partner ?? "pasangan"}</div>
+          <div className="mb-2 text-[14px] font-bold text-text-1">Kirim ke {partner ? nick(partner) : "pasangan"}</div>
           <div className="mb-3 grid grid-cols-3 gap-2">
             {PINGS.map((p) => (
               <button
@@ -82,7 +84,7 @@ export default function KabarPage() {
         <div className="flex items-baseline justify-between px-1">
           <span className="text-[16px] font-extrabold text-text-1">Riwayat</span>
           <span className="text-[12px] text-text-3">
-            Minggu ini: kamu {mineWeek} · {partner ?? "dia"} {theirsWeek}
+            Minggu ini: kamu {mineWeek} · {partner ? nick(partner) : "dia"} {theirsWeek}
           </span>
         </div>
         {pings.length === 0 ? (

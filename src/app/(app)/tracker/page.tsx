@@ -1,7 +1,11 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { BudgetCard } from "@/components/budget/BudgetCard";
+import { budgetAlert } from "@/lib/budget";
+import { toast } from "@/lib/toast";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -64,6 +68,7 @@ const CATEGORIES = [
 ];
 
 export default function TrackerPage() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId);
   const [filter, setFilter] = useState<"all" | "in" | "out">("all");
@@ -168,6 +173,7 @@ export default function TrackerPage() {
             </Link>
           ))}
         </div>
+        <BudgetCard txs={txs ?? []} month={todayISO().slice(0, 7)} categories={CATEGORIES} />
 
         <div className="mt-3 flex items-center gap-2">
           <input
@@ -242,7 +248,7 @@ export default function TrackerPage() {
                           </div>
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-text-4">
                             <span>
-                              {t.who} · {t.category}
+                              {nick(t.who)} · {t.category}
                               {walletById(walletOf(t)) ? ` · ${walletById(walletOf(t))!.emoji} ${walletById(walletOf(t))!.name}` : ""}
                             </span>
                             {(t.tags ?? []).filter((tag) => !tag.startsWith(WALLET_TAG)).map((tag) => (
@@ -283,6 +289,7 @@ export default function TrackerPage() {
 }
 
 function AddTxSheet({ onClose }: { onClose: () => void }) {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
@@ -325,6 +332,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
       date,
       tags: withWallet(tags, walletId),
     });
+      void budgetAlert(userId, { kind, category, amount: num, date: date }).then((a) => a && toast(a.text, a.tone));
     onClose();
   }
 
@@ -394,7 +402,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
               onChange={(e) => setWho(e.target.value)}
             >
               {people.map((p) => (
-                <option key={p}>{p}</option>
+                <option key={p} value={p}>{nick(p)}</option>
               ))}
             </select>
           </div>

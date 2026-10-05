@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { SwipeRow } from "@/components/ui/SwipeRow";
@@ -19,6 +20,7 @@ import type { ItemRecord } from "@/lib/db";
 export default function BelanjaPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const items = useItems(userId, "shopping") ?? [];
   const [text, setText] = useState("");
   const [showDone, setShowDone] = useState(true);
@@ -85,7 +87,7 @@ export default function BelanjaPage() {
         <div className="mb-2 flex items-center gap-2 text-[12px] text-text-3">
           <span className={`h-2 w-2 rounded-full ${hasRemoteSync() ? "animate-pulse bg-[color:var(--positive)]" : "bg-text-5"}`} />
           {hasRemoteSync()
-            ? `Langsung muncul di HP ${partner ?? "pasanganmu"}`
+            ? `Langsung muncul di HP ${partner ? nick(partner) : "pasanganmu"}`
             : "Tersimpan di HP ini"}
         </div>
 
@@ -180,6 +182,7 @@ function Row({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const { nick } = useNick();
   const isDone = item.status === "done";
   const p = parsePayload(item.payload, { where: "", price: 0 });
   return (
@@ -199,7 +202,7 @@ function Row({
             </span>
             {(item.who && item.who !== me) || p.where ? (
               <span className="block text-[12px] text-text-4">
-                {item.who && item.who !== me ? `dari ${item.who}` : ""}
+                {item.who && item.who !== me ? `dari ${nick(item.who)}` : ""}
                 {item.who && item.who !== me && p.where ? " · " : ""}
                 {p.where}
               </span>

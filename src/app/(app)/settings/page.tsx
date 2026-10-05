@@ -10,6 +10,7 @@ import { useAuth } from "@/stores/auth";
 import { sync, type SyncSnapshot } from "@/services/sync";
 import { getDB } from "@/lib/db";
 import { hasRemoteSync } from "@/lib/supabase";
+import { lastBackupAt } from "@/services/privacy";
 
 const SECTIONS: { title: string; rows: { href: string; icon: string; label: string; hint?: string }[] }[] = [
   {
@@ -43,6 +44,11 @@ export default function SettingsPage() {
   const [snap, setSnap] = useState<SyncSnapshot>(() => sync.getSnapshot());
 
   useEffect(() => sync.subscribe(setSnap), []);
+  const [backupDue, setBackupDue] = useState(false);
+  useEffect(() => {
+    const t = lastBackupAt();
+    setBackupDue(!t || Date.now() - t > 30 * 86_400_000);
+  }, []);
 
   const profile = useLiveQuery(
     async () => (auth.userId ? getDB().users.get(auth.userId) : null),
@@ -108,7 +114,9 @@ export default function SettingsPage() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block">{r.label}</span>
-                      {r.hint && (
+                      {r.href === "/settings/privacy" && backupDue ? (
+                        <span className="block text-[12px] font-semibold text-[color:var(--warning)]">Sudah waktunya cadangkan data</span>
+                      ) : r.hint && (
                         <span className="block text-[12px] text-text-4">{r.hint}</span>
                       )}
                     </span>

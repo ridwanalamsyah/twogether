@@ -18,6 +18,10 @@ import {
 } from "@/stores/data";
 
 import { formatRupiah, formatDateShort, todayISO } from "@/lib/utils";
+import { FEATURES } from "@/data/features";
+import { usePeople } from "@/lib/people";
+import { useNick } from "@/lib/nick";
+import { readNote } from "@/lib/notes";
 import { sync } from "@/services/sync";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 
@@ -54,6 +58,8 @@ export function GlobalSearch({
   const chapters = useSkripsiChapters(userId);
   const items = useAllItems(userId);
   const entries = useAllEntries(userId);
+  const { me } = usePeople();
+  const { nick } = useNick();
 
   const [q, setQ] = useState("");
   const [actionMsg, setActionMsg] = useState<string | null>(null);
@@ -119,7 +125,7 @@ export function GlobalSearch({
               kind: "out",
               amount: money,
               category: "Lainnya",
-              who: "Saya",
+              who: me,
               note: needle,
               date: todayISO(),
             });
@@ -137,7 +143,7 @@ export function GlobalSearch({
               kind: "in",
               amount: money,
               category: "Lainnya",
-              who: "Saya",
+              who: me,
               note: needle,
               date: todayISO(),
             });
@@ -214,6 +220,26 @@ export function GlobalSearch({
         },
       });
     }
+    // Spaces: typing "zakat" or "fokus" opens the space.
+    for (const f of FEATURES) {
+      if (`${f.title} ${f.subtitle} ${f.href.slice(1)}`.toLowerCase().includes(needle)) {
+        out.push({ href: f.href, kind: "Ruang", label: `${f.emoji} ${f.title}`, detail: f.subtitle });
+      }
+    }
+    // Catatan: title and the text inside the page.
+    for (const n of (items ?? []).filter((x) => x.kind === "note")) {
+      const note = readNote(n);
+      const body = note.blocks.map((b) => b.text).join(" ");
+      if (`${n.title} ${body}`.toLowerCase().includes(needle)) {
+        const at = body.toLowerCase().indexOf(needle);
+        out.push({
+          href: `/catatan?id=${n.id}`,
+          kind: "Catatan",
+          label: `${note.emoji} ${n.title || "Tanpa judul"}`,
+          detail: at >= 0 ? body.slice(Math.max(0, at - 20), at + 50).trim() : undefined,
+        });
+      }
+    }
     for (const t of txs ?? []) {
       const hay = `${t.category} ${t.note ?? ""} ${t.who}`.toLowerCase();
       if (hay.includes(needle)) {
@@ -221,7 +247,7 @@ export function GlobalSearch({
           href: "/tracker",
           kind: "Transaksi",
           label: `${t.category} · ${formatRupiah(t.amount)}`,
-          detail: `${formatDateShort(t.date)} · ${t.who}${
+          detail: `${formatDateShort(t.date)} · ${nick(t.who)}${
             t.note ? ` · ${t.note}` : ""
           }`,
         });
@@ -286,16 +312,53 @@ export function GlobalSearch({
       maintenance: "/rumah",
       pet: "/rumah",
       debt: "/uang",
+      target: "/target",
+      challenge: "/tantangan",
+      khatam: "/tilawah",
+      wallet: "/dompet",
+      "wed-task": "/nikah",
+      "wed-budget": "/nikah",
+      "wed-seserahan": "/nikah",
+      "wed-guest": "/nikah",
+      "wed-pranikah": "/nikah",
+      "wed-talk": "/nikah",
+      habit: "/habits",
+      class: "/jadwal",
       subscription: "/uang",
       payday: "/uang",
       closing: "/uang",
     };
+    const KIND_LABEL: Record<string, string> = {
+      target: "Target",
+      challenge: "Tantangan",
+      khatam: "Tilawah",
+      wallet: "Dompet",
+      wishlist: "Wishlist",
+      gift: "Ide kado",
+      anniv: "Tanggal penting",
+      datenight: "Date night",
+      bucket: "Bucket list",
+      book: "Buku",
+      course: "Kursus",
+      shopping: "Belanja",
+      debt: "Hutang",
+      subscription: "Langganan",
+      "wed-task": "Nikah",
+      "wed-budget": "Nikah",
+      "wed-seserahan": "Seserahan",
+      "wed-guest": "Tamu",
+      "wed-pranikah": "Pranikah",
+      "wed-talk": "Pranikah",
+    };
+    // Internal rows (attachments, settings) never show up in search.
+    const SKIP = new Set(["note", "note-file", "nickname", "tile-icon", "status", "class", "wed-meta"]);
     for (const it of items ?? []) {
-      const hay = `${it.title} ${it.who ?? ""} ${(it.tags ?? []).join(" ")} ${it.payload ?? ""}`.toLowerCase();
+      if (SKIP.has(it.kind)) continue;
+      const hay = `${it.title} ${it.who ?? ""} ${(it.tags ?? []).join(" ")} ${(it.payload ?? "").slice(0, 400)}`.toLowerCase();
       if (hay.includes(needle)) {
         out.push({
           href: ITEM_HREF[it.kind] ?? "/home",
-          kind: it.kind,
+          kind: KIND_LABEL[it.kind] ?? it.kind,
           label: it.title,
           detail: it.date ? formatDateShort(it.date) : (it.status ?? undefined),
         });
@@ -305,9 +368,15 @@ export function GlobalSearch({
     for (const e of entries ?? []) {
       const hay = `${e.kind} ${e.valueText ?? ""} ${e.who ?? ""} ${(e.tags ?? []).join(" ")}`.toLowerCase();
       if (e.valueText && hay.includes(needle)) {
+        const ENTRY: Record<string, [string, string]> = {
+          ping: ["/kabar", "Kabar"],
+          journal: ["/reflection", "Jurnal"],
+          fokus: ["/fokus", "Fokus"],
+          "review-q": ["/target", "Review"],
+        };
         out.push({
-          href: "/home",
-          kind: e.kind,
+          href: ENTRY[e.kind]?.[0] ?? "/home",
+          kind: ENTRY[e.kind]?.[1] ?? e.kind,
           label: e.valueText.slice(0, 60),
           detail: formatDateShort(e.date),
         });
@@ -339,7 +408,7 @@ export function GlobalSearch({
       }
     }
     return out.slice(0, 50);
-  }, [q, userId, txs, goals, moments, chapters, items, entries]);
+  }, [q, userId, txs, goals, moments, chapters, items, entries, me, nick]);
 
   async function runAction(h: Hit) {
     if (!h.action) return;

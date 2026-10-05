@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
@@ -496,6 +497,7 @@ function BucketListSection() {
 
 /* ───── Surprise tracker ───── */
 function SurpriseSection() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "surprise") ?? [];
   const [from, setFrom] = useState("");
@@ -518,7 +520,7 @@ function SurpriseSection() {
       title="Surprise"
       caption={
         last
-          ? `Terakhir: ${last.who} · ${formatDateShort(last.date)}`
+          ? `Terakhir: ${nick(last.who)} · ${formatDateShort(last.date)}`
           : "Catat siapa terakhir kasih surprise"
       }
     >
@@ -550,7 +552,7 @@ function SurpriseSection() {
               <div>
                 <div className="text-[13px]">{e.valueText}</div>
                 <div className="text-[11px] text-text-4">
-                  dari {e.who} · {formatDateShort(e.date)}
+                  dari {nick(e.who)} · {formatDateShort(e.date)}
                 </div>
               </div>
               <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>

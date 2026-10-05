@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useItems, upsertItem, deleteItem } from "@/stores/data";
@@ -11,6 +12,7 @@ import { hapticTap } from "@/lib/haptic";
  * The earliest item is shown; tap to edit/clear.
  */
 export function PinnedMessageWidget() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const name = useAuth((s) => s.name);
   const pins = useItems(userId, "pin") ?? [];
@@ -100,7 +102,7 @@ export function PinnedMessageWidget() {
           {pin!.title}
         </div>
         {pin!.who && (
-          <div className="text-[10px] text-text-3">— {pin!.who}</div>
+          <div className="text-[10px] text-text-3">— {nick(pin!.who)}</div>
         )}
       </div>
       <button

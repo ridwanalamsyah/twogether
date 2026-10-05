@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -26,6 +27,7 @@ const STATUS: { id: DayStatus; label: string; emoji: string }[] = [
 export default function RamadhanPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const place = useShalatPrefs();
   const offset = useIbadahPrefs((s) => s.hijriOffset);
   const puasa = useEntries(userId, "puasa") ?? [];
@@ -180,7 +182,7 @@ export default function RamadhanPage() {
             <span className="text-[15px] font-bold text-text-1">Puasa Ramadhan</span>
             <span className="text-[12px] text-text-3">
               Kamu {countFor(me)}/{range.days}
-              {partner ? ` · ${partner} ${countFor(partner)}/${range.days}` : ""}
+              {partner ? ` · ${nick(partner)} ${countFor(partner)}/${range.days}` : ""}
             </span>
           </div>
           <div className="grid grid-cols-6 gap-2 sm:grid-cols-10">

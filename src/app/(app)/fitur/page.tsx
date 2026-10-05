@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
-import { FEATURES, tintBg } from "@/data/features";
+import { BUNDLES, FEATURES, tintBg } from "@/data/features";
+import { useAuth } from "@/stores/auth";
+import { useDashboard } from "@/stores/dashboard";
 import { useFeatures } from "@/stores/features";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import {
@@ -28,6 +30,9 @@ import type { Feature } from "@/data/features";
 export default function JelajahPage() {
   const enabled = useFeatures((s) => s.enabled);
   const toggle = useFeatures((s) => s.toggle);
+  const enableMany = useFeatures((s) => s.enableMany);
+  const userId = useAuth((s) => s.userId);
+  const revealFor = useDashboard((s) => s.revealFor);
   const move = useFeatures((s) => s.move);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -96,6 +101,42 @@ export default function JelajahPage() {
           </DndContext>
         )}
 
+        {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
+          <section className="mt-8">
+            <div className="mb-2 text-[14px] font-semibold text-text-1">Paket ruang</div>
+            <div className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1">
+              {BUNDLES.map((b) => {
+                const items = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)).filter(Boolean) as Feature[];
+                const missing = items.filter((f) => !enabled.includes(f.href));
+                return (
+                  <div
+                    key={b.id}
+                    className="flex w-[168px] shrink-0 flex-col rounded-[20px] p-3.5"
+                    style={{ background: tintBg(b.tint, 14) }}
+                  >
+                    <div className="text-[22px] leading-none">{b.emoji}</div>
+                    <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
+                    <div className="mt-0.5 line-clamp-2 min-h-[32px] text-[12px] leading-4 text-text-3">
+                      {items.map((f) => f.title).join(", ")}
+                    </div>
+                    <button
+                      onClick={() => {
+                        hapticTap();
+                        enableMany(missing.map((f) => f.href));
+                        if (userId) void revealFor(userId, missing.map((f) => f.href));
+                      }}
+                      disabled={!missing.length}
+                      className="mt-3 rounded-full bg-bg-card py-1.5 text-[12px] font-bold text-text-1 shadow-card active:scale-95 disabled:opacity-60 disabled:shadow-none"
+                    >
+                      {missing.length ? `+ Tambah ${missing.length} ruang` : "Sudah dipakai ✓"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {others.length > 0 && (
           <section className="mt-8">
             <button
@@ -150,6 +191,7 @@ export default function JelajahPage() {
                       onClick={() => {
                         hapticTap();
                         toggle(f.href);
+                        if (userId) void revealFor(userId, [f.href]);
                       }}
                       className="rounded-full bg-bg-elev2 px-3 py-1 text-[12px] font-semibold text-text-1 active:scale-95"
                     >

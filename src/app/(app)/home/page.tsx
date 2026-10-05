@@ -1,15 +1,21 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
+import { usePeople } from "@/lib/people";
 import { useFeatures } from "@/stores/features";
 import { FEATURES, tintBg } from "@/data/features";
 
 export default function HomePage() {
-  const name = useAuth((s) => s.name);
+  const authName = useAuth((s) => s.name);
+  const { me } = usePeople();
+  const { nick } = useNick();
+  const custom = nick(me);
+  const name = custom && custom !== me ? custom : authName;
   const [editing, setEditing] = useState(false);
   const [greeting, setGreeting] = useState("Halo");
   const [today, setToday] = useState("");
@@ -17,7 +23,7 @@ export default function HomePage() {
   useEffect(() => {
     const now = new Date();
     const h = now.getHours();
-    const n = name ? name.split(" ")[0] : "";
+    const n = !name ? "" : name === custom ? name : name.split(" ")[0];
     const hi = (word: string, emoji: string) => (n ? `${word}, ${n} ${emoji}` : `${word} ${emoji}`);
     setGreeting(
       h < 4

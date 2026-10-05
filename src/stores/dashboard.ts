@@ -41,7 +41,20 @@ export type WidgetKind =
   | "shalat"
   | "siklus"
   | "patungan"
-  | "kabar";
+  | "kabar"
+  | "tantangan"
+  | "fokus"
+  | "ramadhan";
+
+/** Spaces that come with a Beranda card, shown when the space is switched on. */
+export const SPACE_WIDGETS: Record<string, WidgetKind> = {
+  "/tantangan": "tantangan",
+  "/fokus": "fokus",
+  "/ramadhan": "ramadhan",
+  "/shalat": "shalat",
+  "/siklus": "siklus",
+  "/patungan": "patungan",
+};
 
 export interface WidgetConfig {
   id: string;
@@ -76,6 +89,9 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_shalat", kind: "shalat", size: "lg", enabled: false },
   { id: "w_siklus", kind: "siklus", size: "lg", enabled: false },
   { id: "w_patungan", kind: "patungan", size: "lg", enabled: false },
+  { id: "w_tantangan", kind: "tantangan", size: "lg", enabled: false },
+  { id: "w_fokus", kind: "fokus", size: "lg", enabled: false },
+  { id: "w_ramadhan", kind: "ramadhan", size: "lg", enabled: false },
 ];
 
 /** New widgets that should switch on (once) even for customised layouts. */
@@ -95,6 +111,8 @@ interface DashboardState {
   resize: (id: string, size: WidgetSize) => void;
   addWidget: (kind: WidgetKind, size?: WidgetSize) => void;
   removeWidget: (id: string) => void;
+  /** Turn on the Beranda cards that belong to these spaces (and save). */
+  revealFor: (userId: string, hrefs: string[]) => Promise<void>;
   resetDefault: () => void;
 }
 
@@ -197,4 +215,20 @@ export const useDashboard = create<DashboardState>((set, get) => ({
     set((s) => ({ layout: s.layout.filter((w) => w.id !== id) })),
 
   resetDefault: () => set({ layout: DEFAULT_LAYOUT }),
+
+  revealFor: async (userId, hrefs) => {
+    const kinds = hrefs.map((h) => SPACE_WIDGETS[h]).filter(Boolean);
+    if (!kinds.length) return;
+    if (!get().loaded) await get().load(userId);
+    set((s) => {
+      const layout = [...s.layout];
+      for (const kind of kinds) {
+        const i = layout.findIndex((w) => w.kind === kind);
+        if (i === -1) layout.push({ id: `w_${newId()}`, kind, size: "lg", enabled: true });
+        else layout[i] = { ...layout[i], enabled: true };
+      }
+      return { layout };
+    });
+    await get().save(userId);
+  },
 }));

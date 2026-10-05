@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useAuth } from "@/stores/auth";
 import { useTransactions } from "@/stores/data";
@@ -7,6 +8,7 @@ import { WidgetShell } from "./WidgetShell";
 import { formatRupiah, formatDateShort } from "@/lib/utils";
 
 export function TransactionsWidget() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId);
 
@@ -38,7 +40,7 @@ export function TransactionsWidget() {
                   {t.note || t.category}
                 </div>
                 <div className="mt-0.5 text-[10px] text-text-4">
-                  {t.who} · {formatDateShort(t.date)}
+                  {nick(t.who)} · {formatDateShort(t.date)}
                 </div>
               </div>
               <div

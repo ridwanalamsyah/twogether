@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -133,6 +134,7 @@ export default function ReflectionPage() {
 }
 
 function HistoryList({ items }: { items: ReflectionRecord[] }) {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   return (
     <div className="mt-6">
@@ -156,7 +158,7 @@ function HistoryList({ items }: { items: ReflectionRecord[] }) {
                     {formatDateShort(r.date)}
                   </span>
                   {r.who && (
-                    <span className="text-[10px] text-text-4">{r.who}</span>
+                    <span className="text-[10px] text-text-4">{nick(r.who)}</span>
                   )}
                 </div>
                 {r.highlights && (

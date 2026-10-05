@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, FieldGroup, Chips } from "@/components/ui/Sheet";
@@ -42,6 +43,7 @@ function quarterOf(d: Date) {
 export default function TargetPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [tab, setTab] = useState<"target" | "review">("target");
@@ -168,7 +170,7 @@ export default function TargetPage() {
                                   </button>
                                 </>
                               )}
-                              <span className="shrink-0 text-[11px] text-text-4">{t.who === "berdua" ? "Berdua" : t.who === me ? "Kamu" : t.who}</span>
+                              <span className="shrink-0 text-[11px] text-text-4">{t.who === "berdua" ? "Berdua" : t.who === me ? "Kamu" : nick(t.who)}</span>
                             </div>
                           </SwipeRow>
                         </li>
@@ -207,7 +209,7 @@ export default function TargetPage() {
                     <ReviewView key={r!.id} r={r!} me={me} targets={targets} />
                   ))}
                   {!locked && partner && !theirs.length && mine && (
-                    <p className="mt-2 text-[12px] text-text-4">{partner} belum mengisi.</p>
+                    <p className="mt-2 text-[12px] text-text-4">{nick(partner)} belum mengisi.</p>
                   )}
                 </div>
               );
@@ -258,10 +260,11 @@ export default function TargetPage() {
 
 function ReviewView({ r, me, targets }: { r: EntryRecord; me: string; targets: ItemRecord[] }) {
   const p = parsePayload<ReviewPayload>(r.payload, { q: "", ratings: {}, good: "", hard: "", next: "" });
+  const { nick } = useNick();
   const rated = targets.filter((t) => p.ratings[t.id]);
   return (
     <div className="mt-3 rounded-2xl bg-bg-elev1 p-3 text-[13px]">
-      <div className="mb-1 text-[12px] font-bold text-text-3">{(r.who || me) === me ? "Kamu" : r.who}</div>
+      <div className="mb-1 text-[12px] font-bold text-text-3">{(r.who || me) === me ? "Kamu" : nick(r.who)}</div>
       {rated.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {rated.map((t) => (

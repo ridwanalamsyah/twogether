@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -32,6 +33,7 @@ export default function LaporanPage() {
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId) ?? [];
   const { wallets } = useWallets();
+  const { nick } = useNick();
   const [month, setMonth] = useState(() => monthKey(new Date()));
   const [hover, setHover] = useState<string | null>(null);
 
@@ -174,7 +176,7 @@ export default function LaporanPage() {
                 <h2 className="mb-3 text-[15px] font-bold text-text-1">Siapa yang keluar uang</h2>
                 {byWho.map(([who, v]) => (
                   <div key={who} className="mb-2 flex items-center gap-3 text-[13px]">
-                    <span className="w-24 truncate font-semibold text-text-1">{who}</span>
+                    <span className="w-24 truncate font-semibold text-text-1">{nick(who)}</span>
                     <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-bg-elev2">
                       <div className="h-full rounded-full" style={{ width: `${(v / Math.max(1, s.out)) * 100}%`, background: "var(--accent)" }} />
                     </div>
@@ -206,7 +208,7 @@ export default function LaporanPage() {
                   <span className="min-w-0 flex-1 truncate text-text-1">
                     {t.note || t.category}
                     <span className="ml-1.5 text-[11px] text-text-4">
-                      {fromIsoDay(t.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · {t.who}
+                      {fromIsoDay(t.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · {nick(t.who)}
                     </span>
                   </span>
                   <span className="font-mono font-semibold text-text-1">{formatRupiah(t.amount)}</span>

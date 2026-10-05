@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -22,6 +23,7 @@ const FIELDS: { key: keyof ColumnMap; label: string; optional?: boolean }[] = [
 ];
 
 export default function ImporPage() {
+  const { nick } = useNick();
   const router = useRouter();
   const userId = useAuth((s) => s.userId);
   const { me, all } = usePeople();
@@ -129,7 +131,7 @@ export default function ImporPage() {
               <label className="block">
                 <span className="mb-1 block text-[12px] font-semibold text-text-3">Atas nama</span>
                 <select className="input-base" value={who} onChange={(e) => setWho(e.target.value)}>
-                  {all.map((p) => <option key={p}>{p}</option>)}
+                  {all.map((p) => <option key={p} value={p}>{nick(p)}</option>)}
                 </select>
               </label>
               <details>
