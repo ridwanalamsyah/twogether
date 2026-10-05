@@ -23,6 +23,8 @@ import { PlaceholderWidget } from "./PlaceholderWidget";
 import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
 import { KabarWidget } from "@/components/kabar/Kabar";
 import { FokusWidget, RamadhanWidget, TantanganWidget } from "./SpaceWidgets";
+import { MonthEndWidget } from "./MonthEndWidget";
+import { RemindersWidget } from "@/components/reminders/Reminders";
 
 export interface WidgetMeta {
   kind: WidgetKind;
@@ -200,6 +202,20 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Lihat kalau pasangan lagi fokus, lalu ikut",
     emoji: "🎧",
     Component: FokusWidget,
+  },
+  pengingat: {
+    kind: "pengingat",
+    label: "Pengingat",
+    description: "Tagihan, tanggal penting, dan yang belum dicatat hari ini",
+    emoji: "🔔",
+    Component: RemindersWidget,
+  },
+  "sisa-bulan": {
+    kind: "sisa-bulan",
+    label: "Sisa bulan lalu",
+    description: "Awal bulan: tawaran menabung sisa uang bulan lalu",
+    emoji: "🐖",
+    Component: MonthEndWidget,
   },
   ramadhan: {
     kind: "ramadhan",

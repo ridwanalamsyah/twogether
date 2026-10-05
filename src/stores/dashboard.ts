@@ -44,7 +44,9 @@ export type WidgetKind =
   | "kabar"
   | "tantangan"
   | "fokus"
-  | "ramadhan";
+  | "ramadhan"
+  | "pengingat"
+  | "sisa-bulan";
 
 /** Spaces that come with a Beranda card, shown when the space is switched on. */
 export const SPACE_WIDGETS: Record<string, WidgetKind> = {
@@ -68,6 +70,8 @@ export interface WidgetConfig {
 // else stays one tap away (Jelajah tab) and can be re-enabled in "Atur".
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
+  { id: "w_pengingat", kind: "pengingat", size: "lg", enabled: true },
+  { id: "w_sisa", kind: "sisa-bulan", size: "lg", enabled: true },
   { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
@@ -95,7 +99,9 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
 ];
 
 /** New widgets that should switch on (once) even for customised layouts. */
-const SHOW_WHEN_NEW = new Set(["w_kabar"]);
+// Cards that render nothing unless they have something to say, so they're
+// safe to switch on for everyone.
+const SHOW_WHEN_NEW = new Set(["w_kabar", "w_pengingat", "w_sisa"]);
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
 const LAYOUT_VERSION = 3;

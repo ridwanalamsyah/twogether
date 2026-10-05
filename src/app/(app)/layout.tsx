@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/Toaster";
+import { ReminderScheduler } from "@/components/reminders/Reminders";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FEATURES } from "@/data/features";
@@ -73,6 +74,7 @@ export default function AppLayout({
       <CaptureHost />
       <PingListener />
       <Toaster />
+      <ReminderScheduler />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />

@@ -34,6 +34,8 @@ export const FEATURES: Feature[] = [
   { href: "/tantangan", tint: "#f97316", emoji: "🔥", title: "Tantangan", subtitle: "Kebiasaan baru, dijalani berdua", isNew: true },
   { href: "/target", tint: "#8b5cf6", emoji: "🎯", title: "Target tahunan", subtitle: "Resolusi & review tiap 3 bulan", isNew: true, premium: true },
   { href: "/fokus", tint: "#0ea5e9", emoji: "🎧", title: "Fokus bareng", subtitle: "Pomodoro berdua, saling nemenin", isNew: true },
+  { href: "/tagihan", tint: "#ef4444", emoji: "🧾", title: "Tagihan", subtitle: "Listrik, kos, cicilan, langganan", isNew: true },
+  { href: "/aset", tint: "#0f766e", emoji: "📈", title: "Aset bersih", subtitle: "Total kekayaan berdua dari bulan ke bulan", isNew: true, premium: true },
   { href: "/dompet", tint: "#f59e0b", emoji: "👛", title: "Dompet", subtitle: "Saldo rekening, e-wallet, tunai", isNew: true },
   { href: "/laporan", tint: "#3b82f6", emoji: "📊", title: "Laporan bulanan", subtitle: "Ke mana uang pergi bulan ini", isNew: true, premium: true },
   { href: "/impor", tint: "#64748b", emoji: "⬇️", title: "Impor mutasi", subtitle: "Masukkan CSV dari bank", isNew: true, premium: true },
@@ -60,7 +62,7 @@ export const FEATURES: Feature[] = [
 /** Ready-made bundles so a couple can switch on a whole theme at once. */
 export const BUNDLES: { id: string; emoji: string; title: string; tint: string; hrefs: string[] }[] = [
   { id: "ibadah", emoji: "🤲", title: "Ibadah", tint: "#0f7a5c", hrefs: ["/shalat", "/hijriah", "/ramadhan", "/tilawah", "/zakat"] },
-  { id: "uang", emoji: "💰", title: "Uang", tint: "#f59e0b", hrefs: ["/dompet", "/laporan", "/impor", "/patungan", "/uang"] },
+  { id: "uang", emoji: "💰", title: "Uang", tint: "#f59e0b", hrefs: ["/tagihan", "/dompet", "/laporan", "/impor", "/patungan"] },
   { id: "berdua", emoji: "💞", title: "Berdua", tint: "#ec4899", hrefs: ["/kabar", "/tantangan", "/target", "/belanja", "/catatan"] },
   { id: "kuliah", emoji: "🎓", title: "Kuliah", tint: "#8b5cf6", hrefs: ["/jadwal", "/skripsi", "/fokus", "/belajar"] },
   { id: "nikah", emoji: "💍", title: "Menuju halal", tint: "#b76e79", hrefs: ["/nikah", "/target", "/dompet", "/tilawah"] },

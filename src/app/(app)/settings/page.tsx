@@ -26,6 +26,7 @@ const SECTIONS: { title: string; rows: { href: string; icon: string; label: stri
     rows: [
       { href: "/settings/dashboard", icon: "🧩", label: "Susun Beranda" },
       { href: "/settings/theme", icon: "🎨", label: "Tema & warna" },
+      { href: "/settings/pengingat", icon: "🔔", label: "Pengingat", hint: "Tagihan, tanggal penting, catat uang" },
     ],
   },
   {

@@ -151,6 +151,8 @@ function SortableWidget({
       className={cn(
         SIZE_TO_SPAN[widget.size],
         "relative",
+        // Cards that have nothing to say right now (reminders, end-of-month) render null.
+        "[&:has(>div:empty)]:hidden",
         editing && "cursor-grab active:cursor-grabbing",
         isDragging && "is-dragging",
       )}
@@ -255,7 +257,7 @@ function MasonryWidgets({ widgets }: { widgets: WidgetConfig[] }) {
           {col.map((w) => {
             const Component = WIDGET_REGISTRY[w.kind].Component;
             return (
-              <div key={w.id} data-wid={w.id} ref={ref(w.id)}>
+              <div key={w.id} data-wid={w.id} ref={ref(w.id)} className="empty:hidden">
                 <Component />
               </div>
             );

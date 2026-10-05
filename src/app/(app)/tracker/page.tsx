@@ -162,13 +162,15 @@ export default function TrackerPage() {
           </div>
         </div>
         <div className="mt-1.5 text-center text-[10px] text-text-4">Bulan ini</div>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-[12px] font-semibold text-text-2">
+        <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 text-[12px] font-semibold text-text-2">
           {[
+            { href: "/tagihan", label: "🧾 Tagihan" },
             { href: "/laporan", label: "📊 Laporan" },
             { href: "/dompet", label: "👛 Dompet" },
+            { href: "/aset", label: "📈 Aset" },
             { href: "/impor", label: "⬇️ Impor" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="rounded-full bg-bg-card py-2 text-center shadow-card active:scale-95">
+            <Link key={l.href} href={l.href} className="shrink-0 rounded-full bg-bg-card px-3.5 py-2 text-center shadow-card active:scale-95">
               {l.label}
             </Link>
           ))}
