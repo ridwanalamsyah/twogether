@@ -40,7 +40,23 @@ export type WidgetKind =
   | "pinned-message"
   | "shalat"
   | "siklus"
-  | "patungan";
+  | "patungan"
+  | "kabar"
+  | "tantangan"
+  | "fokus"
+  | "ramadhan"
+  | "pengingat"
+  | "sisa-bulan";
+
+/** Spaces that come with a Beranda card, shown when the space is switched on. */
+export const SPACE_WIDGETS: Record<string, WidgetKind> = {
+  "/tantangan": "tantangan",
+  "/fokus": "fokus",
+  "/ramadhan": "ramadhan",
+  "/shalat": "shalat",
+  "/siklus": "siklus",
+  "/patungan": "patungan",
+};
 
 export interface WidgetConfig {
   id: string;
@@ -54,6 +70,9 @@ export interface WidgetConfig {
 // else stays one tap away (Jelajah tab) and can be re-enabled in "Atur".
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
+  { id: "w_pengingat", kind: "pengingat", size: "lg", enabled: true },
+  { id: "w_sisa", kind: "sisa-bulan", size: "lg", enabled: true },
+  { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
@@ -74,7 +93,15 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_shalat", kind: "shalat", size: "lg", enabled: false },
   { id: "w_siklus", kind: "siklus", size: "lg", enabled: false },
   { id: "w_patungan", kind: "patungan", size: "lg", enabled: false },
+  { id: "w_tantangan", kind: "tantangan", size: "lg", enabled: false },
+  { id: "w_fokus", kind: "fokus", size: "lg", enabled: false },
+  { id: "w_ramadhan", kind: "ramadhan", size: "lg", enabled: false },
 ];
+
+/** New widgets that should switch on (once) even for customised layouts. */
+// Cards that render nothing unless they have something to say, so they're
+// safe to switch on for everyone.
+const SHOW_WHEN_NEW = new Set(["w_kabar", "w_pengingat", "w_sisa"]);
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
 const LAYOUT_VERSION = 3;
@@ -90,6 +117,8 @@ interface DashboardState {
   resize: (id: string, size: WidgetSize) => void;
   addWidget: (kind: WidgetKind, size?: WidgetSize) => void;
   removeWidget: (id: string) => void;
+  /** Turn on the Beranda cards that belong to these spaces (and save). */
+  revealFor: (userId: string, hrefs: string[]) => Promise<void>;
   resetDefault: () => void;
 }
 
@@ -122,11 +151,20 @@ export const useDashboard = create<DashboardState>((set, get) => ({
         const ids = new Set(parsed.map((w) => w.id));
         const merged = [
           ...parsed,
-          ...DEFAULT_LAYOUT.filter((w) => !ids.has(w.id)).map((w) => ({
+          ...DEFAULT_LAYOUT.filter((w) => !ids.has(w.id) && !SHOW_WHEN_NEW.has(w.id)).map((w) => ({
             ...w,
             enabled: false,
           })),
         ];
+        // Couple essentials appear once for existing users too, right
+        // under the pinned message.
+        for (const id of Array.from(SHOW_WHEN_NEW)) {
+          if (ids.has(id)) continue;
+          const def = DEFAULT_LAYOUT.find((w) => w.id === id);
+          if (!def) continue;
+          const at = merged.findIndex((w) => w.id === "w_pinned");
+          merged.splice(at === -1 ? 0 : at + 1, 0, { ...def, enabled: true });
+        }
         set({ layout: merged, loaded: true });
         return;
       } catch {
@@ -183,4 +221,20 @@ export const useDashboard = create<DashboardState>((set, get) => ({
     set((s) => ({ layout: s.layout.filter((w) => w.id !== id) })),
 
   resetDefault: () => set({ layout: DEFAULT_LAYOUT }),
+
+  revealFor: async (userId, hrefs) => {
+    const kinds = hrefs.map((h) => SPACE_WIDGETS[h]).filter(Boolean);
+    if (!kinds.length) return;
+    if (!get().loaded) await get().load(userId);
+    set((s) => {
+      const layout = [...s.layout];
+      for (const kind of kinds) {
+        const i = layout.findIndex((w) => w.kind === kind);
+        if (i === -1) layout.push({ id: `w_${newId()}`, kind, size: "lg", enabled: true });
+        else layout[i] = { ...layout[i], enabled: true };
+      }
+      return { layout };
+    });
+    await get().save(userId);
+  },
 }));

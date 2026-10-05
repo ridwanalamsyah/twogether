@@ -63,6 +63,16 @@ export function Field({ label, children }: { label: string; children: React.Reac
   );
 }
 
+/** Like Field, for a group of buttons (a <label> would hijack their taps). */
+export function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div role="group" aria-label={label} className="mb-3">
+      <span className="mb-1.5 block text-[12px] font-semibold text-text-3">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 /** Pill-style single choice. */
 export function Chips<T extends string | number>({
   options,

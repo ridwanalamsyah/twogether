@@ -35,7 +35,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/tracker",
     label: "Uang",
-    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan"],
+    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/kita",
     label: "Kita",
-    match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/peta", "/nikah"],
+    match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/nikah", "/kabar", "/tantangan"],
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -87,6 +87,11 @@ export const ITEMS: NavItem[] = [
       "/shalat",
       "/siklus",
       "/belanja",
+      "/hijriah",
+      "/ramadhan",
+      "/tilawah",
+      "/target",
+      "/fokus",
     ],
     icon: (
       <svg

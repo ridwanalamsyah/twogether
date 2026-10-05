@@ -7,6 +7,8 @@ import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { getDB } from "@/lib/db";
 import { compressImage } from "@/lib/image";
+import { usePeople } from "@/lib/people";
+import { useNick } from "@/lib/nick";
 
 export default function ProfilePage() {
   const auth = useAuth();
@@ -19,6 +21,17 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const { me, partner } = usePeople();
+  const { nick, setNick, ready } = useNick();
+  const [myNick, setMyNick] = useState("");
+  const [partnerNick, setPartnerNick] = useState("");
+  const loadedNicks = useRef(false);
+  useEffect(() => {
+    if (!ready || loadedNicks.current) return;
+    loadedNicks.current = true;
+    setMyNick(nick(me) === me ? "" : nick(me));
+    if (partner) setPartnerNick(nick(partner) === partner ? "" : nick(partner));
+  }, [ready, nick, me, partner]);
 
   useEffect(() => {
     (async () => {
@@ -45,6 +58,8 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       await updateProfile({ name: name.trim() || "Twogether", birthday, avatar });
+      if (myNick.trim() !== (nick(me) === me ? "" : nick(me))) await setNick(me, myNick);
+      if (partner && partnerNick.trim() !== (nick(partner) === partner ? "" : nick(partner))) await setNick(partner, partnerNick);
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     } finally {
@@ -116,6 +131,29 @@ export default function ProfilePage() {
               placeholder="Nama kamu"
             />
           </Field>
+          <Field label="Nama panggilan kamu">
+            <input
+              className="input-base"
+              value={myNick}
+              onChange={(e) => setMyNick(e.target.value)}
+              placeholder={`mis. ${(name || me).split(" ")[0]}, Mas, Adek`}
+              maxLength={20}
+            />
+          </Field>
+          {partner && (
+            <Field label={`Panggilan untuk ${partner.split(" ")[0]}`}>
+              <input
+                className="input-base"
+                value={partnerNick}
+                onChange={(e) => setPartnerNick(e.target.value)}
+                placeholder="mis. Sayang, Dek, Alyaa"
+                maxLength={20}
+              />
+            </Field>
+          )}
+          <p className="-mt-1 text-[11px] text-text-4">
+            Panggilan dipakai di Beranda, kartu uang, dan kabar. Muncul juga di HP pasanganmu.
+          </p>
           <Field label="Email">
             <input className="input-base" value={auth.email ?? ""} disabled />
           </Field>

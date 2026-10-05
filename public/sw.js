@@ -1,4 +1,4 @@
-const VERSION = "twogether-v9";
+const VERSION = "twogether-v10";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const PAGE_CACHE = `${VERSION}-pages`;
@@ -158,4 +158,42 @@ self.addEventListener("fetch", (event) => {
         .catch(async () => (await caches.match(request)) ?? Response.error()),
     );
   }
+});
+
+// ── Web Push ─────────────────────────────────────────────
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "Twogether", body: event.data ? event.data.text() : "" };
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Twogether", {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: data.tag || undefined,
+      renotify: Boolean(data.tag),
+      data: { url: data.url || "/home" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/home";
+  event.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const c of all) {
+        if ("focus" in c) {
+          await c.focus();
+          if ("navigate" in c) await c.navigate(url).catch(() => undefined);
+          return;
+        }
+      }
+      await self.clients.openWindow(url);
+    })(),
+  );
 });

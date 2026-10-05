@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useSecurity } from "@/stores/security";
 import { useAuth } from "@/stores/auth";
+import { PushCard } from "@/components/settings/PushCard";
+import { SpaceLockCard } from "@/components/settings/SpaceLockCard";
 import {
   notificationStatus,
   requestNotificationPermission,
@@ -100,6 +102,8 @@ export default function SecurityPage() {
 
       <div className="space-y-4 px-4 pb-8">
         <PasswordSection />
+        <PushCard />
+        <SpaceLockCard />
         <section className="surface p-4">
           <div className="mb-2 text-[11px] font-bold section-label text-text-3">
             Pengingat

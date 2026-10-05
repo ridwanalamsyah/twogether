@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -56,6 +57,7 @@ export function ShalatWidget() {
 export function SiklusWidget() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const entries = useEntries(userId, "cycle") ?? [];
   const settingsItems = useItems(userId, "cycle-settings") ?? [];
   const owners = Array.from(new Set(entries.map((e) => e.who || me)));
@@ -75,7 +77,7 @@ export function SiklusWidget() {
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">
-            {who === me ? "Siklusku" : `Siklus ${who ?? partner}`}
+            {who === me ? "Siklusku" : `Siklus ${nick(who ?? partner)}`}
           </div>
           <div className="text-[15px] font-bold text-text-1">
             {hidden
@@ -99,10 +101,11 @@ export function SiklusWidget() {
 export function PatunganWidget() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
+  const { nick } = useNick();
   const splits = useEntries(userId, "split") ?? [];
   const settles = useEntries(userId, "split-settle") ?? [];
   const net = splitBalance([...splits, ...settles], me);
-  const other = partner ?? "Pasangan";
+  const other = partner ? nick(partner) : "Pasangan";
   return (
     <Link href="/patungan" className="pressable surface flex items-center gap-3 p-4">
       <span className="grid h-11 w-11 place-items-center rounded-2xl text-[22px]" style={{ background: "color-mix(in srgb,#f59e0b 16%,transparent)" }}>

@@ -1,5 +1,8 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
+import { budgetAlert } from "@/lib/budget";
+import { toast } from "@/lib/toast";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -21,6 +24,7 @@ const CATEGORIES = [
 ];
 
 export function QuickAddWidget() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
@@ -56,6 +60,7 @@ export function QuickAddWidget() {
         who,
         date: todayISO(),
       });
+      void budgetAlert(userId, { kind, category, amount: num, date: todayISO() }).then((a) => a && toast(a.text, a.tone));
       setAmount("");
       setPulse(true);
       setTimeout(() => setPulse(false), 600);
@@ -114,7 +119,7 @@ export function QuickAddWidget() {
           >
             {people.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {nick(p)}
               </option>
             ))}
           </select>

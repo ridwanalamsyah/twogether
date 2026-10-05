@@ -41,10 +41,41 @@ const DOMAIN_TABLES = [
   "items",
 ] as const;
 
+/** App settings kept in localStorage that are worth carrying to a new phone. */
+const SETTING_KEYS = ["bareng:theme", "bareng:currency"];
+const SETTING_PREFIX = "twogether:";
+const SKIP_SETTINGS = new Set(["twogether:ping-seen", "twogether:last-backup"]);
+export const LAST_BACKUP_KEY = "twogether:last-backup";
+
+function readSettings(): Record<string, string> {
+  const out: Record<string, string> = {};
+  try {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const k = localStorage.key(i);
+      if (!k || SKIP_SETTINGS.has(k) || k.startsWith("twogether:home-layout-v:")) continue;
+      if (SETTING_KEYS.includes(k) || k.startsWith(SETTING_PREFIX)) out[k] = localStorage.getItem(k) ?? "";
+    }
+  } catch {
+    /* storage blocked */
+  }
+  return out;
+}
+
+export function lastBackupAt(): number | null {
+  try {
+    const v = Number(localStorage.getItem(LAST_BACKUP_KEY));
+    return v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ExportBundle {
   exportedAt: string;
   user: Record<string, unknown> | null;
   records: Record<string, unknown[]>;
+  /** localStorage app settings (theme, enabled spaces, prayer place…). */
+  settings?: Record<string, string>;
   meta: {
     recordCount: number;
     note: string;
@@ -78,6 +109,7 @@ export async function exportAll(userId: string): Promise<ExportBundle> {
     exportedAt: new Date().toISOString(),
     user: safeUser,
     records,
+    settings: readSettings(),
     meta: {
       recordCount: total,
       note: "Twogether data export. All data is owned by you and was generated on-device.",
@@ -98,7 +130,7 @@ export async function exportAll(userId: string): Promise<ExportBundle> {
 export async function importBundle(
   userId: string,
   bundle: unknown,
-): Promise<{ imported: number; tables: string[] }> {
+): Promise<{ imported: number; skipped: number; tables: string[]; settings: number }> {
   const db = getDB();
   const { sync } = await import("@/services/sync");
 
@@ -107,6 +139,7 @@ export async function importBundle(
     throw new Error("Bundle tidak valid");
   }
   let imported = 0;
+  let skipped = 0;
   const tables: string[] = [];
   for (const tbl of DOMAIN_TABLES) {
     const rows = b.records[tbl];
@@ -115,7 +148,13 @@ export async function importBundle(
     tables.push(tbl);
     for (const raw of rows) {
       if (!raw || typeof raw !== "object") continue;
-      const r = { ...(raw as Record<string, unknown>), userId, dirty: 1 };
+      const r: Record<string, unknown> = { ...(raw as Record<string, unknown>), userId, dirty: 1 };
+      // Never let an old backup overwrite something edited since.
+      const local = typeof r.id === "string" ? await db.table(tbl).get(r.id) : null;
+      if (local && Number(local.updatedAt ?? 0) >= Number(r.updatedAt ?? 0)) {
+        skipped++;
+        continue;
+      }
       try {
         await sync.recordWrite(tbl, r as never);
         imported++;
@@ -124,21 +163,34 @@ export async function importBundle(
       }
     }
   }
-  return { imported, tables };
+  let settings = 0;
+  if (b.settings && typeof b.settings === "object") {
+    for (const [k, v] of Object.entries(b.settings)) {
+      if (typeof v !== "string" || SKIP_SETTINGS.has(k)) continue;
+      if (!SETTING_KEYS.includes(k) && !k.startsWith(SETTING_PREFIX)) continue;
+      try {
+        localStorage.setItem(k, v);
+        settings++;
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  return { imported, skipped, tables, settings };
 }
 
-export function downloadExport(bundle: ExportBundle): void {
-  const blob = new Blob([JSON.stringify(bundle, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `twogether-export-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+export async function downloadExport(bundle: ExportBundle): Promise<void> {
+  const { saveFile } = await import("@/lib/share");
+  await saveFile(
+    JSON.stringify(bundle, null, 2),
+    `twogether-cadangan-${new Date().toISOString().slice(0, 10)}.json`,
+    "application/json",
+  );
+  try {
+    localStorage.setItem(LAST_BACKUP_KEY, String(Date.now()));
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
@@ -265,16 +317,9 @@ function escapeCsv(v: unknown): string {
   return s;
 }
 
-export function downloadCsv(csv: string, filename: string): void {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+export async function downloadCsv(csv: string, filename: string): Promise<void> {
+  const { saveFile } = await import("@/lib/share");
+  await saveFile(csv, filename, "text/csv;charset=utf-8");
 }
 
 export async function wipeLocal(userId: string): Promise<void> {

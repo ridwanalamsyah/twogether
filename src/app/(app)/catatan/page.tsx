@@ -1,5 +1,6 @@
 "use client";
 
+import { useNick } from "@/lib/nick";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -12,6 +13,7 @@ import {
   preview,
   readNote,
   shortcut,
+  isEmbed,
   type Block,
   type BlockType,
   type NotePayload,
@@ -19,6 +21,7 @@ import {
 import { newId, type ItemRecord } from "@/lib/db";
 import { usePeople } from "@/lib/people";
 import { hapticTap } from "@/lib/haptic";
+import { FileView, ImageView, MAX_FILE_BYTES, saveAttachment } from "@/components/notes/Attachment";
 
 export default function CatatanPage() {
   return (
@@ -37,6 +40,7 @@ function Catatan() {
 /* ───────────────────────── List ───────────────────────── */
 
 function NoteList() {
+  const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const { me } = usePeople();
   const router = useRouter();
@@ -132,7 +136,7 @@ function NoteList() {
                         {preview(p.blocks) || "Kosong"}
                       </span>
                       <span className="mt-1.5 block text-[11px] text-text-4">
-                        {n.who ? `${n.who} · ` : ""}
+                        {n.who ? `${nick(n.who)} · ` : ""}
                         {new Date(n.updatedAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                         {kids > 0 ? ` · ${kids} sub-halaman` : ""}
                       </span>
@@ -158,6 +162,7 @@ const TYPE_MENU: { type: BlockType; label: string; icon: string }[] = [
   { type: "bullet", label: "Poin", icon: "•" },
   { type: "quote", label: "Kutipan", icon: "❝" },
   { type: "divider", label: "Garis", icon: "—" },
+  { type: "image", label: "Foto / file", icon: "🖼️" },
 ];
 
 function Editor({ id }: { id: string }) {
@@ -175,6 +180,9 @@ function Editor({ id }: { id: string }) {
   const dirty = useRef(false);
   const lastSeen = useRef(0);
   const caretTo = useRef<{ id: string; pos: number | "end" } | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const attachAfter = useRef<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   // Load, and pick up the partner's edits when we have nothing unsaved.
   useEffect(() => {
@@ -266,6 +274,8 @@ function Editor({ id }: { id: string }) {
     const all = notes ?? [];
     const kill = (pid: string) => {
       for (const c of all.filter((n) => readNote(n).parentId === pid)) kill(c.id);
+      const n = all.find((x) => x.id === pid);
+      for (const b of n ? readNote(n).blocks : []) if (b.fileId) void deleteItem(userId, b.fileId);
       void deleteItem(userId, pid);
     };
     kill(item.id);
@@ -276,6 +286,21 @@ function Editor({ id }: { id: string }) {
   function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>, b: Block, index: number) {
     const el = e.currentTarget;
     const atStart = el.selectionStart === 0 && el.selectionEnd === 0;
+    if (b.type === "image") {
+      // Caption: Enter starts a new paragraph below; never turn the photo into text.
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const nb = block("p");
+        update((bs) => {
+          const next = [...bs];
+          next.splice(index + 1, 0, nb);
+          return next;
+        });
+        caretTo.current = { id: nb.id, pos: 0 };
+        setFocusId(nb.id);
+      }
+      return;
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (slashFor) return;
@@ -310,6 +335,7 @@ function Editor({ id }: { id: string }) {
           update((bs) => bs.filter((x) => x.id !== prev.id));
           return;
         }
+        if (isEmbed(prev)) return;
         const pos = prev.text.length;
         update((bs) => bs.filter((x) => x.id !== b.id).map((x) => (x.id === prev.id ? { ...x, text: x.text + b.text } : x)));
         caretTo.current = { id: prev.id, pos };
@@ -318,7 +344,7 @@ function Editor({ id }: { id: string }) {
       return;
     }
     if (e.key === "ArrowUp" && atStart && index > 0) {
-      const prev = note!.blocks.slice(0, index).reverse().find((x) => x.type !== "divider" && x.type !== "page");
+      const prev = note!.blocks.slice(0, index).reverse().find((x) => !isEmbed(x));
       if (prev) {
         e.preventDefault();
         caretTo.current = { id: prev.id, pos: "end" };
@@ -329,6 +355,7 @@ function Editor({ id }: { id: string }) {
   }
 
   function onChange(b: Block, value: string) {
+    if (b.type === "image") return patch(b.id, { text: value });
     if (value === "/") setSlashFor(b.id);
     else if (slashFor === b.id) setSlashFor(null);
     const sc = b.type === "p" ? shortcut(value) : null;
@@ -352,6 +379,12 @@ function Editor({ id }: { id: string }) {
 
   function setType(b: Block, type: BlockType) {
     setSlashFor(null);
+    if (type === "image" || type === "file") {
+      if (b.text === "/") patch(b.id, { text: "" });
+      attachAfter.current = b.id;
+      fileRef.current?.click();
+      return;
+    }
     if (type === "divider") {
       const nb = block("p");
       update((bs) => {
@@ -370,6 +403,44 @@ function Editor({ id }: { id: string }) {
   }
 
   const focused = note.blocks.find((b) => b.id === focusId);
+
+  async function attach(files: FileList) {
+    if (!userId) return;
+    setUploading(true);
+    const added: Block[] = [];
+    for (const f of Array.from(files)) {
+      if (!f.type.startsWith("image/") && f.size > MAX_FILE_BYTES) {
+        alert(`"${f.name}" terlalu besar. Maksimal 3 MB per file.`);
+        continue;
+      }
+      try {
+        const a = await saveAttachment(userId, id, f);
+        added.push({ ...block(a.isImage ? "image" : "file"), fileId: a.id, fileName: a.name, fileSize: a.size });
+      } catch {
+        alert(`"${f.name}" tidak bisa dibuka.`);
+      }
+    }
+    setUploading(false);
+    if (!added.length) return;
+    const after = attachAfter.current;
+    attachAfter.current = null;
+    update((bs) => {
+      const next = [...bs];
+      const i = after ? next.findIndex((x) => x.id === after) : next.length - 1;
+      // Replace an empty paragraph we were typing in, otherwise insert after it.
+      const target = next[i];
+      if (target && target.type === "p" && !target.text) next.splice(i, 1, ...added);
+      else next.splice(i + 1, 0, ...added);
+      if (next[next.length - 1] && isEmbed(next[next.length - 1])) next.push(block("p"));
+      return next;
+    });
+    hapticTap();
+  }
+
+  async function removeBlock(b: Block) {
+    update((bs) => bs.filter((x) => x.id !== b.id));
+    if (b.fileId && userId) await deleteItem(userId, b.fileId);
+  }
 
   return (
     <div>
@@ -462,7 +533,7 @@ function Editor({ id }: { id: string }) {
                     })()
                   : null
               }
-              onRemove={() => update((bs) => bs.filter((x) => x.id !== b.id))}
+              onRemove={() => void removeBlock(b)}
               slashOpen={slashFor === b.id}
               onPickType={(t) => setType(b, t)}
             />
@@ -499,10 +570,32 @@ function Editor({ id }: { id: string }) {
         )}
       </article>
 
+      <input
+        ref={fileRef}
+        type="file"
+        multiple
+        hidden
+        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
+        onChange={(e) => {
+          if (e.target.files?.length) void attach(e.target.files);
+          e.target.value = "";
+        }}
+      />
       {/* Formatting bar (sits above the keyboard on phones) */}
       <div className="fixed inset-x-0 bottom-[calc(var(--nav-h)+var(--sab)+8px)] z-30 mx-auto flex max-w-[480px] justify-center px-3 md:bottom-6 md:left-[var(--sidebar-w)] md:max-w-none">
         <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-bg-card p-1.5 shadow-float">
-          {TYPE_MENU.filter((t) => t.type !== "divider").map((t) => (
+          <button
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              attachAfter.current = focused?.id ?? null;
+              fileRef.current?.click();
+            }}
+            disabled={uploading}
+            className="h-9 shrink-0 rounded-full px-3 text-[13px] font-semibold text-text-2 disabled:opacity-40"
+          >
+            {uploading ? "Mengunggah…" : "🖼️ Foto"}
+          </button>
+          {TYPE_MENU.filter((t) => t.type !== "divider" && t.type !== "image").map((t) => (
             <button
               key={t.type}
               onMouseDown={(e) => e.preventDefault()}
@@ -568,6 +661,31 @@ function BlockRow({
         <button onClick={onRemove} className="ml-2 text-[12px] text-text-4 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
           ✕
         </button>
+      </div>
+    );
+  }
+  if (b.type === "image") {
+    return (
+      <div className="py-2">
+        <ImageView fileId={b.fileId} onRemove={onRemove} />
+        <AutoText
+          value={b.text}
+          focus={focus}
+          caret={caret}
+          onCaretDone={onCaretDone}
+          onFocus={onFocus}
+          onChange={onChange}
+          onKeyDown={onKey}
+          placeholder="Keterangan foto…"
+          className="mt-1 w-full text-center text-[13px] text-text-3"
+        />
+      </div>
+    );
+  }
+  if (b.type === "file") {
+    return (
+      <div className="py-1.5">
+        <FileView fileId={b.fileId} name={b.fileName} size={b.fileSize} onRemove={onRemove} />
       </div>
     );
   }

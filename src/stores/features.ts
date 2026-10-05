@@ -8,6 +8,8 @@ interface FeaturesState {
   /** hrefs of the spaces shown in Jelajah & Beranda, in display order. */
   enabled: string[];
   toggle: (href: string) => void;
+  /** Switch on several spaces at once (a bundle). */
+  enableMany: (hrefs: string[]) => void;
   /** Move a space to a new position (drag & drop in Jelajah). */
   move: (fromHref: string, toHref: string) => void;
   isOn: (href: string) => boolean;
@@ -23,6 +25,8 @@ export const useFeatures = create<FeaturesState>()(
             ? s.enabled.filter((h) => h !== href)
             : [...s.enabled, href],
         })),
+      enableMany: (hrefs) =>
+        set((s) => ({ enabled: [...s.enabled, ...hrefs.filter((h) => !s.enabled.includes(h))] })),
       move: (fromHref, toHref) =>
         set((s) => {
           const from = s.enabled.indexOf(fromHref);

@@ -21,6 +21,10 @@ import { HariKitaWidget } from "./HariKitaWidget";
 import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
+import { KabarWidget } from "@/components/kabar/Kabar";
+import { FokusWidget, RamadhanWidget, TantanganWidget } from "./SpaceWidgets";
+import { MonthEndWidget } from "./MonthEndWidget";
+import { RemindersWidget } from "@/components/reminders/Reminders";
 
 export interface WidgetMeta {
   kind: WidgetKind;
@@ -171,11 +175,53 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     emoji: "🌸",
     Component: SiklusWidget,
   },
+  kabar: {
+    kind: "kabar",
+    label: "Kabar kita",
+    description: "Status pasangan & kirim kangen",
+    emoji: "💗",
+    Component: KabarWidget,
+  },
   patungan: {
     kind: "patungan",
     label: "Patungan",
     description: "Siapa perlu ganti siapa",
     emoji: "🤝",
     Component: PatunganWidget,
+  },
+  tantangan: {
+    kind: "tantangan",
+    label: "Tantangan hari ini",
+    description: "Centang tantangan berdua langsung dari Beranda",
+    emoji: "🔥",
+    Component: TantanganWidget,
+  },
+  fokus: {
+    kind: "fokus",
+    label: "Fokus bareng",
+    description: "Lihat kalau pasangan lagi fokus, lalu ikut",
+    emoji: "🎧",
+    Component: FokusWidget,
+  },
+  pengingat: {
+    kind: "pengingat",
+    label: "Pengingat",
+    description: "Tagihan, tanggal penting, dan yang belum dicatat hari ini",
+    emoji: "🔔",
+    Component: RemindersWidget,
+  },
+  "sisa-bulan": {
+    kind: "sisa-bulan",
+    label: "Sisa bulan lalu",
+    description: "Awal bulan: tawaran menabung sisa uang bulan lalu",
+    emoji: "🐖",
+    Component: MonthEndWidget,
+  },
+  ramadhan: {
+    kind: "ramadhan",
+    label: "Ramadhan",
+    description: "Hitung mundur imsak & buka puasa",
+    emoji: "🏮",
+    Component: RamadhanWidget,
   },
 };

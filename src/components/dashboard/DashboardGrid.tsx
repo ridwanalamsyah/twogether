@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -69,6 +69,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
   );
 
   const visible = layout.filter((w) => w.enabled);
+  const wide = useMediaQuery("(min-width: 1024px)");
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -88,6 +89,13 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
         ))}
       </div>
     );
+  }
+
+  // Wide screens (iPad landscape, laptop): pack cards into two columns so a
+  // short card never leaves a hole next to a tall one. Arranging mode keeps
+  // the plain grid so the order stays obvious while dragging.
+  if (wide && !editing && visible.length > 0) {
+    return <MasonryWidgets widgets={visible} />;
   }
 
   return (
@@ -143,6 +151,8 @@ function SortableWidget({
       className={cn(
         SIZE_TO_SPAN[widget.size],
         "relative",
+        // Cards that have nothing to say right now (reminders, end-of-month) render null.
+        "[&:has(>div:empty)]:hidden",
         editing && "cursor-grab active:cursor-grabbing",
         isDragging && "is-dragging",
       )}
@@ -179,6 +189,81 @@ function SortableWidget({
           </button>
         </>
       )}
+    </div>
+  );
+}
+
+function useMediaQuery(query: string): boolean {
+  const [match, setMatch] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const on = () => setMatch(mql.matches);
+    on();
+    mql.addEventListener("change", on);
+    return () => mql.removeEventListener("change", on);
+  }, [query]);
+  return match;
+}
+
+/** Two-column "shortest column first" layout, measured live. */
+function MasonryWidgets({ widgets }: { widgets: WidgetConfig[] }) {
+  const [heights, setHeights] = useState<Record<string, number>>({});
+  const observer = useRef<ResizeObserver | null>(null);
+  const nodes = useRef(new Map<string, HTMLElement>());
+
+  useEffect(() => {
+    observer.current = new ResizeObserver((entries) => {
+      setHeights((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const e of entries) {
+          const id = (e.target as HTMLElement).dataset.wid;
+          const h = Math.round(e.contentRect.height);
+          if (id && next[id] !== h) {
+            next[id] = h;
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    });
+    nodes.current.forEach((el) => observer.current?.observe(el));
+    return () => observer.current?.disconnect();
+  }, []);
+
+  const ref = (id: string) => (el: HTMLElement | null) => {
+    const prev = nodes.current.get(id);
+    if (prev && prev !== el) observer.current?.unobserve(prev);
+    if (el) {
+      nodes.current.set(id, el);
+      observer.current?.observe(el);
+    } else {
+      nodes.current.delete(id);
+    }
+  };
+
+  const cols: WidgetConfig[][] = [[], []];
+  const total = [0, 0];
+  for (const w of widgets) {
+    const c = total[0] <= total[1] ? 0 : 1;
+    cols[c].push(w);
+    total[c] += (heights[w.id] ?? 180) + 16;
+  }
+
+  return (
+    <div className="grid grid-cols-2 items-start gap-4 px-8 pb-6 pt-4">
+      {cols.map((col, ci) => (
+        <div key={ci} className="flex flex-col gap-4">
+          {col.map((w) => {
+            const Component = WIDGET_REGISTRY[w.kind].Component;
+            return (
+              <div key={w.id} data-wid={w.id} ref={ref(w.id)} className="empty:hidden">
+                <Component />
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }

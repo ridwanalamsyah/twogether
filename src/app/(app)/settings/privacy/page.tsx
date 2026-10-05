@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -14,6 +14,7 @@ import {
   exportMomentsCsv,
   exportTransactionsCsv,
   importBundle,
+  lastBackupAt,
   wipeLocal,
 } from "@/services/privacy";
 
@@ -22,6 +23,8 @@ export default function PrivacyPage() {
   const userId = useAuth((s) => s.userId);
   const signOut = useAuth((s) => s.signOut);
   const [busy, setBusy] = useState<string | null>(null);
+  const [lastBackup, setLastBackup] = useState<number | null>(null);
+  useEffect(() => setLastBackup(lastBackupAt()), []);
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
     null,
   );
@@ -36,7 +39,8 @@ export default function PrivacyPage() {
     setBusy("export");
     try {
       const bundle = await exportAll(userId);
-      downloadExport(bundle);
+      await downloadExport(bundle);
+      setLastBackup(lastBackupAt());
     } finally {
       setBusy(null);
     }
@@ -48,11 +52,13 @@ export default function PrivacyPage() {
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      const { imported } = await importBundle(userId, json);
+      const { imported, skipped, settings } = await importBundle(userId, json);
       showToast(
         "ok",
-        `${imported} catatan berhasil dipulihkan.`,
+        `${imported} catatan dipulihkan${skipped ? `, ${skipped} dilewati karena versi di HP lebih baru` : ""}.`,
       );
+      // Settings (theme, spaces, …) are read at startup.
+      if (settings) setTimeout(() => window.location.reload(), 1800);
     } catch {
       showToast("err", "File cadangan tidak bisa dibaca. Pastikan memilih file dari Twogether.");
     } finally {
@@ -65,7 +71,7 @@ export default function PrivacyPage() {
     setBusy("csv");
     try {
       const csv = await exportTransactionsCsv(userId);
-      downloadCsv(csv, "twogether-transaksi.csv");
+      void downloadCsv(csv, "twogether-transaksi.csv");
     } finally {
       setBusy(null);
     }
@@ -76,7 +82,7 @@ export default function PrivacyPage() {
     setBusy("csvGoals");
     try {
       const csv = await exportGoalsCsv(userId);
-      downloadCsv(csv, "twogether-goals.csv");
+      void downloadCsv(csv, "twogether-goals.csv");
     } finally {
       setBusy(null);
     }
@@ -87,7 +93,7 @@ export default function PrivacyPage() {
     setBusy("csvMoments");
     try {
       const csv = await exportMomentsCsv(userId);
-      downloadCsv(csv, "twogether-moments.csv");
+      void downloadCsv(csv, "twogether-moments.csv");
     } finally {
       setBusy(null);
     }
@@ -143,6 +149,18 @@ export default function PrivacyPage() {
           title="Cadangan"
           description="Simpan salinan catatan kalian, atau pindahkan ke HP lain."
         >
+          <div
+            className={`mb-2 rounded-xl px-3 py-2.5 text-[12px] ${
+              !lastBackup || Date.now() - lastBackup > 30 * 86_400_000
+                ? "bg-[color:var(--warning-bg)] text-[color:var(--warning)]"
+                : "bg-bg-elev1 text-text-3"
+            }`}
+          >
+            {lastBackup
+              ? `Terakhir dicadangkan dari HP ini ${new Date(lastBackup).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}.`
+              : "Belum pernah dicadangkan dari HP ini."}{" "}
+            Disarankan sebulan sekali. Tema, ruang yang dipakai, dan pengaturan lain ikut tersimpan.
+          </div>
           <ActionRow
             emoji="⬇️"
             label="Unduh cadangan lengkap"

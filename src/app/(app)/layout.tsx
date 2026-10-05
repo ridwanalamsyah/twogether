@@ -1,12 +1,15 @@
 "use client";
 
+import { Toaster } from "@/components/ui/Toaster";
+import { ReminderScheduler } from "@/components/reminders/Reminders";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { FEATURES } from "@/data/features";
 import { BottomNav } from "@/components/shell/BottomNav";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { QuickCapture } from "@/components/shell/QuickCapture";
 import { useUi } from "@/stores/ui";
-import { LocationSharer } from "@/components/sync/LocationSharer";
+import { PingListener } from "@/components/kabar/Kabar";
 import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
@@ -69,7 +72,9 @@ export default function AppLayout({
       </main>
       <BottomNav />
       <CaptureHost />
-      <LocationSharer />
+      <PingListener />
+      <Toaster />
+      <ReminderScheduler />
       <PWAUpdateBanner />
       <LockGate />
       <OnboardingTour />
@@ -99,9 +104,41 @@ function CaptureHost() {
 function LockGate() {
   const pinHash = useSecurity((s) => s.pinHash);
   const locked = useSecurity((s) => s.locked);
-  if (!pinHash || !locked) return null;
-  return <LockScreen />;
+  const lockedSpaces = useSecurity((s) => s.lockedSpaces);
+  const spacesUnlockedAt = useSecurity((s) => s.spacesUnlockedAt);
+  const relockSpaces = useSecurity((s) => s.relockSpaces);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Locked spaces close again whenever the app goes to the background.
+  useEffect(() => {
+    const onHide = () => document.visibilityState === "hidden" && relockSpaces();
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, [relockSpaces]);
+
+  if (!pinHash) return null;
+  if (locked) return <LockScreen />;
+  const space = lockedSpaces.find((h) => pathname === h || pathname?.startsWith(h + "/"));
+  if (space && !spacesUnlockedAt) {
+    const f = FEATURES.find((x) => x.href === space) ?? SPACE_NAMES[space];
+    return (
+      <LockScreen
+        emoji={f?.emoji ?? "🔒"}
+        title={`${f?.title ?? "Ruang ini"} terkunci`}
+        subtitle="Masukkan PIN untuk membuka."
+        onCancel={() => router.replace("/home")}
+      />
+    );
+  }
+  return null;
 }
+
+/** Lockable spaces that aren't in the Jelajah catalogue. */
+const SPACE_NAMES: Record<string, { emoji: string; title: string }> = {
+  "/tracker": { emoji: "💳", title: "Uang" },
+  "/kita": { emoji: "💞", title: "Kita" },
+};
 
 /** Calm loading state that matches the splash, instead of bare text. */
 function BootScreen() {

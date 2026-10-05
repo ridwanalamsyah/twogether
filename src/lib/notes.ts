@@ -1,7 +1,7 @@
 import { newId, type ItemRecord } from "@/lib/db";
 import { parsePayload } from "@/lib/people";
 
-export type BlockType = "p" | "h1" | "h2" | "todo" | "bullet" | "quote" | "divider" | "page";
+export type BlockType = "p" | "h1" | "h2" | "todo" | "bullet" | "quote" | "divider" | "page" | "image" | "file";
 
 export interface Block {
   id: string;
@@ -10,6 +10,21 @@ export interface Block {
   checked?: boolean;
   /** For type "page": the linked sub-page id. */
   pageId?: string;
+  /** For "image" / "file": id of the `note-file` item holding the data. */
+  fileId?: string;
+  fileName?: string;
+  fileSize?: number;
+}
+
+/** Blocks that aren't typed into (no textarea of their own text flow). */
+export function isEmbed(b: Block): boolean {
+  return b.type === "divider" || b.type === "page" || b.type === "image" || b.type === "file";
+}
+
+export function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
 export interface NotePayload {
