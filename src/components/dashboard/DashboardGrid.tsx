@@ -146,7 +146,7 @@ function SortableWidget({
         editing && "cursor-grab active:cursor-grabbing",
         isDragging && "is-dragging",
       )}
-      {...attributes}
+      {...(editing ? attributes : {})}
       {...(editing ? listeners : {})}
     >
       {/* While arranging, the whole card is the handle and its own buttons

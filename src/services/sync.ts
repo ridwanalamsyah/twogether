@@ -47,6 +47,8 @@ class SyncManager {
     connection: "online",
   };
   private timer: ReturnType<typeof setInterval> | null = null;
+  private drainAgain = false;
+  private lastBatchOk = true;
   private started = false;
   private supaCtx: SupaContext | null = null;
 
@@ -136,7 +138,12 @@ class SyncManager {
   }
 
   async drain(): Promise<void> {
-    if (this.snapshot.syncing) return;
+    if (this.snapshot.syncing) {
+      // A write landed mid-drain: run again right after instead of waiting
+      // for the 30s tick (keeps shared lists feeling live).
+      this.drainAgain = true;
+      return;
+    }
     if (this.snapshot.connection !== "online") return;
 
     this.snapshot.syncing = true;
@@ -145,6 +152,7 @@ class SyncManager {
       const db = getDB();
       // Pull a small batch each tick so failures don't block the whole queue.
       const batch = await db.outbox.orderBy("seq").limit(20).toArray();
+      this.lastBatchOk = true;
       if (!batch.length) return;
 
       for (const op of batch) {
@@ -160,6 +168,7 @@ class SyncManager {
             });
           }
           // Stop batch on first failure to preserve order; retry on next tick.
+          this.lastBatchOk = false;
           break;
         }
       }
@@ -167,6 +176,10 @@ class SyncManager {
     } finally {
       this.snapshot.syncing = false;
       await this.refreshCounts();
+      if (this.drainAgain || (this.snapshot.pending > 0 && this.snapshot.failed === 0 && this.lastBatchOk)) {
+        this.drainAgain = false;
+        setTimeout(() => void this.drain(), 50);
+      }
     }
   }
 

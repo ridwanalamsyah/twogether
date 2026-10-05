@@ -11,6 +11,7 @@ import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import { hapticSuccess, hapticTap, hapticWarn } from "@/lib/haptic";
 import { todayISO } from "@/lib/utils";
+import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
 
 export type QuickCaptureMode = "transaction" | "moment" | "note" | "task";
 
@@ -218,6 +219,14 @@ export function QuickCapture({
                 </button>
               ))}
             </div>
+            {kind === "out" && (
+              <ReceiptScanButton
+                onResult={(r) => {
+                  if (r.amount) setAmount(String(r.amount));
+                  if (r.merchant && !title) setTitle(r.merchant);
+                }}
+              />
+            )}
             <input
               ref={inputRef as React.RefObject<HTMLInputElement>}
               className="input-base h-12 font-mono text-lg font-semibold"

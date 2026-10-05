@@ -17,6 +17,7 @@ import {
 } from "@/lib/utils";
 import { TagInput } from "@/components/ui/TagInput";
 import { SwipeRow } from "@/components/ui/SwipeRow";
+import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   Makan: "🍜",
@@ -332,6 +333,14 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-2">
+          {kind === "out" && (
+            <ReceiptScanButton
+              onResult={(r) => {
+                if (r.amount) setAmount(String(r.amount));
+                if (r.merchant && !note) setNote(r.merchant);
+              }}
+            />
+          )}
           <input
             className="input-base font-mono text-lg"
             inputMode="numeric"

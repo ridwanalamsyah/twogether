@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useItems } from "@/stores/data";
+import { accentEmoji, useTheme } from "@/stores/theme";
 
 /**
  * Big "Bersama X hari Y jam" countup widget. Reads first anniversary item
@@ -12,6 +13,7 @@ import { useItems } from "@/stores/data";
 export function HariKitaWidget() {
   const userId = useAuth((s) => s.userId);
   const annivs = useItems(userId, "anniv") ?? [];
+  const accent = useTheme((s) => s.accent);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export function HariKitaWidget() {
   // Suppress unused tick warning
   void tick;
 
+  const deco = accentEmoji(accent);
   // Next round number worth celebrating (every 100 days).
   const nextMilestone = Math.ceil((days + 1) / 100) * 100;
   const toMilestone = nextMilestone - days;
@@ -82,10 +85,10 @@ export function HariKitaWidget() {
       }}
     >
       <span aria-hidden className="float-heart absolute right-6 top-4 text-[22px] opacity-90">
-        💗
+        {deco}
       </span>
       <span aria-hidden className="float-heart-slow absolute right-16 top-12 text-[13px] opacity-70">
-        💗
+        {deco}
       </span>
       <div className="text-[13px] font-semibold text-white/85">Sudah bersama</div>
       <div className="mt-1 flex items-baseline gap-2">

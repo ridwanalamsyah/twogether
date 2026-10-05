@@ -35,7 +35,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/tracker",
     label: "Uang",
-    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights"],
+    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan"],
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/kita",
     label: "Kita",
-    match: ["/kita", "/moments", "/wrapped", "/pencapaian"],
+    match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/peta", "/nikah"],
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -83,6 +83,10 @@ export const ITEMS: NavItem[] = [
       "/travel",
       "/skripsi",
       "/digest",
+      "/catatan",
+      "/shalat",
+      "/siklus",
+      "/belanja",
     ],
     icon: (
       <svg

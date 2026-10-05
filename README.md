@@ -151,6 +151,16 @@ Setiap kali kode web berubah: `npm run ios:sync` lalu Run lagi di Xcode.
 Login magic link disembunyikan di app native (link email terbuka di Safari);
 pakai email + password.
 
+### Catatan untuk rilis komersial
+
+- **Peta** memakai tile gratis OpenStreetMap (`src/components/map/LeafletMap.tsx`,
+  `TILE_URL`). Untuk app komersial dengan banyak pengguna, ganti ke penyedia
+  berbayar (MapTiler, Stadia, dll.) sesuai kebijakan pemakaian OSM.
+- **Scan struk** berjalan di perangkat (tesseract.js). File OCR disalin ke
+  `public/ocr` otomatis oleh `npm run dev/build` (`scripts/copy-ocr-assets.mjs`).
+- Fitur yang ditandai `premium: true` di `src/data/features.ts` adalah calon
+  paket berbayar — belum dikunci.
+
 ## Backend (optional)
 
 The sync engine talks to a single HTTP endpoint:
