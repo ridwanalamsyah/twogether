@@ -12,6 +12,9 @@ import {
   useAllEntries,
 } from "@/stores/data";
 import { formatDateShort, todayISO } from "@/lib/utils";
+import { isoDay } from "@/lib/people";
+import { buildIcs, googleCalendarUrl, saveIcs, type CalEvent } from "@/lib/ics";
+import { Sheet } from "@/components/ui/Sheet";
 import { ALL_HOLIDAYS } from "@/data/holidays";
 import {
   indonesianDayOf,
@@ -36,6 +39,7 @@ interface Entry {
   label: string;
   href?: string;
   emoji: string;
+  cal?: CalEvent;
 }
 
 export default function CalendarPage() {
@@ -59,7 +63,7 @@ export default function CalendarPage() {
       map.set(date, arr);
     };
     for (const d of deadlines ?? []) {
-      push(d.date, { kind: "deadline", label: d.title, emoji: "📌" });
+      push(d.date, { kind: "deadline", label: d.title, emoji: "📌", cal: { uid: d.id, title: d.title, date: d.date } });
     }
     for (const b of bimbingan ?? []) {
       push(b.date, {
@@ -67,6 +71,7 @@ export default function CalendarPage() {
         label: b.topic,
         emoji: "🎓",
         href: "/skripsi",
+        cal: { uid: b.id, title: `Bimbingan: ${b.topic}`, date: b.date },
       });
     }
     for (const t of txs ?? []) {
@@ -107,6 +112,7 @@ export default function CalendarPage() {
         label: it.title,
         emoji: cfg.emoji,
         href: cfg.href,
+        cal: { uid: it.id, title: it.title, date, repeat: it.kind === "anniv" ? "yearly" : undefined },
       });
       // Recurring anniv: project to current year too
       if (it.kind === "anniv") {
@@ -153,13 +159,22 @@ export default function CalendarPage() {
         const dayName = indonesianDayOf(d);
         const classes = userClasses.filter((c) => c.day === dayName);
         if (classes.length > 0) {
-          const iso = d.toISOString().slice(0, 10);
+          const iso = isoDay(d);
           for (const c of classes) {
             push(iso, {
               kind: "class",
               label: `${c.start} ${c.title}`,
               emoji: "📚",
               href: "/jadwal",
+              cal: {
+                uid: `class-${c.day}-${c.start}-${c.title}`.replace(/\W+/g, "-"),
+                title: c.title,
+                date: iso,
+                start: c.start,
+                end: c.end,
+                location: c.room,
+                repeat: "weekly",
+              },
             });
           }
         }
@@ -173,7 +188,7 @@ export default function CalendarPage() {
       for (let i = 1; i <= 6; i++) {
         const next = new Date(lastD);
         next.setDate(next.getDate() + i * 28);
-        push(next.toISOString().slice(0, 10), {
+        push(isoDay(next), {
           kind: "period",
           label: "Prediksi siklus",
           emoji: "🌸",
@@ -191,16 +206,16 @@ export default function CalendarPage() {
     const days: { date: string; inMonth: boolean }[] = [];
     for (let i = 0; i < pad; i++) {
       const d = new Date(cursor.y, cursor.m, -pad + i + 1);
-      days.push({ date: d.toISOString().slice(0, 10), inMonth: false });
+      days.push({ date: isoDay(d), inMonth: false });
     }
     for (let d = 1; d <= last.getDate(); d++) {
       const dt = new Date(cursor.y, cursor.m, d);
-      days.push({ date: dt.toISOString().slice(0, 10), inMonth: true });
+      days.push({ date: isoDay(dt), inMonth: true });
     }
     const tail = (7 - (days.length % 7)) % 7;
     for (let i = 1; i <= tail; i++) {
       const d = new Date(cursor.y, cursor.m + 1, i);
-      days.push({ date: d.toISOString().slice(0, 10), inMonth: false });
+      days.push({ date: isoDay(d), inMonth: false });
     }
     return days;
   }, [cursor]);
@@ -213,10 +228,23 @@ export default function CalendarPage() {
   const [focused, setFocused] = useState<string>(today);
 
   const focusedEntries = byDate.get(focused) ?? [];
+  const [exporting, setExporting] = useState(false);
+  const exportEvents = useMemo(() => {
+    const seen = new Map<string, CalEvent>();
+    for (const list of byDate.values()) for (const e of list) if (e.cal && !seen.has(e.cal.uid)) seen.set(e.cal.uid, e.cal);
+    return Array.from(seen.values());
+  }, [byDate]);
 
   return (
     <div className="animate-in">
-      <AppHeader title="Kalender" />
+      <AppHeader
+        title="Kalender"
+        actions={
+          <button onClick={() => setExporting(true)} className="rounded-full bg-bg-card px-3 py-1.5 text-[13px] font-semibold text-text-2 shadow-card">
+            Google Calendar
+          </button>
+        }
+      />
 
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-center justify-between">
@@ -326,8 +354,21 @@ export default function CalendarPage() {
                   </div>
                 );
                 return (
-                  <li key={i}>
-                    {e.href ? <Link href={e.href} className="block active:opacity-60">{content}</Link> : content}
+                  <li key={i} className="flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      {e.href ? <Link href={e.href} className="block active:opacity-60">{content}</Link> : content}
+                    </div>
+                    {e.cal && (
+                      <a
+                        href={googleCalendarUrl(e.cal)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 rounded-full bg-bg-elev2 px-2.5 py-1 text-[11px] font-semibold text-text-2"
+                        aria-label={`Tambah ${e.label} ke Google Calendar`}
+                      >
+                        + Google
+                      </a>
+                    )}
                   </li>
                 );
               })}
@@ -335,6 +376,34 @@ export default function CalendarPage() {
           )}
         </div>
       </div>
+      {exporting && (
+        <Sheet
+          title="Ke Google Calendar"
+          onClose={() => setExporting(false)}
+          footer={
+            <button
+              onClick={() => void saveIcs(buildIcs(exportEvents)).then(() => setExporting(false))}
+              disabled={!exportEvents.length}
+              className="btn-accent w-full disabled:opacity-50"
+            >
+              Unduh {exportEvents.length} agenda (.ics)
+            </button>
+          }
+        >
+          <p className="text-[13px] leading-relaxed text-text-2">
+            Semua tenggat, bimbingan, jadwal kuliah (berulang tiap minggu), anniversary (tiap tahun), dan rencana kencan
+            dijadikan satu file kalender.
+          </p>
+          <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[13px] text-text-2">
+            <li><b>iPhone/iPad:</b> buka filenya → Tambahkan semua. Kalau Google Calendar tersambung di Pengaturan iPhone, pilih kalender Google-nya.</li>
+            <li><b>Laptop:</b> buka calendar.google.com → ⚙️ Setelan → Impor &amp; ekspor → pilih file tadi.</li>
+            <li>Untuk satu agenda saja, ketuk <b>+ Google</b> di samping agendanya.</li>
+          </ol>
+          <p className="mt-3 text-[12px] text-text-4">
+            Ini salinan sekali jalan: kalau nanti ada agenda baru, unduh lagi atau pakai tombol + Google.
+          </p>
+        </Sheet>
+      )}
     </div>
   );
 }

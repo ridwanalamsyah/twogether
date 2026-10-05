@@ -58,6 +58,6 @@ assert.match(
 
 assert.match(
   serviceWorker,
-  /const VERSION = "twogether-v9";/,
+  /const VERSION = "twogether-v10";/,
   "service worker cache version should bump when shell spacing changes",
 );

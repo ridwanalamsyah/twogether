@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
+import Link from "next/link";
 import { useAuth } from "@/stores/auth";
+import { useIbadahPrefs } from "@/stores/ibadah";
+import { toHijri } from "@/lib/hijri";
 import { useShalatPrefs } from "@/stores/shalat";
 import { deleteEntry, upsertEntry, upsertItem, useEntries, useItems } from "@/stores/data";
 import { CITIES } from "@/data/cities";
@@ -16,6 +19,7 @@ export default function ShalatPage() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
   const place = useShalatPrefs();
+  const hijriOffset = useIbadahPrefs((s) => s.hijriOffset);
   const logs = useEntries(userId, "shalat") ?? [];
   const cycle = useEntries(userId, "cycle") ?? [];
   const cycleSettings = useItems(userId, "cycle-settings") ?? [];
@@ -112,6 +116,12 @@ export default function ShalatPage() {
           >
             📍 {place.label} ›
           </button>
+          <Link
+            href="/hijriah"
+            className="ml-1.5 rounded-full bg-white/20 px-3 py-1 text-[12px] font-semibold backdrop-blur"
+          >
+            🌙 {toHijri(today, hijriOffset).label}
+          </Link>
           <div className="mt-3 text-[13px] font-semibold text-white/85">Berikutnya</div>
           <div className="flex items-baseline gap-2">
             <span className="text-[34px] font-extrabold leading-none">{next.name}</span>
@@ -262,7 +272,18 @@ export default function ShalatPage() {
 }
 
 function PlaceSheet({ onClose }: { onClose: () => void }) {
-  const setPlace = useShalatPrefs((s) => s.setPlace);
+  const setPlaceRaw = useShalatPrefs((s) => s.setPlace);
+  // Keep the adzan push location in step with the chosen place.
+  const setPlace: typeof setPlaceRaw = (p) => {
+    setPlaceRaw(p);
+    try {
+      if (localStorage.getItem("twogether:push-adzan") === "1") {
+        void import("@/lib/push").then((m) => m.updatePushPrefs(true)).catch(() => undefined);
+      }
+    } catch {
+      /* ignore */
+    }
+  };
   const current = useShalatPrefs((s) => s.label);
   const [q, setQ] = useState("");
   const [msg, setMsg] = useState<string | null>(null);

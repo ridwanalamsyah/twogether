@@ -40,7 +40,8 @@ export type WidgetKind =
   | "pinned-message"
   | "shalat"
   | "siklus"
-  | "patungan";
+  | "patungan"
+  | "kabar";
 
 export interface WidgetConfig {
   id: string;
@@ -54,6 +55,7 @@ export interface WidgetConfig {
 // else stays one tap away (Jelajah tab) and can be re-enabled in "Atur".
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
+  { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
@@ -75,6 +77,9 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_siklus", kind: "siklus", size: "lg", enabled: false },
   { id: "w_patungan", kind: "patungan", size: "lg", enabled: false },
 ];
+
+/** New widgets that should switch on (once) even for customised layouts. */
+const SHOW_WHEN_NEW = new Set(["w_kabar"]);
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
 const LAYOUT_VERSION = 3;
@@ -122,11 +127,20 @@ export const useDashboard = create<DashboardState>((set, get) => ({
         const ids = new Set(parsed.map((w) => w.id));
         const merged = [
           ...parsed,
-          ...DEFAULT_LAYOUT.filter((w) => !ids.has(w.id)).map((w) => ({
+          ...DEFAULT_LAYOUT.filter((w) => !ids.has(w.id) && !SHOW_WHEN_NEW.has(w.id)).map((w) => ({
             ...w,
             enabled: false,
           })),
         ];
+        // Couple essentials appear once for existing users too, right
+        // under the pinned message.
+        for (const id of Array.from(SHOW_WHEN_NEW)) {
+          if (ids.has(id)) continue;
+          const def = DEFAULT_LAYOUT.find((w) => w.id === id);
+          if (!def) continue;
+          const at = merged.findIndex((w) => w.id === "w_pinned");
+          merged.splice(at === -1 ? 0 : at + 1, 0, { ...def, enabled: true });
+        }
         set({ layout: merged, loaded: true });
         return;
       } catch {

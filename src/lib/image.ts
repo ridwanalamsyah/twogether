@@ -25,7 +25,7 @@ export async function compressImage(
   return canvas.toDataURL("image/jpeg", quality);
 }
 
-function fileToDataUrl(file: File): Promise<string> {
+export function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);

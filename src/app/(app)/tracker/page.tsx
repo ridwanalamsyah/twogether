@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -18,6 +19,8 @@ import {
 import { TagInput } from "@/components/ui/TagInput";
 import { SwipeRow } from "@/components/ui/SwipeRow";
 import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
+import { WalletPicker, WalletStrip, useWallets } from "@/components/wallet/Wallets";
+import { WALLET_TAG, lastWallet, rememberWallet, walletOf, withWallet } from "@/lib/wallet";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   Makan: "🍜",
@@ -64,12 +67,16 @@ export default function TrackerPage() {
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId);
   const [filter, setFilter] = useState<"all" | "in" | "out">("all");
+  const [wallet, setWallet] = useState<string | null>(null);
+  const { wallets } = useWallets();
+  const walletById = (id: string | null) => wallets.find((w) => w.id === id);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
 
   const filtered = useMemo(() => {
     return (txs ?? [])
       .filter((t) => (filter === "all" ? true : t.kind === filter))
+      .filter((t) => (wallet ? walletOf(t) === wallet : true))
       .filter((t) => {
         if (!search) return true;
         const q = search.toLowerCase();
@@ -79,7 +86,7 @@ export default function TrackerPage() {
           t.who.toLowerCase().includes(q)
         );
       });
-  }, [txs, filter, search]);
+  }, [txs, filter, search, wallet]);
 
   const month = useMemo(() => {
     const prefix = todayISO().slice(0, 7);
@@ -122,6 +129,9 @@ export default function TrackerPage() {
         }
       />
       <div className="px-5 pt-4">
+        <div className="mb-3">
+          <WalletStrip selected={wallet} onSelect={setWallet} />
+        </div>
         <div className="surface grid grid-cols-3 divide-x divide-border py-3 text-center">
           <div>
             <div className="text-[10px] section-label text-text-4">Masuk</div>
@@ -147,6 +157,17 @@ export default function TrackerPage() {
           </div>
         </div>
         <div className="mt-1.5 text-center text-[10px] text-text-4">Bulan ini</div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[12px] font-semibold text-text-2">
+          {[
+            { href: "/laporan", label: "📊 Laporan" },
+            { href: "/dompet", label: "👛 Dompet" },
+            { href: "/impor", label: "⬇️ Impor" },
+          ].map((l) => (
+            <Link key={l.href} href={l.href} className="rounded-full bg-bg-card py-2 text-center shadow-card active:scale-95">
+              {l.label}
+            </Link>
+          ))}
+        </div>
 
         <div className="mt-3 flex items-center gap-2">
           <input
@@ -222,8 +243,9 @@ export default function TrackerPage() {
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-text-4">
                             <span>
                               {t.who} · {t.category}
+                              {walletById(walletOf(t)) ? ` · ${walletById(walletOf(t))!.emoji} ${walletById(walletOf(t))!.name}` : ""}
                             </span>
-                            {(t.tags ?? []).map((tag) => (
+                            {(t.tags ?? []).filter((tag) => !tag.startsWith(WALLET_TAG)).map((tag) => (
                               <span key={tag} className="text-text-3">
                                 #{tag}
                               </span>
@@ -283,6 +305,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   const [note, setNote] = useState("");
   const [date, setDate] = useState(todayISO());
   const [tags, setTags] = useState<string[]>([]);
+  const [walletId, setWalletId] = useState<string | null>(() => lastWallet());
   const trips = useTrips(userId) ?? [];
   const tagSuggestions = useMemo(
     () => [...trips.map((t) => t.tag), "jajan", "kerja", "darurat", "hadiah"],
@@ -300,7 +323,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
       who,
       note: note.trim() || undefined,
       date,
-      tags: tags.length > 0 ? tags : undefined,
+      tags: withWallet(tags, walletId),
     });
     onClose();
   }
@@ -333,6 +356,13 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-2">
+          <WalletPicker
+            value={walletId}
+            onChange={(id) => {
+              setWalletId(id);
+              rememberWallet(id);
+            }}
+          />
           {kind === "out" && (
             <ReceiptScanButton
               onResult={(r) => {

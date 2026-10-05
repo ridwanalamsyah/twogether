@@ -151,6 +151,45 @@ Setiap kali kode web berubah: `npm run ios:sync` lalu Run lagi di Xcode.
 Login magic link disembunyikan di app native (link email terbuka di Safari);
 pakai email + password.
 
+### 5. Notifikasi push (opsional)
+
+Tanpa langkah ini, kabar dari pasangan tetap muncul selama app terbuka.
+Dengan langkah ini, notifikasi masuk walau app ditutup (Android/desktop, dan
+iPhone/iPad iOS 16.4+ kalau Twogether dipasang ke Layar Utama).
+
+1. Buat kunci: `npx web-push generate-vapid-keys`.
+2. Hosting → environment variable: `NEXT_PUBLIC_VAPID_PUBLIC_KEY=<public key>`, lalu deploy ulang.
+3. Supabase → SQL Editor: jalankan `supabase/migrations/0006_push.sql`.
+4. Deploy fungsi dan secret-nya (Supabase CLI):
+
+   ```bash
+   supabase functions deploy notify --no-verify-jwt
+   supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... \
+     VAPID_SUBJECT=mailto:emailkamu@gmail.com NOTIFY_SECRET=<teks-acak>
+   ```
+
+5. Supabase → Database → Webhooks → buat 2 webhook (INSERT pada tabel
+   `entries` dan `moments`) → HTTP POST ke
+   `https://<project>.functions.supabase.co/notify` dengan header
+   `x-notify-secret: <NOTIFY_SECRET>`.
+6. Pengingat adzan (tiap 5 menit) — SQL Editor:
+
+   ```sql
+   create extension if not exists pg_cron;
+   create extension if not exists pg_net;
+   select cron.schedule('twogether-adzan', '*/5 * * * *', $$
+     select net.http_post(
+       url := 'https://<project>.functions.supabase.co/notify',
+       headers := jsonb_build_object('Content-Type','application/json','x-notify-secret','<NOTIFY_SECRET>'),
+       body := '{"mode":"adzan"}'::jsonb);
+   $$);
+   ```
+
+7. Di app: Pengaturan → Password & keamanan → **Aktifkan notifikasi**.
+
+Catatan: app iOS native (Capacitor) butuh push via APNs (akun Apple
+Developer) — belum disiapkan; versi web/PWA sudah bisa.
+
 ### Catatan untuk rilis komersial
 
 - **Scan struk** berjalan di perangkat (tesseract.js). File OCR disalin ke

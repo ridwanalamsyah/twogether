@@ -21,6 +21,7 @@ import { HariKitaWidget } from "./HariKitaWidget";
 import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
+import { KabarWidget } from "@/components/kabar/Kabar";
 
 export interface WidgetMeta {
   kind: WidgetKind;
@@ -170,6 +171,13 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Fase & perkiraan haid",
     emoji: "🌸",
     Component: SiklusWidget,
+  },
+  kabar: {
+    kind: "kabar",
+    label: "Kabar kita",
+    description: "Status pasangan & kirim kangen",
+    emoji: "💗",
+    Component: KabarWidget,
   },
   patungan: {
     kind: "patungan",

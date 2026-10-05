@@ -12,6 +12,8 @@ import { useWorkspace } from "@/stores/workspace";
 import { hapticSuccess, hapticTap, hapticWarn } from "@/lib/haptic";
 import { todayISO } from "@/lib/utils";
 import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
+import { WalletPicker } from "@/components/wallet/Wallets";
+import { lastWallet, rememberWallet, withWallet } from "@/lib/wallet";
 
 export type QuickCaptureMode = "transaction" | "moment" | "note" | "task";
 
@@ -54,6 +56,7 @@ export function QuickCapture({
   const [mode, setMode] = useState<QuickCaptureMode>(initialMode);
   const [kind, setKind] = useState<"out" | "in">("out");
   const [amount, setAmount] = useState("");
+  const [walletId, setWalletId] = useState<string | null>(() => lastWallet());
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -90,6 +93,7 @@ export function QuickCapture({
           who,
           note: title.trim() || undefined,
           date: todayISO(),
+          tags: withWallet(undefined, walletId),
         });
         setAmount("");
         setTitle("");
@@ -219,6 +223,13 @@ export function QuickCapture({
                 </button>
               ))}
             </div>
+            <WalletPicker
+              value={walletId}
+              onChange={(id) => {
+                setWalletId(id);
+                rememberWallet(id);
+              }}
+            />
             {kind === "out" && (
               <ReceiptScanButton
                 onResult={(r) => {

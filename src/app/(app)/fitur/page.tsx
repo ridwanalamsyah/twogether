@@ -40,7 +40,7 @@ export default function JelajahPage() {
   const mine = enabled
     .map((href) => FEATURES.find((f) => f.href === href))
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f));
-  const others = FEATURES.filter((f) => !enabled.includes(f.href));
+  const others = FEATURES.filter((f) => !enabled.includes(f.href)).sort((a, b) => Number(!!b.isNew) - Number(!!a.isNew));
 
   return (
     <div>

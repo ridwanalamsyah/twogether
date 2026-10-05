@@ -27,6 +27,18 @@ interface SecurityState {
   darkFrom: number;
   darkTo: number;
   lastUnlockAt: number | null;
+  /** Spaces (hrefs) that need PIN/biometric to open. */
+  lockedSpaces: string[];
+  /** WebAuthn credential id for Face ID / sidik jari unlock. */
+  bioCredId: string | null;
+  /** Session-only: when locked spaces were last unlocked. */
+  spacesUnlockedAt: number | null;
+  toggleSpaceLock: (href: string) => void;
+  setBioCredId: (id: string | null) => void;
+  unlockSpaces: () => void;
+  relockSpaces: () => void;
+  /** Unlock without PIN (after a successful biometric check). */
+  unlockWithBiometric: () => void;
 
   setPin: (pin: string) => Promise<void>;
   clearPin: () => void;
@@ -44,16 +56,30 @@ export const useSecurity = create<SecurityState>()(
       darkFrom: 18,
       darkTo: 6,
       lastUnlockAt: null,
+      lockedSpaces: [],
+      bioCredId: null,
+      spacesUnlockedAt: null,
+
+      toggleSpaceLock: (href) =>
+        set((s) => ({
+          lockedSpaces: s.lockedSpaces.includes(href)
+            ? s.lockedSpaces.filter((h) => h !== href)
+            : [...s.lockedSpaces, href],
+        })),
+      setBioCredId: (id) => set({ bioCredId: id }),
+      unlockSpaces: () => set({ spacesUnlockedAt: Date.now() }),
+      relockSpaces: () => set({ spacesUnlockedAt: null }),
+      unlockWithBiometric: () => set({ locked: false, lastUnlockAt: Date.now(), spacesUnlockedAt: Date.now() }),
 
       setPin: async (pin) => {
         const hash = await sha256(pin);
         set({ pinHash: hash, locked: false, lastUnlockAt: Date.now() });
       },
-      clearPin: () => set({ pinHash: null, locked: false }),
+      clearPin: () => set({ pinHash: null, locked: false, lockedSpaces: [], bioCredId: null }),
       unlock: async (pin) => {
         const hash = await sha256(pin);
         if (hash === get().pinHash) {
-          set({ locked: false, lastUnlockAt: Date.now() });
+          set({ locked: false, lastUnlockAt: Date.now(), spacesUnlockedAt: Date.now() });
           return true;
         }
         return false;
@@ -73,6 +99,8 @@ export const useSecurity = create<SecurityState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         pinHash: s.pinHash,
+        lockedSpaces: s.lockedSpaces,
+        bioCredId: s.bioCredId,
         autoDark: s.autoDark,
         darkFrom: s.darkFrom,
         darkTo: s.darkTo,

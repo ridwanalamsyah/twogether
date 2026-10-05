@@ -59,6 +59,33 @@ const TASK_TEMPLATE: [string, string][] = [
   ["H-1", "Istirahat yang cukup 🤍"],
 ];
 
+const PRANIKAH_TEMPLATE: [string, string][] = [
+  ["Berkas KUA", "Daftar online di simkah.kemenag.go.id"],
+  ["Berkas KUA", "Surat pengantar nikah dari kelurahan/desa (N1–N4)"],
+  ["Berkas KUA", "Fotokopi KTP & KK kedua calon"],
+  ["Berkas KUA", "Fotokopi akta kelahiran / ijazah terakhir"],
+  ["Berkas KUA", "Pas foto 2×3 & 4×6 latar biru"],
+  ["Berkas KUA", "Rekomendasi nikah dari KUA asal (kalau nikah di luar kecamatan)"],
+  ["Berkas KUA", "Surat izin orang tua (kalau di bawah 21 tahun)"],
+  ["Berkas KUA", "Bayar biaya nikah (gratis di KUA saat jam kerja)"],
+  ["Kesehatan", "Cek kesehatan pranikah di puskesmas (darah, golongan darah, dll.)"],
+  ["Kesehatan", "Imunisasi TT untuk calon istri"],
+  ["Kesehatan", "Surat keterangan sehat"],
+  ["Bekal", "Ikut Bimbingan Perkawinan (Bimwin) / kursus calon pengantin"],
+  ["Bekal", "Belajar fiqih nikah: rukun, mahar, hak & kewajiban"],
+  ["Bekal", "Pastikan wali nikah & dua saksi"],
+];
+
+const TALKS: { topic: string; q: string[] }[] = [
+  { topic: "💰 Keuangan", q: ["Gaji digabung, dipisah, atau sebagian?", "Ada utang/cicilan yang perlu diceritakan?", "Berapa yang ditabung tiap bulan & untuk apa?", "Seberapa besar bantu keluarga masing-masing?"] },
+  { topic: "🏠 Tempat tinggal", q: ["Setelah nikah tinggal di mana?", "Ngontrak, KPR, atau tinggal dengan orang tua dulu?"] },
+  { topic: "🤲 Ibadah", q: ["Target ibadah bersama (shalat berjamaah, ngaji, kajian)?", "Siapa yang jadi pengingat kalau salah satu sedang turun?"] },
+  { topic: "👶 Anak", q: ["Ingin punya anak kapan & berapa?", "Pola asuh seperti apa yang kita mau?"] },
+  { topic: "💼 Karier & mimpi", q: ["Apa rencana karier masing-masing 5 tahun ke depan?", "Kalau ada tawaran kerja di kota lain, bagaimana?"] },
+  { topic: "👨‍👩‍👧 Keluarga besar", q: ["Lebaran & liburan dibagi bagaimana?", "Batas keterlibatan keluarga dalam keputusan kita?"] },
+  { topic: "🤝 Saat berselisih", q: ["Kalau marah, butuh waktu sendiri atau langsung dibicarakan?", "Hal kecil apa yang bikin kamu merasa dihargai?"] },
+];
+
 export default function NikahPage() {
   const userId = useAuth((s) => s.userId);
   const metaItem = (useItems(userId, "wed-meta") ?? [])[0];
@@ -66,6 +93,8 @@ export default function NikahPage() {
   const tasks = useItems(userId, "wed-task") ?? [];
   const seserahan = useItems(userId, "wed-seserahan") ?? [];
   const guests = useItems(userId, "wed-guest") ?? [];
+  const pranikah = useItems(userId, "wed-pranikah") ?? [];
+  const talks = useItems(userId, "wed-talk") ?? [];
   const meta = parsePayload<Meta>(metaItem?.payload, { budget: 0, venue: "" });
   const [editMeta, setEditMeta] = useState(false);
 
@@ -134,6 +163,7 @@ export default function NikahPage() {
           {userId && <TaskSection userId={userId} items={tasks} />}
           {userId && <SeserahanSection userId={userId} items={seserahan} />}
           {userId && <GuestSection userId={userId} items={guests} />}
+          {userId && <PranikahSection userId={userId} items={pranikah} talks={talks} />}
         </SectionTabs>
       </div>
 
@@ -507,6 +537,77 @@ function GuestSection({ userId, items }: { userId: string; items: ItemRecord[] }
           })}
         </ListBox>
       )}
+    </Section>
+  );
+}
+
+function PranikahSection({ userId, items, talks }: { userId: string; items: ItemRecord[]; talks: ItemRecord[] }) {
+  const groups = ["Berkas KUA", "Kesehatan", "Bekal"];
+  const discussed = new Set(talks.filter((t) => t.status === "done").map((t) => t.title));
+  const totalQ = TALKS.reduce((s, t) => s + t.q.length, 0);
+
+  async function seed() {
+    for (const [due, t] of PRANIKAH_TEMPLATE) await upsertItem(userId, { kind: "wed-pranikah", title: t, due, status: "todo" });
+    hapticSuccess();
+  }
+  async function toggle(t: ItemRecord) {
+    await upsertItem(userId, { ...t, status: t.status === "done" ? "todo" : "done" });
+    hapticTap();
+  }
+  async function toggleTalk(q: string) {
+    const existing = talks.find((t) => t.title === q);
+    if (existing) await upsertItem(userId, { ...existing, status: existing.status === "done" ? "todo" : "done" });
+    else await upsertItem(userId, { kind: "wed-talk", title: q, status: "done" });
+    hapticTap();
+  }
+
+  return (
+    <Section title="Pranikah" caption={`${items.filter((t) => t.status === "done").length}/${items.length} berkas · ${discussed.size}/${totalQ} obrolan`}>
+      {items.length === 0 ? (
+        <div className="mb-5 space-y-3">
+          <Empty>Daftar berkas KUA, cek kesehatan, dan bekal sebelum akad.</Empty>
+          <button onClick={seed} className="btn-accent w-full">Pakai daftar pranikah</button>
+        </div>
+      ) : (
+        groups.map((g) => {
+          const list = items.filter((t) => (t.due || "Bekal") === g);
+          if (!list.length) return null;
+          return (
+            <div key={g} className="mb-4">
+              <div className="mb-1.5 text-[12px] font-bold text-text-3">{g}</div>
+              <ListBox>
+                {list.map((t) => (
+                  <SwipeRow key={t.id} onDelete={() => deleteItem(userId, t.id)}>
+                    <button onClick={() => toggle(t)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
+                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                      <span className={`text-[14px] ${t.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{t.title}</span>
+                    </button>
+                  </SwipeRow>
+                ))}
+              </ListBox>
+            </div>
+          );
+        })
+      )}
+      <p className="-mt-1 mb-5 text-[11px] leading-snug text-text-4">
+        Syarat bisa berbeda tiap daerah — pastikan lagi ke KUA kecamatan kalian.
+      </p>
+
+      <div className="mb-1 text-[15px] font-extrabold text-text-1">Obrolan sebelum akad</div>
+      <p className="mb-3 text-[12px] text-text-3">Bahas pelan-pelan, satu topik per kencan. Centang kalau sudah sepakat.</p>
+      {TALKS.map((t) => (
+        <div key={t.topic} className="mb-4">
+          <div className="mb-1.5 text-[12px] font-bold text-text-3">{t.topic}</div>
+          <ListBox>
+            {t.q.map((q) => (
+              <button key={q} onClick={() => toggleTalk(q)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
+                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${discussed.has(q) ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                <span className={`text-[14px] ${discussed.has(q) ? "text-text-3" : "text-text-1"}`}>{q}</span>
+              </button>
+            ))}
+          </ListBox>
+        </div>
+      ))}
     </Section>
   );
 }
