@@ -13,28 +13,28 @@
   --mono: var(--font-jakarta), -apple-system, system-ui, sans-serif;
 
   /* Surface — warm paper background, white floating cards */
-  --bg-app: #faf6f1;
+  --bg-app: #f4f4f6;
   --bg-card: #ffffff;
-  --bg-elev1: #f6f0e9;
-  --bg-elev2: #f1e9e0;
-  --bg-elev3: #e7ddd2;
-  --border: #ece3d9;
-  --border-strong: #ddd0c2;
-  --overlay: rgba(40, 24, 16, 0.35);
-  --shadow-card: 0 1px 2px rgba(80, 50, 30, 0.04), 0 8px 24px -12px rgba(80, 50, 30, 0.14);
-  --shadow-float: 0 12px 32px -12px rgba(80, 40, 30, 0.28);
+  --bg-elev1: #f1f1f4;
+  --bg-elev2: #eaeaef;
+  --bg-elev3: #dedee5;
+  --border: #e7e7ec;
+  --border-strong: #d4d4dc;
+  --overlay: rgba(10, 10, 14, 0.4);
+  --shadow-card: 0 1px 2px rgba(16, 18, 24, 0.04), 0 6px 20px -12px rgba(16, 18, 24, 0.12);
+  --shadow-float: 0 12px 32px -14px rgba(16, 18, 24, 0.3);
 
   /* Text — warm ink instead of pure grey */
-  --text-1: #2a1f1a;
-  --text-2: #4a3c35;
-  --text-3: #7d6d64;
-  --text-4: #a99a90;
-  --text-5: #d9cdc4;
+  --text-1: #111216;
+  --text-2: #3a3c43;
+  --text-3: #6b6e78;
+  --text-4: #9a9da6;
+  --text-5: #c9cbd1;
 
   /* Semantic */
-  --positive: #1f9d6b;
+  --positive: #16a34a;
   --positive-bg: #ddf4e8;
-  --negative: #e04848;
+  --negative: #e5484d;
   --negative-bg: #fde4e1;
   --warning: #d98a0b;
   --warning-bg: #fdf0d5;
@@ -73,28 +73,29 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --transition: 250ms var(--ease-ios);
+  --hairline: rgba(17, 18, 22, 0.06);
 }
 
 [data-theme="dark"] {
-  --bg-app: #141015;
-  --bg-card: #1f1a21;
-  --bg-elev1: #1b161d;
-  --bg-elev2: #29222c;
-  --bg-elev3: #352d38;
-  --border: #2c252f;
-  --border-strong: #3d3440;
-  --overlay: rgba(0, 0, 0, 0.6);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px -14px rgba(0, 0, 0, 0.6);
-  --shadow-float: 0 14px 34px -12px rgba(0, 0, 0, 0.7);
+  --bg-app: #0b0c0f;
+  --bg-card: #16171c;
+  --bg-elev1: #121317;
+  --bg-elev2: #1e2026;
+  --bg-elev3: #2a2d34;
+  --border: #24262d;
+  --border-strong: #33363f;
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 28px -16px rgba(0, 0, 0, 0.8);
+  --shadow-float: 0 16px 40px -14px rgba(0, 0, 0, 0.85);
 
-  --text-1: #f7efe9;
-  --text-2: #dccfc7;
-  --text-3: #a8978e;
-  --text-4: #7a6b64;
-  --text-5: #4a3f44;
+  --text-1: #f4f5f7;
+  --text-2: #c9ccd3;
+  --text-3: #8c909a;
+  --text-4: #5f636d;
+  --text-5: #3a3d44;
 
-  --positive: #3ed598;
-  --positive-bg: rgba(62, 213, 152, 0.14);
+  --positive: #4ade80;
+  --positive-bg: rgba(74, 222, 128, 0.12);
   --negative: #ff6b6b;
   --negative-bg: rgba(255, 107, 107, 0.15);
   --warning: #ffb547;
@@ -106,6 +107,7 @@
   --accent-2: #ff9a6c;
   --accent-fg: #ffffff;
   --accent-soft: rgba(255, 107, 125, 0.16);
+  --hairline: rgba(255, 255, 255, 0.06);
 }
 
 /* Accent presets — applied independently of light/dark */
@@ -311,14 +313,14 @@ html.theme-switching *::after {
   padding-bottom: var(--sab);
 }
 .pb-nav {
-  padding-bottom: calc(var(--nav-h) + 12px);
+  padding-bottom: calc(var(--nav-h) + 28px);
 }
 
 /* ── REUSABLE PRIMITIVES ──────────────────────────────── */
 /* Minimalist surface: white card with a single hairline border, no fill. */
 .surface {
   background: var(--bg-card);
-  border: 1px solid transparent;
+  border: 1px solid var(--hairline);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
 }
@@ -336,14 +338,14 @@ html.theme-switching *::after {
 }
 
 .btn-accent {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: var(--accent);
   color: var(--accent-fg);
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 15px;
   padding: 13px 18px;
   border: none;
-  box-shadow: 0 8px 20px -10px var(--accent);
+  box-shadow: none;
   letter-spacing: -0.01em;
   transition: opacity var(--transition), transform 0.1s var(--ease-ios);
 }
@@ -656,11 +658,35 @@ html.theme-switching *::after {
   backdrop-filter: saturate(160%) blur(18px);
 }
 .app-nav {
-  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
-  backdrop-filter: saturate(160%) blur(18px);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -8px 24px -18px rgba(80, 40, 30, 0.35);
+  background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  backdrop-filter: saturate(180%) blur(22px);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-float);
+}
+
+/* Big money figures: large but light, tabular, tight — like a banking app. */
+.num-hero {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Soft light at the top of money screens. */
+.hero-glow {
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+    var(--bg-app);
+}
+[data-theme="dark"] .hero-glow {
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(120, 130, 160, 0.22), transparent 62%),
+    var(--bg-app);
 }
 
 /* ── WIDE SCREENS (iPad & laptop, ≥768px) ─────────────── */

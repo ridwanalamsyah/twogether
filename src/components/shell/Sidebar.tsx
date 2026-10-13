@@ -1,11 +1,12 @@
 "use client";
 
+import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ITEMS, isActive } from "@/components/shell/BottomNav";
-import { FEATURES, tintBg } from "@/data/features";
+import { FEATURES } from "@/data/features";
 import { useFeatures } from "@/stores/features";
 import { useAuth } from "@/stores/auth";
 import { useUi } from "@/stores/ui";
@@ -40,9 +41,8 @@ export function Sidebar() {
       </Link>
 
       <button
-        onClick={openCapture}
-        className="mb-4 flex items-center justify-center gap-2 rounded-full py-2.5 text-[14px] font-bold text-accent-fg shadow-[0_8px_18px_-10px_var(--accent)] active:scale-[0.98]"
-        style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+        onClick={() => openCapture()}
+        className="mb-4 flex items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-[14px] font-semibold text-accent-fg active:scale-[0.98]"
       >
         <span className="text-[18px] leading-none">＋</span> Catat cepat
       </button>
@@ -67,12 +67,7 @@ export function Sidebar() {
             href={f.href}
             active={pathname === f.href || !!pathname?.startsWith(f.href + "/")}
             icon={
-              <span
-                className="grid h-6 w-6 place-items-center rounded-lg text-[14px] leading-none"
-                style={{ background: tintBg(f.tint, 18) }}
-              >
-                {f.emoji}
-              </span>
+              <IconTile spec={spaceIcon(f.href)} size={26} radius={8} />
             }
             label={f.title}
           />

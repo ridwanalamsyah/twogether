@@ -9,6 +9,7 @@ import { BUNDLES, FEATURES, tintBg } from "@/data/features";
 import { usePeople } from "@/lib/people";
 import { useNick } from "@/lib/nick";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
+import { IconTile, bundleIcon } from "@/lib/icons";
 
 // Same key as the old tour, so people who already saw it aren't asked again.
 const KEY = "bareng:onboarded:v1";
@@ -141,7 +142,7 @@ export function OnboardingTour() {
                       style={{ background: tintBg(b.tint, on ? 22 : 12) }}
                     >
                       {on && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-accent text-[11px] font-bold text-accent-fg">✓</span>}
-                      <div className="text-[24px] leading-none">{b.emoji}</div>
+                      <IconTile spec={bundleIcon(b.id)} size={38} radius={12} />
                       <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
                       <div className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-text-3">{titles.join(", ")}</div>
                     </button>

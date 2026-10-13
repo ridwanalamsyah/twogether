@@ -6,15 +6,33 @@ import Link from "next/link";
 import { BudgetCard } from "@/components/budget/BudgetCard";
 import { budgetAlert } from "@/lib/budget";
 import { toast } from "@/lib/toast";
-import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import {
   addTransaction,
   deleteTransaction,
+  useEntries,
+  useItems,
   useTransactions,
   useTrips,
 } from "@/stores/data";
+import { Sheet, FieldGroup, Chips } from "@/components/ui/Sheet";
+import { IconTile, categoryIcon, spaceIcon } from "@/lib/icons";
+import { WalletBadge } from "@/components/wallet/WalletBadge";
+import { billState } from "@/lib/bills";
+import {
+  Bell,
+  ChartLine,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  PiggyBank,
+  Plus,
+  Receipt,
+  Search,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import {
   formatRupiah,
   formatRupiahShort,
@@ -25,19 +43,6 @@ import { SwipeRow } from "@/components/ui/SwipeRow";
 import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
 import { WalletPicker, WalletStrip, useWallets } from "@/components/wallet/Wallets";
 import { WALLET_TAG, lastWallet, rememberWallet, walletOf, withWallet } from "@/lib/wallet";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Makan: "🍜",
-  Bensin: "⛽️",
-  Laundry: "🧺",
-  Skincare: "🧴",
-  Kuliah: "🎓",
-  Usaha: "💼",
-  Ortu: "👪",
-  Tabungan: "🏦",
-  Jajan: "🧋",
-  Lainnya: "🧾",
-};
 
 function dayLabel(iso: string): string {
   const today = todayISO();
@@ -71,15 +76,22 @@ export default function TrackerPage() {
   const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId);
+  const bills = useItems(userId, "bill") ?? [];
+  const billPaid = useEntries(userId, "bill-paid") ?? [];
   const [filter, setFilter] = useState<"all" | "in" | "out">("all");
   const [wallet, setWallet] = useState<string | null>(null);
-  const { wallets } = useWallets();
+  const { wallets, balances } = useWallets();
   const walletById = (id: string | null) => wallets.find((w) => w.id === id);
   const [search, setSearch] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [month, setMonth] = useState(() => todayISO().slice(0, 7));
+  const thisMonth = todayISO().slice(0, 7);
 
   const filtered = useMemo(() => {
     return (txs ?? [])
+      .filter((t) => (search ? true : t.date.startsWith(month)))
       .filter((t) => (filter === "all" ? true : t.kind === filter))
       .filter((t) => (wallet ? walletOf(t) === wallet : true))
       .filter((t) => {
@@ -91,19 +103,32 @@ export default function TrackerPage() {
           t.who.toLowerCase().includes(q)
         );
       });
-  }, [txs, filter, search, wallet]);
+  }, [txs, filter, search, wallet, month]);
 
-  const month = useMemo(() => {
-    const prefix = todayISO().slice(0, 7);
+  const sum = useMemo(() => {
     let inc = 0;
     let out = 0;
     for (const t of txs ?? []) {
-      if (!t.date.startsWith(prefix)) continue;
+      if (!t.date.startsWith(month)) continue;
       if (t.kind === "in") inc += t.amount;
       else out += t.amount;
     }
-    return { inc, out, net: inc - out };
-  }, [txs]);
+    // Net movement over the last 7 days, for the little trend chip.
+    const weekAgo = shiftDay(todayISO(), -7);
+    const week = (txs ?? [])
+      .filter((t) => t.date > weekAgo)
+      .reduce((s, t) => s + (t.kind === "in" ? t.amount : -t.amount), 0);
+    return { inc, out, net: inc - out, week };
+  }, [txs, month]);
+
+  const totalBalance = wallets.reduce((s, w) => s + (balances[w.id] ?? 0), 0);
+  // Only show a wallet total once wallets actually hold money (a starting
+  // balance or tagged transactions) — otherwise "Rp 0" would just mislead.
+  const hasWallets = wallets.some((w) => w.initial !== 0) || (txs ?? []).some((t) => !!walletOf(t));
+  const dueBills = bills
+    .filter((b) => b.status !== "archived")
+    .map((b) => billState(b, billPaid))
+    .filter((x) => !x.paid && !x.finished && x.daysLeft <= 3).length;
 
   const groups = useMemo(() => {
     const map = new Map<string, typeof filtered>();
@@ -115,179 +140,244 @@ export default function TrackerPage() {
     }
     return Array.from(map.entries()).map(([date, items]) => ({
       date,
-      items,
-      total: items.reduce((sum, t) => sum + (t.kind === "in" ? t.amount : -t.amount), 0),
+      items: [...items].sort((x, y) => y.createdAt - x.createdAt),
+      total: items.reduce((s, t) => s + (t.kind === "in" ? t.amount : -t.amount), 0),
     }));
   }, [filtered]);
 
+  const monthLabel = new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 1, 1).toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
+  const filterLabel =
+    (filter === "all" ? "Semua" : filter === "out" ? "Keluar" : "Masuk") + (wallet ? ` · ${walletById(wallet)?.name ?? ""}` : "");
+
   return (
-    <div>
-      <AppHeader
-        title="Uang"
-        actions={
-          <button
-            onClick={() => setShowAdd(true)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg active:scale-95"
-          >
-            Tambah
+    <div className="hero-glow min-h-full">
+      {/* Top bar: month switcher in the middle, bills bell on the right */}
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 pb-2 pt-[var(--header-top-pad)]">
+        <Link href="/aset" aria-label="Aset bersih" className="grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur">
+          <ChartLine size={18} />
+        </Link>
+        <div className="flex items-center gap-0.5 rounded-full bg-bg-card/70 p-1 ring-1 ring-[color:var(--hairline)] backdrop-blur">
+          <button onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Bulan sebelumnya" className="grid h-8 w-8 place-items-center rounded-full text-text-3">
+            <ChevronLeft size={17} />
           </button>
-        }
-      />
-      <div className="px-5 pt-4">
-        <div className="mb-3">
-          <WalletStrip selected={wallet} onSelect={setWallet} />
+          <span className="min-w-[118px] text-center text-[14px] font-semibold text-text-1">{monthLabel}</span>
+          <button
+            onClick={() => setMonth(shiftMonth(month, 1))}
+            disabled={month >= thisMonth}
+            aria-label="Bulan berikutnya"
+            className="grid h-8 w-8 place-items-center rounded-full text-text-3 disabled:opacity-30"
+          >
+            <ChevronRight size={17} />
+          </button>
         </div>
-        <div className="surface grid grid-cols-3 divide-x divide-border py-3 text-center">
-          <div>
-            <div className="text-[10px] section-label text-text-4">Masuk</div>
-            <div className="mt-0.5 font-mono text-[14px] font-semibold text-[color:var(--positive)]">
-              {formatRupiahShort(month.inc)}
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] section-label text-text-4">Keluar</div>
-            <div className="mt-0.5 font-mono text-[14px] font-semibold text-text-1">
-              {formatRupiahShort(month.out)}
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] section-label text-text-4">Sisa</div>
-            <div
-              className={`mt-0.5 font-mono text-[14px] font-semibold ${
-                month.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"
-              }`}
-            >
-              {formatRupiahShort(month.net)}
-            </div>
-          </div>
+        <Link href="/tagihan" aria-label="Tagihan" className="relative grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur">
+          <Bell size={18} />
+          {dueBills > 0 && <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[color:var(--negative)] ring-2 ring-[color:var(--bg-card)]" />}
+        </Link>
+      </div>
+
+      {/* Hero balance */}
+      <div className="px-5 pb-7 pt-5 text-center">
+        <div className="text-[13px] font-medium text-text-3">{hasWallets && month === thisMonth ? "Total saldo" : "Sisa bulan ini"}</div>
+        <div className={`num-hero mt-1.5 text-[38px] ${!hasWallets && sum.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
+          {formatRupiah(hasWallets && month === thisMonth ? totalBalance : sum.net)}
         </div>
-        <div className="mt-1.5 text-center text-[10px] text-text-4">Bulan ini</div>
-        <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 text-[12px] font-semibold text-text-2">
+        {month === thisMonth && sum.week !== 0 && (
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-bg-card/70 px-3 py-1.5 text-[12px] font-medium text-text-2 ring-1 ring-[color:var(--hairline)]">
+            {sum.week > 0 ? <TrendingUp size={14} className="text-[color:var(--positive)]" /> : <TrendingDown size={14} className="text-[color:var(--negative)]" />}
+            {sum.week > 0 ? "+" : "−"}
+            {formatRupiahShort(Math.abs(sum.week))} 7 hari terakhir
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3 rounded-t-[28px] bg-bg-app px-4 pb-6 pt-5 ring-1 ring-[color:var(--hairline)]">
+        {/* Month summary */}
+        <section className="surface p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[17px] font-semibold text-text-1">Keuangan bulan ini</h2>
+            <Link href="/laporan" className="flex items-center gap-0.5 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-medium text-text-2">
+              Detail <ChevronRight size={14} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { label: "Pemasukan", v: sum.inc, spec: { Icon: PiggyBank, tint: "#22c55e" } },
+              { label: "Pengeluaran", v: sum.out, spec: { Icon: Receipt, tint: "#f43f5e" } },
+            ].map((x) => (
+              <div key={x.label} className="rounded-[18px] bg-bg-elev1 p-3.5">
+                <IconTile spec={x.spec} size={38} radius={999} />
+                <div className="mt-3 text-[12px] text-text-3">{x.label}</div>
+                <div className="num mt-0.5 text-[16px] font-semibold text-text-1">{formatRupiah(x.v)}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Shortcuts */}
+        <div className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4">
           {[
-            { href: "/tagihan", label: "🧾 Tagihan" },
-            { href: "/laporan", label: "📊 Laporan" },
-            { href: "/dompet", label: "👛 Dompet" },
-            { href: "/aset", label: "📈 Aset" },
-            { href: "/impor", label: "⬇️ Impor" },
+            { href: "/tagihan", label: "Tagihan" },
+            { href: "/dompet", label: "Dompet" },
+            { href: "/laporan", label: "Laporan" },
+            { href: "/aset", label: "Aset" },
+            { href: "/impor", label: "Impor" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="shrink-0 rounded-full bg-bg-card px-3.5 py-2 text-center shadow-card active:scale-95">
-              {l.label}
+            <Link key={l.href} href={l.href} className="flex w-[68px] shrink-0 flex-col items-center gap-1.5 py-1 active:opacity-70">
+              <IconTile spec={spaceIcon(l.href)} size={48} radius={16} />
+              <span className="text-[11px] font-medium text-text-2">{l.label}</span>
             </Link>
           ))}
         </div>
-        <BudgetCard txs={txs ?? []} month={todayISO().slice(0, 7)} categories={CATEGORIES} />
 
-        <div className="mt-3 flex items-center gap-2">
+        {month === thisMonth && <BudgetCard txs={txs ?? []} month={month} categories={CATEGORIES} />}
+
+        {/* Transactions */}
+        <div className="flex items-center justify-between px-1 pt-3">
+          <h2 className="text-[19px] font-semibold text-text-1">Transaksi</h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAdd(true)}
+              aria-label="Tambah transaksi"
+              className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 ring-1 ring-[color:var(--hairline)]"
+            >
+              <Plus size={17} />
+            </button>
+            <button
+              onClick={() => setSearching((v) => !v)}
+              aria-label="Cari"
+              className={`grid h-9 w-9 place-items-center rounded-full ring-1 ring-[color:var(--hairline)] ${searching ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2"}`}
+            >
+              <Search size={16} />
+            </button>
+            <button
+              onClick={() => setFilterOpen(true)}
+              className="flex h-9 items-center gap-1 rounded-full bg-bg-card px-3.5 text-[13px] font-medium text-text-1 ring-1 ring-[color:var(--hairline)]"
+            >
+              <span className="max-w-[130px] truncate">{filterLabel}</span>
+              <ChevronDown size={15} className="text-text-3" />
+            </button>
+          </div>
+        </div>
+        {searching && (
           <input
-            className="input-base h-9 flex-1 bg-bg-elev1 text-[14px]"
+            autoFocus
+            className="input-base h-11 bg-bg-card"
             type="search"
             placeholder="Cari catatan, kategori, nama…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
-        <div className="relative mt-3 grid grid-cols-3 rounded-[10px] bg-bg-elev2 p-0.5 text-[12px]">
-          <span
-            aria-hidden
-            className="absolute bottom-0.5 top-0.5 left-0.5 w-[calc((100%-4px)/3)] rounded-[8px] bg-bg-app shadow-sm transition-transform duration-300 ease-ios"
-            style={{
-              transform: `translateX(${["all", "out", "in"].indexOf(filter) * 100}%)`,
-            }}
-          />
-          {(["all", "out", "in"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`relative py-1.5 font-medium transition-colors ${
-                filter === f ? "text-text-1" : "text-text-3"
-              }`}
-            >
-              {f === "all" ? "Semua" : f === "out" ? "Keluar" : "Masuk"}
-            </button>
-          ))}
-        </div>
-      </div>
+        )}
 
-      <div className="pt-2 pb-6">
         {groups.length === 0 ? (
-          <div className="px-5 py-14 text-center">
-            <div className="text-3xl">🧾</div>
-            <div className="mt-2 text-sm text-text-3">
-              {search ? "Tidak ada yang cocok." : "Belum ada transaksi."}
+          <div className="py-12 text-center">
+            <IconTile spec={{ Icon: Receipt, tint: "#94a3b8" }} size={52} radius={18} className="mx-auto" />
+            <div className="mt-3 text-[14px] text-text-3">
+              {search ? "Tidak ada yang cocok." : `Belum ada transaksi di ${monthLabel}.`}
             </div>
             {!search && (
-              <button
-                onClick={() => setShowAdd(true)}
-                className="btn-accent mt-4 px-5 py-2 text-[13px]"
-              >
-                Catat transaksi pertama
+              <button onClick={() => setShowAdd(true)} className="btn-accent mt-4 px-5 py-2.5 text-[14px]">
+                Catat transaksi
               </button>
             )}
           </div>
         ) : (
           groups.map((g) => (
-            <section key={g.date} className="slide-up">
-              <div className="flex items-baseline justify-between px-5 pb-2 pt-5">
-                <span className="text-[12px] font-semibold text-text-2">
-                  {dayLabel(g.date)}
-                </span>
-                <span className="font-mono text-[11px] text-text-4">
-                  {g.total >= 0 ? "+" : "−"}
-                  {formatRupiahShort(Math.abs(g.total))}
+            <section key={g.date}>
+              <div className="flex items-baseline justify-between px-1 pb-2 pt-3 text-[13px]">
+                <span className="font-medium text-text-3">{dayLabel(g.date)}</span>
+                <span className="num text-text-3">
+                  Total {g.total >= 0 ? "+" : "−"}
+                  {formatRupiah(Math.abs(g.total))}
                 </span>
               </div>
-              <ul className="mx-4 overflow-hidden rounded-[20px] bg-bg-card shadow-card">
-                {g.items.map((t) => (
-                  <li key={t.id}>
-                    <SwipeRow onDelete={() => userId && deleteTransaction(userId, t.id)}>
-                      <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
-                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[11px] bg-bg-elev2 text-[17px]">
-                          {CATEGORY_EMOJI[t.category] ?? "🧾"}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[14px] text-text-1">
-                            {t.note || t.category}
+              <ul className="space-y-2">
+                {g.items.map((t) => {
+                  const w = walletById(walletOf(t));
+                  const extraTags = (t.tags ?? []).filter((tag) => !tag.startsWith(WALLET_TAG));
+                  return (
+                    <li key={t.id} className="overflow-hidden rounded-[20px]">
+                      <SwipeRow onDelete={() => userId && deleteTransaction(userId, t.id)}>
+                        <div className="surface flex items-center gap-3 rounded-[20px] px-3.5 py-3">
+                          <IconTile spec={categoryIcon(t.category, t.kind)} size={46} radius={14} />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-[15px] font-medium text-text-1">{t.note || t.category}</div>
+                            <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[12px] text-text-3">
+                              {w ? (
+                                <>
+                                  <WalletBadge name={w.name} size={18} />
+                                  <span className="truncate">{w.name}</span>
+                                </>
+                              ) : (
+                                <span className="truncate">
+                                  {t.note ? `${t.category} · ` : ""}
+                                  {nick(t.who)}
+                                </span>
+                              )}
+                              {extraTags.slice(0, 2).map((tag) => (
+                                <span key={tag} className="shrink-0 text-text-4">#{tag}</span>
+                              ))}
+                            </div>
                           </div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-text-4">
-                            <span>
-                              {nick(t.who)} · {t.category}
-                              {walletById(walletOf(t)) ? ` · ${walletById(walletOf(t))!.emoji} ${walletById(walletOf(t))!.name}` : ""}
-                            </span>
-                            {(t.tags ?? []).filter((tag) => !tag.startsWith(WALLET_TAG)).map((tag) => (
-                              <span key={tag} className="text-text-3">
-                                #{tag}
-                              </span>
-                            ))}
+                          <div className="shrink-0 text-right">
+                            <div className={`num text-[15px] font-semibold ${t.kind === "in" ? "text-[color:var(--positive)]" : "text-[color:color-mix(in_srgb,var(--negative)_85%,var(--text-1))]"}`}>
+                              {t.kind === "in" ? "+ " : "− "}
+                              {formatRupiah(t.amount)}
+                            </div>
+                            <div className="num mt-1 text-[12px] text-text-4">
+                              {new Date(t.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                            </div>
                           </div>
                         </div>
-                        <div
-                          className={`font-mono text-[14px] font-medium tabular-nums ${
-                            t.kind === "in"
-                              ? "text-[color:var(--positive)]"
-                              : "text-text-1"
-                          }`}
-                        >
-                          {t.kind === "in" ? "+" : "−"}
-                          {formatRupiah(t.amount)}
-                        </div>
-                      </div>
-                    </SwipeRow>
-                  </li>
-                ))}
+                      </SwipeRow>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           ))
         )}
-        {groups.length > 0 && (
-          <p className="px-5 pt-4 text-center text-[11px] text-text-5">
-            Geser ke kiri untuk menghapus
-          </p>
-        )}
+        {groups.length > 0 && <p className="pt-3 text-center text-[11px] text-text-4">Geser ke kiri untuk menghapus</p>}
       </div>
 
+      {filterOpen && (
+        <Sheet title="Tampilkan" onClose={() => setFilterOpen(false)}>
+          <FieldGroup label="Jenis">
+            <Chips
+              options={[
+                { value: "all", label: "Semua" },
+                { value: "out", label: "Keluar" },
+                { value: "in", label: "Masuk" },
+              ]}
+              value={filter}
+              onChange={(v) => setFilter(v as typeof filter)}
+            />
+          </FieldGroup>
+          {wallets.length > 0 && (
+            <FieldGroup label="Dompet">
+              <WalletStrip selected={wallet} onSelect={setWallet} />
+            </FieldGroup>
+          )}
+          <button onClick={() => setFilterOpen(false)} className="btn-accent mt-2 w-full">Selesai</button>
+        </Sheet>
+      )}
       {showAdd && <AddTxSheet onClose={() => setShowAdd(false)} />}
     </div>
   );
+}
+
+function shiftMonth(key: string, n: number) {
+  const d = new Date(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1 + n, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+function shiftDay(iso: string, n: number) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const x = new Date(y, m - 1, d + n);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 }
 
 function AddTxSheet({ onClose }: { onClose: () => void }) {

@@ -85,6 +85,7 @@ export default function AppLayout({
 /** One quick-capture sheet for the whole app; "N" opens it on a keyboard. */
 function CaptureHost() {
   const open = useUi((s) => s.captureOpen);
+  const action = useUi((s) => s.captureAction);
   const openCapture = useUi((s) => s.openCapture);
   const close = useUi((s) => s.closeCapture);
   useEffect(() => {
@@ -93,12 +94,12 @@ function CaptureHost() {
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
       e.preventDefault();
-      openCapture();
+      openCapture("manual");
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [openCapture]);
-  return <QuickCapture open={open} onClose={close} />;
+  return <QuickCapture open={open} action={action} onClose={close} />;
 }
 
 function LockGate() {

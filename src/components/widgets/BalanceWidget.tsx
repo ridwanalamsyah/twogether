@@ -9,6 +9,8 @@ import { Sheet } from "@/components/ui/Sheet";
 import { hapticTap } from "@/lib/haptic";
 import { formatRupiahShort } from "@/lib/utils";
 import { WidgetShell } from "./WidgetShell";
+import { IconTile } from "@/lib/icons";
+import { CreditCard, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
 
 interface Stat {
   /** Stable key for the tile's icon choice. */
@@ -122,6 +124,15 @@ export function BalanceWidget() {
   const [picking, setPicking] = useState<Stat | null>(null);
   const iconOf = (s: Stat, i: number) =>
     picks?.find((p) => p.title === s.key)?.status || TINTS[i % TINTS.length].emoji;
+  const custom = (s: Stat) => picks?.find((p) => p.title === s.key)?.status;
+  const DEFAULT_SPECS = [
+    { Icon: Wallet, tint: "#22c55e" },
+    { Icon: CreditCard, tint: "#3b82f6" },
+    { Icon: HandCoins, tint: "#f59e0b" },
+    { Icon: PiggyBank, tint: "#a855f7" },
+  ];
+  const specOf = (s: Stat, i: number) =>
+    s.key === "tabungan" ? { Icon: PiggyBank, tint: "#a855f7" } : s.key === "bulan" ? { Icon: Receipt, tint: "#f43f5e" } : DEFAULT_SPECS[i % DEFAULT_SPECS.length];
   async function choose(emoji: string) {
     if (!userId || !picking) return;
     const existing = picks?.find((p) => p.title === picking.key);
@@ -136,18 +147,21 @@ export function BalanceWidget() {
         {stats.map((s, i) => (
           <div
             key={s.label}
-            className="rounded-2xl px-3 py-2.5"
-            style={{ background: TINTS[i % TINTS.length].bg }}
+            className="rounded-[18px] bg-bg-elev1 p-3"
           >
             <button
               onClick={() => setPicking(s)}
               aria-label={`Ganti ikon ${s.label}`}
-              className="-m-1 rounded-lg p-1 text-[16px] leading-none active:scale-90"
+              className="rounded-full active:scale-90"
             >
-              {iconOf(s, i)}
+              {custom(s) ? (
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-[18px] leading-none">{custom(s)}</span>
+              ) : (
+                <IconTile spec={specOf(s, i)} size={36} radius={999} />
+              )}
             </button>
             <div
-              className={`mt-1.5 font-mono text-[17px] font-bold tracking-tight ${
+              className={`num mt-2.5 text-[17px] font-semibold ${
                 s.tone === "negative"
                   ? "text-[color:var(--negative)]"
                   : "text-text-1"
