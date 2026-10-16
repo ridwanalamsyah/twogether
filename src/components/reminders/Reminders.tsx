@@ -1,5 +1,6 @@
 "use client";
 
+import { Bell } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -52,7 +53,7 @@ export function RemindersWidget() {
   if (!list.length) return null;
   return (
     <div className="surface p-4">
-      <div className="mb-2 text-[15px] font-bold text-text-1">🔔 Pengingat</div>
+      <div className="mb-2 flex items-center gap-2 text-[15px] font-semibold text-text-1"><Bell size={16} className="text-accent" /> Pengingat</div>
       <ul className="space-y-1.5">
         {list.map((r) => (
           <li key={r.id} className="flex items-center gap-2 rounded-2xl bg-bg-elev1 pr-1">

@@ -1,5 +1,7 @@
 "use client";
 
+import { CircleCheck } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -96,7 +98,7 @@ export default function ImporPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {done != null ? (
           <div className="surface p-6 text-center">
-            <div className="text-[40px]">✅</div>
+            <IconTile spec={{ Icon: CircleCheck, tint: "#22c55e" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">{done} transaksi masuk</div>
             <button onClick={() => router.push("/tracker")} className="btn-accent mt-4 w-full">Lihat di Uang</button>
           </div>

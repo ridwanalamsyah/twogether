@@ -1,5 +1,6 @@
 "use client";
 
+import { HeartHandshake, Send, Smile } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/stores/auth";
@@ -86,7 +87,7 @@ export function OnboardingTour() {
         <div className="min-h-0 flex-1 overflow-y-auto">
           {step === 0 && (
             <div className="text-center">
-              <div className="text-[56px] leading-none">💞</div>
+              <IconTile spec={{ Icon: HeartHandshake, tint: "#f43f5e" }} size={72} radius={22} className="mx-auto" />
               <h2 className="mt-4 text-[24px] font-extrabold leading-tight text-text-1">Satu tempat untuk kalian berdua</h2>
               <p className="mx-auto mt-2 max-w-[320px] text-[14px] leading-relaxed text-text-3">
                 Uang, ibadah, jadwal, dan kenangan — dicatat bareng, tersimpan di HP berdua. Tetap jalan walau tanpa internet.
@@ -108,7 +109,7 @@ export function OnboardingTour() {
 
           {step === 1 && (
             <div>
-              <div className="text-[44px] leading-none">👋</div>
+              <IconTile spec={{ Icon: Smile, tint: "#f59e0b" }} size={56} radius={18} />
               <h2 className="mt-3 text-[22px] font-extrabold text-text-1">Mau dipanggil apa?</h2>
               <p className="mt-1 text-[14px] text-text-3">Dipakai di sapaan dan terlihat oleh pasanganmu. Bisa diganti kapan saja.</p>
               <input
@@ -154,7 +155,7 @@ export function OnboardingTour() {
 
           {step === 3 && (
             <div className="text-center">
-              <div className="text-[56px] leading-none">💌</div>
+              <IconTile spec={{ Icon: Send, tint: "#3b82f6" }} size={72} radius={22} className="mx-auto" />
               <h2 className="mt-4 text-[22px] font-extrabold text-text-1">Ajak pasanganmu</h2>
               <p className="mx-auto mt-2 max-w-[320px] text-[14px] leading-relaxed text-text-3">
                 Kirim undangan supaya catatan kalian tersambung — yang satu mencatat, yang lain langsung lihat.

@@ -1,5 +1,6 @@
 "use client";
 
+import { Flame } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -49,7 +50,7 @@ export function TantanganWidget() {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <Link href="/tantangan" className="text-[15px] font-bold text-text-1">🔥 Tantangan hari ini</Link>
+        <Link href="/tantangan" className="flex items-center gap-2 text-[15px] font-semibold text-text-1"><Flame size={16} className="text-[#f97316]" /> Tantangan hari ini</Link>
         <Link href="/tantangan" className="text-[12px] text-text-3">Lihat ›</Link>
       </div>
       {active.length === 0 ? (

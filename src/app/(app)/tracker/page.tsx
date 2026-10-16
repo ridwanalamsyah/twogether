@@ -3,6 +3,8 @@
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { AppHeader } from "@/components/shell/AppHeader";
+import { usePeople } from "@/lib/people";
 import { BudgetCard } from "@/components/budget/BudgetCard";
 import { budgetAlert } from "@/lib/budget";
 import { toast } from "@/lib/toast";
@@ -74,6 +76,8 @@ const CATEGORIES = [
 
 export default function TrackerPage() {
   const { nick } = useNick();
+  const { me, partner } = usePeople();
+  const sharedLabel = useWorkspace((s) => s.sharedLabel);
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId);
   const bills = useItems(userId, "bill") ?? [];
@@ -121,6 +125,26 @@ export default function TrackerPage() {
     return { inc, out, net: inc - out, week };
   }, [txs, month]);
 
+  // Who spent what this month — the "berdua" view.
+  const split = useMemo(() => {
+    const by = new Map<string, number>();
+    for (const t of txs ?? []) {
+      if (t.kind !== "out" || !t.date.startsWith(month)) continue;
+      by.set(t.who || me, (by.get(t.who || me) ?? 0) + t.amount);
+    }
+    const order = [me, partner, sharedLabel].filter(Boolean) as string[];
+    const colors = ["var(--accent)", "var(--info)", "var(--text-4)"];
+    const parts = Array.from(by.entries())
+      .sort((x, y) => (order.indexOf(x[0]) + 99) % 99 - (order.indexOf(y[0]) + 99) % 99)
+      .map(([who, v], i) => ({
+        who,
+        v,
+        label: who === me ? "Kamu" : nick(who),
+        color: colors[order.indexOf(who) >= 0 ? order.indexOf(who) : Math.min(i, 2)],
+      }));
+    return { parts, total: Math.max(1, parts.reduce((s, x) => s + x.v, 0)) };
+  }, [txs, month, me, partner, sharedLabel, nick]);
+
   const totalBalance = wallets.reduce((s, w) => s + (balances[w.id] ?? 0), 0);
   // Only show a wallet total once wallets actually hold money (a starting
   // balance or tagged transactions) — otherwise "Rp 0" would just mislead.
@@ -153,68 +177,73 @@ export default function TrackerPage() {
     (filter === "all" ? "Semua" : filter === "out" ? "Keluar" : "Masuk") + (wallet ? ` · ${walletById(wallet)?.name ?? ""}` : "");
 
   return (
-    <div className="hero-glow min-h-full">
-      {/* Top bar: month switcher in the middle, bills bell on the right */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-4 pb-2 pt-[var(--header-top-pad)]">
-        <Link href="/aset" aria-label="Aset bersih" className="grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur">
-          <ChartLine size={18} />
-        </Link>
-        <div className="flex items-center gap-0.5 rounded-full bg-bg-card/70 p-1 ring-1 ring-[color:var(--hairline)] backdrop-blur">
-          <button onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Bulan sebelumnya" className="grid h-8 w-8 place-items-center rounded-full text-text-3">
-            <ChevronLeft size={17} />
-          </button>
-          <span className="min-w-[118px] text-center text-[14px] font-semibold text-text-1">{monthLabel}</span>
-          <button
-            onClick={() => setMonth(shiftMonth(month, 1))}
-            disabled={month >= thisMonth}
-            aria-label="Bulan berikutnya"
-            className="grid h-8 w-8 place-items-center rounded-full text-text-3 disabled:opacity-30"
-          >
-            <ChevronRight size={17} />
-          </button>
-        </div>
-        <Link href="/tagihan" aria-label="Tagihan" className="relative grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur">
-          <Bell size={18} />
-          {dueBills > 0 && <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[color:var(--negative)] ring-2 ring-[color:var(--bg-card)]" />}
-        </Link>
-      </div>
+    <div className="min-h-full">
+      <AppHeader
+        title="Uang"
+        actions={
+          <Link href="/tagihan" aria-label="Tagihan" className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2">
+            <Bell size={17} strokeWidth={1.8} />
+            {dueBills > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[color:var(--negative)] ring-2 ring-[color:var(--bg-app)]" />}
+          </Link>
+        }
+      />
 
-      {/* Hero balance */}
-      <div className="px-5 pb-7 pt-5 text-center">
-        <div className="text-[13px] font-medium text-text-3">{hasWallets && month === thisMonth ? "Total saldo" : "Sisa bulan ini"}</div>
-        <div className={`num-hero mt-1.5 text-[38px] ${!hasWallets && sum.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
-          {formatRupiah(hasWallets && month === thisMonth ? totalBalance : sum.net)}
-        </div>
-        {month === thisMonth && sum.week !== 0 && (
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-bg-card/70 px-3 py-1.5 text-[12px] font-medium text-text-2 ring-1 ring-[color:var(--hairline)]">
-            {sum.week > 0 ? <TrendingUp size={14} className="text-[color:var(--positive)]" /> : <TrendingDown size={14} className="text-[color:var(--negative)]" />}
-            {sum.week > 0 ? "+" : "−"}
-            {formatRupiahShort(Math.abs(sum.week))} 7 hari terakhir
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-3 rounded-t-[28px] bg-bg-app px-4 pb-6 pt-5 ring-1 ring-[color:var(--hairline)]">
-        {/* Month summary */}
-        <section className="surface p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[17px] font-semibold text-text-1">Keuangan bulan ini</h2>
-            <Link href="/laporan" className="flex items-center gap-0.5 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-medium text-text-2">
-              Detail <ChevronRight size={14} />
+      <div className="space-y-3 px-4 pb-6">
+        {/* Uang kita: the month at a glance, framed for two */}
+        <section className="surface overflow-hidden">
+          <div className="flex items-center justify-between px-4 pt-3.5">
+            <div className="flex items-center gap-0.5 rounded-full bg-bg-elev1 p-0.5">
+              <button onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Bulan sebelumnya" className="grid h-7 w-7 place-items-center rounded-full text-text-3">
+                <ChevronLeft size={15} />
+              </button>
+              <span className="px-1 text-[13px] font-semibold text-text-2">{monthLabel}</span>
+              <button
+                onClick={() => setMonth(shiftMonth(month, 1))}
+                disabled={month >= thisMonth}
+                aria-label="Bulan berikutnya"
+                className="grid h-7 w-7 place-items-center rounded-full text-text-3 disabled:opacity-30"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+            <Link href="/laporan" className="flex items-center gap-0.5 text-[12px] font-semibold text-accent">
+              Laporan <ChevronRight size={14} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {[
-              { label: "Pemasukan", v: sum.inc, spec: { Icon: PiggyBank, tint: "#22c55e" } },
-              { label: "Pengeluaran", v: sum.out, spec: { Icon: Receipt, tint: "#f43f5e" } },
-            ].map((x) => (
-              <div key={x.label} className="rounded-[18px] bg-bg-elev1 p-3.5">
-                <IconTile spec={x.spec} size={38} radius={999} />
-                <div className="mt-3 text-[12px] text-text-3">{x.label}</div>
-                <div className="num mt-0.5 text-[16px] font-semibold text-text-1">{formatRupiah(x.v)}</div>
-              </div>
-            ))}
+
+          <div className="px-4 pb-4 pt-4">
+            <div className="text-[13px] text-text-3">{hasWallets && month === thisMonth ? "Total saldo kita" : "Sisa uang kita"}</div>
+            <div className={`num-hero mt-1 text-[34px] ${!hasWallets && sum.net < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
+              {formatRupiah(hasWallets && month === thisMonth ? totalBalance : sum.net)}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
+              <span className="flex items-center gap-1.5 text-text-3">
+                <TrendingUp size={14} className="text-[color:var(--positive)]" /> Masuk <b className="num font-semibold text-text-1">{formatRupiahShort(sum.inc)}</b>
+              </span>
+              <span className="flex items-center gap-1.5 text-text-3">
+                <TrendingDown size={14} className="text-[color:var(--negative)]" /> Keluar <b className="num font-semibold text-text-1">{formatRupiahShort(sum.out)}</b>
+              </span>
+            </div>
           </div>
+
+          {split.parts.length > 0 && (
+            <div className="border-t border-[color:var(--hairline)] px-4 pb-4 pt-3">
+              <div className="mb-2 text-[12px] font-medium text-text-3">Yang keluar bulan ini</div>
+              <div className="flex h-2 overflow-hidden rounded-full bg-bg-elev2">
+                {split.parts.map((x) => (
+                  <span key={x.who} style={{ width: `${(x.v / split.total) * 100}%`, background: x.color }} />
+                ))}
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1.5">
+                {split.parts.map((x) => (
+                  <span key={x.who} className="flex items-center gap-1.5 text-[12px] text-text-2">
+                    <span className="h-2 w-2 rounded-full" style={{ background: x.color }} />
+                    {x.label} <span className="num font-semibold text-text-1">{formatRupiahShort(x.v)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Shortcuts */}

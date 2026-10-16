@@ -1,5 +1,7 @@
 "use client";
 
+import { Receipt } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, FieldGroup, Chips } from "@/components/ui/Sheet";
@@ -115,7 +117,7 @@ export default function TagihanPage() {
 
         {states.length === 0 ? (
           <div className="surface p-6 text-center">
-            <div className="text-[40px]">🧾</div>
+            <IconTile spec={{ Icon: Receipt, tint: "#ef4444" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">Tagihan rutin di satu tempat</div>
             <p className="mt-1 text-[13px] text-text-3">
               Listrik, kos, cicilan, langganan. Tinggal ketuk &ldquo;Bayar&rdquo; — langsung tercatat sebagai pengeluaran.

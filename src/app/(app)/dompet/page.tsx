@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeftRight, ChevronLeft, ChevronRight, Download, Eye, EyeOff, Plus } from "lucide-react";
+import { ArrowLeftRight, ChevronRight, Download, Eye, EyeOff, Plus } from "lucide-react";
+import { AppHeader } from "@/components/shell/AppHeader";
 import { TransferSheet, WalletSheet, useWallets } from "@/components/wallet/Wallets";
 import { WalletBadge, walletLook } from "@/components/wallet/WalletBadge";
 import { IconTile } from "@/lib/icons";
@@ -57,22 +58,20 @@ export default function DompetPage() {
   }
 
   return (
-    <div className="hero-glow min-h-full pb-10">
-      <div className="flex items-center justify-between px-4 pb-1 pt-[var(--header-top-pad)]">
-        <Link href="/tracker" aria-label="Kembali ke Uang" className="grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur">
-          <ChevronLeft size={19} />
-        </Link>
-        <span className="text-[15px] font-semibold text-text-1">Dompet</span>
-        <button
-          onClick={toggleHidden}
-          aria-label={hidden ? "Tampilkan saldo" : "Sembunyikan saldo"}
-          className="grid h-10 w-10 place-items-center rounded-full bg-bg-card/70 text-text-2 ring-1 ring-[color:var(--hairline)] backdrop-blur"
-        >
-          {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
-
-      <div className="px-5 pb-5 pt-4">
+    <div className="min-h-full pb-10">
+      <AppHeader
+        title="Dompet"
+        actions={
+          <button
+            onClick={toggleHidden}
+            aria-label={hidden ? "Tampilkan saldo" : "Sembunyikan saldo"}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2"
+          >
+            {hidden ? <EyeOff size={17} strokeWidth={1.8} /> : <Eye size={17} strokeWidth={1.8} />}
+          </button>
+        }
+      />
+      <div className="px-5 pb-5 pt-1">
         <div className="text-[13px] font-medium text-text-3">Total saldo semua akun</div>
         <div className="num-hero mt-1 text-[36px] text-text-1">{money(total)}</div>
       </div>

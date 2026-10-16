@@ -1,5 +1,7 @@
 "use client";
 
+import { Trophy } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -125,7 +127,7 @@ export default function TargetPage() {
         {tab === "target" ? (
           targets.length === 0 ? (
             <div className="surface p-6 text-center">
-              <div className="text-[40px]">🎯</div>
+              <IconTile spec={{ Icon: Trophy, tint: "#8b5cf6" }} size={64} radius={22} className="mx-auto" />
               <div className="mt-2 text-[17px] font-extrabold text-text-1">Mau jadi apa kita tahun ini?</div>
               <p className="mt-1 text-[13px] text-text-3">Tulis 3–6 target saja. Yang angka bisa dicicil, yang lain tinggal dicentang.</p>
               <button onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tulis target</button>
