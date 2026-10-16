@@ -74,7 +74,7 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
       ))}
       <Link
         href="/dompet"
-        className="grid shrink-0 place-items-center rounded-[18px] border-2 border-dashed border-border-strong px-4 text-[13px] font-semibold text-text-3"
+        className="grid shrink-0 place-items-center rounded-[18px] bg-bg-elev2 px-4 text-[13px] font-semibold text-text-3"
       >
         {wallets.length ? "Atur" : "+ Dompet"}
       </Link>

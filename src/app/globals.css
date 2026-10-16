@@ -844,3 +844,77 @@ html.theme-switching *::after {
   --bg-elev1: #18141f;
   --bg-elev2: #221c2c;
 }
+
+/* ── Inline add forms on older pages: a real card with filled fields ── */
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-card);
+}
+.form-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.form-card select,
+.form-card textarea {
+  min-width: 0;
+  background: var(--bg-elev1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-height: 42px;
+  font-size: 15px;
+  color: var(--text-1);
+}
+.form-card input::placeholder,
+.form-card textarea::placeholder {
+  color: var(--text-4);
+}
+.form-card input:focus,
+.form-card select:focus,
+.form-card textarea:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* ── Minimum readable text: 9–11px looked blurry ("pixel") on phones ── */
+.text-\[9px\] { font-size: 10.5px; }
+.text-\[10px\] { font-size: 11px; }
+.text-\[11px\] { font-size: 12px; }
+
+/* ── Space hero cards: a soft tint of the space's colour instead of a loud
+   gradient banner. Pages mark the card .hero-soft and set --hero. ── */
+.hero-soft {
+  --hero: var(--accent);
+  background: color-mix(in srgb, var(--hero) 10%, var(--bg-card)) !important;
+  border: 1px solid color-mix(in srgb, var(--hero) 16%, transparent);
+  box-shadow: none !important;
+  color: var(--text-1) !important;
+}
+[data-theme="dark"] .hero-soft {
+  background: color-mix(in srgb, var(--hero) 16%, var(--bg-card)) !important;
+}
+.hero-soft .text-white { color: var(--text-1) !important; }
+.hero-soft [class*="text-white/"] { color: var(--text-3) !important; }
+.hero-soft [class*="bg-white/"] { background: color-mix(in srgb, var(--hero) 14%, transparent) !important; }
+.hero-soft .bg-white {
+  background: var(--hero) !important;
+  color: #fff !important;
+}
+.hero-soft .bg-white * { color: #fff !important; }
+.hero-soft .font-extrabold,
+.hero-soft .font-bold { font-weight: 600; }
+/* Decorative giant glyphs/illustrations in the old banners */
+.hero-soft > [aria-hidden].absolute,
+.hero-soft > svg.absolute { opacity: 0.08 !important; color: var(--hero); }
+/* Rings and bars drawn in white become the space colour */
+.hero-soft svg [stroke="#fff"], .hero-soft svg [stroke="white"] { stroke: var(--hero); }
+.hero-soft svg [stroke="rgba(255,255,255,0.25)"] { stroke: color-mix(in srgb, var(--hero) 20%, transparent); }
+
+/* Flat lists on older pages become a card with hairline separators. */
+.list-card {
+  background: var(--bg-card);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: 0 16px;
+  box-shadow: var(--shadow-card);
+}
+.list-card > * + * { border-top: 1px solid var(--hairline); }

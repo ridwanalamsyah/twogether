@@ -77,7 +77,7 @@ function ShoppingSection() {
       caption={`${items.filter((i) => i.status !== "done").length} item perlu dibeli`}
       defaultOpen
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={t}
@@ -176,7 +176,7 @@ function PantrySection() {
       title="Stok dapur"
       caption={`${items.length} item`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={t}
@@ -274,7 +274,7 @@ function CleaningSection() {
       title="Kebersihan"
       caption={`${items.length} task rutin`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={t}
@@ -379,7 +379,7 @@ function MealPlanSection() {
 
   return (
     <Section title="Meal plan" caption="7 hari ke depan">
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             type="date"
@@ -466,7 +466,7 @@ function MaintenanceSection() {
       title="Maintenance"
       caption="Service AC, ganti filter, kendaraan…"
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={t}
@@ -543,7 +543,7 @@ function PetSection() {
 
   return (
     <Section title="Pet" caption={`${items.length} pet`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={name}

@@ -88,7 +88,7 @@ export default function KabarPage() {
           </span>
         </div>
         {pings.length === 0 ? (
-          <div className="rounded-[20px] border-2 border-dashed border-border py-10 text-center text-[13px] text-text-3">
+          <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
             Belum ada kabar. Kirim 💗 pertama!
           </div>
         ) : (

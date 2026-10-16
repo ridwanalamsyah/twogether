@@ -98,7 +98,7 @@ export default function TargetPage() {
           <button onClick={() => setYear(year + 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun berikutnya">›</button>
         </div>
 
-        <div className="rounded-[24px] p-5 text-white shadow-float" style={{ background: "linear-gradient(135deg,var(--accent),#8b5cf6)" }}>
+        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#8b5cf6" }}>
           <div className="text-[13px] font-semibold text-white/85">
             {targets.length ? `${doneCount} dari ${targets.length} target tercapai` : "Belum ada target"}
           </div>

@@ -109,8 +109,7 @@ export default function BelanjaPage() {
           <button
             type="submit"
             disabled={!text.trim()}
-            className="grid h-12 w-12 place-items-center rounded-full text-[22px] font-bold text-accent-fg shadow-[0_8px_18px_-10px_var(--accent)] disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
+            className="grid h-12 w-12 place-items-center rounded-full bg-accent text-[22px] font-semibold text-accent-fg disabled:bg-bg-elev3 disabled:text-text-4"
             aria-label="Tambah"
           >
             +
@@ -136,7 +135,7 @@ export default function BelanjaPage() {
           <span className="text-[13px] text-text-3">{todo.length} barang</span>
         </div>
         {todo.length === 0 ? (
-          <div className="rounded-[20px] border-2 border-dashed border-border py-10 text-center text-[14px] text-text-3">
+          <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
             🛒 Daftar kosong. Ketik di atas untuk menambah.
           </div>
         ) : (

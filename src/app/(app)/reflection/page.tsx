@@ -146,7 +146,7 @@ function HistoryList({ items }: { items: ReflectionRecord[] }) {
           Belum ada refleksi minggu ini.
         </div>
       ) : (
-        <ul className="divide-y divide-border border-y border-border">
+        <ul className="list-card">
           {items.slice(0, 20).map((r) => (
             <li key={r.id} className="flex items-start gap-3 py-2.5">
               <span className="mt-0.5 text-base">

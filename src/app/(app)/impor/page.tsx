@@ -161,7 +161,7 @@ export default function ImporPage() {
               <span className="text-[12px] text-text-3">{parsed.filter((r) => r.dup).length} sudah ada</span>
             </div>
             {parsed.length === 0 ? (
-              <div className="rounded-[20px] border-2 border-dashed border-border py-8 text-center text-[13px] text-text-3">
+              <div className="rounded-[20px] bg-bg-elev1 px-6 py-8 text-center text-[14px] leading-relaxed text-text-3">
                 Belum ada baris yang terbaca. Coba atur kolom di atas.
               </div>
             ) : (

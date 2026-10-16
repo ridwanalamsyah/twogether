@@ -1,5 +1,7 @@
 "use client";
 
+import { Moon, Sun, Sunrise, Sunset, CloudSun } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -15,6 +17,14 @@ import { PRAYERS, fmtTime, nextPrayer, prayerTimes, qiblaBearing, type PrayerId 
 import { usePeople, parsePayload, isoDay, addDays } from "@/lib/people";
 import { computeCycle, isPeriodDay, DEFAULT_CYCLE_SETTINGS, type CycleSettings } from "@/lib/cycle";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
+
+const PRAYER_ICON = {
+  subuh: { Icon: Sunrise, tint: "#f59e0b" },
+  dzuhur: { Icon: Sun, tint: "#eab308" },
+  ashar: { Icon: CloudSun, tint: "#f97316" },
+  maghrib: { Icon: Sunset, tint: "#e11d48" },
+  isya: { Icon: Moon, tint: "#6366f1" },
+} as const;
 
 export default function ShalatPage() {
   const userId = useAuth((s) => s.userId);
@@ -108,8 +118,8 @@ export default function ShalatPage() {
       <div className="space-y-4 px-5 pb-8 pt-3">
         {/* Next prayer hero */}
         <div
-          className="relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#0f7a5c 0%,#1fae84 60%,#d9b24c 140%)" }}
+          className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+          style={{ ["--hero" as string]: "#0f7a5c" }}
         >
           <span aria-hidden className="absolute -right-3 -top-4 text-[90px] opacity-15">🕌</span>
           <button
@@ -163,7 +173,7 @@ export default function ShalatPage() {
             const passed = times[p.id] <= now;
             return (
               <div key={p.id} className={`flex items-center gap-3 px-4 py-3 ${isNext ? "bg-[#1fae84]/10" : ""}`}>
-                <span className="text-[22px]">{p.emoji}</span>
+                <IconTile spec={PRAYER_ICON[p.id]} size={40} radius={12} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[15px] font-bold text-text-1">{p.name}</div>
                   <div className="font-mono text-[12px] text-text-3">

@@ -136,10 +136,10 @@ export function SectionTabs({
               role="tab"
               aria-selected={on}
               onClick={() => select(t.title)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
+              className={`shrink-0 rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
                 on
-                  ? "bg-accent text-accent-fg shadow-[0_6px_14px_-8px_var(--accent)]"
-                  : "bg-bg-card text-text-3 shadow-card"
+                  ? "bg-text-1 text-bg-app"
+                  : "bg-bg-card text-text-2 ring-1 ring-[color:var(--hairline)]"
               }`}
             >
               {t.title}
@@ -200,7 +200,7 @@ export function Section({
       >
         {(caption || action) && (
           <div className="mb-3 flex min-h-[28px] items-center justify-between gap-3">
-            <div className="text-[12px] text-text-3">{caption}</div>
+            <div className="text-[13px] text-text-3">{caption}</div>
             <div className="flex items-center gap-2">{action}</div>
           </div>
         )}
@@ -240,7 +240,7 @@ export function Section({
 
 export function ListBox({ children }: { children: ReactNode }) {
   return (
-    <div className="divide-y divide-border rounded-[20px] bg-bg-card px-4 shadow-card">
+    <div className="divide-y divide-[color:var(--hairline)] rounded-[20px] border border-[color:var(--hairline)] bg-bg-card px-4 shadow-card">
       {children}
     </div>
   );
@@ -248,7 +248,7 @@ export function ListBox({ children }: { children: ReactNode }) {
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-[20px] border-2 border-dashed border-border py-8 text-center text-[13px] text-text-3">
+    <div className="rounded-[20px] bg-bg-elev1 px-6 py-9 text-center text-[14px] leading-relaxed text-text-3">
       {children}
     </div>
   );
@@ -267,7 +267,7 @@ export function AccentBtn({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg shadow-[0_6px_14px_-8px_var(--accent)] active:scale-95 disabled:opacity-40"
+      className="grid h-10 min-w-10 shrink-0 place-items-center rounded-full bg-accent px-3 text-[14px] font-semibold text-accent-fg active:scale-95 disabled:bg-bg-elev3 disabled:text-text-4"
     >
       {children}
     </button>
@@ -284,7 +284,7 @@ export function GhostBtn({
   return (
     <button
       onClick={onClick}
-      className="text-[11px] text-text-3 active:opacity-50"
+      className="text-[13px] font-medium text-text-3 active:opacity-50"
     >
       {children}
     </button>

@@ -89,8 +89,8 @@ export default function ZakatPage() {
       <AppHeader title="Zakat" />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
-          className="rounded-[24px] p-5 text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#0f7a5c,#d9b24c)" }}
+          className="hero-soft rounded-[24px] p-5 text-white shadow-float"
+          style={{ ["--hero" as string]: "#0f7a5c" }}
         >
           <div className="text-[13px] font-semibold text-white/85">
             Zakat {tab === "fitrah" ? "fitrah" : tab === "mal" ? "mal (harta)" : "penghasilan / bulan"}

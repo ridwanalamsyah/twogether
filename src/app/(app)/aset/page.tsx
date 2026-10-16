@@ -1,5 +1,7 @@
 "use client";
 
+import { IconTile } from "@/lib/icons";
+import { CreditCard, HandCoins, Receipt, Target, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -50,7 +52,7 @@ export default function AsetPage() {
     <div>
       <AppHeader title="Aset bersih" />
       <div className="space-y-4 px-5 pb-10 pt-3">
-        <div className="rounded-[24px] p-5 text-white shadow-float" style={{ background: "linear-gradient(135deg,#0f766e,#2563eb)" }}>
+        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#0f766e" }}>
           <div className="text-[13px] font-semibold text-white/85">Total kekayaan berdua</div>
           <div className="mt-1 font-mono text-[32px] font-extrabold leading-tight">{formatRupiah(now?.total ?? 0)}</div>
           {prev && (
@@ -128,14 +130,17 @@ export default function AsetPage() {
           <section className="surface p-4">
             <h2 className="mb-2 text-[15px] font-bold text-text-1">Rinciannya</h2>
             {[
-              { label: "👛 Saldo dompet", v: now.wallets, href: "/dompet" },
-              { label: "🎯 Tabungan Goals", v: now.savings, href: "/goals" },
-              { label: "🤝 Piutang (dipinjam orang)", v: now.lent, href: "/uang" },
-              { label: "💳 Hutang", v: -now.owe, href: "/uang" },
-              { label: "📲 Sisa cicilan", v: -now.installments, href: "/tagihan" },
+              { label: "Saldo dompet", v: now.wallets, href: "/dompet", spec: { Icon: Wallet, tint: "#f59e0b" } },
+              { label: "Tabungan Goals", v: now.savings, href: "/goals", spec: { Icon: Target, tint: "#22c55e" } },
+              { label: "Piutang (dipinjam orang)", v: now.lent, href: "/uang", spec: { Icon: HandCoins, tint: "#0ea5e9" } },
+              { label: "Hutang", v: -now.owe, href: "/uang", spec: { Icon: CreditCard, tint: "#ef4444" } },
+              { label: "Sisa cicilan", v: -now.installments, href: "/tagihan", spec: { Icon: Receipt, tint: "#a855f7" } },
             ].map((r) => (
               <Link key={r.label} href={r.href} className="flex items-center justify-between border-b border-border py-2.5 text-[14px] last:border-0">
-                <span className="text-text-2">{r.label}</span>
+                <span className="flex items-center gap-3 text-text-2">
+                  <IconTile spec={r.spec} size={34} radius={10} />
+                  {r.label}
+                </span>
                 <span className={`font-mono font-semibold ${r.v < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
                   {r.v < 0 ? "−" : ""}{formatRupiah(Math.abs(r.v))}
                 </span>

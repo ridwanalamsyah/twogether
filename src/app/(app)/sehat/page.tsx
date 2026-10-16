@@ -67,7 +67,7 @@ function WaterSection() {
       defaultOpen
       action={<AccentBtn onClick={() => add(1)}>+ 1 gelas</AccentBtn>}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-1.5">
           {Array.from({ length: target }).map((_, i) => (
             <div
@@ -130,7 +130,7 @@ function WeightSection() {
           : "Catat berat harian"
       }
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             type="number"
@@ -201,7 +201,7 @@ function SleepSection() {
           : "Catat jam tidur"
       }
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             type="number"
@@ -278,7 +278,7 @@ function ExerciseSection() {
       title="Olahraga"
       caption={`${entries.length} sesi total`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={type}
@@ -427,7 +427,7 @@ function BodyMetricsSection() {
         entries.length > 0 ? `${entries.length} catatan` : "Pinggang, dada, pinggul"
       }
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="grid grid-cols-3 gap-2">
           <input
             type="number"
@@ -510,7 +510,7 @@ function MedsSection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="space-y-2">
             <input
               value={name}

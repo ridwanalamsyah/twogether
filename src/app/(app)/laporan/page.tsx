@@ -101,7 +101,7 @@ export default function LaporanPage() {
         </div>
 
         {cur.length === 0 ? (
-          <div className="rounded-[20px] border-2 border-dashed border-border py-12 text-center text-[13px] text-text-3">
+          <div className="rounded-[20px] bg-bg-elev1 px-6 py-12 text-center text-[14px] leading-relaxed text-text-3">
             Belum ada transaksi di bulan ini.
           </div>
         ) : (

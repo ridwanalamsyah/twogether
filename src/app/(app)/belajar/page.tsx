@@ -92,7 +92,7 @@ function ReadingSection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="space-y-2">
             <input
               value={title}
@@ -220,7 +220,7 @@ function CourseSection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="space-y-2">
             <input
               value={title}
@@ -309,7 +309,7 @@ function JournalSection() {
 
   return (
     <Section title="Jurnal" caption={`${entries.length} catatan`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -471,7 +471,7 @@ function TimeSection() {
       title="Time tracking"
       caption={`Hari ini total ${total} menit`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <select
             value={cat}

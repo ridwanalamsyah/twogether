@@ -341,11 +341,11 @@ export default function CalendarPage() {
             );
           })()}
           {focusedEntries.length === 0 ? (
-            <div className="border-y border-border py-3 text-[12px] text-text-4">
+            <div className="rounded-[18px] bg-bg-elev1 px-4 py-4 text-center text-[14px] text-text-3">
               Tidak ada agenda.
             </div>
           ) : (
-            <ul className="divide-y divide-border border-y border-border">
+            <ul className="list-card">
               {focusedEntries.map((e, i) => {
                 const content = (
                   <div className="flex items-center gap-2 py-2.5">

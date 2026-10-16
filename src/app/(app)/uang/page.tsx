@@ -104,7 +104,7 @@ function DebtSection() {
       caption={`Hutang ${formatRupiah(totalOwe)} · Piutang ${formatRupiah(totalLent)}`}
       defaultOpen
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <div className="flex gap-2">
             <button
@@ -306,7 +306,7 @@ function SubscriptionSection() {
       title="Langganan"
       caption={`${items.filter((i) => i.status === "active").length} aktif · ${formatRupiah(Math.round(monthly))}/bln`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={t}

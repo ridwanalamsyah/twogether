@@ -91,8 +91,8 @@ export default function TilawahPage() {
         ) : (
           <>
             <div
-              className="relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-              style={{ background: "linear-gradient(135deg,#0f7a5c,#3aa57a 60%,#d9b24c 140%)" }}
+              className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+              style={{ ["--hero" as string]: "#0f7a5c" }}
             >
               <div className="flex items-center gap-4">
                 <Ring pct={pct} label={`${Math.min(30, Math.floor(progress / PAGES_PER_JUZ))}`} />
@@ -183,7 +183,7 @@ export default function TilawahPage() {
             <div>
               <div className="mb-2 px-1 text-[15px] font-extrabold text-text-1">Riwayat</div>
               {forKhatam.length === 0 ? (
-                <div className="rounded-[20px] border-2 border-dashed border-border py-8 text-center text-[13px] text-text-3">
+                <div className="rounded-[20px] bg-bg-elev1 px-6 py-8 text-center text-[14px] leading-relaxed text-text-3">
                   Belum ada catatan bacaan.
                 </div>
               ) : (

@@ -112,8 +112,8 @@ export default function NikahPage() {
         {/* Countdown hero */}
         <button
           onClick={() => setEditMeta(true)}
-          className="pressable relative block w-full overflow-hidden rounded-[24px] p-5 text-left text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#b76e79,#e8a3a3 55%,#f3cf9f)" }}
+          className="hero-soft pressable relative block w-full overflow-hidden rounded-[24px] p-5 text-left text-white shadow-float"
+          style={{ ["--hero" as string]: "#b76e79" }}
         >
           <span aria-hidden className="absolute -right-2 -top-3 text-[80px] opacity-20">💍</span>
           <div className="text-[13px] font-semibold text-white/85">

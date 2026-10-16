@@ -170,8 +170,8 @@ export function RamadhanWidget() {
   return (
     <Link
       href="/ramadhan"
-      className="pressable block rounded-[22px] p-4 text-white shadow-float"
-      style={{ background: "linear-gradient(135deg,#3b2a5c,#7a4f9e 60%,#d9b24c 140%)" }}
+      className="hero-soft pressable block rounded-[22px] p-4 text-white shadow-float"
+      style={{ ["--hero" as string]: "#7a4f9e" }}
     >
       {inRamadhan ? (
         <>
