@@ -11,6 +11,8 @@ export const WALLET_TAG = "dompet:";
 export interface WalletPayload {
   emoji: string;
   initial: number;
+  /** Short description: "Rekening utama", "Uang harian"… */
+  note?: string;
 }
 
 export interface Wallet {
@@ -18,12 +20,13 @@ export interface Wallet {
   name: string;
   emoji: string;
   initial: number;
+  note: string;
   archived: boolean;
 }
 
 export function toWallet(i: ItemRecord): Wallet {
   const p = parsePayload<WalletPayload>(i.payload, { emoji: "👛", initial: 0 });
-  return { id: i.id, name: i.title, emoji: p.emoji, initial: p.initial, archived: i.status === "archived" };
+  return { id: i.id, name: i.title, emoji: p.emoji, initial: p.initial, note: p.note ?? "", archived: i.status === "archived" };
 }
 
 export function walletOf(tx: Pick<TransactionRecord, "tags">): string | null {

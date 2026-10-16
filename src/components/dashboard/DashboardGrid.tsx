@@ -114,7 +114,7 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
             <SortableWidget key={w.id} widget={w} editing={editing} index={i} />
           ))}
           {visible.length === 0 && (
-            <div className="col-span-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-text-3">
+            <div className="col-span-2 rounded-[20px] bg-bg-elev1 p-6 text-center text-sm text-text-3">
               Belum ada kartu. Tap Susun untuk menambahkan.
             </div>
           )}

@@ -30,8 +30,8 @@ export function ShalatWidget() {
   return (
     <Link
       href="/shalat"
-      className="pressable block rounded-[22px] p-4 text-white shadow-float"
-      style={{ background: "linear-gradient(135deg,#0f7a5c,#1fae84)" }}
+      className="hero-soft pressable block rounded-[22px] p-4 text-white shadow-float"
+      style={{ ["--hero" as string]: "#0f7a5c" }}
     >
       <div className="text-[12px] font-semibold text-white/85">🕌 {next.name} berikutnya</div>
       <div className="mt-0.5 flex items-baseline gap-2">

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { hapticTap } from "@/lib/haptic";
-import { useUi } from "@/stores/ui";
+import { useUi, type CaptureAction } from "@/stores/ui";
+import { useEffect, useState } from "react";
+import { Camera, House, Heart, LayoutGrid, Mic, PenLine, Plus, Wallet } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -20,52 +22,19 @@ export const ITEMS: NavItem[] = [
     href: "/home",
     label: "Beranda",
     match: ["/home", "/settings"],
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M3 11l9-7 9 7" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M5 10v9h14v-9" strokeLinejoin="round" />
-      </svg>
-    ),
+    icon: <House size={21} strokeWidth={2} />,
   },
   {
     href: "/tracker",
     label: "Uang",
     match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <rect x="3" y="6" width="18" height="13" rx="2.5" />
-        <path d="M3 10h18" />
-        <path d="M16 15h2" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <Wallet size={21} strokeWidth={2} />,
   },
   {
     href: "/kita",
     label: "Kita",
     match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/nikah", "/kabar", "/tantangan"],
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    icon: <Heart size={21} strokeWidth={2} />,
   },
   {
     href: "/fitur",
@@ -93,19 +62,7 @@ export const ITEMS: NavItem[] = [
       "/target",
       "/fokus",
     ],
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <rect x="4" y="4" width="6.5" height="6.5" rx="1.8" />
-        <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8" />
-        <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8" />
-        <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8" />
-      </svg>
-    ),
+    icon: <LayoutGrid size={21} strokeWidth={2} />,
   },
 ];
 
@@ -114,54 +71,93 @@ export function isActive(pathname: string | null, item: NavItem) {
   return item.match.some((m) => pathname === m || pathname.startsWith(m + "/"));
 }
 
+const ACTIONS: { id: CaptureAction; label: string; Icon: typeof Plus; x: number; y: number }[] = [
+  { id: "manual", label: "Catat", Icon: PenLine, x: -78, y: -78 },
+  { id: "scan", label: "Struk", Icon: Camera, x: 0, y: -108 },
+  { id: "voice", label: "Suara", Icon: Mic, x: 78, y: -78 },
+];
+
 export function BottomNav() {
   const pathname = usePathname();
   const openCapture = useUi((s) => s.openCapture);
+  const [menu, setMenu] = useState(false);
   const left = ITEMS.slice(0, 2);
   const right = ITEMS.slice(2);
 
+  useEffect(() => setMenu(false), [pathname]);
+
+  function pick(a: CaptureAction) {
+    hapticTap();
+    setMenu(false);
+    openCapture(a);
+  }
+
   return (
     <>
-      <nav className="md:hidden fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 app-nav pb-[var(--nav-bottom-pad)]">
-        <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
-          {left.map((item) => (
-            <NavLink
-              key={item.href}
-              item={item}
-              active={isActive(pathname, item)}
-            />
-          ))}
-          <li className="flex items-center justify-center">
-            <button
-              type="button"
-              aria-label="Catat cepat"
-              onClick={() => {
-                hapticTap();
-                openCapture();
-              }}
-              className="-mt-3 grid h-[52px] w-[52px] place-items-center rounded-full text-accent-fg shadow-[0_10px_22px_-8px_var(--accent)] ring-4 ring-[color:var(--bg-card)] transition-transform duration-150 ease-ios active:scale-90"
-              style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                className="h-5 w-5"
+      <AnimatePresence>
+        {menu && (
+          <motion.button
+            key="scrim"
+            aria-label="Tutup"
+            onClick={() => setMenu(false)}
+            className="fixed inset-0 z-30 bg-black/45 backdrop-blur-[2px] md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          />
+        )}
+      </AnimatePresence>
+      <nav className="md:hidden fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3 pb-[var(--nav-bottom-pad)]">
+        <div className="app-nav relative mb-1.5 rounded-[26px]">
+          <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
+            {left.map((item) => (
+              <NavLink key={item.href} item={item} active={isActive(pathname, item)} />
+            ))}
+            <li className="relative flex items-center justify-center">
+              <span className="pointer-events-none absolute left-1/2 top-[calc(50%-14px)] h-0 w-0">
+              <AnimatePresence>
+                {menu &&
+                  ACTIONS.map((a, i) => (
+                    <motion.button
+                      key={a.id}
+                      type="button"
+                      onClick={() => pick(a.id)}
+                      aria-label={a.label}
+                      className="pointer-events-auto absolute -left-[27px] -top-[27px] flex w-[54px] flex-col items-center gap-1.5"
+                      initial={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
+                      animate={{ x: a.x, y: a.y, scale: 1, opacity: 1 }}
+                      exit={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 520, damping: 30, delay: i * 0.03 }}
+                    >
+                      <span className="grid h-[54px] w-[54px] place-items-center rounded-full bg-bg-card text-text-1 shadow-float ring-1 ring-[color:var(--hairline)]">
+                        <a.Icon size={22} strokeWidth={2} />
+                      </span>
+                      <span className="text-[11px] font-semibold text-white drop-shadow">{a.label}</span>
+                    </motion.button>
+                  ))}
+              </AnimatePresence>
+              </span>
+              <button
+                type="button"
+                aria-label={menu ? "Tutup menu catat" : "Catat cepat"}
+                aria-expanded={menu}
+                onClick={() => {
+                  hapticTap();
+                  setMenu((v) => !v);
+                }}
+                className="relative z-10 -mt-7 grid h-[56px] w-[56px] place-items-center rounded-full bg-accent text-accent-fg shadow-float ring-[5px] ring-[color:var(--bg-app)] transition-transform duration-150 ease-ios active:scale-90"
               >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </button>
-          </li>
-          {right.map((item) => (
-            <NavLink
-              key={item.href}
-              item={item}
-              active={isActive(pathname, item)}
-            />
-          ))}
-        </ul>
+                <motion.span animate={{ rotate: menu ? 45 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 28 }}>
+                  <Plus size={24} strokeWidth={2.4} />
+                </motion.span>
+              </button>
+            </li>
+            {right.map((item) => (
+              <NavLink key={item.href} item={item} active={isActive(pathname, item)} />
+            ))}
+          </ul>
+        </div>
       </nav>
     </>
   );
@@ -184,7 +180,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         {active && (
           <motion.span
             layoutId="nav-active-pill"
-            className="absolute top-[5px] h-[30px] w-[52px] rounded-full bg-accent-soft"
+            className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-accent-soft"
             transition={{ type: "spring", stiffness: 520, damping: 38 }}
           />
         )}

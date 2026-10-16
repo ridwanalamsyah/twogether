@@ -40,8 +40,8 @@ export default function PatunganPage() {
       />
       <div className="space-y-4 px-5 pb-8 pt-3">
         <div
-          className="rounded-[24px] p-5 text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#f59e0b,#f97362)" }}
+          className="hero-soft rounded-[24px] p-5 text-white shadow-float"
+          style={{ ["--hero" as string]: "#f59e0b" }}
         >
           <div className="text-[13px] font-semibold text-white/85">Saldo kalian</div>
           {net === 0 ? (
@@ -75,7 +75,7 @@ export default function PatunganPage() {
         </div>
 
         {all.length === 0 ? (
-          <div className="rounded-[20px] border-2 border-dashed border-border px-6 py-10 text-center text-[13px] text-text-3">
+          <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
             Bayarin makan, bensin, atau belanja buat berdua?
             <br />
             Catat di sini, nanti ketahuan siapa yang perlu ganti 🤝

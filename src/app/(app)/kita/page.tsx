@@ -102,7 +102,7 @@ function AnniversarySection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="space-y-2">
             <input
               value={title}
@@ -201,7 +201,7 @@ function DateNightSection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="space-y-2">
             <input
               value={title}
@@ -290,7 +290,7 @@ function AppreciationSection() {
       title="Apresiasi"
       caption={`${entries.length} catatan`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <textarea
             value={text}
@@ -351,7 +351,7 @@ function ArgumentSection() {
       title="Argumen"
       caption={`${entries.length} catatan · pelajaran biar tidak terulang`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={topic}
@@ -439,7 +439,7 @@ function BucketListSection() {
       action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
     >
       {showAdd && (
-        <div className="border-y border-border py-2.5">
+        <div className="form-card">
           <div className="flex gap-2">
             <input
               value={title}
@@ -524,7 +524,7 @@ function SurpriseSection() {
           : "Catat siapa terakhir kasih surprise"
       }
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={from}

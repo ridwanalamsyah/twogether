@@ -104,8 +104,8 @@ export default function RamadhanPage() {
       <AppHeader title="Ramadhan" />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
-          className="relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#123a5c,#0f7a5c 55%,#d9b24c 130%)" }}
+          className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+          style={{ ["--hero" as string]: "#7a5c12" }}
         >
           <span aria-hidden className="absolute -right-3 -top-3 text-[90px] opacity-20">🌙</span>
           {inRamadhan ? (

@@ -1,5 +1,7 @@
 "use client";
 
+import { IconTile, type IconSpec } from "@/lib/icons";
+import { Archive, Bell, Heart, LayoutDashboard, LockKeyhole, Palette, Trash2, UserRound, Wallet } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,29 +14,29 @@ import { getDB } from "@/lib/db";
 import { hasRemoteSync } from "@/lib/supabase";
 import { lastBackupAt } from "@/services/privacy";
 
-const SECTIONS: { title: string; rows: { href: string; icon: string; label: string; hint?: string }[] }[] = [
+const SECTIONS: { title: string; rows: { href: string; icon: IconSpec; label: string; hint?: string }[] }[] = [
   {
     title: "Akun",
     rows: [
-      { href: "/settings/profile", icon: "🙂", label: "Profil", hint: "Nama, foto, ulang tahun" },
-      { href: "/settings/security", icon: "🔐", label: "Password & keamanan", hint: "Ganti password, PIN" },
-      { href: "/settings/workspace", icon: "💞", label: "Pasangan", hint: "Undang & kelola anggota" },
+      { href: "/settings/profile", icon: { Icon: UserRound, tint: "#3b82f6" }, label: "Profil", hint: "Nama, foto, ulang tahun" },
+      { href: "/settings/security", icon: { Icon: LockKeyhole, tint: "#64748b" }, label: "Password & keamanan", hint: "Ganti password, PIN" },
+      { href: "/settings/workspace", icon: { Icon: Heart, tint: "#ec4899" }, label: "Pasangan", hint: "Undang & kelola anggota" },
     ],
   },
   {
     title: "Tampilan",
     rows: [
-      { href: "/settings/dashboard", icon: "🧩", label: "Susun Beranda" },
-      { href: "/settings/theme", icon: "🎨", label: "Tema & warna" },
-      { href: "/settings/pengingat", icon: "🔔", label: "Pengingat", hint: "Tagihan, tanggal penting, catat uang" },
+      { href: "/settings/dashboard", icon: { Icon: LayoutDashboard, tint: "#8b5cf6" }, label: "Susun Beranda" },
+      { href: "/settings/theme", icon: { Icon: Palette, tint: "#f97316" }, label: "Tema & warna" },
+      { href: "/settings/pengingat", icon: { Icon: Bell, tint: "#ef4444" }, label: "Pengingat", hint: "Tagihan, tanggal penting, catat uang" },
     ],
   },
   {
     title: "Lainnya",
     rows: [
-      { href: "/settings/finance", icon: "💰", label: "Uang & anggaran" },
-      { href: "/settings/privacy", icon: "📦", label: "Data & cadangan", hint: "Unduh atau hapus data" },
-      { href: "/settings/trash", icon: "🗑️", label: "Baru dihapus" },
+      { href: "/settings/finance", icon: { Icon: Wallet, tint: "#f59e0b" }, label: "Uang & anggaran" },
+      { href: "/settings/privacy", icon: { Icon: Archive, tint: "#0ea5e9" }, label: "Data & cadangan", hint: "Unduh atau hapus data" },
+      { href: "/settings/trash", icon: { Icon: Trash2, tint: "#94a3b8" }, label: "Baru dihapus" },
     ],
   },
 ];
@@ -110,9 +112,7 @@ export default function SettingsPage() {
                     href={r.href}
                     className="flex items-center gap-3 px-4 py-3 text-[15px] text-text-1 active:bg-bg-elev1"
                   >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-bg-elev1 text-[18px]">
-                      {r.icon}
-                    </span>
+                    <IconTile spec={r.icon} size={36} radius={11} />
                     <span className="min-w-0 flex-1">
                       <span className="block">{r.label}</span>
                       {r.href === "/settings/privacy" && backupDue ? (

@@ -103,7 +103,7 @@ export default function HabitsPage() {
               <div className="mb-2 text-[11px] font-medium section-label text-text-4">
                 {b}
               </div>
-              <ul className="divide-y divide-border border-y border-border">
+              <ul className="list-card">
                 {items.map((h) => {
                   const isDone = doneMap.get(h.id) === 1;
                   return (

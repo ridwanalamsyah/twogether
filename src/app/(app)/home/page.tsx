@@ -1,5 +1,7 @@
 "use client";
 
+import { IconTile, spaceIcon } from "@/lib/icons";
+import { Plus } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -8,7 +10,7 @@ import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
 import { usePeople } from "@/lib/people";
 import { useFeatures } from "@/stores/features";
-import { FEATURES, tintBg } from "@/data/features";
+import { FEATURES } from "@/data/features";
 
 export default function HomePage() {
   const authName = useAuth((s) => s.name);
@@ -96,20 +98,15 @@ function ToolsRow() {
             href={f.href}
             className="pressable flex flex-col items-center gap-1.5"
           >
-            <span
-              className="grid h-[56px] w-[56px] place-items-center rounded-[18px] text-[26px] leading-none"
-              style={{ background: tintBg(f.tint, 18) }}
-            >
-              {f.emoji}
-            </span>
+            <IconTile spec={spaceIcon(f.href)} size={56} radius={18} />
             <span className="max-w-[72px] truncate text-[11px] font-medium text-text-2">
               {f.title}
             </span>
           </Link>
         ))}
         <Link href="/fitur" className="pressable flex flex-col items-center gap-1.5">
-          <span className="grid h-[56px] w-[56px] place-items-center rounded-[18px] border-2 border-dashed border-border-strong text-[22px] leading-none text-text-3">
-            +
+          <span className="grid h-[56px] w-[56px] place-items-center rounded-[18px] bg-bg-elev2 text-text-3">
+            <Plus size={22} />
           </span>
           <span className="text-[11px] font-medium text-text-3">Tambah</span>
         </Link>

@@ -60,6 +60,10 @@ const config: Config = {
         sans: ["var(--font)"],
         mono: ["var(--mono)"],
       },
+      // Extra-bold everywhere read as "template"; 700 is the heaviest we use.
+      fontWeight: {
+        extrabold: "700",
+      },
       boxShadow: {
         card: "var(--shadow-card)",
         float: "var(--shadow-float)",

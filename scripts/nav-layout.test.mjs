@@ -41,7 +41,7 @@ assert.match(
 assert.match(
   bottomNav,
   /-bottom-\[var\(--nav-bottom-offset\)\]/,
-  "bottom nav should extend into the iOS safe area instead of floating above it",
+  "bottom nav wrapper should reach into the iOS safe area (the pill floats just above the home indicator)",
 );
 
 assert.doesNotMatch(
@@ -58,6 +58,6 @@ assert.match(
 
 assert.match(
   serviceWorker,
-  /const VERSION = "twogether-v10";/,
+  /const VERSION = "twogether-v11";/,
   "service worker cache version should bump when shell spacing changes",
 );

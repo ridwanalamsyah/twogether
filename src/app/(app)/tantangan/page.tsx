@@ -1,5 +1,7 @@
 "use client";
 
+import { Flame } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -54,7 +56,7 @@ export default function TantanganPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {active.length === 0 ? (
           <div className="surface p-6 text-center">
-            <div className="text-[40px]">🔥</div>
+            <IconTile spec={{ Icon: Flame, tint: "#f97316" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">Tantangan berdua</div>
             <p className="mt-1 text-[13px] text-text-3">
               Pilih satu kebiasaan, jalani bareng beberapa hari, centang tiap hari. Lebih gampang konsisten kalau ada yang nemenin.

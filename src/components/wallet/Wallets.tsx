@@ -5,10 +5,11 @@ import { useState } from "react";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertEntry, upsertItem, useEntries, useItems, useTransactions } from "@/stores/data";
-import { WALLET_EMOJIS, toWallet, walletBalances, type Wallet } from "@/lib/wallet";
+import { toWallet, walletBalances, type Wallet } from "@/lib/wallet";
 import { formatRupiah, formatRupiahShort, todayISO } from "@/lib/utils";
 import { usePeople } from "@/lib/people";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
+import { WalletBadge } from "./WalletBadge";
 
 export function useWallets() {
   const userId = useAuth((s) => s.userId);
@@ -34,11 +35,11 @@ export function WalletPicker({ value, onChange }: { value: string | null; onChan
             onChange(value === w.id ? null : w.id);
             hapticTap();
           }}
-          className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-[13px] font-semibold ${
             value === w.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-2 shadow-card"
           }`}
         >
-          <span>{w.emoji}</span>
+          <WalletBadge name={w.name} size={24} />
           {w.name}
         </button>
       ))}
@@ -57,7 +58,7 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
         className={`shrink-0 rounded-[18px] px-4 py-3 text-left ${selected === null ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"}`}
       >
         <div className={`text-[11px] font-semibold ${selected === null ? "opacity-70" : "text-text-3"}`}>Semua dompet</div>
-        <div className="font-mono text-[16px] font-extrabold">{wallets.length ? formatRupiahShort(total) : "—"}</div>
+        <div className="num text-[16px] font-semibold">{wallets.length ? formatRupiahShort(total) : "—"}</div>
       </button>
       {wallets.map((w) => (
         <button
@@ -65,15 +66,15 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
           onClick={() => onSelect(selected === w.id ? null : w.id)}
           className={`shrink-0 rounded-[18px] px-4 py-3 text-left ${selected === w.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-1 shadow-card"}`}
         >
-          <div className={`text-[11px] font-semibold ${selected === w.id ? "opacity-85" : "text-text-3"}`}>
-            {w.emoji} {w.name}
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${selected === w.id ? "opacity-85" : "text-text-3"}`}>
+            <WalletBadge name={w.name} size={16} /> {w.name}
           </div>
-          <div className="font-mono text-[16px] font-extrabold">{formatRupiahShort(balances[w.id] ?? 0)}</div>
+          <div className="num text-[16px] font-semibold">{formatRupiahShort(balances[w.id] ?? 0)}</div>
         </button>
       ))}
       <Link
         href="/dompet"
-        className="grid shrink-0 place-items-center rounded-[18px] border-2 border-dashed border-border-strong px-4 text-[13px] font-semibold text-text-3"
+        className="grid shrink-0 place-items-center rounded-[18px] bg-bg-elev2 px-4 text-[13px] font-semibold text-text-3"
       >
         {wallets.length ? "Atur" : "+ Dompet"}
       </Link>
@@ -84,7 +85,8 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
 export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () => void }) {
   const userId = useAuth((s) => s.userId);
   const [name, setName] = useState(wallet?.name ?? "");
-  const [emoji, setEmoji] = useState(wallet?.emoji ?? "👛");
+  const [note, setNote] = useState(wallet?.note ?? "");
+  const emoji = wallet?.emoji ?? "👛";
   const [initial, setInitial] = useState(wallet?.initial ? String(wallet.initial) : "");
   const n = Number(initial.replace(/[^\d-]/g, "")) || 0;
   async function save() {
@@ -94,7 +96,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
       kind: "wallet",
       title: name.trim(),
       status: "on",
-      payload: JSON.stringify({ emoji, initial: n }),
+      payload: JSON.stringify({ emoji, initial: n, note: note.trim() || undefined }),
     });
     hapticSuccess();
     onClose();
@@ -126,19 +128,13 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
       <Field label="Nama">
         <input className="input-base" autoFocus placeholder="BCA, GoPay, Tunai…" value={name} onChange={(e) => setName(e.target.value)} />
       </Field>
-      <Field label="Ikon">
-        <div className="flex flex-wrap gap-1.5">
-          {WALLET_EMOJIS.map((em) => (
-            <button
-              key={em}
-              type="button"
-              onClick={() => setEmoji(em)}
-              className={`grid h-10 w-10 place-items-center rounded-xl text-[20px] ${emoji === em ? "bg-accent-soft ring-2 ring-[color:var(--accent)]" : "bg-bg-card shadow-card"}`}
-            >
-              {em}
-            </button>
-          ))}
+      {name.trim() && (
+        <div className="-mt-1 mb-3 flex items-center gap-2 text-[12px] text-text-3">
+          <WalletBadge name={name} size={22} /> Warna mengikuti nama bank / e-wallet
         </div>
+      )}
+      <Field label="Keterangan (opsional)">
+        <input className="input-base" placeholder="Rekening utama, uang harian…" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
       <Field label="Saldo awal (saldo saat ini sebelum dicatat di Twogether)">
         <input className="input-base" inputMode="numeric" placeholder="Rp 0" value={initial ? formatRupiah(n) : ""} onChange={(e) => setInitial(e.target.value)} />
@@ -154,7 +150,7 @@ export function TransferSheet({ onClose }: { onClose: () => void }) {
   const [to, setTo] = useState(wallets[1]?.id ?? "");
   const [amount, setAmount] = useState("");
   const n = Number(amount.replace(/\D/g, "")) || 0;
-  const opts = wallets.map((w) => ({ value: w.id, label: `${w.emoji} ${w.name}` }));
+  const opts = wallets.map((w) => ({ value: w.id, label: w.name }));
   async function save() {
     if (!userId || !from || !to || from === to || n <= 0) return;
     await upsertEntry(userId, {

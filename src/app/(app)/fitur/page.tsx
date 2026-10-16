@@ -1,9 +1,10 @@
 "use client";
 
+import { IconTile, bundleIcon, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
-import { BUNDLES, FEATURES, tintBg } from "@/data/features";
+import { BUNDLES, FEATURES } from "@/data/features";
 import { useAuth } from "@/stores/auth";
 import { useDashboard } from "@/stores/dashboard";
 import { useFeatures } from "@/stores/features";
@@ -111,10 +112,9 @@ export default function JelajahPage() {
                 return (
                   <div
                     key={b.id}
-                    className="flex w-[168px] shrink-0 flex-col rounded-[20px] p-3.5"
-                    style={{ background: tintBg(b.tint, 14) }}
+                    className="surface flex w-[168px] shrink-0 flex-col rounded-[20px] p-3.5"
                   >
-                    <div className="text-[22px] leading-none">{b.emoji}</div>
+                    <IconTile spec={bundleIcon(b.id)} size={40} radius={12} />
                     <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
                     <div className="mt-0.5 line-clamp-2 min-h-[32px] text-[12px] leading-4 text-text-3">
                       {items.map((f) => f.title).join(", ")}
@@ -126,7 +126,7 @@ export default function JelajahPage() {
                         if (userId) void revealFor(userId, missing.map((f) => f.href));
                       }}
                       disabled={!missing.length}
-                      className="mt-3 rounded-full bg-bg-card py-1.5 text-[12px] font-bold text-text-1 shadow-card active:scale-95 disabled:opacity-60 disabled:shadow-none"
+                      className="mt-3 rounded-full bg-bg-elev2 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95 disabled:opacity-60"
                     >
                       {missing.length ? `+ Tambah ${missing.length} ruang` : "Sudah dipakai ✓"}
                     </button>
@@ -168,12 +168,7 @@ export default function JelajahPage() {
               <ul className="slide-up mt-2 divide-y divide-border border-y border-border">
                 {others.map((f) => (
                   <li key={f.href} className="flex items-center gap-3 py-2.5">
-                    <span
-                      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[20px] leading-none"
-                      style={{ background: tintBg(f.tint, 16) }}
-                    >
-                      {f.emoji}
-                    </span>
+                    <IconTile spec={spaceIcon(f.href)} size={40} radius={12} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5 text-[14px] text-text-1">
                         {f.title}
@@ -239,18 +234,15 @@ function SpaceCard({
         href={f.href}
         onClick={(e) => editing && e.preventDefault()}
         style={{
-          background: tintBg(f.tint, 14),
           animationDelay: editing ? `${(index % 3) * -0.11}s` : undefined,
         }}
-        className={`pressable flex h-full flex-col gap-3 rounded-[22px] p-4 ${
+        className={`pressable surface flex h-full flex-col gap-3 rounded-[22px] p-4 ${
           editing ? "edit-jiggle pointer-events-none select-none" : ""
         }`}
       >
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-card text-[24px] leading-none shadow-card">
-          {f.emoji}
-        </span>
+        <IconTile spec={spaceIcon(f.href)} size={44} radius={14} />
         <span>
-          <span className="block text-[16px] font-bold tracking-tight text-text-1">
+          <span className="block text-[15px] font-semibold tracking-tight text-text-1">
             {f.title}
           </span>
           <span className="block text-[12px] leading-snug text-text-3">{f.subtitle}</span>

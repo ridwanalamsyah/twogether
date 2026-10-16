@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useAuth } from "@/stores/auth";
@@ -35,7 +36,7 @@ export function HabitsQuickWidget() {
       <div className="surface flex items-center justify-between gap-3 p-4">
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="text-base">✅</span>
+            <CircleCheck size={17} className="text-[color:var(--positive)]" />
             <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           </div>
           <div className="mt-0.5 text-[11px] text-text-3">
@@ -56,7 +57,7 @@ export function HabitsQuickWidget() {
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="text-base">✅</span>
+          <CircleCheck size={17} className="text-[color:var(--positive)]" />
           <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           <span className="text-[10px] font-medium text-text-3">
             {done}/{total}

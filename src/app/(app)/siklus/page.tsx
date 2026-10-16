@@ -120,14 +120,10 @@ export default function SiklusPage() {
           <>
             {/* Phase hero */}
             <div
-              className="relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+              className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
               style={{
-                background:
-                  state.phase === "subur"
-                    ? "linear-gradient(135deg,#2bb59a,#6fd3a8)"
-                    : state.phase === "tenang" || state.phase === "belum"
-                      ? "linear-gradient(135deg,#8a7bd8,#c2a3f0)"
-                      : "linear-gradient(135deg,#ef5a7a,#ff9a8b)",
+                ["--hero" as string]:
+                  state.phase === "subur" ? "#14a085" : state.phase === "tenang" || state.phase === "belum" ? "#7c6bd0" : "#e8476b",
               }}
             >
               <div className="flex items-center gap-4">

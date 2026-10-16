@@ -17,6 +17,10 @@ import { todayISO } from "@/lib/utils";
 import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
 import { WalletPicker } from "@/components/wallet/Wallets";
 import { lastWallet, rememberWallet, withWallet } from "@/lib/wallet";
+import { listenOnce, parseSpoken, voiceSupported } from "@/lib/voice";
+import { guessCategory } from "@/lib/csvImport";
+import type { CaptureAction } from "@/stores/ui";
+import { Mic } from "lucide-react";
 
 export type QuickCaptureMode = "transaction" | "moment" | "note" | "task";
 
@@ -36,10 +40,12 @@ const CATEGORIES = [
 export function QuickCapture({
   open,
   initialMode = "transaction",
+  action = "manual",
   onClose,
 }: {
   open: boolean;
   initialMode?: QuickCaptureMode;
+  action?: CaptureAction;
   onClose: () => void;
 }) {
   const { nick } = useNick();
@@ -68,12 +74,50 @@ export function QuickCapture({
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
 
+  const [listening, setListening] = useState(false);
+  const [heard, setHeard] = useState<string | null>(null);
+  const stopListening = useRef<(() => void) | null>(null);
+
+  function startVoice() {
+    if (!voiceSupported()) {
+      toast("Catat pakai suara belum didukung di HP ini. Ketik saja ya.");
+      return;
+    }
+    setHeard(null);
+    const { promise, stop } = listenOnce(() => setListening(true));
+    stopListening.current = stop;
+    promise
+      .then((text) => {
+        const s = parseSpoken(text);
+        setHeard(text);
+        setMode("transaction");
+        setKind(s.kind);
+        if (s.amount) setAmount(String(s.amount));
+        if (s.note) {
+          setTitle(s.note);
+          const c = guessCategory(s.note);
+          if (CATEGORIES.includes(c)) setCategory(c);
+        }
+        hapticSuccess();
+      })
+      .catch((e: Error) => {
+        if (e.message === "not-allowed") toast("Izinkan mikrofon dulu di pengaturan HP.");
+        else if (e.message !== "aborted") toast("Belum kedengaran. Coba lagi, agak dekat ke HP.");
+      })
+      .finally(() => setListening(false));
+  }
+
   useEffect(() => {
     if (!open) return;
-    setMode(initialMode);
+    setMode(action === "manual" ? initialMode : "transaction");
+    if (action !== "manual") setKind("out");
     setSaved(null);
-    window.setTimeout(() => inputRef.current?.focus(), 80);
-  }, [open, initialMode]);
+    setHeard(null);
+    if (action === "voice") startVoice();
+    else if (action === "manual") window.setTimeout(() => inputRef.current?.focus(), 80);
+    return () => stopListening.current?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialMode, action]);
 
   useEffect(() => {
     if (!people.includes(who)) setWho(people[0]);
@@ -235,8 +279,28 @@ export function QuickCapture({
                 rememberWallet(id);
               }}
             />
+            {(listening || heard) && (
+              <div className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 ${listening ? "bg-accent-soft" : "bg-bg-elev1"}`}>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${listening ? "animate-pulse bg-accent text-accent-fg" : "bg-bg-card text-text-3"}`}>
+                  <Mic size={17} />
+                </span>
+                <span className="min-w-0 flex-1 text-[13px] leading-snug text-text-2">
+                  {listening ? (
+                    <>Mendengarkan… ucapkan misalnya <b>&ldquo;makan bakso dua puluh lima ribu&rdquo;</b></>
+                  ) : (
+                    <>&ldquo;{heard}&rdquo; — cek lagi lalu simpan</>
+                  )}
+                </span>
+                {listening ? (
+                  <button onClick={() => stopListening.current?.()} className="text-[12px] font-semibold text-text-3">Selesai</button>
+                ) : (
+                  <button onClick={startVoice} className="text-[12px] font-semibold text-accent">Ulangi</button>
+                )}
+              </div>
+            )}
             {kind === "out" && (
               <ReceiptScanButton
+                autoStart={open && action === "scan"}
                 onResult={(r) => {
                   if (r.amount) setAmount(String(r.amount));
                   if (r.merchant && !title) setTitle(r.merchant);

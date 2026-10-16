@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { hapticSuccess, hapticWarn } from "@/lib/haptic";
+import { Camera } from "lucide-react";
 
 /**
  * "📷 Scan struk" — take or pick a receipt photo, read it on the device and
@@ -9,10 +10,16 @@ import { hapticSuccess, hapticWarn } from "@/lib/haptic";
  */
 export function ReceiptScanButton({
   onResult,
+  autoStart = false,
 }: {
   onResult: (r: { amount: number | null; merchant: string | null }) => void;
+  /** Open the camera right away (from the + menu's "Struk"). */
+  autoStart?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (autoStart) input.current?.click();
+  }, [autoStart]);
   const [state, setState] = useState<"idle" | "busy" | "done" | "fail">("idle");
   const [pct, setPct] = useState(0);
 
@@ -38,7 +45,7 @@ export function ReceiptScanButton({
         type="button"
         disabled={state === "busy"}
         onClick={() => input.current?.click()}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border-strong bg-bg-card py-3 text-[14px] font-semibold text-text-2 active:scale-[0.99] disabled:opacity-70"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-bg-elev2 py-3 text-[14px] font-semibold text-text-1 active:scale-[0.99] disabled:opacity-70"
       >
         {state === "busy" ? (
           <>
@@ -46,7 +53,9 @@ export function ReceiptScanButton({
             Membaca struk… {pct > 0 ? `${pct}%` : ""}
           </>
         ) : (
-          <>📷 Scan struk</>
+          <>
+            <Camera size={17} /> Foto struk
+          </>
         )}
       </button>
       {state === "done" && (

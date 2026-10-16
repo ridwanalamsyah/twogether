@@ -99,7 +99,7 @@ function NoteList() {
 
         {roots.length === 0 && !q ? (
           <div className="space-y-3">
-            <div className="rounded-[20px] border-2 border-dashed border-border px-6 py-8 text-center text-[13px] text-text-3">
+            <div className="rounded-[20px] bg-bg-elev1 px-6 py-8 text-center text-[14px] leading-relaxed text-text-3">
               Tempat menulis apa saja berdua — rencana, ide, daftar, catatan.
             </div>
             <div className="text-[13px] font-bold text-text-2">Mulai dari template</div>

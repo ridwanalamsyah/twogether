@@ -81,7 +81,7 @@ function WishlistSection() {
       caption={`${items.filter((i) => i.status !== "bought").length} barang diinginkan`}
       defaultOpen
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="space-y-2">
           <input
             value={t}
@@ -171,7 +171,7 @@ function GiftIdeaSection() {
 
   return (
     <Section title="Ide kado" caption={`${items.length} ide`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={t}
@@ -251,7 +251,7 @@ function MediaSection() {
       title="Film / Podcast"
       caption={`${todo.length} mau ditonton · ${done.length} selesai`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={t}
@@ -335,7 +335,7 @@ function OotdSection() {
 
   return (
     <Section title="OOTD" caption={`${entries.length} catatan`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={text}
@@ -388,7 +388,7 @@ function SkincareSection() {
 
   return (
     <Section title="Skincare" caption={`${items.length} produk`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={t}
@@ -478,7 +478,7 @@ function ResolutionSection() {
       title={`Resolusi ${year}`}
       caption={`${done}/${thisYear.length} tercapai`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={t}
@@ -541,7 +541,7 @@ function DreamSection() {
 
   return (
     <Section title="Mimpi" caption={`${entries.length} mimpi tercatat`}>
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -619,7 +619,7 @@ function DonationSection() {
       title="Sedekah & donasi"
       caption={`Tahun ini: ${formatRupiah(yearTotal)}`}
     >
-      <div className="border-y border-border py-2.5">
+      <div className="form-card">
         <div className="flex gap-2">
           <input
             value={cause}

@@ -39,8 +39,8 @@ export default function HijriahPage() {
       <AppHeader title="Kalender Hijriah" />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
-          className="relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-          style={{ background: "linear-gradient(135deg,#0f7a5c,#1fae84 60%,#d9b24c 140%)" }}
+          className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
+          style={{ ["--hero" as string]: "#0f7a5c" }}
         >
           <span aria-hidden className="absolute -right-2 -top-4 text-[86px] opacity-20">🌙</span>
           <div className="text-[13px] font-semibold text-white/85">Hari ini</div>
