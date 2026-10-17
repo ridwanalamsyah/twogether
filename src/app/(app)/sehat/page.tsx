@@ -1,5 +1,6 @@
 "use client";
 
+import { TrendCard } from "@/components/charts/TrendCard";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -93,6 +94,7 @@ function WaterSection() {
           </button>
         </div>
       </div>
+      <TrendCard kind="water" title="Air minum" unit="gelas" />
     </Section>
   );
 }
@@ -165,6 +167,7 @@ function WeightSection() {
           ))}
         </div>
       )}
+      <TrendCard kind="weight" title="Berat badan" unit="kg" agg="avg" days={30} />
     </Section>
   );
 }
@@ -250,6 +253,7 @@ function SleepSection() {
           })}
         </div>
       )}
+      <TrendCard kind="sleep" title="Tidur" unit="jam" agg="avg" />
     </Section>
   );
 }
@@ -320,6 +324,7 @@ function ExerciseSection() {
           ))}
         </div>
       )}
+      <TrendCard kind="exercise" title="Olahraga" unit="menit" />
     </Section>
   );
 }
@@ -367,6 +372,7 @@ function MoodSection() {
           ))}
         </div>
       </div>
+      <TrendCard kind="mood" title="Mood" unit="" agg="avg" format={(v) => `${Math.round(v * 10) / 10} / 5`} />
     </Section>
   );
 }

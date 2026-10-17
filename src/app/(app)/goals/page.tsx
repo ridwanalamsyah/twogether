@@ -1,5 +1,6 @@
 "use client";
 
+import { TrendCard } from "@/components/charts/TrendCard";
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -148,6 +149,9 @@ export default function GoalsPage() {
             cta="Bikin goal pertama"
             onCta={() => setShowAdd(true)}
           />
+        )}
+        {(goals ?? []).length > 0 && (
+          <TrendCard kind="deposit" title="Setoran tabungan" unit="" days={30} format={(v) => formatRupiahShort(v)} />
         )}
       </div>
 

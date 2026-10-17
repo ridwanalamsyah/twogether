@@ -1,5 +1,6 @@
 "use client";
 
+import { TrendCard } from "@/components/charts/TrendCard";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
@@ -434,6 +435,7 @@ function PomodoroSection() {
           </div>
         </div>
       </div>
+      <TrendCard kind="pomodoro" title="Waktu fokus" unit="menit" />
     </Section>
   );
 }
