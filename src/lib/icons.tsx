@@ -130,7 +130,6 @@ const SPACE: Record<string, IconSpec> = {
   "/belajar": { Icon: BookOpen, tint: "#d97706" },
   "/reflection": { Icon: NotebookPen, tint: "#14b8a6" },
   "/pencapaian": { Icon: Trophy, tint: "#facc15" },
-  "/grafik": { Icon: ChartLine, tint: "#3b82f6" },
   "/insights": { Icon: Compass, tint: "#10b981" },
   "/digest": { Icon: Newspaper, tint: "#64748b" },
   "/wrapped": { Icon: Clapperboard, tint: "#e11d48" },

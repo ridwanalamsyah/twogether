@@ -27,7 +27,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/tracker",
     label: "Uang",
-    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
+    match: ["/tracker", "/uang", "/goals", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
     icon: <Wallet size={21} strokeWidth={2} />,
   },
   {

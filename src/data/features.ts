@@ -53,7 +53,6 @@ export const FEATURES: Feature[] = [
   { href: "/belajar", tint: "#d97706", emoji: "📖", title: "Belajar", subtitle: "Buku, kursus, fokus" },
   { href: "/reflection", tint: "#14b8a6", emoji: "🪞", title: "Refleksi", subtitle: "Jurnal syukur harian" },
   { href: "/pencapaian", tint: "#facc15", emoji: "🏆", title: "Pencapaian", subtitle: "Lencana & streak" },
-  { href: "/grafik", tint: "#3b82f6", emoji: "📈", title: "Grafik", subtitle: "Tren 30 hari" },
   { href: "/insights", tint: "#10b981", emoji: "🧭", title: "Insights", subtitle: "Pola pengeluaran" },
   { href: "/digest", tint: "#64748b", emoji: "📬", title: "Ringkasan", subtitle: "Rekap mingguan" },
   { href: "/wrapped", tint: "#e11d48", emoji: "🎁", title: "Wrapped", subtitle: "Kilas balik tahunan" },
