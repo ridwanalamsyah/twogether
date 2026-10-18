@@ -23,7 +23,8 @@ export function DailyQuestionWidget() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
   const { nick } = useNick();
-  const entries = useEntries(userId, KIND) ?? [];
+  const loaded = useEntries(userId, KIND);
+  const entries = useMemo(() => loaded ?? [], [loaded]);
   const today = isoDay();
   const q = questionFor(today);
   const [draft, setDraft] = useState("");
