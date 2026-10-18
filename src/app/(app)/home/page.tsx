@@ -4,13 +4,15 @@ import { IconTile, spaceIcon } from "@/lib/icons";
 import { Plus } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
 import { usePeople } from "@/lib/people";
 import { useFeatures } from "@/stores/features";
 import { FEATURES } from "@/data/features";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
+import { sync } from "@/services/sync";
 import { TimeOfDayIcon, dayPart, type DayPart } from "@/components/shell/TimeOfDayIcon";
 
 export default function HomePage() {
@@ -48,8 +50,10 @@ export default function HomePage() {
     );
   }, [name]);
 
+  const refresh = useCallback(() => sync.refresh(), []);
+
   return (
-    <div>
+    <PullToRefresh onRefresh={refresh} disabled={editing}>
       <AppHeader
         eyebrow={today}
         title={greeting}
@@ -79,7 +83,7 @@ export default function HomePage() {
       )}
       <DashboardGrid editing={editing} />
       {!editing && <ToolsRow />}
-    </div>
+    </PullToRefresh>
   );
 }
 

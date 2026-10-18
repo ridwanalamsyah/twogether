@@ -1,7 +1,8 @@
 "use client";
 
 import { IconTile, bundleIcon, spaceIcon } from "@/lib/icons";
-import { ChevronRight, GripVertical, Minus } from "lucide-react";
+import { ChevronRight, GripVertical, Minus, Search, X } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -43,6 +44,7 @@ export default function JelajahPage() {
   );
   const [editing, setEditing] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [query, setQuery] = useState("");
 
   const mine = enabled
     .map((href) => FEATURES.find((f) => f.href === href))
@@ -68,10 +70,40 @@ export default function JelajahPage() {
       />
 
       <div className="px-5 pt-4 pb-8">
-        {mine.length === 0 ? (
+        {!editing && (
+          <label className="mb-5 flex items-center gap-2 rounded-full bg-bg-elev1 px-3.5 py-2.5">
+            <Search size={16} className="shrink-0 text-text-4" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari ruang…"
+              className="min-w-0 flex-1 bg-transparent text-[15px] text-text-1 outline-none placeholder:text-text-4"
+            />
+            {query && (
+              <button onClick={() => setQuery("")} aria-label="Hapus pencarian" className="text-text-4">
+                <X size={16} />
+              </button>
+            )}
+          </label>
+        )}
+
+        {query.trim() ? (
+          <SearchResults
+            query={query.trim()}
+            mine={mine}
+            others={others}
+            onAdd={(f) => {
+              hapticTap();
+              toggle(f.href);
+              if (userId) void revealFor(userId, [f.href]);
+            }}
+          />
+        ) : mine.length === 0 ? (
           <div className="py-10 text-center text-[13px] text-text-3">
             Belum ada ruang. Tambahkan yang kalian butuhkan di bawah.
           </div>
+        ) : !editing ? (
+          <SpaceGrid mine={mine} />
         ) : (
           <DndContext
             sensors={sensors}
@@ -102,7 +134,7 @@ export default function JelajahPage() {
           </DndContext>
         )}
 
-        {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
+        {!query.trim() && BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
           <section className="mt-8">
             <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Paket ruang</div>
             <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
@@ -136,7 +168,7 @@ export default function JelajahPage() {
           </section>
         )}
 
-        {others.length > 0 && (
+        {!query.trim() && others.length > 0 && (
           <section className="mt-8">
             <button
               onClick={() => setShowMore((v) => !v)}
@@ -198,6 +230,116 @@ export default function JelajahPage() {
           </section>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Their spaces as app icons, four per row, grouped like the onboarding
+ * bundles. A space in several bundles shows up once, in the first.
+ */
+function SpaceGrid({ mine }: { mine: Feature[] }) {
+  const placed = new Set<string>();
+  const groups: { title: string; items: Feature[] }[] = [];
+  for (const b of BUNDLES) {
+    const items = mine.filter((f) => b.hrefs.includes(f.href) && !placed.has(f.href));
+    items.forEach((f) => placed.add(f.href));
+    if (items.length) groups.push({ title: b.title, items });
+  }
+  const rest = mine.filter((f) => !placed.has(f.href));
+  if (rest.length) groups.unshift({ title: groups.length ? "Utama" : "Ruang kalian", items: rest });
+
+  let n = 0;
+  return (
+    <div className="space-y-6">
+      {groups.map((g) => (
+        <section key={g.title}>
+          <div className="mb-3 px-1 text-[13px] font-semibold text-text-3">{g.title}</div>
+          <div className="grid grid-cols-4 gap-x-2 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
+            {g.items.map((f) => (
+              <SpaceIcon key={f.href} feature={f} index={n++} />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function SpaceIcon({ feature: f, index }: { feature: Feature; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 420, damping: 30, delay: Math.min(index, 20) * 0.02 }}
+    >
+      <Link href={f.href} className="flex flex-col items-center gap-1.5 active:opacity-80">
+        <motion.span whileTap={{ scale: 0.88 }} transition={{ type: "spring", stiffness: 600, damping: 25 }}>
+          <IconTile spec={spaceIcon(f.href)} size={58} radius={18} />
+        </motion.span>
+        <span className="w-full truncate text-center text-[11px] font-medium leading-tight text-text-2">
+          {f.title}
+        </span>
+      </Link>
+    </motion.div>
+  );
+}
+
+function SearchResults({
+  query,
+  mine,
+  others,
+  onAdd,
+}: {
+  query: string;
+  mine: Feature[];
+  others: Feature[];
+  onAdd: (f: Feature) => void;
+}) {
+  const q = query.toLowerCase();
+  const hit = (f: Feature) =>
+    f.title.toLowerCase().includes(q) || f.subtitle.toLowerCase().includes(q);
+  const mineHits = mine.filter(hit);
+  const otherHits = others.filter(hit);
+
+  if (!mineHits.length && !otherHits.length) {
+    return (
+      <div className="py-10 text-center text-[13px] text-text-3">
+        Tidak ada ruang untuk &ldquo;{query}&rdquo;
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-6">
+      {mineHits.length > 0 && (
+        <div className="grid grid-cols-4 gap-x-2 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
+          {mineHits.map((f, i) => (
+            <SpaceIcon key={f.href} feature={f} index={i} />
+          ))}
+        </div>
+      )}
+      {otherHits.length > 0 && (
+        <section>
+          <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Belum dipakai</div>
+          <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
+            {otherHits.map((f) => (
+              <li key={f.href} className="flex items-center gap-3 px-4 py-3">
+                <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[14px] text-text-1">{f.title}</span>
+                  <span className="block truncate text-[12px] text-text-4">{f.subtitle}</span>
+                </span>
+                <button
+                  onClick={() => onAdd(f)}
+                  className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95"
+                >
+                  Tambah
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

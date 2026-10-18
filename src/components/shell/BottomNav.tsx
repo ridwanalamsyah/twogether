@@ -163,6 +163,15 @@ export function BottomNav() {
   );
 }
 
+// Each tab icon greets you its own way when picked; every keyframe list
+// ends slightly lifted so the active tab still reads as active.
+const ICON_MOTION: Record<string, { scale?: number[]; y?: number[]; rotate?: number[] }> = {
+  "/home": { y: [0, -6, 0, -2.5, -1], scale: [1, 1.04, 1, 1.03, 1.06] },
+  "/tracker": { rotate: [0, -14, 10, -4, 0], scale: [1, 1.1, 1.06, 1.06, 1.06], y: [0, -1, -1, -1, -1] },
+  "/kita": { scale: [1, 1.32, 0.94, 1.16, 1.06], y: [0, -1, -1, -1, -1] },
+  "/fitur": { rotate: [0, 90], scale: [1, 0.86, 1.06], y: [0, -1, -1] },
+};
+
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <li className="flex">
@@ -186,8 +195,12 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         )}
         <motion.span
           className="relative h-[21px] w-[21px]"
-          animate={{ scale: active ? 1.06 : 1, y: active ? -1 : 0 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          animate={active ? ICON_MOTION[item.href] ?? { scale: 1.06, y: -1 } : { scale: 1, y: 0, rotate: 0 }}
+          transition={
+            active
+              ? { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
+              : { type: "spring", stiffness: 500, damping: 30 }
+          }
         >
           {item.icon}
         </motion.span>

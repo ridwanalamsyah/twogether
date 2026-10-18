@@ -1,6 +1,6 @@
 import { getDB, type SyncOp, type SyncOpKind } from "@/lib/db";
 import { hasSupabase } from "@/lib/supabase";
-import { pushDelete, pushOne, type SupaContext } from "@/services/supaSync";
+import { pullWorkspace, pushDelete, pushOne, type SupaContext } from "@/services/supaSync";
 
 /**
  * Offline-first sync engine.
@@ -88,6 +88,13 @@ class SyncManager {
 
   getSnapshot(): SyncSnapshot {
     return this.snapshot;
+  }
+
+  /** Pull-to-refresh: push what's queued, then fetch the partner's changes. */
+  async refresh(): Promise<void> {
+    if (this.snapshot.connection !== "online") return;
+    await this.drain();
+    if (this.supaCtx) await pullWorkspace(this.supaCtx);
   }
 
   /** Persist a new/updated record and enqueue it for sync. */
