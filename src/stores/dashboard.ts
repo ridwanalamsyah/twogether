@@ -42,6 +42,7 @@ export type WidgetKind =
   | "siklus"
   | "patungan"
   | "kabar"
+  | "tanya"
   | "tantangan"
   | "fokus"
   | "ramadhan"
@@ -73,6 +74,7 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_pengingat", kind: "pengingat", size: "lg", enabled: true },
   { id: "w_sisa", kind: "sisa-bulan", size: "lg", enabled: true },
   { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
+  { id: "w_tanya", kind: "tanya", size: "lg", enabled: true },
   { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
@@ -101,7 +103,7 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
 /** New widgets that should switch on (once) even for customised layouts. */
 // Cards that render nothing unless they have something to say, so they're
 // safe to switch on for everyone.
-const SHOW_WHEN_NEW = new Set(["w_kabar", "w_pengingat", "w_sisa"]);
+const SHOW_WHEN_NEW = new Set(["w_kabar", "w_tanya", "w_pengingat", "w_sisa"]);
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
 const LAYOUT_VERSION = 3;
@@ -162,7 +164,9 @@ export const useDashboard = create<DashboardState>((set, get) => ({
           if (ids.has(id)) continue;
           const def = DEFAULT_LAYOUT.find((w) => w.id === id);
           if (!def) continue;
-          const at = merged.findIndex((w) => w.id === "w_pinned");
+          // The daily question sits right under Kabar; the rest under the pin.
+          const after = id === "w_tanya" && merged.some((w) => w.id === "w_kabar") ? "w_kabar" : "w_pinned";
+          const at = merged.findIndex((w) => w.id === after);
           merged.splice(at === -1 ? 0 : at + 1, 0, { ...def, enabled: true });
         }
         set({ layout: merged, loaded: true });

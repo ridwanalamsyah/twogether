@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useItems } from "@/stores/data";
+import { relationshipStart } from "@/lib/anniv";
 import { accentEmoji, useTheme } from "@/stores/theme";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -25,24 +26,9 @@ export function HariKitaWidget() {
     return () => clearInterval(id);
   }, []);
 
-  // Prefer the relationship start ("jadian", anniversary, nikah). Birthdays
-  // are also stored as anniv items — counting "together since" from a
-  // partner's birth date produced nonsense like 9.907 hari.
-  const anchor = (() => {
-    const withDate = annivs.filter((a) => !!a.date);
-    if (!withDate.length) return null;
-    const isBirthday = (t: string) => /ultah|ulang tahun|birthday|lahir/i.test(t);
-    const isRelationship = (t: string) =>
-      /jadian|anniv|pacaran|nikah|menikah|bersama|kenal/i.test(t);
-    const rel = withDate.filter((a) => isRelationship(a.title ?? ""));
-    const nonBirthday = withDate.filter((a) => !isBirthday(a.title ?? ""));
-    const pool = rel.length ? rel : nonBirthday.length ? nonBirthday : withDate;
-    return pool.reduce((earliest, cur) =>
-      !earliest || (cur.date! < earliest.date!) ? cur : earliest,
-    );
-  })();
+  const anchorDate = relationshipStart(annivs);
 
-  if (!anchor || !anchor.date) {
+  if (!anchorDate) {
     return (
       <div className="surface flex items-center justify-between gap-3 p-4">
         <div>
@@ -64,7 +50,7 @@ export function HariKitaWidget() {
     );
   }
 
-  const start = new Date(anchor.date).getTime();
+  const start = new Date(anchorDate).getTime();
   const diff = Math.max(0, Date.now() - start);
   const days = Math.floor(diff / 86_400_000);
   const hours = Math.floor((diff % 86_400_000) / 3_600_000);

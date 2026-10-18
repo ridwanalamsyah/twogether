@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Share2 } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -9,18 +10,17 @@ import {
   useDeposits,
   useAllEntries,
   useMoments,
+  useItems,
 } from "@/stores/data";
+import { formatRupiahShort as formatRupiah } from "@/lib/utils";
+import { usePeople } from "@/lib/people";
+import { useNick } from "@/lib/nick";
+import { daysTogether, relationshipStart } from "@/lib/anniv";
+import { drawWrappedCard } from "@/lib/wrappedCard";
+import { saveFile } from "@/lib/share";
+import { hapticSuccess } from "@/lib/haptic";
 
 const YEAR = new Date().getFullYear();
-
-function formatRupiah(n: number): string {
-  if (Math.abs(n) >= 1_000_000_000)
-    return `Rp${(n / 1_000_000_000).toFixed(1)} M`;
-  if (Math.abs(n) >= 1_000_000)
-    return `Rp${(n / 1_000_000).toFixed(1)} jt`;
-  if (Math.abs(n) >= 1_000) return `Rp${(n / 1_000).toFixed(0)}rb`;
-  return `Rp${n.toLocaleString("id-ID")}`;
-}
 
 export default function WrappedPage() {
   const userId = useAuth((s) => s.userId);
@@ -122,6 +122,7 @@ export default function WrappedPage() {
       />
 
       <div className="space-y-3 px-5 mt-3">
+        <ShareCard activeDays={stats.totalActiveDays} moments={stats.momentsCount} />
         <Card emoji="📅" title="Hari aktif">
           <Big>{stats.totalActiveDays}</Big>
           <Sub>hari isi tracker tahun ini</Sub>
@@ -255,6 +256,67 @@ function Stat({
         {label}
       </div>
       <div className="font-mono text-[12px] font-bold">{value}</div>
+    </div>
+  );
+}
+
+/** Story-sized picture of the year to post or send (no money in it). */
+function ShareCard({ activeDays, moments }: { activeDays: number; moments: number }) {
+  const userId = useAuth((s) => s.userId);
+  const annivs = useItems(userId, "anniv") ?? [];
+  const { me, partner } = usePeople();
+  const { nick } = useNick();
+  const start = relationshipStart(annivs);
+  const names = partner ? `${nick(me)} & ${nick(partner)}` : nick(me);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const together = start ? daysTogether(start) : null;
+  useEffect(() => {
+    let url = "";
+    let alive = true;
+    void drawWrappedCard({ year: YEAR, names, daysTogether: together, moments, activeDays, habitsDone: 0 }).then((blob) => {
+      if (!alive) return;
+      url = URL.createObjectURL(blob);
+      setPreview({ url, blob });
+    });
+    return () => {
+      alive = false;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [names, together, moments, activeDays]);
+
+  async function share() {
+    if (!preview) return;
+    setBusy(true);
+    try {
+      await saveFile(preview.blob, `twogether-wrapped-${YEAR}.png`, "image/png");
+      hapticSuccess();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="surface flex items-center gap-4 p-4">
+      {preview ? (
+        // eslint-disable-next-line @next/next/no-img-element -- local canvas output
+        <img src={preview.url} alt="Gambar Wrapped" className="h-32 w-[72px] shrink-0 rounded-xl object-cover shadow-card" />
+      ) : (
+        <div className="skeleton h-32 w-[72px] shrink-0 rounded-xl" />
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="text-[15px] font-bold text-text-1">Bagikan tahun kalian</div>
+        <div className="mt-0.5 text-[12px] text-text-3">Gambar ukuran story, tanpa angka uang.</div>
+        <button
+          onClick={share}
+          disabled={!preview || busy}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg active:scale-95 disabled:opacity-50"
+        >
+          <Share2 size={15} />
+          Bagikan
+        </button>
+      </div>
     </div>
   );
 }
