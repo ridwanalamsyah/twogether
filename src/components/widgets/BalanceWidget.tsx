@@ -143,33 +143,28 @@ export function BalanceWidget() {
 
   return (
     <WidgetShell title="Uang kita">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="divide-y divide-[color:var(--hairline)]">
         {stats.map((s, i) => (
-          <div
-            key={s.label}
-            className="rounded-[18px] bg-bg-elev1 p-3"
-          >
+          <div key={s.label} className="flex items-center gap-3 py-2.5">
             <button
               onClick={() => setPicking(s)}
               aria-label={`Ganti ikon ${s.label}`}
               className="rounded-full active:scale-90"
             >
               {custom(s) ? (
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-[18px] leading-none">{custom(s)}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-[16px] leading-none">{custom(s)}</span>
               ) : (
-                <IconTile spec={specOf(s, i)} size={36} radius={999} />
+                <IconTile spec={specOf(s, i)} size={32} radius={999} />
               )}
             </button>
+            <div className="min-w-0 flex-1 truncate text-[14px] text-text-2">{s.label}</div>
             <div
-              className={`num mt-2.5 text-[17px] font-semibold ${
-                s.tone === "negative"
-                  ? "text-[color:var(--negative)]"
-                  : "text-text-1"
+              className={`num text-[15px] font-semibold ${
+                s.tone === "negative" ? "text-[color:var(--negative)]" : "text-text-1"
               }`}
             >
               {s.value}
             </div>
-            <div className="mt-0.5 text-[11px] text-text-3">{s.label}</div>
           </div>
         ))}
       </div>

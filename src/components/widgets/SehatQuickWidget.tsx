@@ -1,5 +1,6 @@
 "use client";
 
+import { Droplets, Moon, Scale } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -92,7 +93,7 @@ export function SehatQuickWidget() {
     <div className="surface p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="text-base">💧</span>
+          <Droplets size={16} className="text-text-3" />
           <h3 className="text-[13px] font-semibold text-text-1">Sehat</h3>
         </div>
         <Link href="/sehat" className="text-[11px] text-text-3 active:opacity-60">
@@ -157,7 +158,7 @@ export function SehatQuickWidget() {
           onClick={() => setShowWeight((v) => !v)}
           className="flex items-center justify-between rounded-lg border border-border bg-bg-elev1 px-2.5 py-2 active:scale-95"
         >
-          <span className="text-base">⚖️</span>
+          <Scale size={16} className="text-text-3" />
           <div className="text-right">
             <div className="text-[12px] font-semibold text-text-1">
               {lastWeight?.valueNum != null ? `${Math.round(lastWeight.valueNum * 10) / 10} kg` : "Catat"}
@@ -169,7 +170,7 @@ export function SehatQuickWidget() {
           href="/sehat"
           className="flex items-center justify-between rounded-lg border border-border bg-bg-elev1 px-2.5 py-2 active:scale-95"
         >
-          <span className="text-base">🌙</span>
+          <Moon size={16} className="text-text-3" />
           <div className="text-right">
             <div className="text-[12px] font-semibold text-text-1">
               {lastSleep?.valueNum != null ? `${Math.round(lastSleep.valueNum * 10) / 10}j` : "—"}

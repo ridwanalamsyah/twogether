@@ -1,5 +1,6 @@
 "use client";
 
+import { Flower2, HandCoins } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -33,7 +34,7 @@ export function ShalatWidget() {
       className="hero-soft pressable block rounded-[22px] p-4 text-white shadow-float"
       style={{ ["--hero" as string]: "#0f7a5c" }}
     >
-      <div className="text-[12px] font-semibold text-white/85">🕌 {next.name} berikutnya</div>
+      <div className="text-[12px] font-semibold text-white/85">{next.name} berikutnya</div>
       <div className="mt-0.5 flex items-baseline gap-2">
         <span className="font-mono text-[28px] font-extrabold leading-none">{fmtTime(next.at)}</span>
         <span className="text-[12px] text-white/80">
@@ -72,8 +73,8 @@ export function SiklusWidget() {
   return (
     <Link href="/siklus" className="pressable surface block p-4">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent-soft text-[22px]">
-          {hidden ? "🤍" : copy.emoji}
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
+          <Flower2 size={20} strokeWidth={2} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">
@@ -108,13 +109,13 @@ export function PatunganWidget() {
   const other = partner ? nick(partner) : "Pasangan";
   return (
     <Link href="/patungan" className="pressable surface flex items-center gap-3 p-4">
-      <span className="grid h-11 w-11 place-items-center rounded-2xl text-[22px]" style={{ background: "color-mix(in srgb,#f59e0b 16%,transparent)" }}>
-        🤝
+      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
+        <HandCoins size={20} strokeWidth={2} />
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-[12px] font-semibold text-text-3">Patungan</div>
         <div className="text-[15px] font-bold text-text-1">
-          {net === 0 ? "Impas 🎉" : net > 0 ? `${other} perlu ganti ${formatRupiah(net)}` : `Kamu perlu ganti ${formatRupiah(-net)}`}
+          {net === 0 ? "Impas" : net > 0 ? `${other} perlu ganti ${formatRupiah(net)}` : `Kamu perlu ganti ${formatRupiah(-net)}`}
         </div>
       </div>
       <span className="text-text-4">›</span>

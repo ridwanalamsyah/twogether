@@ -56,8 +56,9 @@ import {
 } from "lucide-react";
 
 /**
- * One icon set for the whole app (line icons in a softly tinted tile), so
- * categories and spaces look designed rather than emoji-decorated.
+ * One icon set for the whole app: line icons in one neutral tile. The tint
+ * stays on the spec for places that need to tell categories apart (charts),
+ * but tiles never use it, so the accent is the only colour in the chrome.
  */
 export interface IconSpec {
   Icon: LucideIcon;
@@ -140,7 +141,7 @@ export function spaceIcon(href: string): IconSpec {
   return SPACE[href] ?? { Icon: Zap, tint: "#94a3b8" };
 }
 
-/** Rounded tile with a tinted background and a line icon. */
+/** Rounded neutral tile with a line icon. */
 export function IconTile({
   spec,
   size = 44,
@@ -152,17 +153,11 @@ export function IconTile({
   radius?: number;
   className?: string;
 }) {
-  const { Icon, tint } = spec;
+  const { Icon } = spec;
   return (
     <span
-      className={`grid shrink-0 place-items-center ${className}`}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radius,
-        background: `color-mix(in srgb, ${tint} 16%, transparent)`,
-        color: tint,
-      }}
+      className={`grid shrink-0 place-items-center bg-bg-elev1 text-text-2 ${className}`}
+      style={{ width: size, height: size, borderRadius: radius }}
       aria-hidden
     >
       <Icon size={Math.round(size * 0.46)} strokeWidth={2} />

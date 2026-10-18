@@ -30,7 +30,7 @@ export function BudgetCard({ txs, month, categories }: { txs: TransactionRecord[
         </button>
       </div>
       {usage.length === 0 ? (
-        <button onClick={() => setEditing("new")} className="w-full rounded-2xl bg-bg-elev1 px-3 py-3 text-left text-[13px] text-text-3">
+        <button onClick={() => setEditing("new")} className="w-full py-1 text-left text-[13px] leading-relaxed text-text-3">
           Pasang batas per kategori (mis. Makan Rp 1,5jt) — nanti diingatkan saat sudah 80%.
         </button>
       ) : (
@@ -40,7 +40,7 @@ export function BudgetCard({ txs, month, categories }: { txs: TransactionRecord[
               <div className="mb-1 flex items-baseline justify-between text-[13px]">
                 <span className="font-semibold text-text-1">
                   {u.budget.category}
-                  {u.level === "over" ? " ⚠️" : ""}
+                  {u.level === "over" ? " · lewat batas" : ""}
                 </span>
                 <span className={u.level === "ok" ? "text-text-3" : u.level === "warn" ? "text-[color:var(--warning)]" : "text-[color:var(--negative)]"}>
                   <span className="font-mono font-semibold">{formatRupiahShort(u.spent)}</span> / {formatRupiahShort(u.budget.limit)}

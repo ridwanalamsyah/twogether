@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame } from "lucide-react";
+import { Check, Flame, Headphones } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -50,15 +50,15 @@ export function TantanganWidget() {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <Link href="/tantangan" className="flex items-center gap-2 text-[15px] font-semibold text-text-1"><Flame size={16} className="text-[#f97316]" /> Tantangan hari ini</Link>
+        <Link href="/tantangan" className="flex items-center gap-2 text-[15px] font-semibold text-text-1"><Flame size={16} className="text-text-3" /> Tantangan hari ini</Link>
         <Link href="/tantangan" className="text-[12px] text-text-3">Lihat ›</Link>
       </div>
       {active.length === 0 ? (
-        <Link href="/tantangan" className="block rounded-2xl bg-bg-elev1 px-4 py-3 text-[13px] text-text-3">
+        <Link href="/tantangan" className="block py-1 text-[13px] text-text-3">
           Belum ada tantangan berjalan. Mulai satu bareng {partner ? nick(partner) : "pasangan"} →
         </Link>
       ) : (
-        <div className="space-y-2">
+        <div className="divide-y divide-[color:var(--hairline)]">
           {active.slice(0, 3).map((c) => {
             const p = parsePayload(c.payload, { emoji: "🔥" });
             const done = !!logOf(c.id, me);
@@ -66,13 +66,13 @@ export function TantanganWidget() {
             const day = daysBetween(c.date ?? today, today) + 1;
             const total = daysBetween(c.date ?? today, c.due ?? today) + 1;
             return (
-              <div key={c.id} className="flex items-center gap-3 rounded-2xl bg-bg-elev1 px-3 py-2.5">
+              <div key={c.id} className="flex items-center gap-3 py-2.5">
                 <span className="text-[20px]">{p.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14px] font-semibold text-text-1">{c.title}</div>
                   <div className="text-[11px] text-text-4">
                     Hari {day}/{total}
-                    {theirs != null && ` · ${nick(partner)} ${theirs ? "sudah ✓" : "belum"}`}
+                    {theirs != null && ` · ${nick(partner)} ${theirs ? "sudah" : "belum"}`}
                   </div>
                 </div>
                 <button
@@ -82,7 +82,7 @@ export function TantanganWidget() {
                     done ? "bg-accent text-accent-fg" : "border-2 border-border-strong text-transparent"
                   }`}
                 >
-                  ✓
+                  <Check size={18} strokeWidth={3} />
                 </button>
               </div>
             );
@@ -126,8 +126,8 @@ export function FokusWidget() {
 
   return (
     <Link href="/fokus" className="pressable surface flex items-center gap-3 p-4">
-      <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent/10 text-[22px]">
-        🎧
+      <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
+        <Headphones size={20} strokeWidth={2} />
         {(mine || theirs) && (
           <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
         )}
@@ -176,7 +176,7 @@ export function RamadhanWidget() {
       {inRamadhan ? (
         <>
           <div className="text-[12px] font-semibold text-white/85">
-            🏮 Ramadhan hari ke-{daysBetween(range!.start, today) + 1}
+            Ramadhan hari ke-{daysBetween(range!.start, today) + 1}
           </div>
           {next ? (
             <div className="mt-0.5 flex items-baseline gap-2">
@@ -187,12 +187,12 @@ export function RamadhanWidget() {
               </span>
             </div>
           ) : (
-            <div className="mt-0.5 text-[18px] font-extrabold">Selamat berbuka 🤍 Jangan lupa tarawih</div>
+            <div className="mt-0.5 text-[18px] font-extrabold">Selamat berbuka. Jangan lupa tarawih</div>
           )}
         </>
       ) : (
         <>
-          <div className="text-[12px] font-semibold text-white/85">🏮 Menuju Ramadhan</div>
+          <div className="text-[12px] font-semibold text-white/85">Menuju Ramadhan</div>
           <div className="mt-0.5 text-[26px] font-extrabold leading-tight">
             {daysTo != null && daysTo > 0 ? `${daysTo} hari lagi` : "Segera"}
           </div>

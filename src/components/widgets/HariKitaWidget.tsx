@@ -70,7 +70,6 @@ export function HariKitaWidget() {
   // Suppress unused tick warning
   void tick;
 
-  const deco = accentEmoji(accent);
   // Next round number worth celebrating (every 100 days).
   const nextMilestone = Math.ceil((days + 1) / 100) * 100;
   const toMilestone = nextMilestone - days;
@@ -79,17 +78,8 @@ export function HariKitaWidget() {
     <Link
       href="/kita"
       className="pressable relative block overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-      style={{
-        background:
-          "radial-gradient(120% 140% at 100% 0%, var(--accent-2) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 70%, #5b1f3a) 100%)",
-      }}
+      style={{ background: "var(--accent)" }}
     >
-      <span aria-hidden className="float-heart absolute right-6 top-4 text-[22px] opacity-90">
-        {deco}
-      </span>
-      <span aria-hidden className="float-heart-slow absolute right-16 top-12 text-[13px] opacity-70">
-        {deco}
-      </span>
       <div className="text-[13px] font-semibold text-white/85">Sudah bersama</div>
       <div className="mt-1 flex items-baseline gap-2">
         <span className="font-mono text-[44px] font-extrabold leading-none tracking-tight">
@@ -101,7 +91,7 @@ export function HariKitaWidget() {
         {Math.floor(yrs)} tahun {Math.floor((yrs % 1) * 12)} bulan · {hours} jam {mins} menit
       </div>
       <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[12px] font-semibold backdrop-blur">
-        🎉 {toMilestone} hari lagi menuju {nextMilestone.toLocaleString("id-ID")}
+        {toMilestone} hari lagi menuju {nextMilestone.toLocaleString("id-ID")}
       </div>
     </Link>
   );

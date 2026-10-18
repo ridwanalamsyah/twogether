@@ -85,7 +85,7 @@ export default function TilawahPage() {
               Buat target
             </button>
             {done.length > 0 && (
-              <p className="mt-3 text-[12px] text-text-4">Sudah khatam {done.length}× bersama Twogether 🤍</p>
+              <p className="mt-3 text-[12px] text-text-4">Sudah khatam {done.length}× bersama Twogether.</p>
             )}
           </div>
         ) : (
@@ -112,7 +112,7 @@ export default function TilawahPage() {
               </div>
               <div className="mt-4 rounded-2xl bg-white/15 px-3.5 py-2.5 text-[13px]">
                 Hari ini kamu: <b>{todayPages} halaman</b>
-                {perDay ? (todayPages >= perDay ? " — target hari ini tercapai ✓" : ` · kurang ${perDay - todayPages}`) : ""}
+                {perDay ? (todayPages >= perDay ? " — target hari ini tercapai" : ` · kurang ${perDay - todayPages}`) : ""}
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export default function TilawahPage() {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-bg-elev2">
                       <div
-                        className="h-full rounded-full bg-[#0f7a5c]"
+                        className="h-full rounded-full bg-accent"
                         style={{ width: `${Math.min(100, (x.pages / TOTAL_PAGES) * 100)}%` }}
                       />
                     </div>

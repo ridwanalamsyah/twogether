@@ -1,5 +1,6 @@
 "use client";
 
+import { Mic } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -131,10 +132,10 @@ function MomentCard({ moment }: { moment: MomentRecord }) {
             </span>
             {moment.encrypted ? (
               <span className="ml-1 rounded-full bg-bg-elev2 px-2 py-0.5 text-[10px] font-bold text-text-3">
-                🔒 Dikunci
+                Dikunci
               </span>
             ) : null}
-            {moment.voice && <span className="text-xs">🎤</span>}
+            {moment.voice && <Mic size={12} className="text-text-3" />}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-text-3">
             <span>{formatDateShort(moment.date)}</span>
@@ -255,7 +256,7 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
           />
           <label className="flex items-center justify-between rounded-md bg-bg-elev2 px-3 py-2.5 text-sm theme-transition">
             <div>
-              <div className="font-semibold">🔒 Kunci moment ini</div>
+              <div className="font-semibold">Kunci moment ini</div>
               <div className="text-[11px] text-text-3">
                 {unlocked
                   ? "Hanya bisa dibaca setelah kamu masuk dengan password."

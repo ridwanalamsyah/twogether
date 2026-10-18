@@ -30,7 +30,7 @@ export function Sidebar() {
       <Link href="/home" className="mb-5 flex items-center gap-2.5 px-2">
         <span
           className="grid h-9 w-9 place-items-center rounded-xl text-accent-fg"
-          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+          style={{ background: "var(--accent)" }}
         >
           <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="3" className="h-6 w-6" aria-hidden>
             <circle cx="17" cy="22" r="10" />
@@ -92,7 +92,7 @@ export function Sidebar() {
       >
         <span
           className="grid h-8 w-8 place-items-center rounded-full text-[13px] font-bold text-accent-fg"
-          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+          style={{ background: "var(--accent)" }}
         >
           {(name || "T")[0]?.toUpperCase()}
         </span>
@@ -122,13 +122,13 @@ function SideLink({
       aria-current={active ? "page" : undefined}
       className={cn(
         "relative flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition-colors",
-        active ? "font-semibold text-accent" : "text-text-2 hover:bg-bg-elev1",
+        active ? "font-semibold text-text-1" : "text-text-2 hover:bg-bg-elev1",
       )}
     >
       {active && (
         <motion.span
           layoutId="sidebar-active"
-          className="absolute inset-0 rounded-xl bg-accent-soft"
+          className="absolute inset-0 rounded-xl bg-bg-elev2"
           transition={{ type: "spring", stiffness: 520, damping: 40 }}
         />
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Flower2 } from "lucide-react";
 import { TrendCard } from "@/components/charts/TrendCard";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -391,7 +392,7 @@ function PeriodSection() {
         href="/siklus"
         className="pressable flex items-center gap-3 rounded-[20px] bg-bg-card p-4 shadow-card"
       >
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent-soft text-[22px]">🌸</span>
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2"><Flower2 size={20} /></span>
         <span className="flex-1">
           <span className="block text-[15px] font-bold text-text-1">Buka Siklus</span>
           <span className="block text-[12px] text-text-3">Kalender haid, perkiraan & catatan harian</span>

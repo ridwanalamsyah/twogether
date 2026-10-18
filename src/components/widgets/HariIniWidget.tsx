@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen, Droplets, Moon } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useAuth } from "@/stores/auth";
@@ -72,7 +73,7 @@ export function HariIniWidget() {
           className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-bg-elev1 p-2.5 active:scale-95"
           aria-label="Tambah air minum"
         >
-          <span className="text-xl">💧</span>
+          <Droplets size={20} className="text-text-3" />
           <span className="text-[15px] font-bold text-text-1">
             {waterToday}
             <span className="text-[10px] font-normal text-text-3">/8</span>
@@ -84,7 +85,7 @@ export function HariIniWidget() {
           href="/sehat"
           className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-bg-elev1 p-2.5 active:scale-95"
         >
-          <span className="text-xl">🌙</span>
+          <Moon size={20} className="text-text-3" />
           <span className="text-[15px] font-bold text-text-1">
             {sleepLast?.valueNum != null ? `${sleepLast.valueNum}j` : "—"}
           </span>
@@ -95,7 +96,7 @@ export function HariIniWidget() {
           href="/jadwal"
           className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-bg-elev1 p-2.5 active:scale-95"
         >
-          <span className="text-xl">📚</span>
+          <BookOpen size={20} className="text-text-3" />
           <span className="text-[15px] font-bold text-text-1">
             {new Date().getHours() < 18 ? "Cek" : "Esok"}
           </span>

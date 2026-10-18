@@ -883,18 +883,17 @@ html.theme-switching *::after {
 /* ── Space hero cards: a soft tint of the space's colour instead of a loud
    gradient banner. Pages mark the card .hero-soft and set --hero. ── */
 .hero-soft {
-  --hero: var(--accent);
-  background: color-mix(in srgb, var(--hero) 10%, var(--bg-card)) !important;
-  border: 1px solid color-mix(in srgb, var(--hero) 16%, transparent);
-  box-shadow: none !important;
+  /* One accent for the whole app: per-space hero colours set inline are
+     overridden, so heroes read as plain cards with accent data marks. */
+  --hero: var(--accent) !important;
+  background: var(--bg-card) !important;
+  border: 0;
+  box-shadow: var(--shadow-card) !important;
   color: var(--text-1) !important;
-}
-[data-theme="dark"] .hero-soft {
-  background: color-mix(in srgb, var(--hero) 16%, var(--bg-card)) !important;
 }
 .hero-soft .text-white { color: var(--text-1) !important; }
 .hero-soft [class*="text-white/"] { color: var(--text-3) !important; }
-.hero-soft [class*="bg-white/"] { background: color-mix(in srgb, var(--hero) 14%, transparent) !important; }
+.hero-soft [class*="bg-white/"] { background: var(--bg-elev1) !important; color: var(--text-2) !important; backdrop-filter: none !important; }
 .hero-soft .bg-white {
   background: var(--hero) !important;
   color: #fff !important;
@@ -904,7 +903,7 @@ html.theme-switching *::after {
 .hero-soft .font-bold { font-weight: 600; }
 /* Decorative giant glyphs/illustrations in the old banners */
 .hero-soft > [aria-hidden].absolute,
-.hero-soft > svg.absolute { opacity: 0.08 !important; color: var(--hero); }
+.hero-soft > svg.absolute { display: none !important; }
 /* Rings and bars drawn in white become the space colour */
 .hero-soft svg [stroke="#fff"], .hero-soft svg [stroke="white"] { stroke: var(--hero); }
 .hero-soft svg [stroke="rgba(255,255,255,0.25)"] { stroke: color-mix(in srgb, var(--hero) 20%, transparent); }

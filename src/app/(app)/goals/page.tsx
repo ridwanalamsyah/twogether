@@ -65,9 +65,9 @@ export default function GoalsPage() {
         actions={
           <button
             onClick={() => setShowAdd(true)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg"
+            className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg"
           >
-            Goal
+            + Goal
           </button>
         }
       />
@@ -445,10 +445,10 @@ function PredictionPanel({ goal }: { goal: GoalRecord }) {
         </span>
       </div>
       <p className="text-sm leading-relaxed text-text-1">{pred.summary}</p>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid grid-cols-3 divide-x divide-[color:var(--hairline)] border-t border-[color:var(--hairline)] pt-3">
         <PredStat
           value={formatRupiahShort(pred.weeklyRate)}
-          label="Rata-rata/minggu"
+          label="Per minggu"
         />
         <PredStat
           value={formatRupiahShort(pred.remaining)}
@@ -465,11 +465,9 @@ function PredictionPanel({ goal }: { goal: GoalRecord }) {
 
 function PredStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-md bg-bg-elev2 p-2 text-center theme-transition">
-      <div className="font-mono text-sm font-bold">{value}</div>
-      <div className="text-[10px] section-label text-text-3">
-        {label}
-      </div>
+    <div className="px-1 text-center">
+      <div className="num text-[15px] font-semibold text-text-1">{value}</div>
+      <div className="mt-0.5 text-[11px] text-text-3">{label}</div>
     </div>
   );
 }

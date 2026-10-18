@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Sunrise, Sunset, CloudSun } from "lucide-react";
+import { Check, CloudSun, HandHeart, MapPin, Moon, Sun, Sunrise, Sunset } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -121,18 +121,17 @@ export default function ShalatPage() {
           className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
           style={{ ["--hero" as string]: "#0f7a5c" }}
         >
-          <span aria-hidden className="absolute -right-3 -top-4 text-[90px] opacity-15">🕌</span>
           <button
             onClick={() => setShowPlace(true)}
             className="rounded-full bg-white/20 px-3 py-1 text-[12px] font-semibold backdrop-blur"
           >
-            📍 {place.label} ›
+            {place.label} ›
           </button>
           <Link
             href="/hijriah"
             className="ml-1.5 rounded-full bg-white/20 px-3 py-1 text-[12px] font-semibold backdrop-blur"
           >
-            🌙 {toHijri(today, hijriOffset).label}
+            {toHijri(today, hijriOffset).label}
           </Link>
           <div className="mt-3 text-[13px] font-semibold text-white/85">Berikutnya</div>
           <div className="flex items-baseline gap-2">
@@ -146,20 +145,20 @@ export default function ShalatPage() {
           </div>
           <div className="mt-4 flex gap-2 text-[12px]">
             <span className="rounded-full bg-white/20 px-3 py-1 font-semibold">
-              🔥 {streak} hari lengkap
+              {streak} hari lengkap
             </span>
             <button
               onClick={() => setShowQibla(true)}
               className="rounded-full bg-white/20 px-3 py-1 font-semibold"
             >
-              🧭 Arah kiblat
+              Arah kiblat
             </button>
           </div>
         </div>
 
         {myLibur && (
-          <div className="rounded-[20px] bg-accent-soft px-4 py-3 text-[13px] text-text-2">
-            🌸 Sedang haid — shalat libur dulu dan tidak dihitung bolong. Istirahat ya.
+          <div className="rounded-[20px] bg-bg-elev1 px-4 py-3 text-[13px] text-text-2">
+            Sedang haid — shalat libur dulu dan tidak dihitung bolong. Istirahat ya.
           </div>
         )}
 
@@ -172,7 +171,7 @@ export default function ShalatPage() {
             const isNext = next.id === p.id && next.at.toDateString() === now.toDateString();
             const passed = times[p.id] <= now;
             return (
-              <div key={p.id} className={`flex items-center gap-3 px-4 py-3 ${isNext ? "bg-[#1fae84]/10" : ""}`}>
+              <div key={p.id} className={`flex items-center gap-3 px-4 py-3 ${isNext ? "bg-bg-elev1" : ""}`}>
                 <IconTile spec={PRAYER_ICON[p.id]} size={40} radius={12} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[15px] font-bold text-text-1">{p.name}</div>
@@ -185,10 +184,10 @@ export default function ShalatPage() {
                   <button
                     onClick={() => toggleJamaah(p.id)}
                     className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                      jamaah ? "bg-[#1fae84] text-white" : "bg-bg-elev2 text-text-3"
+                      jamaah ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-3"
                     }`}
                   >
-                    {jamaah ? "Berjamaah ✓" : "Berjamaah?"}
+                    {jamaah ? "Berjamaah" : "Berjamaah?"}
                   </button>
                 )}
                 <button
@@ -199,13 +198,13 @@ export default function ShalatPage() {
                     myLibur
                       ? "bg-bg-elev2 text-text-4"
                       : done
-                        ? "bg-[#1fae84] text-white shadow-[0_6px_14px_-8px_#1fae84]"
+                        ? "bg-accent text-accent-fg"
                         : passed
-                          ? "border-2 border-[#1fae84]/50 text-transparent"
+                          ? "border-2 border-border-strong text-transparent"
                           : "border-2 border-border text-transparent"
                   }`}
                 >
-                  {myLibur ? "–" : "✓"}
+                  {myLibur ? "–" : <Check size={18} strokeWidth={3} />}
                 </button>
               </div>
             );
@@ -219,12 +218,12 @@ export default function ShalatPage() {
         {/* Partner progress */}
         {partner && (
           <div className="surface flex items-center gap-3 p-4">
-            <span className="text-[22px]">🤝</span>
+            <IconTile spec={{ Icon: HandHeart, tint: "" }} size={40} radius={12} />
             <div className="min-w-0 flex-1">
               <div className="text-[14px] font-bold text-text-1">{nick(partner)} hari ini</div>
               <div className="mt-1.5 flex gap-1.5">
                 {onPeriodFor(partner) ? (
-                  <span className="text-[12px] text-text-3">🌸 Sedang libur</span>
+                  <span className="text-[12px] text-text-3">Sedang libur</span>
                 ) : (
                   PRAYERS.map((p) => {
                     const ok = doneOn(partner, today).some((l) => l.valueText === p.id);
@@ -233,7 +232,7 @@ export default function ShalatPage() {
                         key={p.id}
                         title={p.name}
                         className={`grid h-7 min-w-[28px] place-items-center rounded-full px-1.5 text-[10px] font-bold ${
-                          ok ? "bg-[#1fae84] text-white" : "bg-bg-elev2 text-text-4"
+                          ok ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-4"
                         }`}
                       >
                         {p.name.slice(0, 3)}
@@ -248,7 +247,7 @@ export default function ShalatPage() {
 
         {/* Qadha */}
         <div className="surface flex items-center gap-3 p-4">
-          <span className="text-[22px]">🌙</span>
+          <IconTile spec={{ Icon: Moon, tint: "" }} size={40} radius={12} />
           <div className="min-w-0 flex-1">
             <div className="text-[14px] font-bold text-text-1">Hutang puasa</div>
             <div className="text-[12px] text-text-3">
@@ -328,7 +327,7 @@ function PlaceSheet({ onClose }: { onClose: () => void }) {
         onClick={useGps}
         className="mb-2 flex w-full items-center gap-3 rounded-2xl bg-bg-card p-3.5 text-left shadow-card active:scale-[0.99]"
       >
-        <span className="text-[20px]">📍</span>
+        <MapPin size={20} className="shrink-0 text-text-3" />
         <span>
           <span className="block text-[14px] font-semibold text-text-1">Pakai lokasi HP</span>
           <span className="block text-[12px] text-text-3">Lebih akurat · hanya disimpan di HP ini</span>
@@ -403,7 +402,7 @@ function QiblaSheet({ lat, lng, onClose }: { lat: number; lng: number; onClose: 
       <div className="flex flex-col items-center py-2">
         <div
           className={`relative grid h-56 w-56 place-items-center rounded-full border-4 ${
-            aligned ? "border-[#1fae84]" : "border-border"
+            aligned ? "border-accent" : "border-border"
           } bg-bg-card shadow-card`}
         >
           <span className="absolute top-2 text-[12px] font-bold text-text-3">U</span>
@@ -413,7 +412,7 @@ function QiblaSheet({ lat, lng, onClose }: { lat: number; lng: number; onClose: 
           >
             <div className="mt-6 flex flex-col items-center">
               <span className="text-[30px]">🕋</span>
-              <span className="h-20 w-1.5 rounded-full bg-[#1fae84]" />
+              <span className="h-20 w-1.5 rounded-full bg-accent" />
             </div>
           </div>
         </div>
@@ -425,7 +424,7 @@ function QiblaSheet({ lat, lng, onClose }: { lat: number; lng: number; onClose: 
             Pakai kompas HP
           </button>
         ) : aligned ? (
-          <p className="mt-2 text-[14px] font-semibold text-[#1fae84]">Sudah menghadap kiblat ✓</p>
+          <p className="mt-2 text-[14px] font-semibold text-accent">Sudah menghadap kiblat ✓</p>
         ) : null}
         {msg && <p className="mt-3 text-center text-[12px] text-text-3">{msg}</p>}
       </div>

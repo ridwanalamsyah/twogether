@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Receipt } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
@@ -45,7 +46,7 @@ export default function PatunganPage() {
         >
           <div className="text-[13px] font-semibold text-white/85">Saldo kalian</div>
           {net === 0 ? (
-            <div className="mt-1 text-[26px] font-extrabold">Impas 🎉</div>
+            <div className="mt-1 text-[26px] font-extrabold">Impas</div>
           ) : (
             <>
               <div className="mt-1 text-[15px] font-semibold">
@@ -59,7 +60,7 @@ export default function PatunganPage() {
           <div className="mt-4 flex gap-2">
             <button
               onClick={() => setAdding(true)}
-              className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[#d9620b] active:scale-[0.98]"
+              className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--warning)] active:scale-[0.98]"
             >
               + Catat patungan
             </button>
@@ -78,7 +79,7 @@ export default function PatunganPage() {
           <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
             Bayarin makan, bensin, atau belanja buat berdua?
             <br />
-            Catat di sini, nanti ketahuan siapa yang perlu ganti 🤝
+            Catat di sini, nanti ketahuan siapa yang perlu ganti.
           </div>
         ) : (
           <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
@@ -90,8 +91,8 @@ export default function PatunganPage() {
                 <li key={e.id} className="border-b border-border last:border-0">
                   <SwipeRow onDelete={() => userId && deleteEntry(userId, e.id)}>
                     <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-bg-elev1 text-[17px]">
-                        {isSettle ? "✅" : "🧾"}
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-bg-elev1 text-text-2">
+                        {isSettle ? <Check size={16} /> : <Receipt size={16} />}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[14px] text-text-1">
