@@ -490,6 +490,21 @@ html.theme-switching *::after {
   animation: pop-in 220ms var(--ease-out) backwards;
 }
 
+/* Beranda cards rise in one after another (delay set inline per card). */
+@keyframes widget-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.widget-in {
+  animation: widget-in 420ms var(--ease-out) backwards;
+}
+
 /* Tactile press feedback for tappable cards / rows. */
 .pressable {
   transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out),
@@ -633,6 +648,23 @@ html.theme-switching *::after {
 [data-theme="dark"] .note-card {
   background: #3a3220;
   color: #ffe9a8;
+}
+/* Lands like a sticky note being pressed on, then settles at its tilt. */
+@keyframes note-drop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) rotate(-4deg) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(0.8deg) scale(1.01);
+  }
+  100% {
+    transform: rotate(-0.6deg);
+  }
+}
+.note-card {
+  animation: note-drop 520ms var(--ease-out) 120ms backwards;
 }
 
 @keyframes float-heart {

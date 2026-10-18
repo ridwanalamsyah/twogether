@@ -1,6 +1,7 @@
 "use client";
 
-import { HeartHandshake, Send, Smile } from "lucide-react";
+import { Check, HeartHandshake, Send, Smile } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/stores/auth";
@@ -25,6 +26,7 @@ export function OnboardingTour() {
   const revealFor = useDashboard((s) => s.revealFor);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const [dir, setDir] = useState(1);
   const [nick, setNickInput] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
 
@@ -65,6 +67,7 @@ export function OnboardingTour() {
       finish();
       return;
     }
+    setDir(1);
     setStep(step + 1);
   }
 
@@ -76,7 +79,12 @@ export function OnboardingTour() {
         <div className="mb-5 flex items-center justify-between">
           <div className="flex gap-1.5">
             {Array.from({ length: partner ? STEPS - 1 : STEPS }, (_, i) => (
-              <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? "w-6 bg-accent" : "w-1.5 bg-bg-elev3"}`} />
+              <motion.span
+                key={i}
+                className={`h-1.5 rounded-full ${i === step ? "bg-accent" : i < step ? "bg-text-4" : "bg-bg-elev3"}`}
+                animate={{ width: i === step ? 24 : 6 }}
+                transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              />
             ))}
           </div>
           <button onClick={() => finish()} className="text-[13px] font-semibold text-text-3">
@@ -84,10 +92,19 @@ export function OnboardingTour() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <AnimatePresence mode="wait" initial={false} custom={dir}>
+          <motion.div
+            key={step}
+            custom={dir}
+            initial={{ opacity: 0, x: dir * 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: dir * -28 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
           {step === 0 && (
             <div className="text-center">
-              <IconTile spec={{ Icon: HeartHandshake, tint: "#f43f5e" }} size={72} radius={22} className="mx-auto" />
+              <IconTile spec={{ Icon: HeartHandshake, tint: "#f43f5e" }} size={72} radius={22} className="float-heart-slow mx-auto" />
               <h2 className="mt-4 text-[24px] font-extrabold leading-tight text-text-1">Satu tempat untuk kalian berdua</h2>
               <p className="mx-auto mt-2 max-w-[320px] text-[14px] leading-relaxed text-text-3">
                 Uang, ibadah, jadwal, dan kenangan — dicatat bareng, tersimpan di HP berdua. Tetap jalan walau tanpa internet.
@@ -128,25 +145,47 @@ export function OnboardingTour() {
               <h2 className="text-[22px] font-extrabold text-text-1">Kalian mau pakai untuk apa?</h2>
               <p className="mt-1 text-[14px] text-text-3">Pilih satu atau lebih. Sisanya tetap ada di Jelajah.</p>
               <div className="mt-4 grid grid-cols-2 gap-2.5">
-                {BUNDLES.map((b) => {
+                {BUNDLES.map((b, i) => {
                   const on = picked.includes(b.id);
                   const titles = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)?.title).filter(Boolean);
                   return (
-                    <button
+                    <motion.button
                       key={b.id}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0, scale: on ? 1 : 0.985 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 420,
+                        damping: 28,
+                        opacity: { duration: 0.25, delay: 0.05 + i * 0.045 },
+                        y: { type: "spring", stiffness: 380, damping: 30, delay: 0.05 + i * 0.045 },
+                      }}
                       onClick={() => {
                         hapticTap();
                         setPicked(on ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
                       }}
                       aria-pressed={on}
-                      className={`relative rounded-[20px] p-3.5 text-left transition-transform active:scale-[0.97] ${on ? "ring-2 ring-accent" : ""}`}
+                      className={`relative rounded-[20px] p-3.5 text-left transition-[background-color,box-shadow] duration-200 ${on ? "ring-2 ring-accent" : ""}`}
                       style={{ background: tintBg(b.tint, on ? 22 : 12) }}
                     >
-                      {on && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-accent text-[11px] font-bold text-accent-fg">✓</span>}
+                      <AnimatePresence>
+                        {on && (
+                          <motion.span
+                            className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-fg"
+                            initial={{ scale: 0, rotate: -45 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 600, damping: 22 }}
+                          >
+                            <Check size={12} strokeWidth={3.2} />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
                       <IconTile spec={bundleIcon(b.id)} size={38} radius={12} />
                       <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
                       <div className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-text-3">{titles.join(", ")}</div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -165,6 +204,8 @@ export function OnboardingTour() {
               </button>
             </div>
           )}
+          </motion.div>
+          </AnimatePresence>
         </div>
 
         {step < 3 ? (

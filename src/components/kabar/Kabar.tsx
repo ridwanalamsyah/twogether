@@ -1,7 +1,8 @@
 "use client";
 
 import { useNick } from "@/lib/nick";
-import { MessageCircleHeart } from "lucide-react";
+import { Check, MessageCircleHeart } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -57,15 +58,35 @@ export function KabarWidget() {
 
       <div className="no-scrollbar -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4">
         {PINGS.map((p) => (
-          <button
+          <motion.button
             key={p.id}
+            layout
             onClick={() => ping(p.id)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold transition-all active:scale-90 ${
+            whileTap={{ scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 520, damping: 30 }}
+            className={`flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${
               sent === p.id ? "bg-accent text-accent-fg" : "bg-bg-elev1 text-text-2"
             }`}
           >
-            {sent === p.id ? "Terkirim" : p.label}
-          </button>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={sent === p.id ? "sent" : "label"}
+                className="flex items-center gap-1"
+                initial={{ y: 14, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -14, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 520, damping: 32 }}
+              >
+                {sent === p.id ? (
+                  <>
+                    <Check size={14} strokeWidth={3} /> Terkirim
+                  </>
+                ) : (
+                  p.label
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </motion.button>
         ))}
       </div>
       <Link href="/kabar" className="mt-2 block text-center text-[12px] font-medium text-text-3">
