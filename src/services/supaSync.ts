@@ -1,6 +1,7 @@
 "use client";
 
 import { getDB } from "@/lib/db";
+import { externalizeMedia, removeMedia } from "@/services/media";
 import { CURSOR_MARGIN_MS, nextCursor, shouldApplyRemote, type Versioned } from "@/services/merge";
 import {
   TABLE_MAP,
@@ -38,7 +39,8 @@ export async function pushOne(
   if (!sb) throw new Error("supabase_unavailable");
   const remote = TABLE_MAP[table];
   if (!remote) throw new Error(`unmapped_table_${table}`);
-  const row = toRow(table, record, ctx.workspaceId, ctx.authUserId);
+  const outgoing = await externalizeMedia(table, record, ctx.workspaceId);
+  const row = toRow(table, outgoing, ctx.workspaceId, ctx.authUserId);
   const { error } = await sb.from(remote).upsert(row, { onConflict: "id" });
   if (error) throw new Error(error.message);
 }
@@ -57,6 +59,8 @@ export async function pushDelete(
   if (!row.deleted_at) row.deleted_at = new Date().toISOString();
   const { error } = await sb.from(remote).upsert(row, { onConflict: "id" });
   if (error) throw new Error(error.message);
+  // The row is a tombstone now; its photo or voice note can go.
+  void removeMedia(table, record, ctx.workspaceId);
 }
 
 interface PullState {

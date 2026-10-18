@@ -190,6 +190,17 @@ iPhone/iPad iOS 16.4+ kalau Twogether dipasang ke Layar Utama).
 Catatan: app iOS native (Capacitor) butuh push via APNs (akun Apple
 Developer) — belum disiapkan; versi web/PWA sudah bisa.
 
+### 6. Foto & suara di Storage (disarankan)
+
+Tanpa langkah ini foto dan rekaman suara ikut disimpan di dalam tabel
+database (cepat memenuhi kuota 500 MB paket gratis). Dengan langkah ini
+semuanya pindah ke Supabase Storage (kuota terpisah 1 GB) dan database hanya
+menyimpan link-nya.
+
+1. Supabase → SQL Editor: jalankan `supabase/migrations/0007_media_storage.sql`.
+2. Selesai. Foto/suara baru otomatis diunggah saat sinkron; yang lama tetap
+   terbaca seperti biasa.
+
 ### Catatan untuk rilis komersial
 
 - **Scan struk** berjalan di perangkat (tesseract.js). File OCR disalin ke

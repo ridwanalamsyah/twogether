@@ -8,6 +8,7 @@ import { upsertItem } from "@/stores/data";
 import { parsePayload } from "@/lib/people";
 import { compressImage, fileToDataUrl } from "@/lib/image";
 import { formatBytes } from "@/lib/notes";
+import { useMediaSrc } from "@/services/media";
 
 /**
  * Photos & files inside a note. The bytes live in their own `note-file` item
@@ -51,9 +52,11 @@ function useAttachment(id?: string) {
 
 export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () => void }) {
   const a = useAttachment(fileId);
+  const src = useMediaSrc(a?.data);
   const [open, setOpen] = useState(false);
-  if (a === undefined) return <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-bg-elev2" />;
-  if (!a?.data)
+  if (a === undefined || (a?.data && src === undefined))
+    return <div className="skeleton aspect-[4/3] w-full rounded-2xl" />;
+  if (!a?.data || !src)
     return (
       <div className="flex items-center justify-between rounded-2xl bg-bg-elev1 px-4 py-6 text-[13px] text-text-4">
         Foto belum sampai di HP ini.
@@ -64,7 +67,7 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
     <div className="group relative">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={a.data}
+        src={src}
         alt={a.name}
         onClick={() => setOpen(true)}
         className="max-h-[480px] w-full cursor-zoom-in rounded-2xl bg-bg-elev1 object-contain"
@@ -80,7 +83,7 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
         createPortal(
           <div className="backdrop-in fixed inset-0 z-[90] grid place-items-center bg-black/90 p-4" onClick={() => setOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={a.data} alt={a.name} className="max-h-full max-w-full object-contain" />
+            <img src={src} alt={a.name} className="max-h-full max-w-full object-contain" />
           </div>,
           document.body,
         )}
@@ -90,6 +93,7 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
 
 export function FileView({ fileId, name, size, onRemove }: { fileId?: string; name?: string; size?: number; onRemove: () => void }) {
   const a = useAttachment(fileId);
+  const src = useMediaSrc(a?.data);
   const ext = (name ?? "").split(".").pop()?.toUpperCase() ?? "";
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-bg-elev1 px-3 py-2.5">
@@ -103,8 +107,8 @@ export function FileView({ fileId, name, size, onRemove }: { fileId?: string; na
           {a === null ? " · belum sampai di HP ini" : ""}
         </div>
       </div>
-      {a?.data && (
-        <a href={a.data} download={name} className="rounded-full bg-bg-card px-3 py-1.5 text-[12px] font-semibold text-text-2 shadow-card">
+      {src && (
+        <a href={src} download={name} className="rounded-full bg-bg-card px-3 py-1.5 text-[12px] font-semibold text-text-2 shadow-card">
           Buka
         </a>
       )}

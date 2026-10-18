@@ -16,6 +16,7 @@ import type { MomentRecord } from "@/lib/db";
 import { TagInput } from "@/components/ui/TagInput";
 import { VoiceRecorder } from "@/components/ui/VoiceRecorder";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useMediaSrc } from "@/services/media";
 
 export default function MomentsPage() {
   const userId = useAuth((s) => s.userId);
@@ -164,7 +165,7 @@ function MomentCard({ moment }: { moment: MomentRecord }) {
             </p>
           )}
           {moment.voice && (
-            <audio controls src={moment.voice} className="h-9 w-full" />
+            <VoicePlayer src={moment.voice} />
           )}
           {!body && !moment.voice && (
             <p className="text-sm italic text-text-3">— kosong —</p>
@@ -282,4 +283,12 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   );
+}
+
+/** Plays a voice note stored inline or in Storage ("sb:" link). */
+function VoicePlayer({ src }: { src: string }) {
+  const url = useMediaSrc(src);
+  if (url === undefined) return <div className="skeleton h-9 w-full rounded-full" />;
+  if (!url) return <div className="text-[12px] text-text-4">Rekaman belum sampai di HP ini.</div>;
+  return <audio controls src={url} className="h-9 w-full" />;
 }
