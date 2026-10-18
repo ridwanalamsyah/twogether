@@ -851,11 +851,11 @@ function translateAuthError(msg: string): string {
  */
 async function reencryptLockedMoments(
   userId: string,
-  useOldKey: () => Promise<void>,
-  useNewKey: () => Promise<void>,
+  withOldKey: () => Promise<void>,
+  withNewKey: () => Promise<void>,
 ): Promise<void> {
   const db = getDB();
-  await useOldKey();
+  await withOldKey();
   const locked = (await db.moments.where("userId").equals(userId).toArray()).filter(
     (m) => m.encrypted && m.cipher && !m.deletedAt,
   );
@@ -867,7 +867,7 @@ async function reencryptLockedMoments(
       // Not ours, or already unreadable: leave as is.
     }
   }
-  await useNewKey();
+  await withNewKey();
   for (const { id, text } of plain) {
     const m = await db.moments.get(id);
     if (!m) continue;
