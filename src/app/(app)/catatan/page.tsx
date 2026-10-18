@@ -658,7 +658,7 @@ function BlockRow({
     return (
       <div className="group flex items-center py-3">
         <hr className="flex-1 border-border-strong" />
-        <button onClick={onRemove} className="ml-2 text-[12px] text-text-4 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+        <button aria-label="Hapus lampiran" onClick={onRemove} className="ml-2 text-[12px] text-text-4 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
           ✕
         </button>
       </div>

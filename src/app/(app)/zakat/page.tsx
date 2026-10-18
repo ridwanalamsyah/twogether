@@ -119,9 +119,9 @@ export default function ZakatPage() {
             <>
               <Row label="Jumlah jiwa">
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">−</button>
+                  <button aria-label="Kurangi jumlah jiwa" onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">−</button>
                   <span className="w-8 text-center font-mono text-[20px] font-extrabold">{v.jiwa}</span>
-                  <button onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
+                  <button aria-label="Tambah jumlah jiwa" onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
                 </div>
               </Row>
               <Row label="Per jiwa (sesuai ketetapan daerahmu)">

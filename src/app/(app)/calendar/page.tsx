@@ -249,6 +249,7 @@ export default function CalendarPage() {
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-center justify-between">
           <button
+            aria-label="Bulan sebelumnya"
             onClick={() =>
               setCursor((c) =>
                 c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 },
@@ -260,6 +261,7 @@ export default function CalendarPage() {
           </button>
           <div className="text-[14px] font-medium tracking-tight">{monthName}</div>
           <button
+            aria-label="Bulan berikutnya"
             onClick={() =>
               setCursor((c) =>
                 c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 },

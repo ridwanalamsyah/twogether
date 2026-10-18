@@ -57,7 +57,7 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
     return (
       <div className="flex items-center justify-between rounded-2xl bg-bg-elev1 px-4 py-6 text-[13px] text-text-4">
         Foto belum sampai di HP ini.
-        <button onClick={onRemove} className="text-text-4">✕</button>
+        <button aria-label="Hapus lampiran" onClick={onRemove} className="text-text-4">✕</button>
       </div>
     );
   return (
