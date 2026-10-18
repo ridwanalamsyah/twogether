@@ -2,3 +2,4 @@
 await import("./dates.test.mjs");
 await import("./merge.test.mjs");
 await import("./money.test.mjs");
+await import("./reminders.test.mjs");

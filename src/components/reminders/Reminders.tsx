@@ -7,13 +7,15 @@ import { useAuth } from "@/stores/auth";
 import { useEntries, useItems, useTransactions } from "@/stores/data";
 import { useReminderPrefs } from "@/stores/reminders";
 import { usePeople, isoDay } from "@/lib/people";
+import { useNick } from "@/lib/nick";
 import { isNative } from "@/lib/native";
 import { notificationId, upcoming, type Reminder, type ReminderData } from "@/lib/reminders";
 import { notificationText } from "@/stores/privacy";
 
 function useReminderData(): ReminderData | null {
   const userId = useAuth((s) => s.userId);
-  const { me } = usePeople();
+  const { me, partner } = usePeople();
+  const { nick } = useNick();
   const txs = useTransactions(userId);
   const bills = useItems(userId, "bill");
   const billPaid = useEntries(userId, "bill-paid");
@@ -22,12 +24,14 @@ function useReminderData(): ReminderData | null {
   const tilawah = useEntries(userId, "tilawah");
   const challenges = useItems(userId, "challenge");
   const challengeLogs = useEntries(userId, "challenge-log");
+  const pings = useEntries(userId, "ping");
+  const partnerName = partner ? nick(partner) : null;
   return useMemo(
     () =>
-      txs && bills && billPaid && annivs && khatams && tilawah && challenges && challengeLogs
-        ? { me, txs, bills, billPaid, annivs, khatams, tilawah, challenges, challengeLogs }
+      txs && bills && billPaid && annivs && khatams && tilawah && challenges && challengeLogs && pings
+        ? { me, txs, bills, billPaid, annivs, khatams, tilawah, challenges, challengeLogs, pings, partner: partnerName }
         : null,
-    [me, txs, bills, billPaid, annivs, khatams, tilawah, challenges, challengeLogs],
+    [me, txs, bills, billPaid, annivs, khatams, tilawah, challenges, challengeLogs, pings, partnerName],
   );
 }
 

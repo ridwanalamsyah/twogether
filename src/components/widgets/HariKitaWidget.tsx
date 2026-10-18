@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useItems } from "@/stores/data";
-import { relationshipStart } from "@/lib/anniv";
+import { celebrationToday, relationshipStart, yearsMonths } from "@/lib/anniv";
+import { konfetti } from "@/lib/konfetti";
+import { fromIsoDay, isoDay } from "@/lib/dates";
 import { accentEmoji, useTheme } from "@/stores/theme";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -27,6 +29,21 @@ export function HariKitaWidget() {
   }, []);
 
   const anchorDate = relationshipStart(annivs);
+  const celebration = celebrationToday(anchorDate);
+
+  // A little confetti the first time Beranda opens on the big day.
+  useEffect(() => {
+    if (!celebration) return;
+    const key = `twogether:celebrated:${isoDay()}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      /* ignore */
+    }
+    const t = setTimeout(() => konfetti({ count: 60 }), 700);
+    return () => clearTimeout(t);
+  }, [celebration]);
 
   if (!anchorDate) {
     return (
@@ -50,12 +67,12 @@ export function HariKitaWidget() {
     );
   }
 
-  const start = new Date(anchorDate).getTime();
+  const start = fromIsoDay(anchorDate.slice(0, 10)).getTime();
   const diff = Math.max(0, Date.now() - start);
   const days = Math.floor(diff / 86_400_000);
   const hours = Math.floor((diff % 86_400_000) / 3_600_000);
   const mins = Math.floor((diff % 3_600_000) / 60_000);
-  const yrs = days / 365.25;
+  const ym = yearsMonths(anchorDate);
 
   // Suppress unused tick warning
   void tick;
@@ -79,7 +96,13 @@ export function HariKitaWidget() {
         className="pressable relative block overflow-hidden rounded-[24px] p-5 shadow-float"
         style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
       >
-        <div className="text-[13px] font-semibold opacity-85">Sudah bersama</div>
+        <div className="text-[13px] font-semibold opacity-85">
+          {celebration?.kind === "anniv"
+            ? `Selamat hari jadi yang ke-${celebration.years}!`
+            : celebration?.kind === "milestone"
+              ? "Hari ini angka bulat!"
+              : "Sudah bersama"}
+        </div>
         <div className="mt-1 flex items-baseline gap-2">
           <CountUp
             value={days}
@@ -89,7 +112,7 @@ export function HariKitaWidget() {
           <span className="text-[16px] font-semibold opacity-85">hari</span>
         </div>
         <div className="mt-1 text-[12px] opacity-75">
-          {Math.floor(yrs)} tahun {Math.floor((yrs % 1) * 12)} bulan · {hours} jam {mins} menit
+          {ym.years} tahun {ym.months} bulan · {hours} jam {mins} menit
         </div>
         <div className="mt-4 flex items-center gap-3">
           <div

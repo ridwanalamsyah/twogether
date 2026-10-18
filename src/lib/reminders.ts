@@ -1,5 +1,6 @@
 import type { EntryRecord, ItemRecord, TransactionRecord } from "@/lib/db";
-import { addDays, daysBetween, isoDay, parsePayload } from "@/lib/people";
+import { addDays, daysBetween, isoDay } from "@/lib/dates";
+import { parsePayload } from "@/lib/payload";
 import { billState } from "@/lib/bills";
 
 /**
@@ -7,7 +8,7 @@ import { billState } from "@/lib/bills";
  * shown as a Beranda card while it's relevant, and scheduled as phone
  * notifications in the iPhone app (which works even when the app is closed).
  */
-export type ReminderType = "catat" | "tagihan" | "anniv" | "tilawah" | "tantangan";
+export type ReminderType = "catat" | "tagihan" | "anniv" | "tilawah" | "tantangan" | "kabar";
 
 export const REMINDER_TYPES: { id: ReminderType; emoji: string; label: string; hint: string; hour: number; minute: number }[] = [
   { id: "tagihan", emoji: "🧾", label: "Tagihan jatuh tempo", hint: "Sehari sebelum dan di hari jatuh tempo, jam 08.00", hour: 8, minute: 0 },
@@ -15,6 +16,7 @@ export const REMINDER_TYPES: { id: ReminderType; emoji: string; label: string; h
   { id: "catat", emoji: "✍️", label: "Catat pengeluaran", hint: "Jam 20.00 kalau hari itu belum ada catatan", hour: 20, minute: 0 },
   { id: "tilawah", emoji: "📖", label: "Target tilawah", hint: "Jam 19.00 kalau bacaan hari itu masih kurang", hour: 19, minute: 0 },
   { id: "tantangan", emoji: "🔥", label: "Tantangan berdua", hint: "Jam 20.30 kalau belum dicentang", hour: 20, minute: 30 },
+  { id: "kabar", emoji: "💌", label: "Kabar untuk pasangan", hint: "Jam 21.00 kalau hari itu belum kirim kabar", hour: 21, minute: 0 },
 ];
 
 export interface Reminder {
@@ -40,6 +42,9 @@ export interface ReminderData {
   tilawah: EntryRecord[];
   challenges: ItemRecord[];
   challengeLogs: EntryRecord[];
+  /** Kabar pings; with `partner`, for the "belum kirim kabar" nudge. */
+  pings: EntryRecord[];
+  partner: string | null;
 }
 
 const meta = (t: ReminderType) => REMINDER_TYPES.find((r) => r.id === t)!;
@@ -157,6 +162,22 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
           current: i === 0 && now.getHours() >= 18,
         });
       }
+    }
+  }
+
+  if (enabled.kabar && data.partner) {
+    const sentToday = data.pings.some((p) => p.date === today && p.who === data.me);
+    for (let i = sentToday ? 1 : 0; i < days; i += 1) {
+      const d = addDays(today, i);
+      out.push({
+        id: `kabar:${d}`,
+        type: "kabar",
+        emoji: "💌",
+        text: `Belum kirim kabar ke ${data.partner} hari ini`,
+        href: "/home",
+        at: at(d, "kabar"),
+        current: i === 0 && now.getHours() >= 20,
+      });
     }
   }
 
