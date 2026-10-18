@@ -92,7 +92,8 @@ export function OnboardingTour() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+        {/* Small inset so selected cards' ring isn't clipped by the scroller. */}
+        <div className="-mx-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1.5 pb-1.5 pt-0.5">
           <AnimatePresence mode="wait" initial={false} custom={dir}>
           <motion.div
             key={step}
