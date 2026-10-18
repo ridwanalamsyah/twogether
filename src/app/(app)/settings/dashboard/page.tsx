@@ -128,6 +128,7 @@ export default function CustomizeDashboardPage() {
                       <Toggle
                         on={w.enabled}
                         onClick={() => toggle(w.id)}
+                        label={meta.label}
                       />
                     </div>
                   </SortableRow>
@@ -188,10 +189,11 @@ function DragHandle() {
   );
 }
 
-function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return (
     <button
       onClick={onClick}
+      aria-label={label}
       role="switch"
       aria-checked={on}
       className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${

@@ -43,6 +43,7 @@ export type WidgetKind =
   | "patungan"
   | "kabar"
   | "tanya"
+  | "ldr"
   | "tantangan"
   | "fokus"
   | "ramadhan"
@@ -98,6 +99,7 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
   { id: "w_tantangan", kind: "tantangan", size: "lg", enabled: false },
   { id: "w_fokus", kind: "fokus", size: "lg", enabled: false },
   { id: "w_ramadhan", kind: "ramadhan", size: "lg", enabled: false },
+  { id: "w_ldr", kind: "ldr", size: "lg", enabled: false },
 ];
 
 /** New widgets that should switch on (once) even for customised layouts. */

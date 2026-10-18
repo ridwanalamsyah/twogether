@@ -14,6 +14,10 @@ import { WidgetShell } from "./WidgetShell";
 import { IconTile } from "@/lib/icons";
 import { CreditCard, Eye, EyeOff, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
 import { usePrivacy } from "@/stores/privacy";
+import Link from "next/link";
+import { useEntries } from "@/stores/data";
+import { usePeople } from "@/lib/people";
+import { splitBalance } from "@/lib/split";
 
 interface Stat {
   /** Stable key for the tile's icon choice. */
@@ -176,6 +180,7 @@ export function BalanceWidget() {
           </div>
         ))}
       </div>
+      <PatunganRow />
       {picking && (
         <Sheet title={`Ikon ${picking.label}`} onClose={() => setPicking(null)}>
           <div className="grid grid-cols-8 gap-1.5">
@@ -259,5 +264,28 @@ function HideMoneyToggle() {
     >
       {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
     </button>
+  );
+}
+
+/** Who owes whom from shared bills, right under the balances (hidden when even). */
+function PatunganRow() {
+  const userId = useAuth((s) => s.userId);
+  const { me, partner } = usePeople();
+  const { nick } = useNick();
+  const splits = useEntries(userId, "split");
+  const settles = useEntries(userId, "split-settle");
+  if (!partner || !splits || !settles) return null;
+  const net = splitBalance([...splits, ...settles], me);
+  if (net === 0) return null;
+  const text = net > 0 ? `${nick(partner)} perlu ganti` : "Kamu perlu ganti";
+  return (
+    <Link
+      href="/patungan"
+      className="mt-1 flex items-center gap-3 border-t border-[color:var(--hairline)] pt-2.5 active:opacity-70"
+    >
+      <IconTile spec={{ Icon: HandCoins, tint: "#f59e0b" }} size={32} radius={999} />
+      <div className="min-w-0 flex-1 truncate text-[14px] text-text-2">{text}</div>
+      <div className="num text-[15px] font-semibold text-text-1">{formatRupiahShort(Math.abs(net))}</div>
+    </Link>
   );
 }
