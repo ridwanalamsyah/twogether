@@ -9,6 +9,8 @@ export function PrivacyCard() {
   const setHideMoney = usePrivacy((s) => s.setHideMoney);
   const discreet = usePrivacy((s) => s.discreetNotifications);
   const setDiscreet = usePrivacy((s) => s.setDiscreetNotifications);
+  const reports = usePrivacy((s) => s.errorReports);
+  const setReports = usePrivacy((s) => s.setErrorReports);
 
   return (
     <section className="surface space-y-2 p-4">
@@ -24,6 +26,12 @@ export function PrivacyCard() {
         sub={`Notifikasi cuma bilang "Ada kabar baru", isinya tidak muncul di layar kunci.`}
         on={discreet}
         onChange={setDiscreet}
+      />
+      <Toggle
+        label="Kirim laporan error"
+        sub="Kalau app error, kirim pesan error-nya tanpa nama, email, atau isi catatan. Membantu memperbaiki bug."
+        on={reports}
+        onChange={setReports}
       />
       <Link href="/privasi" className="block pt-1 text-[12px] font-medium text-text-3 underline-offset-2 active:opacity-60">
         Kebijakan privasi ›

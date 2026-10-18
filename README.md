@@ -201,6 +201,12 @@ menyimpan link-nya.
 2. Selesai. Foto/suara baru otomatis diunggah saat sinkron; yang lama tetap
    terbaca seperti biasa.
 
+### 7. Laporan error (opsional)
+
+Supabase → SQL Editor: jalankan `supabase/migrations/0008_error_reports.sql`.
+Pengguna yang menyalakan "Kirim laporan error" (default mati) mengirim error
+tanpa identitas ke tabel `error_reports`; lihat di Supabase → Table Editor.
+
 ### Catatan untuk rilis komersial
 
 - **Scan struk** berjalan di perangkat (tesseract.js). File OCR disalin ke

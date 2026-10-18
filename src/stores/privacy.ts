@@ -13,6 +13,9 @@ import { persist, createJSONStorage } from "zustand/middleware";
 interface PrivacyState {
   hideMoney: boolean;
   discreetNotifications: boolean;
+  /** Opt-in anonymous crash reports (services/errorReports.ts). */
+  errorReports: boolean;
+  setErrorReports: (v: boolean) => void;
   setHideMoney: (v: boolean) => void;
   setDiscreetNotifications: (v: boolean) => void;
 }
@@ -22,6 +25,8 @@ export const usePrivacy = create<PrivacyState>()(
     (set) => ({
       hideMoney: false,
       discreetNotifications: false,
+      errorReports: false,
+      setErrorReports: (errorReports) => set({ errorReports }),
       setHideMoney: (hideMoney) => set({ hideMoney }),
       setDiscreetNotifications: (discreetNotifications) => {
         set({ discreetNotifications });

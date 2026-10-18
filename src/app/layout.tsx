@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { TextSize } from "@/components/theme/TextSize";
+import { ErrorReporter } from "@/components/ui/ErrorReporter";
 import { SyncProvider } from "@/components/sync/SyncProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
@@ -89,6 +90,7 @@ export default function RootLayout({
       <body className="theme-transition">
         <ErrorBoundary>
           <TextSize />
+          <ErrorReporter />
           <ThemeProvider>
             <SyncProvider>{children}</SyncProvider>
           </ThemeProvider>

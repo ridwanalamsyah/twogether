@@ -63,7 +63,11 @@ export default function PrivacyPolicyPage() {
           <h2>Yang tidak kami lakukan</h2>
           <ul>
             <li>Tidak ada iklan dan tidak ada penjualan data.</li>
-            <li>Tidak ada pelacakan atau analitik perilaku. Kalau suatu saat ditambahkan, akan bersifat opsional dan anonim.</li>
+            <li>Tidak ada pelacakan atau analitik perilaku.</li>
+            <li>
+              Laporan error hanya dikirim kalau kalian menyalakannya (Pengaturan → Password &amp; keamanan).
+              Isinya pesan error, halaman, dan jenis browser, tanpa nama, email, atau isi catatan.
+            </li>
             <li>Tidak membagikan data ke pihak lain, kecuali penyedia layanan yang menjalankan app (hosting dan database) atau bila diwajibkan hukum.</li>
           </ul>
         </section>
