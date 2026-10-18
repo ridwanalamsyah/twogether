@@ -5,6 +5,7 @@
  * Badges: one-time milestones, criteria evaluated against entries/items/transactions/deposits.
  */
 import { getDB } from "@/lib/db";
+import { isoDay } from "@/lib/dates";
 
 export type BadgeId = string;
 
@@ -49,10 +50,10 @@ export function calcStreak(entriesDates: string[]): { current: number; best: num
   }
   // Current = consecutive days ending today or yesterday
   const today = new Date();
-  const todayISO = today.toISOString().slice(0, 10);
+  const todayISO = isoDay(today);
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayISO = yesterday.toISOString().slice(0, 10);
+  const yesterdayISO = isoDay(yesterday);
   let cursor: Date;
   if (set.has(todayISO)) {
     cursor = today;
@@ -62,7 +63,7 @@ export function calcStreak(entriesDates: string[]): { current: number; best: num
     return { current: 0, best };
   }
   let current = 0;
-  while (set.has(cursor.toISOString().slice(0, 10))) {
+  while (set.has(isoDay(cursor))) {
     current++;
     cursor.setDate(cursor.getDate() - 1);
   }

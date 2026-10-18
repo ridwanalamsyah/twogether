@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { isoDay } from "@/lib/dates";
 
 export interface SparklinePoint {
   date: string; // YYYY-MM-DD
@@ -25,7 +26,7 @@ function lastNDates(n: number): string[] {
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    arr.push(d.toISOString().slice(0, 10));
+    arr.push(isoDay(d));
   }
   return arr;
 }

@@ -5,6 +5,7 @@ import { useAuth } from "@/stores/auth";
 import { useTransactions } from "@/stores/data";
 import { WidgetShell } from "./WidgetShell";
 import { formatRupiahShort } from "@/lib/utils";
+import { isoDay } from "@/lib/dates";
 
 interface DayBucket {
   label: string;
@@ -25,7 +26,7 @@ export function ExpenseChartWidget() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const iso = d.toISOString().slice(0, 10);
+      const iso = isoDay(d);
       buckets.push({ label: DAY_LABELS[d.getDay()], iso, amount: 0 });
     }
     for (const t of txs ?? []) {
@@ -48,7 +49,7 @@ export function ExpenseChartWidget() {
       <div className="flex h-[100px] items-end gap-1.5">
         {days.map((d) => {
           const h = Math.max(2, (d.amount / max) * 100);
-          const isToday = d.iso === new Date().toISOString().slice(0, 10);
+          const isToday = d.iso === isoDay();
           return (
             <div key={d.iso} className="flex flex-1 flex-col items-center gap-1.5">
               <div className="flex h-full w-full items-end">

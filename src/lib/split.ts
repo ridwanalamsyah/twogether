@@ -1,5 +1,5 @@
 import type { EntryRecord } from "@/lib/db";
-import { parsePayload } from "@/lib/people";
+import { parsePayload } from "@/lib/payload";
 
 export type SplitMode = "half" | "full" | "custom";
 export interface SplitPayload {

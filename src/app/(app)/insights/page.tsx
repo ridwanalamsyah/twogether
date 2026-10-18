@@ -7,6 +7,7 @@ import { useWorkspace } from "@/stores/workspace";
 import { useGoals, useDeposits, useTransactions } from "@/stores/data";
 import { formatRupiah, formatRupiahShort } from "@/lib/utils";
 import { TrackerInsights } from "@/components/insights/TrackerInsights";
+import { isoDay } from "@/lib/dates";
 
 export default function InsightsPage() {
   const userId = useAuth((s) => s.userId);
@@ -96,7 +97,7 @@ export default function InsightsPage() {
     for (let i = 11 * 7; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const iso = d.toISOString().slice(0, 10);
+      const iso = isoDay(d);
       const total = sum(txs.filter((t) => t.kind === "out" && t.date === iso));
       weeks.push({ date: iso, total });
     }

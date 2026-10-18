@@ -28,6 +28,7 @@ import {
 import { sync } from "@/services/sync";
 import { useWorkspace } from "@/stores/workspace";
 import { decryptString, encryptString, isUnlocked } from "@/lib/crypto";
+import { isoDay } from "@/lib/dates";
 
 /**
  * Live data hooks — Dexie's `useLiveQuery` re-renders components when the
@@ -468,7 +469,7 @@ export async function upsertSkripsiBimbingan(
     createdAt: existing?.createdAt ?? now(),
     updatedAt: now(),
     dirty: 1,
-    date: input.date ?? existing?.date ?? new Date().toISOString().slice(0, 10),
+    date: input.date ?? existing?.date ?? isoDay(),
     dosen: input.dosen ?? existing?.dosen,
     topic: input.topic ?? existing?.topic ?? "",
     notes: input.notes ?? existing?.notes,
@@ -530,7 +531,7 @@ export async function upsertDeadline(
     updatedAt: now(),
     dirty: 1,
     title: input.title ?? existing?.title ?? "",
-    date: input.date ?? existing?.date ?? new Date().toISOString().slice(0, 10),
+    date: input.date ?? existing?.date ?? isoDay(),
     category: input.category ?? existing?.category ?? "skripsi",
     detail: input.detail ?? existing?.detail,
     done: input.done ?? existing?.done ?? 0,
@@ -690,7 +691,7 @@ export async function upsertReflection(
     createdAt: existing?.createdAt ?? now(),
     updatedAt: now(),
     dirty: 1,
-    date: input.date ?? existing?.date ?? new Date().toISOString().slice(0, 10),
+    date: input.date ?? existing?.date ?? isoDay(),
     mood: (input.mood ?? existing?.mood ?? 3) as ReflectionRecord["mood"],
     highlights: input.highlights ?? existing?.highlights ?? "",
     who: input.who ?? existing?.who,
@@ -739,7 +740,7 @@ export async function upsertRecurring(
     nextDue:
       input.nextDue ??
       existing?.nextDue ??
-      new Date().toISOString().slice(0, 10),
+      isoDay(),
     active: (input.active ?? existing?.active ?? 1) as 0 | 1,
   };
   await sync.recordWrite("recurring", record);
@@ -998,7 +999,7 @@ export async function upsertRecurringGoal(
     amount: input.amount,
     who: input.who,
     dayOfMonth: Math.max(1, Math.min(28, input.dayOfMonth)),
-    nextDue: input.nextDue ?? existing?.nextDue ?? new Date().toISOString().slice(0, 10),
+    nextDue: input.nextDue ?? existing?.nextDue ?? isoDay(),
     active: input.active === false ? 0 : 1,
   };
   await sync.recordWrite("recurringGoals", record);

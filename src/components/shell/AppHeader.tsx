@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import { goBack, isTabRoot } from "@/lib/nav";
+import { hapticTap } from "@/lib/haptic";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 
 interface AppHeaderProps {
@@ -20,6 +24,10 @@ interface AppHeaderProps {
  */
 export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
+  // Tabs are top level; every other page gets a way back besides the edge swipe.
+  const showBack = !isTabRoot(pathname);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -35,6 +43,19 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
   return (
     <header className="app-header sticky top-0 z-20 px-5 pt-[var(--header-top-pad)] pb-3 theme-transition md:px-8 md:pt-6">
       <div className="flex items-center justify-between gap-3">
+        {showBack && (
+          <button
+            type="button"
+            onClick={() => {
+              hapticTap();
+              goBack(router);
+            }}
+            aria-label="Kembali"
+            className="-ml-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-text-1 transition-transform active:scale-90 active:bg-bg-elev2"
+          >
+            <ChevronLeft size={24} strokeWidth={2.2} />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           {eyebrow && (
             <div className="mb-0.5 truncate text-[12px] font-semibold text-accent">

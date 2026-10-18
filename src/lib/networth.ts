@@ -1,5 +1,6 @@
 import type { DepositRecord, EntryRecord, ItemRecord, TransactionRecord } from "@/lib/db";
-import { parsePayload, isoDay } from "@/lib/people";
+import { parsePayload } from "@/lib/payload";
+import { isoDay } from "@/lib/dates";
 import { toWallet, walletOf, type TransferPayload } from "@/lib/wallet";
 import { paymentsOf, readBill } from "@/lib/bills";
 

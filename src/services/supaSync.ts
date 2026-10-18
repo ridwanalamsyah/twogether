@@ -1,6 +1,7 @@
 "use client";
 
 import { getDB } from "@/lib/db";
+import { CURSOR_MARGIN_MS, nextCursor, shouldApplyRemote, type Versioned } from "@/services/merge";
 import {
   TABLE_MAP,
   TABLE_MAP_REVERSE,
@@ -58,21 +59,71 @@ export async function pushDelete(
   if (error) throw new Error(error.message);
 }
 
-/** Pulls all workspace data into Dexie (replaces local copies). */
-export async function pullWorkspace(ctx: SupaContext): Promise<void> {
+interface PullState {
+  /** Per remote table: newest updated_at (ms) already pulled. */
+  cursors: Record<string, number>;
+  fullAt: number;
+}
+
+const FULL_PULL_EVERY_MS = 24 * 60 * 60_000;
+
+function pullKey(ws: string) {
+  return `twogether:pull:${ws}`;
+}
+
+function readPullState(ws: string): PullState {
+  try {
+    const raw = localStorage.getItem(pullKey(ws));
+    if (raw) return JSON.parse(raw) as PullState;
+  } catch {
+    /* storage blocked or corrupt: start over with a full pull */
+  }
+  return { cursors: {}, fullAt: 0 };
+}
+
+function writePullState(ws: string, state: PullState) {
+  try {
+    localStorage.setItem(pullKey(ws), JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Put server rows into Dexie without clobbering newer or unsent local copies. */
+async function mergeIntoLocal(local: string, records: Record<string, unknown>[]): Promise<void> {
+  const tableRef = getDB().table(local) as unknown as {
+    bulkGet(ids: string[]): Promise<(Versioned | undefined)[]>;
+    bulkPut(values: unknown[]): Promise<unknown>;
+  };
+  const existing = await tableRef.bulkGet(records.map((r) => r.id as string));
+  const fresh = records.filter((r, i) => shouldApplyRemote(existing[i], r as Versioned));
+  if (fresh.length) await tableRef.bulkPut(fresh);
+}
+
+/**
+ * Brings the partner's changes into Dexie. Normally only rows changed since
+ * the last pull (minus a margin for phone clocks that run a bit off); a full
+ * pull at sign-in, once a day, or when asked, so nothing slips through.
+ */
+export async function pullWorkspace(ctx: SupaContext, opts: { full?: boolean } = {}): Promise<void> {
   if (pulling) return;
   pulling = true;
   try {
     const sb = getSupabase();
     if (!sb) return;
-    const db = getDB();
+    const state = readPullState(ctx.workspaceId);
+    const full = opts.full || Date.now() - state.fullAt > FULL_PULL_EVERY_MS;
+    let allOk = true;
     for (const [local, remote] of Object.entries(TABLE_MAP)) {
-      const { data, error } = await sb
-        .from(remote)
-        .select("*")
-        .eq("workspace_id", ctx.workspaceId);
+      let query = sb.from(remote).select("*").eq("workspace_id", ctx.workspaceId);
+      const since = state.cursors[remote];
+      if (!full && since) {
+        query = query.gt("updated_at", new Date(since - CURSOR_MARGIN_MS).toISOString());
+      }
+      const { data, error } = await query;
       if (error) {
         console.warn(`[pull] ${remote}:`, error.message);
+        allOk = false;
         continue;
       }
       if (!data || data.length === 0) continue;
@@ -80,14 +131,16 @@ export async function pullWorkspace(ctx: SupaContext): Promise<void> {
         fromRow(local, r, ctx.localUserId),
       );
       try {
-        const tableRef = db.table(local) as unknown as {
-          bulkPut(values: unknown[]): Promise<unknown>;
-        };
-        await tableRef.bulkPut(records);
+        await mergeIntoLocal(local, records);
+        const cursor = nextCursor(state.cursors[remote] ?? null, records as Versioned[]);
+        if (cursor) state.cursors[remote] = cursor;
       } catch (err) {
         console.warn(`[pull] dexie put ${local}:`, err);
+        allOk = false;
       }
     }
+    if (full && allOk) state.fullAt = Date.now();
+    writePullState(ctx.workspaceId, state);
   } finally {
     pulling = false;
   }
@@ -127,8 +180,7 @@ export function subscribeRealtime(ctx: SupaContext): () => void {
             return;
           }
           if (payload.new) {
-            const rec = fromRow(local, payload.new, ctx.localUserId);
-            await tableRef.put(rec);
+            await mergeIntoLocal(local, [fromRow(local, payload.new, ctx.localUserId)]);
           }
         } catch (err) {
           console.warn(`[realtime] ${remote}:`, err);

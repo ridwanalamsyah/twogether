@@ -66,11 +66,14 @@ async function attachSupa(
     localUserId,
   });
   try {
-    await pullWorkspace({
-      workspaceId: supaWorkspaceId,
-      authUserId: supaUserId,
-      localUserId,
-    });
+    await pullWorkspace(
+      {
+        workspaceId: supaWorkspaceId,
+        authUserId: supaUserId,
+        localUserId,
+      },
+      { full: true },
+    );
   } catch (err) {
     console.warn("[supa] pull failed:", err);
   }

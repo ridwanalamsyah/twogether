@@ -12,9 +12,10 @@ import {
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { konfetti } from "@/lib/konfetti";
 import { motion } from "framer-motion";
+import { isoDay } from "@/lib/dates";
 
 function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  return isoDay();
 }
 
 export function HabitsQuickWidget() {

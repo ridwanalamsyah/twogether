@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { getActiveCurrency } from "@/stores/currency";
+import { isoDay } from "@/lib/dates";
 
 export function cn(...inputs: ClassValue[]): string {
   return clsx(inputs);
@@ -63,11 +64,9 @@ export function formatDateShort(date: string | number | Date): string {
   });
 }
 
+/** Today as local YYYY-MM-DD. */
 export function todayISO(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-    d.getDate(),
-  ).padStart(2, "0")}`;
+  return isoDay();
 }
 
 export function clamp(n: number, min: number, max: number): number {

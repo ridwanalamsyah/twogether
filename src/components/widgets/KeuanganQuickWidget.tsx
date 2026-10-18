@@ -6,12 +6,13 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useTransactions, addTransaction } from "@/stores/data";
 import { hapticTap, hapticSuccess } from "@/lib/haptic";
+import { isoDay } from "@/lib/dates";
 
 const QUICK_INCOME = ["Gaji", "Bonus", "Lainnya"];
 const QUICK_EXPENSE = ["Makan", "Transport", "Belanja", "Lainnya"];
 
 function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  return isoDay();
 }
 
 function formatRupiahShort(n: number): string {

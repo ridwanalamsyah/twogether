@@ -1,5 +1,5 @@
 import type { EntryRecord } from "@/lib/db";
-import { addDays, daysBetween, isoDay } from "@/lib/people";
+import { addDays, daysBetween, isoDay } from "@/lib/dates";
 
 export interface CycleSettings {
   /** Used until there are at least two recorded starts. */

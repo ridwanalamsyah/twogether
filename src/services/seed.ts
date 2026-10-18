@@ -2,6 +2,7 @@ import { getDB, newId, now, type BaseRecord, type GoalRecord, type SkripsiChapte
 import { sync } from "@/services/sync";
 import { DEFAULT_SKRIPSI_CHAPTERS, defaultChapterId } from "@/stores/data";
 import { SEMESTER_6_SCHEDULE } from "@/data/classes";
+import { isoDay } from "@/lib/dates";
 
 /**
  * Seed sample data so a brand-new account looks like the prototype
@@ -60,7 +61,7 @@ const SAMPLE_TRANSACTIONS: { dayOffset: number; kind: "in" | "out"; amount: numb
 function daysAgoISO(d: number): string {
   const dt = new Date();
   dt.setDate(dt.getDate() - d);
-  return dt.toISOString().slice(0, 10);
+  return isoDay(dt);
 }
 
 async function ensureCountZero(

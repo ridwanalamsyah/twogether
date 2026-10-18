@@ -8,6 +8,7 @@ import {
   type TransactionRecord,
 } from "@/lib/db";
 import { sync } from "@/services/sync";
+import { fromIsoDay, isoDay } from "@/lib/dates";
 
 /**
  * Iterate all active recurring templates and, if their nextDue date is
@@ -28,9 +29,9 @@ export async function applyRecurring(userId: string): Promise<number> {
   let created = 0;
 
   for (const t of templates) {
-    let due = new Date(t.nextDue);
+    let due = fromIsoDay(t.nextDue);
     while (due.getTime() <= today.getTime()) {
-      const iso = due.toISOString().slice(0, 10);
+      const iso = isoDay(due);
       const tx: TransactionRecord = {
         id: newId(),
         userId,
@@ -48,10 +49,10 @@ export async function applyRecurring(userId: string): Promise<number> {
       created += 1;
       due = advance(due, t);
     }
-    if (due.toISOString().slice(0, 10) !== t.nextDue) {
+    if (isoDay(due) !== t.nextDue) {
       await sync.recordWrite("recurring", {
         ...t,
-        nextDue: due.toISOString().slice(0, 10),
+        nextDue: isoDay(due),
         updatedAt: now(),
         dirty: 1,
       });
@@ -91,9 +92,9 @@ export async function applyRecurringGoals(userId: string): Promise<number> {
   let created = 0;
 
   for (const t of templates) {
-    let due = new Date(t.nextDue);
+    let due = fromIsoDay(t.nextDue);
     while (due.getTime() <= today.getTime()) {
-      const iso = due.toISOString().slice(0, 10);
+      const iso = isoDay(due);
       const dep: DepositRecord = {
         id: newId(),
         userId,
@@ -110,10 +111,10 @@ export async function applyRecurringGoals(userId: string): Promise<number> {
       created += 1;
       due = advanceMonth(due, t.dayOfMonth);
     }
-    if (due.toISOString().slice(0, 10) !== t.nextDue) {
+    if (isoDay(due) !== t.nextDue) {
       await sync.recordWrite("recurringGoals", {
         ...t,
-        nextDue: due.toISOString().slice(0, 10),
+        nextDue: isoDay(due),
         updatedAt: now(),
         dirty: 1,
       });

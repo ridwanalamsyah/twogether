@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useEntries, upsertEntry } from "@/stores/data";
 import { hapticTap } from "@/lib/haptic";
+import { isoDay } from "@/lib/dates";
 
 const MOODS: { emoji: string; label: string; value: number }[] = [
   { emoji: "😄", label: "Hebat", value: 5 },
@@ -16,7 +17,7 @@ const MOODS: { emoji: string; label: string; value: number }[] = [
 ];
 
 function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  return isoDay();
 }
 
 export function SehatQuickWidget() {

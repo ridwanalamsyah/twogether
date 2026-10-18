@@ -1,4 +1,5 @@
 import { getDB } from "@/lib/db";
+import { isoDay } from "@/lib/dates";
 
 /**
  * Privacy controls: data ownership operations.
@@ -183,7 +184,7 @@ export async function downloadExport(bundle: ExportBundle): Promise<void> {
   const { saveFile } = await import("@/lib/share");
   await saveFile(
     JSON.stringify(bundle, null, 2),
-    `twogether-cadangan-${new Date().toISOString().slice(0, 10)}.json`,
+    `twogether-cadangan-${isoDay()}.json`,
     "application/json",
   );
   try {
