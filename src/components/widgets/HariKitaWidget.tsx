@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useItems } from "@/stores/data";
+import { celebrationToday, relationshipStart, yearsMonths } from "@/lib/anniv";
+import { konfetti } from "@/lib/konfetti";
+import { fromIsoDay, isoDay } from "@/lib/dates";
 import { accentEmoji, useTheme } from "@/stores/theme";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -25,24 +28,24 @@ export function HariKitaWidget() {
     return () => clearInterval(id);
   }, []);
 
-  // Prefer the relationship start ("jadian", anniversary, nikah). Birthdays
-  // are also stored as anniv items — counting "together since" from a
-  // partner's birth date produced nonsense like 9.907 hari.
-  const anchor = (() => {
-    const withDate = annivs.filter((a) => !!a.date);
-    if (!withDate.length) return null;
-    const isBirthday = (t: string) => /ultah|ulang tahun|birthday|lahir/i.test(t);
-    const isRelationship = (t: string) =>
-      /jadian|anniv|pacaran|nikah|menikah|bersama|kenal/i.test(t);
-    const rel = withDate.filter((a) => isRelationship(a.title ?? ""));
-    const nonBirthday = withDate.filter((a) => !isBirthday(a.title ?? ""));
-    const pool = rel.length ? rel : nonBirthday.length ? nonBirthday : withDate;
-    return pool.reduce((earliest, cur) =>
-      !earliest || (cur.date! < earliest.date!) ? cur : earliest,
-    );
-  })();
+  const anchorDate = relationshipStart(annivs);
+  const celebration = celebrationToday(anchorDate);
 
-  if (!anchor || !anchor.date) {
+  // A little confetti the first time Beranda opens on the big day.
+  useEffect(() => {
+    if (!celebration) return;
+    const key = `twogether:celebrated:${isoDay()}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      /* ignore */
+    }
+    const t = setTimeout(() => konfetti({ count: 60 }), 700);
+    return () => clearTimeout(t);
+  }, [celebration]);
+
+  if (!anchorDate) {
     return (
       <div className="surface flex items-center justify-between gap-3 p-4">
         <div>
@@ -64,12 +67,12 @@ export function HariKitaWidget() {
     );
   }
 
-  const start = new Date(anchor.date).getTime();
+  const start = fromIsoDay(anchorDate.slice(0, 10)).getTime();
   const diff = Math.max(0, Date.now() - start);
   const days = Math.floor(diff / 86_400_000);
   const hours = Math.floor((diff % 86_400_000) / 3_600_000);
   const mins = Math.floor((diff % 3_600_000) / 60_000);
-  const yrs = days / 365.25;
+  const ym = yearsMonths(anchorDate);
 
   // Suppress unused tick warning
   void tick;
@@ -93,7 +96,13 @@ export function HariKitaWidget() {
         className="pressable relative block overflow-hidden rounded-[24px] p-5 shadow-float"
         style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
       >
-        <div className="text-[13px] font-semibold opacity-85">Sudah bersama</div>
+        <div className="text-[13px] font-semibold opacity-85">
+          {celebration?.kind === "anniv"
+            ? `Selamat hari jadi yang ke-${celebration.years}!`
+            : celebration?.kind === "milestone"
+              ? "Hari ini angka bulat!"
+              : "Sudah bersama"}
+        </div>
         <div className="mt-1 flex items-baseline gap-2">
           <CountUp
             value={days}
@@ -103,7 +112,7 @@ export function HariKitaWidget() {
           <span className="text-[16px] font-semibold opacity-85">hari</span>
         </div>
         <div className="mt-1 text-[12px] opacity-75">
-          {Math.floor(yrs)} tahun {Math.floor((yrs % 1) * 12)} bulan · {hours} jam {mins} menit
+          {ym.years} tahun {ym.months} bulan · {hours} jam {mins} menit
         </div>
         <div className="mt-4 flex items-center gap-3">
           <div

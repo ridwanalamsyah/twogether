@@ -1,5 +1,5 @@
 import type { EntryRecord, ItemRecord, TransactionRecord } from "@/lib/db";
-import { parsePayload } from "@/lib/people";
+import { parsePayload } from "@/lib/payload";
 
 /**
  * Wallets (BCA, GoPay, Tunai…). A transaction belongs to a wallet through a

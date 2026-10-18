@@ -115,7 +115,7 @@ export function PinnedMessageWidget() {
       >
         Ubah
       </button>
-      <button onClick={clearPin} className="text-[11px] text-text-3 active:opacity-60">
+      <button aria-label="Hapus pesan" onClick={clearPin} className="text-[11px] text-text-3 active:opacity-60">
         ×
       </button>
     </div>

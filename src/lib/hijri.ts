@@ -1,4 +1,4 @@
-import { addDays, fromIsoDay, isoDay } from "@/lib/people";
+import { addDays, fromIsoDay, isoDay } from "@/lib/dates";
 
 /**
  * Hijri dates via the browser's built-in Umm al-Qura calendar. Indonesia's

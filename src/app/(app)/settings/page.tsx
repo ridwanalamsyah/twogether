@@ -19,7 +19,7 @@ const SECTIONS: { title: string; rows: { href: string; icon: IconSpec; label: st
     title: "Akun",
     rows: [
       { href: "/settings/profile", icon: { Icon: UserRound, tint: "#3b82f6" }, label: "Profil", hint: "Nama, foto, ulang tahun" },
-      { href: "/settings/security", icon: { Icon: LockKeyhole, tint: "#64748b" }, label: "Password & keamanan", hint: "Ganti password, PIN" },
+      { href: "/settings/security", icon: { Icon: LockKeyhole, tint: "#64748b" }, label: "Password & keamanan", hint: "Ganti password, PIN, privasi" },
       { href: "/settings/workspace", icon: { Icon: Heart, tint: "#ec4899" }, label: "Pasangan", hint: "Undang & kelola anggota" },
     ],
   },

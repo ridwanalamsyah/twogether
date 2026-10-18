@@ -16,12 +16,20 @@ interface ReminderPrefs {
 export const useReminderPrefs = create<ReminderPrefs>()(
   persist(
     (set) => ({
-      enabled: { tagihan: true, anniv: true, catat: true, tilawah: true, tantangan: true },
+      enabled: { tagihan: true, anniv: true, catat: true, tilawah: true, tantangan: true, kabar: true },
       dismissed: { date: "", ids: [] },
       toggle: (t) => set((s) => ({ enabled: { ...s.enabled, [t]: !s.enabled[t] } })),
       dismiss: (id, today) =>
         set((s) => ({ dismissed: { date: today, ids: s.dismissed.date === today ? [...s.dismissed.ids, id] : [id] } })),
     }),
-    { name: "twogether:reminders", storage: createJSONStorage(() => localStorage) },
+    {
+      name: "twogether:reminders",
+      storage: createJSONStorage(() => localStorage),
+      // Types added later (e.g. "kabar") start on for phones with saved prefs.
+      merge: (saved, current) => {
+        const s = (saved ?? {}) as Partial<ReminderPrefs>;
+        return { ...current, ...s, enabled: { ...current.enabled, ...(s.enabled ?? {}) } };
+      },
+    },
   ),
 );

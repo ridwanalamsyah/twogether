@@ -8,7 +8,7 @@ import { SwipeRow } from "@/components/ui/SwipeRow";
 import { useAuth } from "@/stores/auth";
 import { addTransaction, deleteEntry, upsertEntry, useEntries } from "@/stores/data";
 import { usePeople, parsePayload, fromIsoDay } from "@/lib/people";
-import { formatRupiah, todayISO } from "@/lib/utils";
+import { formatRupiah, todayISO, formatMoneyInput } from "@/lib/utils";
 import { hapticSuccess } from "@/lib/haptic";
 import { splitBalance, type SplitMode, type SplitPayload } from "@/lib/split";
 
@@ -202,7 +202,7 @@ function AddSplitSheet({
           inputMode="numeric"
           placeholder="Rp 0"
           autoFocus
-          value={amount ? formatRupiah(num) : ""}
+          value={amount ? formatMoneyInput(num) : ""}
           onChange={(e) => setAmount(e.target.value)}
         />
       </Field>
@@ -241,7 +241,7 @@ function AddSplitSheet({
             className="input-base"
             inputMode="numeric"
             placeholder="Rp 0"
-            value={custom ? formatRupiah(Number(custom.replace(/\D/g, "")) || 0) : ""}
+            value={custom ? formatMoneyInput(Number(custom.replace(/\D/g, "")) || 0) : ""}
             onChange={(e) => setCustom(e.target.value)}
           />
         </Field>
@@ -308,7 +308,7 @@ function SettleSheet({
       <input
         className="input-base text-[20px] font-bold"
         inputMode="numeric"
-        value={formatRupiah(num)}
+        value={formatMoneyInput(num)}
         onChange={(e) => setAmount(e.target.value)}
       />
       <p className="mt-2 text-[12px] text-text-4">Bisa diubah kalau baru bayar sebagian.</p>

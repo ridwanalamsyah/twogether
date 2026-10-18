@@ -5,6 +5,7 @@ import { useAuth } from "@/stores/auth";
 import { useDeposits, useHabitLogsForDate } from "@/stores/data";
 import { WidgetShell } from "./WidgetShell";
 import { todayISO } from "@/lib/utils";
+import { isoDay } from "@/lib/dates";
 
 /**
  * Streak widget: consecutive-day streak of any deposit OR any habit completed.
@@ -24,10 +25,10 @@ export function StreakWidget() {
     const cur = new Date();
     cur.setHours(0, 0, 0, 0);
     // Break if today hasn't been marked yet — still count from yesterday.
-    if (!days.has(cur.toISOString().slice(0, 10))) {
+    if (!days.has(isoDay(cur))) {
       cur.setDate(cur.getDate() - 1);
     }
-    while (days.has(cur.toISOString().slice(0, 10))) {
+    while (days.has(isoDay(cur))) {
       count += 1;
       cur.setDate(cur.getDate() - 1);
     }

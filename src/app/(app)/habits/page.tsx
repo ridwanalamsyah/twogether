@@ -207,7 +207,7 @@ function HabitSheet({
           <h2 className="text-lg font-bold">
             {record ? "Edit habit" : "Tambah habit"}
           </h2>
-          <button onClick={onClose} className="text-xl text-text-3">
+          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
             ×
           </button>
         </div>

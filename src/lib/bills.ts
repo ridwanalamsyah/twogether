@@ -1,5 +1,6 @@
 import type { EntryRecord, ItemRecord } from "@/lib/db";
-import { parsePayload, isoDay, daysBetween } from "@/lib/people";
+import { parsePayload } from "@/lib/payload";
+import { isoDay, daysBetween } from "@/lib/dates";
 
 /**
  * Monthly bills: items kind "bill". Paying one logs an expense and an entry

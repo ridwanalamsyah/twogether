@@ -485,7 +485,7 @@ function Sheet({
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">{title}</h2>
-          <button onClick={onClose} className="text-xl text-text-3">
+          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
             ×
           </button>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { reportError } from "@/services/errorReports";
 
 interface State {
   error: Error | null;
@@ -24,6 +25,7 @@ export class ErrorBoundary extends React.Component<
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     if (typeof window !== "undefined") {
       console.error("[twogether] caught:", error, info);
+      reportError(error);
     }
   }
 

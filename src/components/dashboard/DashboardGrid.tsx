@@ -23,6 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useDashboard, type WidgetConfig } from "@/stores/dashboard";
 import { useAuth } from "@/stores/auth";
 import { WIDGET_REGISTRY } from "@/components/widgets/registry";
+import { useHotWidgets } from "./useHotWidgets";
 import { cn } from "@/lib/utils";
 
 interface DashboardGridProps {
@@ -68,7 +69,18 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const visible = layout.filter((w) => w.enabled);
+  const hot = useHotWidgets();
+  const enabled = layout.filter((w) => w.enabled);
+  // Cards that matter right now float up (under the pinned note) while not
+  // arranging; the saved order is untouched.
+  const visible =
+    editing || hot.size === 0
+      ? enabled
+      : [
+          ...enabled.filter((w) => w.kind === "pinned-message"),
+          ...enabled.filter((w) => hot.has(w.kind)),
+          ...enabled.filter((w) => w.kind !== "pinned-message" && !hot.has(w.kind)),
+        ];
   const wide = useMediaQuery("(min-width: 1024px)");
 
   function onDragEnd(e: DragEndEvent) {

@@ -12,7 +12,12 @@ import { hapticTap } from "@/lib/haptic";
 import { formatRupiahShort } from "@/lib/utils";
 import { WidgetShell } from "./WidgetShell";
 import { IconTile } from "@/lib/icons";
-import { CreditCard, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
+import { CreditCard, Eye, EyeOff, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
+import { usePrivacy } from "@/stores/privacy";
+import Link from "next/link";
+import { useEntries } from "@/stores/data";
+import { usePeople } from "@/lib/people";
+import { splitBalance } from "@/lib/split";
 
 interface Stat {
   /** Stable key for the tile's icon choice. */
@@ -151,7 +156,7 @@ export function BalanceWidget() {
   }
 
   return (
-    <WidgetShell title="Uang kita">
+    <WidgetShell title="Uang kita" action={<HideMoneyToggle />}>
       <div className="divide-y divide-[color:var(--hairline)]">
         {stats.map((s, i) => (
           <div key={s.label} className="flex items-center gap-3 py-2.5">
@@ -175,6 +180,7 @@ export function BalanceWidget() {
           </div>
         ))}
       </div>
+      <PatunganRow />
       {picking && (
         <Sheet title={`Ikon ${picking.label}`} onClose={() => setPicking(null)}>
           <div className="grid grid-cols-8 gap-1.5">
@@ -239,5 +245,47 @@ function AnimatedAmount({
       )}
       <CountUp value={amount} format={formatRupiahShort} className="relative" />
     </div>
+  );
+}
+
+/** Eye button: hide every amount in the app (for when someone's watching). */
+function HideMoneyToggle() {
+  const hidden = usePrivacy((s) => s.hideMoney);
+  const setHidden = usePrivacy((s) => s.setHideMoney);
+  return (
+    <button
+      onClick={() => {
+        hapticTap();
+        setHidden(!hidden);
+      }}
+      aria-label={hidden ? "Tampilkan nominal" : "Sembunyikan nominal"}
+      aria-pressed={hidden}
+      className="-mr-1 grid h-7 w-7 place-items-center rounded-full text-text-3 active:scale-90"
+    >
+      {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+    </button>
+  );
+}
+
+/** Who owes whom from shared bills, right under the balances (hidden when even). */
+function PatunganRow() {
+  const userId = useAuth((s) => s.userId);
+  const { me, partner } = usePeople();
+  const { nick } = useNick();
+  const splits = useEntries(userId, "split");
+  const settles = useEntries(userId, "split-settle");
+  if (!partner || !splits || !settles) return null;
+  const net = splitBalance([...splits, ...settles], me);
+  if (net === 0) return null;
+  const text = net > 0 ? `${nick(partner)} perlu ganti` : "Kamu perlu ganti";
+  return (
+    <Link
+      href="/patungan"
+      className="mt-1 flex items-center gap-3 border-t border-[color:var(--hairline)] pt-2.5 active:opacity-70"
+    >
+      <IconTile spec={{ Icon: HandCoins, tint: "#f59e0b" }} size={32} radius={999} />
+      <div className="min-w-0 flex-1 truncate text-[14px] text-text-2">{text}</div>
+      <div className="num text-[15px] font-semibold text-text-1">{formatRupiahShort(Math.abs(net))}</div>
+    </Link>
   );
 }

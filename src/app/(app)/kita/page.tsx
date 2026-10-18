@@ -21,6 +21,9 @@ import {
   useItems,
 } from "@/stores/data";
 import { todayISO, formatDateShort } from "@/lib/utils";
+import { DailyQuestionWidget } from "@/components/widgets/DailyQuestionWidget";
+import { questionFor } from "@/lib/questions";
+import { parsePayload } from "@/lib/payload";
 
 export default function KitaPage() {
   return (
@@ -567,85 +570,52 @@ function SurpriseSection() {
 }
 
 /* ───── Question of the day ───── */
-const QOTD_POOL = [
-  "Hal kecil apa hari ini yang bikin kamu senyum?",
-  "Hal apa yang lagi kamu syukuri minggu ini?",
-  "Mimpi apa yang ingin kita wujudkan tahun depan?",
-  "Apa pelajaran terbesar dari minggu lalu?",
-  "Kalau bisa bebas keluar uang sekali, untuk apa?",
-  "Quality time favorit kita berdua selama ini?",
-  "Apa hal yang ingin saya pelajari darimu?",
-  "Hal paling random yang pernah kita lakukan?",
-  "Kebiasaan kecil pasanganmu yang bikin nyaman?",
-  "Tempat favorit kita berdua, dan kenapa?",
-  "Apa yang ingin kamu coba sekali seumur hidup?",
-  "Memori paling lucu kita?",
-];
-
+/**
+ * The same daily question as the Beranda card (one question for both of you),
+ * plus the history: both partners' answers per day. Answers saved by the old
+ * "Question of the day" (kind "qotd") still show, under their own question.
+ */
 function QotdSection() {
   const userId = useAuth((s) => s.userId);
-  const entries = useEntries(userId, "qotd") ?? [];
+  const { nick } = useNick();
+  const answers = useEntries(userId, "tanya");
+  const legacy = useEntries(userId, "qotd");
   const today = todayISO();
-  const todayQ = useMemo(() => {
-    // Deterministic per day so partner sees same question
-    const seed = today.split("-").join("");
-    const n = Number.parseInt(seed, 10) % QOTD_POOL.length;
-    return QOTD_POOL[n];
-  }, [today]);
-  const [answer, setAnswer] = useState("");
 
-  async function save() {
-    if (!userId || !answer.trim()) return;
-    await upsertEntry(userId, {
-      kind: "qotd",
-      date: today,
-      valueText: todayQ,
-      payload: JSON.stringify({ answer: answer.trim() }),
-    });
-    setAnswer("");
-  }
+  const days = useMemo(() => {
+    const byDay = new Map<string, { question: string; rows: { who: string; text: string }[] }>();
+    for (const e of answers ?? []) {
+      if (e.date === today) continue; // today's lives in the card above
+      const day = byDay.get(e.date) ?? { question: questionFor(e.date).text, rows: [] };
+      day.rows.push({ who: e.who ? nick(e.who) : "", text: parsePayload(e.payload, { answer: "" }).answer });
+      byDay.set(e.date, day);
+    }
+    for (const e of legacy ?? []) {
+      const key = `${e.date}#old`;
+      const day = byDay.get(key) ?? { question: e.valueText ?? "", rows: [] };
+      day.rows.push({ who: e.who ? nick(e.who) : "", text: parsePayload(e.payload, { answer: "" }).answer });
+      byDay.set(key, day);
+    }
+    return [...byDay.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14);
+  }, [answers, legacy, today, nick]);
 
   return (
-    <Section
-      title="Question of the day"
-      caption="Pertanyaan harian buat ngobrol"
-    >
-      <div className="border-y border-border py-3">
-        <div className="text-[13px] font-medium text-text-1">{todayQ}</div>
-        <textarea
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Jawabanmu…"
-          rows={2}
-          className="mt-2 w-full resize-none bg-transparent text-[13px] outline-none"
-        />
-        <div className="mt-1 flex justify-end">
-          <AccentBtn onClick={save} disabled={!answer.trim()}>
-            Simpan
-          </AccentBtn>
-        </div>
-      </div>
-      {entries.slice(0, 5).length > 0 && (
-        <div className="mt-2 divide-y divide-border border-y border-border">
-          {entries.slice(0, 5).map((e) => {
-            const p = JSON.parse(e.payload ?? "{}");
-            return (
-              <div key={e.id} className="py-2.5">
-                <div className="text-[12px] text-text-3">{e.valueText}</div>
-                <div className="mt-0.5 text-[13px] text-text-1">
-                  {p.answer}
+    <Section title="Pertanyaan hari ini" caption="Jawab berdua, lalu lihat jawaban pasanganmu">
+      <DailyQuestionWidget />
+      {days.length > 0 && (
+        <div className="mt-3 divide-y divide-border border-y border-border">
+          {days.map(([key, d]) => (
+            <div key={key} className="py-2.5">
+              <div className="text-[11px] text-text-4">{formatDateShort(key.slice(0, 10))}</div>
+              <div className="text-[13px] font-medium text-text-2">{d.question}</div>
+              {d.rows.map((r, i) => (
+                <div key={i} className="mt-1 text-[13px] text-text-1">
+                  {r.who && <span className="mr-1.5 text-[11px] font-semibold text-text-4">{r.who}</span>}
+                  {r.text}
                 </div>
-                <div className="mt-0.5 flex items-center justify-between">
-                  <div className="text-[11px] text-text-4">
-                    {formatDateShort(e.date)}
-                  </div>
-                  <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
-                    Hapus
-                  </GhostBtn>
-                </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          ))}
         </div>
       )}
     </Section>

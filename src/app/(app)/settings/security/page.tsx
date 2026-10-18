@@ -7,6 +7,7 @@ import { useSecurity } from "@/stores/security";
 import { useAuth } from "@/stores/auth";
 import { PushCard } from "@/components/settings/PushCard";
 import { SpaceLockCard } from "@/components/settings/SpaceLockCard";
+import { PrivacyCard } from "@/components/settings/PrivacyCard";
 import {
   notificationStatus,
   requestNotificationPermission,
@@ -104,6 +105,7 @@ export default function SecurityPage() {
         <PasswordSection />
         <PushCard />
         <SpaceLockCard />
+        <PrivacyCard />
         <section className="surface p-4">
           <div className="mb-2 text-[11px] font-bold section-label text-text-3">
             Pengingat
@@ -376,6 +378,12 @@ function PasswordSection() {
 
       {open && (
         <form onSubmit={submit} className="slide-up mt-3 space-y-2.5">
+          {recovery && (
+            <p className="rounded-md bg-bg-elev1 px-3 py-2 text-[12px] leading-snug text-text-3">
+              Momen pribadi yang dikunci dengan password lama tidak bisa dibuka lagi setelah reset.
+              Catatan lain tetap aman.
+            </p>
+          )}
           {!recovery && (
             <input
               className="input-base"

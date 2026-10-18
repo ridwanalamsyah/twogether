@@ -1,4 +1,5 @@
 import { getDB } from "@/lib/db";
+import { isoDay } from "@/lib/dates";
 
 /**
  * Privacy controls: data ownership operations.
@@ -183,7 +184,7 @@ export async function downloadExport(bundle: ExportBundle): Promise<void> {
   const { saveFile } = await import("@/lib/share");
   await saveFile(
     JSON.stringify(bundle, null, 2),
-    `twogether-cadangan-${new Date().toISOString().slice(0, 10)}.json`,
+    `twogether-cadangan-${isoDay()}.json`,
     "application/json",
   );
   try {
@@ -328,6 +329,20 @@ export async function wipeLocal(userId: string): Promise<void> {
     await db.table(table).where("userId").equals(userId).delete();
   }
   await db.users.delete(userId);
+  await db.outbox.clear();
+}
+
+/**
+ * After leaving a shared space: drop this phone's copy of its notes (the
+ * space itself, and your partner's copy, are untouched). Keeps the account
+ * so the person stays signed in to their new, empty space.
+ */
+export async function clearSharedCopy(userId: string): Promise<void> {
+  const db = getDB();
+  for (const table of DOMAIN_TABLES) {
+    await db.table(table).where("userId").equals(userId).delete();
+  }
+  // Unsent edits belong to the old space; don't push them into the new one.
   await db.outbox.clear();
 }
 

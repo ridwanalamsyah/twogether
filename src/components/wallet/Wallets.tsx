@@ -6,7 +6,7 @@ import { Sheet, Field, Chips } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertEntry, upsertItem, useEntries, useItems, useTransactions } from "@/stores/data";
 import { toWallet, walletBalances, type Wallet } from "@/lib/wallet";
-import { formatRupiah, formatRupiahShort, todayISO } from "@/lib/utils";
+import { formatRupiah, formatRupiahShort, todayISO, formatMoneyInput } from "@/lib/utils";
 import { usePeople } from "@/lib/people";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { WalletBadge } from "./WalletBadge";
@@ -137,7 +137,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
         <input className="input-base" placeholder="Rekening utama, uang harian…" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
       <Field label="Saldo awal (saldo saat ini sebelum dicatat di Twogether)">
-        <input className="input-base" inputMode="numeric" placeholder="Rp 0" value={initial ? formatRupiah(n) : ""} onChange={(e) => setInitial(e.target.value)} />
+        <input className="input-base" inputMode="numeric" placeholder="Rp 0" value={initial ? formatMoneyInput(n) : ""} onChange={(e) => setInitial(e.target.value)} />
       </Field>
     </Sheet>
   );
@@ -180,7 +180,7 @@ export function TransferSheet({ onClose }: { onClose: () => void }) {
         <Chips options={opts.filter((o) => o.value !== from)} value={to} onChange={setTo} />
       </Field>
       <Field label="Jumlah">
-        <input className="input-base text-[18px] font-bold" inputMode="numeric" placeholder="Rp 0" value={amount ? formatRupiah(n) : ""} onChange={(e) => setAmount(e.target.value)} />
+        <input className="input-base text-[18px] font-bold" inputMode="numeric" placeholder="Rp 0" value={amount ? formatMoneyInput(n) : ""} onChange={(e) => setAmount(e.target.value)} />
       </Field>
       <p className="text-[12px] text-text-4">Misalnya tarik tunai dari BCA atau isi saldo GoPay. Tidak dihitung sebagai pengeluaran.</p>
     </Sheet>

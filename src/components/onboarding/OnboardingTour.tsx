@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, HeartHandshake, Send, Smile } from "lucide-react";
+import { Check, HeartHandshake, Images, Moon, Send, Smile, Wallet } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -111,13 +111,15 @@ export function OnboardingTour() {
                 Uang, ibadah, jadwal, dan kenangan — dicatat bareng, tersimpan di HP berdua. Tetap jalan walau tanpa internet.
               </p>
               <div className="mt-5 grid grid-cols-3 gap-2 text-[12px] font-semibold text-text-2">
-                {[
-                  ["💰", "Uang bareng"],
-                  ["🕌", "Ibadah"],
-                  ["💌", "Kenangan"],
-                ].map(([e, l]) => (
-                  <div key={l} className="rounded-2xl bg-bg-card py-3 shadow-card">
-                    <div className="text-[22px]">{e}</div>
+                {(
+                  [
+                    [Wallet, "Uang bareng"],
+                    [Moon, "Ibadah"],
+                    [Images, "Kenangan"],
+                  ] as const
+                ).map(([Icon, l]) => (
+                  <div key={l} className="flex flex-col items-center gap-1.5 rounded-2xl bg-bg-card py-3 shadow-card">
+                    <Icon size={22} strokeWidth={2} className="text-text-2" />
                     {l}
                   </div>
                 ))}

@@ -16,6 +16,7 @@ import { LockScreen } from "@/components/security/LockScreen";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { OfflineBanner } from "@/components/shell/OfflineBanner";
 import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
+import { usePrivacy } from "@/stores/privacy";
 
 export default function AppLayout({
   children,
@@ -27,6 +28,9 @@ export default function AppLayout({
   const ready = useAuth((s) => s.ready);
   const bootstrap = useAuth((s) => s.bootstrap);
   const [hydrated, setHydrated] = useState(false);
+  // Amounts are formatted at render time; re-mount the page when the
+  // "hide amounts" switch flips so every number updates at once.
+  const hideMoney = usePrivacy((s) => s.hideMoney);
 
   useEffect(() => {
     // We reached a real app route — clear the splash's recovery marker.
@@ -68,7 +72,9 @@ export default function AppLayout({
       <Sidebar />
       <OfflineBanner />
       <main className="flex-1 pb-nav">
-        <div className="md:mx-auto md:max-w-[1080px]">{children}</div>
+        <div key={hideMoney ? "hidden" : "shown"} className="md:mx-auto md:max-w-[1080px]">
+          {children}
+        </div>
       </main>
       <BottomNav />
       <CaptureHost />

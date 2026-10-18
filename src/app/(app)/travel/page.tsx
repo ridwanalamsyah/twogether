@@ -12,6 +12,7 @@ import {
 import { formatDateShort, formatRupiah, todayISO } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { TripRecord, TransactionRecord } from "@/lib/db";
+import { isoDay } from "@/lib/dates";
 
 function daysBetween(a: string, b: string) {
   const t1 = new Date(a).getTime();
@@ -232,7 +233,7 @@ function TripSheet({
   const [startDate, setStartDate] = useState(trip?.startDate ?? todayISO());
   const [endDate, setEndDate] = useState(
     trip?.endDate ??
-      new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
+      isoDay(new Date(Date.now() + 3 * 86400000)),
   );
   const [budget, setBudget] = useState(String(trip?.budget ?? ""));
   const [packing, setPacking] = useState(trip?.packing ?? "");
@@ -259,7 +260,7 @@ function TripSheet({
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">{trip ? "Edit trip" : "Trip baru"}</h2>
-          <button onClick={onClose} className="text-xl text-text-3">
+          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
             ×
           </button>
         </div>

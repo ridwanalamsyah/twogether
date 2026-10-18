@@ -168,6 +168,7 @@ function HistoryList({ items }: { items: ReflectionRecord[] }) {
                 )}
               </div>
               <button
+                aria-label="Hapus"
                 onClick={() =>
                   userId && void deleteReflection(userId, r.id)
                 }

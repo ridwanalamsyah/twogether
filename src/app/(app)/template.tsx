@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ITEMS, isActive } from "@/components/shell/BottomNav";
+import { goBack, isTabRoot, pageStack as stack } from "@/lib/nav";
 import { hapticTap } from "@/lib/haptic";
 
 /**
@@ -16,9 +16,6 @@ import { hapticTap } from "@/lib/haptic";
  * containing block for `position: fixed` sheets.
  */
 
-const TABS = ITEMS.map((i) => i.href);
-// Pages visited in this session, newest last, to tell "back" from "forward".
-const stack: string[] = [];
 let swipedBack = false;
 // Dev StrictMode calls state initialisers twice; answer the repeat from cache.
 let last: { path: string; kind: Kind } | null = null;
@@ -47,7 +44,7 @@ function computeKind(path: string): Kind {
     stack.pop();
     return "back";
   }
-  if (TABS.includes(path)) {
+  if (isTabRoot(path)) {
     stack.length = 0;
     stack.push(path);
     return "fade";
@@ -66,7 +63,7 @@ const CLASS: Record<Kind, string> = {
 export default function AppTemplate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
   const [kind] = useState(() => kindFor(pathname));
-  const canSwipe = !TABS.includes(pathname);
+  const canSwipe = !isTabRoot(pathname);
   useEdgeSwipeBack(canSwipe);
 
   return <div className={CLASS[kind]} data-page>{children}</div>;
@@ -143,16 +140,8 @@ function useEdgeSwipeBack(enabled: boolean) {
         el.style.transform = `translate3d(${width}px,0,0)`;
         hapticTap();
         swipedBack = true;
-        const here = window.location.pathname;
         setTimeout(() => {
-          // Opened straight onto this page: nothing to go back to, so go
-          // to the tab it belongs to instead of leaving it off-screen.
-          if (stack.length < 2) {
-            const tab = ITEMS.find((i) => isActive(here, i)) ?? ITEMS[0];
-            routerRef.current.push(tab.href);
-          } else {
-            routerRef.current.back();
-          }
+          goBack(routerRef.current);
         }, 180);
       } else {
         el.style.transition = "transform 260ms cubic-bezier(0.22, 1, 0.36, 1)";

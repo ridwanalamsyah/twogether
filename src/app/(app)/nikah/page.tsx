@@ -8,7 +8,7 @@ import { SwipeRow } from "@/components/ui/SwipeRow";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertItem, useItems } from "@/stores/data";
 import { parsePayload, daysBetween, isoDay, fromIsoDay } from "@/lib/people";
-import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { formatRupiah, formatRupiahShort, formatMoneyInput } from "@/lib/utils";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import type { ItemRecord } from "@/lib/db";
 
@@ -222,7 +222,7 @@ function MetaSheet({
           className="input-base"
           inputMode="numeric"
           placeholder="Rp 0"
-          value={budget ? formatRupiah(Number(budget.replace(/\D/g, "")) || 0) : ""}
+          value={budget ? formatMoneyInput(Number(budget.replace(/\D/g, "")) || 0) : ""}
           onChange={(e) => setBudget(e.target.value)}
         />
       </Field>
@@ -337,10 +337,10 @@ function BudgetSheet({ userId, item, onClose }: { userId: string; item?: ItemRec
         <input className="input-base" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Katering" />
       </Field>
       <Field label="Rencana">
-        <input className="input-base" inputMode="numeric" value={plan ? formatRupiah(n(plan)) : ""} onChange={(e) => setPlan(e.target.value)} placeholder="Rp 0" />
+        <input className="input-base" inputMode="numeric" value={plan ? formatMoneyInput(n(plan)) : ""} onChange={(e) => setPlan(e.target.value)} placeholder="Rp 0" />
       </Field>
       <Field label="Sudah dibayar">
-        <input className="input-base" inputMode="numeric" value={spent ? formatRupiah(n(spent)) : ""} onChange={(e) => setSpent(e.target.value)} placeholder="Rp 0" />
+        <input className="input-base" inputMode="numeric" value={spent ? formatMoneyInput(n(spent)) : ""} onChange={(e) => setSpent(e.target.value)} placeholder="Rp 0" />
       </Field>
       <Field label="Vendor">
         <input className="input-base" value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Opsional" />

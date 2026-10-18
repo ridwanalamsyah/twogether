@@ -11,6 +11,7 @@ import { useAuth } from "@/stores/auth";
 import { usePeople } from "@/lib/people";
 import { useFeatures } from "@/stores/features";
 import { FEATURES } from "@/data/features";
+import { BackupNudge } from "@/components/widgets/BackupNudge";
 import { PullToRefresh } from "@/components/ui/PullToRefresh";
 import { sync } from "@/services/sync";
 import { TimeOfDayIcon, dayPart, type DayPart } from "@/components/shell/TimeOfDayIcon";
@@ -81,6 +82,7 @@ export default function HomePage() {
           </Link>
         </div>
       )}
+      {!editing && <BackupNudge />}
       <DashboardGrid editing={editing} />
       {!editing && <ToolsRow />}
     </PullToRefresh>

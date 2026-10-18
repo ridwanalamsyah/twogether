@@ -22,6 +22,8 @@ import { PinnedMessageWidget } from "./PinnedMessageWidget";
 import { PlaceholderWidget } from "./PlaceholderWidget";
 import { PatunganWidget, ShalatWidget, SiklusWidget } from "./CoupleWidgets";
 import { KabarWidget } from "@/components/kabar/Kabar";
+import { DailyQuestionWidget } from "./DailyQuestionWidget";
+import { LdrWidget } from "./LdrWidget";
 import { FokusWidget, RamadhanWidget, TantanganWidget } from "./SpaceWidgets";
 import { MonthEndWidget } from "./MonthEndWidget";
 import { RemindersWidget } from "@/components/reminders/Reminders";
@@ -174,6 +176,20 @@ export const WIDGET_REGISTRY: Record<WidgetKind, WidgetMeta> = {
     description: "Fase & perkiraan haid",
     emoji: "🌸",
     Component: SiklusWidget,
+  },
+  tanya: {
+    kind: "tanya",
+    label: "Pertanyaan hari ini",
+    description: "Satu pertanyaan sehari, dijawab berdua",
+    emoji: "💬",
+    Component: DailyQuestionWidget,
+  },
+  ldr: {
+    kind: "ldr",
+    label: "LDR",
+    description: "Jam di tempat pasangan & hitung mundur ketemu",
+    emoji: "🕰️",
+    Component: LdrWidget,
   },
   kabar: {
     kind: "kabar",
