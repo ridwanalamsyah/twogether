@@ -1,7 +1,9 @@
 "use client";
 
 import { useNick } from "@/lib/nick";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { CountUp } from "@/components/ui/CountUp";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import { useTransactions, useDeposits, useItems, upsertItem } from "@/stores/data";
@@ -17,6 +19,8 @@ interface Stat {
   key: string;
   label: string;
   value: string;
+  /** Raw number behind `value`, animated on screen. */
+  amount: number;
   hint?: string;
   tone?: "positive" | "negative" | "neutral";
 }
@@ -58,6 +62,7 @@ export function BalanceWidget() {
         key: "me",
         label: "Sisa kamu",
         value: formatRupiahShort(sisa),
+        amount: sisa,
         hint: `${tx.length} transaksi`,
         tone: sisa >= 0 ? "positive" : "negative",
       });
@@ -70,6 +75,7 @@ export function BalanceWidget() {
           key: `member:${m.name}`,
           label: `Sisa ${nick(m.name) !== m.name ? nick(m.name) : m.name.split(" ")[0]}`,
           value: formatRupiahShort(sisa),
+        amount: sisa,
           hint: `${inM.length + outM.length} transaksi`,
           tone: sisa >= 0 ? "positive" : "negative",
         });
@@ -85,6 +91,7 @@ export function BalanceWidget() {
         key: "shared",
         label: `Sisa ${sharedLabel}`,
         value: formatRupiahShort(sisa),
+        amount: sisa,
         hint: `${inS.length + outS.length} transaksi`,
         tone: sisa >= 0 ? "positive" : "negative",
       });
@@ -94,6 +101,7 @@ export function BalanceWidget() {
       key: "tabungan",
       label: "Total tabungan",
       value: formatRupiahShort(sum(dp)),
+      amount: sum(dp),
       hint: `${dp.length} setoran`,
       tone: "neutral",
     });
@@ -102,15 +110,16 @@ export function BalanceWidget() {
       result.push({
         key: "bulan",
         label: "Bulan ini",
-        value: formatRupiahShort(
-          tx
+        ...(() => {
+          const amount = tx
             .filter(
               (t) =>
                 t.kind === "out" &&
                 new Date(t.date).getMonth() === new Date().getMonth(),
             )
-            .reduce((a, b) => a + b.amount, 0),
-        ),
+            .reduce((a, b) => a + b.amount, 0);
+          return { amount, value: formatRupiahShort(amount) };
+        })(),
         hint: "Pengeluaran",
         tone: "neutral",
       });
@@ -158,13 +167,11 @@ export function BalanceWidget() {
               )}
             </button>
             <div className="min-w-0 flex-1 truncate text-[14px] text-text-2">{s.label}</div>
-            <div
-              className={`num text-[15px] font-semibold ${
-                s.tone === "negative" ? "text-[color:var(--negative)]" : "text-text-1"
-              }`}
-            >
-              {s.value}
-            </div>
+            <AnimatedAmount
+              amount={s.amount}
+              negative={s.tone === "negative"}
+              spending={s.key === "bulan"}
+            />
           </div>
         ))}
       </div>
@@ -186,5 +193,51 @@ export function BalanceWidget() {
         </Sheet>
       )}
     </WidgetShell>
+  );
+}
+
+/**
+ * Counts up on first show; when the number later changes (a new
+ * transaction), it eases to the new value with a short green/red glow.
+ */
+function AnimatedAmount({
+  amount,
+  negative,
+  spending,
+}: {
+  amount: number;
+  negative: boolean;
+  /** For spending totals a rise is bad news, so it glows red. */
+  spending?: boolean;
+}) {
+  const prev = useRef<number | null>(null);
+  const [flash, setFlash] = useState<{ up: boolean; n: number } | null>(null);
+
+  useEffect(() => {
+    if (prev.current !== null && prev.current !== amount) {
+      setFlash((f) => ({ up: amount > prev.current!, n: (f?.n ?? 0) + 1 }));
+    }
+    prev.current = amount;
+  }, [amount]);
+
+  return (
+    <div
+      className={`num relative -mr-1.5 px-1.5 text-[15px] font-semibold ${
+        negative ? "text-[color:var(--negative)]" : "text-text-1"
+      }`}
+    >
+      {flash && (
+        <motion.span
+          key={flash.n}
+          aria-hidden
+          className="absolute inset-0 rounded-md"
+          style={{ background: flash.up !== !!spending ? "var(--positive)" : "var(--negative)" }}
+          initial={{ opacity: 0.32, scale: 1.12 }}
+          animate={{ opacity: 0, scale: 1 }}
+          transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
+      <CountUp value={amount} format={formatRupiahShort} className="relative" />
+    </div>
   );
 }

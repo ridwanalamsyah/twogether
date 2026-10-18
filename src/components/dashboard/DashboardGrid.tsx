@@ -165,8 +165,13 @@ function SortableWidget({
         className={cn(
           editing && "pointer-events-none select-none",
           editing && !isDragging && "edit-jiggle",
+          !editing && "widget-in",
         )}
-        style={editing ? { animationDelay: `${(index % 3) * -0.11}s` } : undefined}
+        style={{
+          animationDelay: editing
+            ? `${(index % 3) * -0.11}s`
+            : `${Math.min(index, 8) * 55}ms`,
+        }}
       >
         <Component />
       </div>

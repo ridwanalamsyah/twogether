@@ -464,6 +464,39 @@ html.theme-switching *::after {
   animation: page-enter 280ms var(--ease-out) backwards;
 }
 
+/* Opening a menu: the page comes in from the right, like iOS push. */
+@keyframes page-push {
+  from {
+    opacity: 0;
+    transform: translate3d(32%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-push {
+  animation: page-push 340ms var(--ease-out) backwards;
+}
+/* Going back: the previous page slides in a little from the left. */
+@keyframes page-back {
+  from {
+    opacity: 0.4;
+    transform: translate3d(-22%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-back {
+  animation: page-back 300ms var(--ease-out) backwards;
+}
+/* After an edge swipe the page already left; the one below just appears. */
+.page-swiped {
+  animation: fade-in 160ms var(--ease-out) backwards;
+}
+
 /* Bottom sheets & dialogs */
 @keyframes sheet-up {
   from {
@@ -488,6 +521,21 @@ html.theme-switching *::after {
 }
 .pop-in {
   animation: pop-in 220ms var(--ease-out) backwards;
+}
+
+/* Beranda cards rise in one after another (delay set inline per card). */
+@keyframes widget-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.widget-in {
+  animation: widget-in 420ms var(--ease-out) backwards;
 }
 
 /* Tactile press feedback for tappable cards / rows. */
@@ -533,9 +581,27 @@ html.theme-switching *::after {
     background-color: var(--bg-elev3);
   }
 }
+/* Loading placeholder: a soft band of light sweeps across, like iOS. */
 .skeleton {
   border-radius: 8px;
-  animation: pulse-bg 1.4s ease-in-out infinite;
+  background-color: var(--bg-elev2);
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--text-1) 7%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
 }
 
 .backdrop-in {
@@ -633,6 +699,23 @@ html.theme-switching *::after {
 [data-theme="dark"] .note-card {
   background: #3a3220;
   color: #ffe9a8;
+}
+/* Lands like a sticky note being pressed on, then settles at its tilt. */
+@keyframes note-drop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) rotate(-4deg) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(0.8deg) scale(1.01);
+  }
+  100% {
+    transform: rotate(-0.6deg);
+  }
+}
+.note-card {
+  animation: note-drop 520ms var(--ease-out) 120ms backwards;
 }
 
 @keyframes float-heart {

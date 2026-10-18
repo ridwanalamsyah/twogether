@@ -21,6 +21,8 @@ import { listenOnce, parseSpoken, voiceSupported } from "@/lib/voice";
 import { guessCategory } from "@/lib/csvImport";
 import type { CaptureAction } from "@/stores/ui";
 import { Mic } from "lucide-react";
+import { motion } from "framer-motion";
+import { useSheetDrag } from "@/components/ui/Sheet";
 
 export type QuickCaptureMode = "transaction" | "moment" | "note" | "task";
 
@@ -200,6 +202,8 @@ export function QuickCapture({
     }
   }
 
+  const drag = useSheetDrag(onClose);
+
   useEffect(() => {
     if (!open) return undefined;
     function onKey(e: KeyboardEvent) {
@@ -213,14 +217,16 @@ export function QuickCapture({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 backdrop-in"
-      onClick={onClose}
-    >
-      <div
-        className="mx-auto w-full max-w-[480px] rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-2xl sheet-up theme-transition"
+    <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={onClose}>
+      <motion.div aria-hidden className="absolute inset-0 bg-black/40 backdrop-in" {...drag.backdrop} />
+      <motion.div
+        role="dialog"
+        aria-label="Catat apa?"
+        className="relative mx-auto w-full max-w-[480px] rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-2xl sheet-up theme-transition"
         onClick={(e) => e.stopPropagation()}
+        {...drag.panel}
       >
+        <div className="-mx-5 -mt-5 cursor-grab px-5 pt-5 active:cursor-grabbing" {...drag.handle}>
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -231,6 +237,7 @@ export function QuickCapture({
           <button onClick={onClose} className="text-[12px] font-medium text-text-3">
             Tutup
           </button>
+        </div>
         </div>
 
         <div className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-bg-elev2 p-1 text-[11px] font-semibold">
@@ -387,7 +394,7 @@ export function QuickCapture({
             {busy ? "Menyimpan…" : "Simpan"}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -9,7 +9,9 @@ import {
   useHabitLogsForDate,
   toggleHabitLog,
 } from "@/stores/data";
-import { hapticTap } from "@/lib/haptic";
+import { hapticSuccess, hapticTap } from "@/lib/haptic";
+import { konfetti } from "@/lib/konfetti";
+import { motion } from "framer-motion";
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -73,28 +75,56 @@ export function HabitsQuickWidget() {
           return (
             <button
               key={h.id}
-              onClick={async () => {
+              onClick={async (e) => {
                 if (!userId) return;
                 hapticTap();
+                // Ticking off the last one of the day earns a small party.
+                const finishing = !isDone && done === total - 1;
+                const r = e.currentTarget.getBoundingClientRect();
                 await toggleHabitLog(userId, h.id, today, "Saya");
+                if (finishing) {
+                  hapticSuccess();
+                  konfetti({ count: 40, origin: { x: r.left + 24, y: r.top + r.height / 2 } });
+                }
               }}
               className="flex w-full items-center gap-3 py-2 text-left active:opacity-70"
             >
-              <span
-                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors ${
+              <motion.span
+                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors duration-200 ${
                   isDone
                     ? "border-accent bg-accent text-accent-fg"
                     : "border-border-strong text-transparent"
                 }`}
+                animate={{ scale: isDone ? [1, 1.28, 0.94, 1] : 1 }}
+                transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                whileTap={{ scale: 0.85 }}
               >
-                <Check size={14} strokeWidth={3} />
-              </span>
+                <motion.span
+                  className="grid place-items-center"
+                  initial={false}
+                  animate={{ scale: isDone ? 1 : 0, rotate: isDone ? 0 : -45 }}
+                  transition={{ type: "spring", stiffness: 600, damping: 20 }}
+                >
+                  <Check size={14} strokeWidth={3} />
+                </motion.span>
+              </motion.span>
               <span
-                className={`flex-1 truncate text-[14px] ${
-                  isDone ? "text-text-3 line-through" : "text-text-1"
+                className={`min-w-0 flex-1 text-[14px] transition-colors duration-300 ${
+                  isDone ? "text-text-3" : "text-text-1"
                 }`}
               >
-                {h.label}
+                <span className="relative inline-block max-w-full align-middle">
+                  <span className="block truncate">{h.label}</span>
+                  {/* Strike line draws across instead of snapping on. */}
+                  <motion.span
+                    aria-hidden
+                    className="absolute left-0 top-1/2 h-[1.5px] w-full rounded-full bg-text-3"
+                    style={{ originX: 0 }}
+                    initial={false}
+                    animate={{ scaleX: isDone ? 1 : 0 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </span>
               </span>
               <span className="text-[9px] section-label text-text-4">
                 {h.bucket}

@@ -4,13 +4,16 @@ import { IconTile, spaceIcon } from "@/lib/icons";
 import { Plus } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
 import { usePeople } from "@/lib/people";
 import { useFeatures } from "@/stores/features";
 import { FEATURES } from "@/data/features";
+import { PullToRefresh } from "@/components/ui/PullToRefresh";
+import { sync } from "@/services/sync";
+import { TimeOfDayIcon, dayPart, type DayPart } from "@/components/shell/TimeOfDayIcon";
 
 export default function HomePage() {
   const authName = useAuth((s) => s.name);
@@ -21,10 +24,12 @@ export default function HomePage() {
   const [editing, setEditing] = useState(false);
   const [greeting, setGreeting] = useState("Halo");
   const [today, setToday] = useState("");
+  const [part, setPart] = useState<DayPart | null>(null);
 
   useEffect(() => {
     const now = new Date();
     const h = now.getHours();
+    setPart(dayPart(h));
     const n = !name ? "" : name === custom ? name : name.split(" ")[0];
     const hi = (word: string) => (n ? `${word}, ${n}` : word);
     setGreeting(
@@ -45,11 +50,14 @@ export default function HomePage() {
     );
   }, [name]);
 
+  const refresh = useCallback(() => sync.refresh(), []);
+
   return (
-    <div>
+    <PullToRefresh onRefresh={refresh} disabled={editing}>
       <AppHeader
         eyebrow={today}
         title={greeting}
+        titleIcon={part && <TimeOfDayIcon key={part} part={part} />}
         actions={
           <button
             onClick={() => setEditing((v) => !v)}
@@ -75,7 +83,7 @@ export default function HomePage() {
       )}
       <DashboardGrid editing={editing} />
       {!editing && <ToolsRow />}
-    </div>
+    </PullToRefresh>
   );
 }
 
