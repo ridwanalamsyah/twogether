@@ -152,7 +152,7 @@ function SortableWidget({
         SIZE_TO_SPAN[widget.size],
         "relative",
         // Cards that have nothing to say right now (reminders, end-of-month) render null.
-        "[&:has(>div:empty)]:hidden",
+        "[&:has(>div:first-child:empty)]:hidden",
         editing && "cursor-grab active:cursor-grabbing",
         isDragging && "is-dragging",
       )}

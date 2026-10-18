@@ -1,6 +1,7 @@
 "use client";
 
 import { IconTile, bundleIcon, spaceIcon } from "@/lib/icons";
+import { ChevronRight, GripVertical, Minus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -21,7 +22,7 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  rectSortingStrategy,
+  verticalListSortingStrategy,
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
@@ -83,13 +84,12 @@ export default function JelajahPage() {
               }
             }}
           >
-            <SortableContext items={mine.map((f) => f.href)} strategy={rectSortingStrategy}>
-              <ul className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-                {mine.map((f, i) => (
+            <SortableContext items={mine.map((f) => f.href)} strategy={verticalListSortingStrategy}>
+              <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
+                {mine.map((f) => (
                   <SpaceCard
                     key={f.href}
                     feature={f}
-                    index={i}
                     editing={editing}
                     onHide={() => {
                       hapticTap();
@@ -104,21 +104,20 @@ export default function JelajahPage() {
 
         {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
           <section className="mt-8">
-            <div className="mb-2 text-[14px] font-semibold text-text-1">Paket ruang</div>
-            <div className="no-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1">
+            <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Paket ruang</div>
+            <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
               {BUNDLES.map((b) => {
                 const items = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)).filter(Boolean) as Feature[];
                 const missing = items.filter((f) => !enabled.includes(f.href));
                 return (
-                  <div
-                    key={b.id}
-                    className="surface flex w-[168px] shrink-0 flex-col rounded-[20px] p-3.5"
-                  >
-                    <IconTile spec={bundleIcon(b.id)} size={40} radius={12} />
-                    <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
-                    <div className="mt-0.5 line-clamp-2 min-h-[32px] text-[12px] leading-4 text-text-3">
-                      {items.map((f) => f.title).join(", ")}
-                    </div>
+                  <li key={b.id} className="flex items-center gap-3 px-4 py-3">
+                    <IconTile spec={bundleIcon(b.id)} size={36} radius={10} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[15px] font-medium text-text-1">{b.title}</span>
+                      <span className="block truncate text-[12px] text-text-3">
+                        {items.map((f) => f.title).join(", ")}
+                      </span>
+                    </span>
                     <button
                       onClick={() => {
                         hapticTap();
@@ -126,14 +125,14 @@ export default function JelajahPage() {
                         if (userId) void revealFor(userId, missing.map((f) => f.href));
                       }}
                       disabled={!missing.length}
-                      className="mt-3 rounded-full bg-bg-elev2 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95 disabled:opacity-60"
+                      className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95 disabled:bg-transparent disabled:text-text-4"
                     >
-                      {missing.length ? `+ Tambah ${missing.length} ruang` : "Sudah dipakai ✓"}
+                      {missing.length ? `Tambah ${missing.length}` : "Dipakai"}
                     </button>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </section>
         )}
 
@@ -165,10 +164,10 @@ export default function JelajahPage() {
               </span>
             </button>
             {showMore && (
-              <ul className="slide-up mt-2 divide-y divide-border border-y border-border">
+              <ul className="surface slide-up mt-2 divide-y divide-[color:var(--hairline)] overflow-hidden">
                 {others.map((f) => (
-                  <li key={f.href} className="flex items-center gap-3 py-2.5">
-                    <IconTile spec={spaceIcon(f.href)} size={40} radius={12} />
+                  <li key={f.href} className="flex items-center gap-3 px-4 py-3">
+                    <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5 text-[14px] text-text-1">
                         {f.title}
@@ -188,9 +187,9 @@ export default function JelajahPage() {
                         toggle(f.href);
                         if (userId) void revealFor(userId, [f.href]);
                       }}
-                      className="rounded-full bg-bg-elev2 px-3 py-1 text-[12px] font-semibold text-text-1 active:scale-95"
+                      className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95"
                     >
-                      + Tambah
+                      Tambah
                     </button>
                   </li>
                 ))}
@@ -205,12 +204,10 @@ export default function JelajahPage() {
 
 function SpaceCard({
   feature: f,
-  index,
   editing,
   onHide,
 }: {
   feature: Feature;
-  index: number;
   editing: boolean;
   onHide: () => void;
 }) {
@@ -224,41 +221,39 @@ function SpaceCard({
         transition,
         touchAction: editing ? "manipulation" : undefined,
       }}
-      className={`relative slide-up ${editing ? "cursor-grab active:cursor-grabbing" : ""} ${
-        isDragging ? "is-dragging" : ""
+      className={`pressable flex items-center gap-3 bg-bg-card px-4 py-3 ${editing ? "cursor-grab active:cursor-grabbing" : ""} ${
+        isDragging ? "is-dragging relative z-10" : ""
       }`}
       {...(editing ? attributes : {})}
       {...(editing ? listeners : {})}
     >
-      <Link
-        href={f.href}
-        onClick={(e) => editing && e.preventDefault()}
-        style={{
-          animationDelay: editing ? `${(index % 3) * -0.11}s` : undefined,
-        }}
-        className={`pressable surface flex h-full flex-col gap-3 rounded-[22px] p-4 ${
-          editing ? "edit-jiggle pointer-events-none select-none" : ""
-        }`}
-      >
-        <IconTile spec={spaceIcon(f.href)} size={44} radius={14} />
-        <span>
-          <span className="block text-[15px] font-semibold tracking-tight text-text-1">
-            {f.title}
-          </span>
-          <span className="block text-[12px] leading-snug text-text-3">{f.subtitle}</span>
-        </span>
-      </Link>
       {editing && (
         <button
           aria-label={`Sembunyikan ${f.title}`}
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           onClick={onHide}
-          className="pop-in absolute -left-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-text-1 text-[16px] font-bold leading-none text-bg-app shadow-float"
+          className="pop-in grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color:var(--negative)] text-white"
         >
-          −
+          <Minus size={14} strokeWidth={3} />
         </button>
       )}
+      <Link
+        href={f.href}
+        onClick={(e) => editing && e.preventDefault()}
+        className={`flex min-w-0 flex-1 items-center gap-3 ${editing ? "pointer-events-none select-none" : ""}`}
+      >
+        <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-medium text-text-1">{f.title}</span>
+          <span className="block truncate text-[12px] text-text-3">{f.subtitle}</span>
+        </span>
+        {editing ? (
+          <GripVertical size={18} className="shrink-0 text-text-4" />
+        ) : (
+          <ChevronRight size={18} className="shrink-0 text-text-5" />
+        )}
+      </Link>
     </li>
   );
 }

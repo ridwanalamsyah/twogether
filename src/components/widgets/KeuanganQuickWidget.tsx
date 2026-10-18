@@ -1,5 +1,6 @@
 "use client";
 
+import { Wallet } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -68,7 +69,7 @@ export function KeuanganQuickWidget() {
     <div className="surface p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="text-base">💰</span>
+          <Wallet size={16} className="text-text-3" />
           <h3 className="text-[13px] font-semibold text-text-1">Keuangan</h3>
         </div>
         <Link href="/uang" className="text-[11px] text-text-3 active:opacity-60">

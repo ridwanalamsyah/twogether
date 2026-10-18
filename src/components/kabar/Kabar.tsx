@@ -1,6 +1,7 @@
 "use client";
 
 import { useNick } from "@/lib/nick";
+import { MessageCircleHeart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -28,8 +29,8 @@ export function KabarWidget() {
   return (
     <div className="surface p-4">
       <div className="flex items-start gap-3">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent-soft text-[26px]">
-          {partnerStatus?.emoji ?? "💭"}
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-[24px] text-text-3">
+          {partnerStatus?.emoji ?? <MessageCircleHeart size={22} strokeWidth={2} />}
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">Kabar {name}</div>
@@ -42,8 +43,7 @@ export function KabarWidget() {
             </div>
           ) : lastFromPartner ? (
             <div className="mt-0.5 truncate text-[11px] text-text-4">
-              {pingText(lastFromPartner.valueText ?? "kangen", name).emoji}{" "}
-              {timeAgo(lastFromPartner.createdAt)}
+              {pingText(lastFromPartner.valueText ?? "kangen", name).text} · {timeAgo(lastFromPartner.createdAt)}
             </div>
           ) : null}
         </div>
@@ -64,8 +64,7 @@ export function KabarWidget() {
               sent === p.id ? "bg-accent text-accent-fg" : "bg-bg-elev1 text-text-2"
             }`}
           >
-            <span className="text-[16px]">{p.emoji}</span>
-            {sent === p.id ? "Terkirim ✓" : p.label}
+            {sent === p.id ? "Terkirim" : p.label}
           </button>
         ))}
       </div>

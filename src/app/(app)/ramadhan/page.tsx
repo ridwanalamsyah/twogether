@@ -1,5 +1,7 @@
 "use client";
 
+import { BookOpen, Moon, NotebookPen } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -123,7 +125,7 @@ export default function RamadhanPage() {
                   </div>
                 </>
               ) : (
-                <div className="mt-1 text-[26px] font-extrabold">Selamat berbuka 🤍</div>
+                <div className="mt-1 text-[26px] font-extrabold">Selamat berbuka</div>
               )}
               <div className="mt-3 flex gap-2 text-[12px]">
                 <span className="rounded-full bg-white/20 px-3 py-1 font-semibold">Imsak {fmtTime(imsak)}</span>
@@ -132,15 +134,15 @@ export default function RamadhanPage() {
               <div className="mt-4 flex gap-2">
                 <button
                   onClick={() => setDay(today, statusOf(me, today) === "puasa" ? null : "puasa")}
-                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${statusOf(me, today) === "puasa" ? "bg-white text-[#0f7a5c]" : "bg-white/20"}`}
+                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${statusOf(me, today) === "puasa" ? "bg-white text-accent" : "bg-white/20"}`}
                 >
-                  {statusOf(me, today) === "puasa" ? "✓ Puasa hari ini" : "Puasa hari ini"}
+                  {statusOf(me, today) === "puasa" ? "Puasa hari ini" : "Puasa hari ini"}
                 </button>
                 <button
                   onClick={() => toggleTarawih(today)}
-                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${tarawihOn(me, today) ? "bg-white text-[#0f7a5c]" : "bg-white/20"}`}
+                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${tarawihOn(me, today) ? "bg-white text-accent" : "bg-white/20"}`}
                 >
-                  {tarawihOn(me, today) ? "✓ Tarawih" : "Tarawih"}
+                  {tarawihOn(me, today) ? "Tarawih" : "Tarawih"}
                 </button>
               </div>
             </>
@@ -160,13 +162,13 @@ export default function RamadhanPage() {
             onClick={() => setDay(today, "haid")}
             className="w-full rounded-[18px] bg-accent-soft px-4 py-3 text-left text-[13px] text-text-2"
           >
-            🌸 Sedang haid — tap untuk tandai hari ini sebagai libur (otomatis masuk hutang puasa).
+            Sedang haid — tap untuk tandai hari ini sebagai libur (otomatis masuk hutang puasa).
           </button>
         )}
 
         {(qadha?.amount ?? 0) > 0 && (
           <div className="surface flex items-center gap-3 p-4">
-            <span className="text-[22px]">📝</span>
+            <IconTile spec={{ Icon: NotebookPen, tint: "" }} size={40} radius={12} />
             <div className="flex-1">
               <div className="text-[14px] font-bold text-text-1">Hutang puasa: {qadha?.amount} hari</div>
               <div className="text-[12px] text-text-3">
@@ -197,13 +199,13 @@ export default function RamadhanPage() {
                   onClick={() => setPick(d)}
                   className={`relative grid aspect-square place-items-center rounded-2xl text-[13px] font-bold transition-transform active:scale-90 disabled:opacity-40 ${
                     s === "puasa"
-                      ? "bg-[#0f7a5c] text-white"
+                      ? "bg-text-1 text-bg-app"
                       : s
                         ? "bg-accent-soft text-text-1"
                         : period
                           ? "border-2 border-dashed border-accent text-text-2"
                           : d === today
-                            ? "ring-2 ring-[#0f7a5c] text-text-1"
+                            ? "ring-2 ring-accent text-text-1"
                             : "bg-bg-elev1 text-text-2"
                   }`}
                 >
@@ -219,7 +221,7 @@ export default function RamadhanPage() {
         </div>
 
         <Link href="/tilawah" className="pressable surface flex items-center gap-3 p-4">
-          <span className="text-[22px]">📖</span>
+          <IconTile spec={{ Icon: BookOpen, tint: "" }} size={40} radius={12} />
           <div className="flex-1">
             <div className="text-[14px] font-bold text-text-1">Target khatam Ramadhan</div>
             <div className="text-[12px] text-text-3">Catat tilawah berdua</div>
@@ -252,11 +254,11 @@ export default function RamadhanPage() {
             <button
               onClick={() => toggleTarawih(pick)}
               className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-semibold ${
-                tarawihOn(me, pick) ? "bg-[#0f7a5c] text-white" : "bg-bg-card text-text-1 shadow-card"
+                tarawihOn(me, pick) ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"
               }`}
             >
-              <span className="text-[20px]">🌙</span>
-              {tarawihOn(me, pick) ? "Tarawih ✓" : "Tarawih"}
+              <Moon size={18} />
+              {tarawihOn(me, pick) ? "Tarawih" : "Tarawih"}
             </button>
           </div>
           <p className="mt-3 text-[12px] text-text-4">Hari tidak puasa otomatis ditambahkan ke hutang puasa.</p>

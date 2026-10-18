@@ -136,7 +136,7 @@ export default function BelanjaPage() {
         </div>
         {todo.length === 0 ? (
           <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
-            🛒 Daftar kosong. Ketik di atas untuk menambah.
+            Daftar kosong. Ketik di atas untuk menambah.
           </div>
         ) : (
           <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
@@ -190,7 +190,7 @@ function Row({
         <button onClick={onToggle} className="flex w-full items-center gap-3 bg-bg-card px-4 py-3.5 text-left">
           <span
             className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-[14px] font-bold transition-all ${
-              isDone ? "border-[#16a34a] bg-[#16a34a] text-white" : "border-border-strong text-transparent"
+              isDone ? "border-accent bg-accent text-white" : "border-border-strong text-transparent"
             }`}
           >
             ✓

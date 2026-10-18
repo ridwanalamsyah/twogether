@@ -61,7 +61,7 @@ export function MonthEndWidget() {
     <div className="surface p-4">
       <div className="text-[12px] font-semibold text-text-3">Tutup buku {name}</div>
       <div className="mt-0.5 text-[17px] font-extrabold leading-snug text-text-1">
-        Bulan lalu sisa {formatRupiahShort(surplus)} 🎉
+        Bulan lalu sisa {formatRupiahShort(surplus)}
       </div>
       {goals.length === 0 ? (
         <Link href="/goals" className="mt-2 block text-[13px] font-semibold text-accent">

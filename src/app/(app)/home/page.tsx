@@ -26,19 +26,19 @@ export default function HomePage() {
     const now = new Date();
     const h = now.getHours();
     const n = !name ? "" : name === custom ? name : name.split(" ")[0];
-    const hi = (word: string, emoji: string) => (n ? `${word}, ${n} ${emoji}` : `${word} ${emoji}`);
+    const hi = (word: string) => (n ? `${word}, ${n}` : word);
     setGreeting(
       h < 4
         ? n
-          ? `Belum tidur, ${n}? 🌙`
-          : "Belum tidur? 🌙"
+          ? `Belum tidur, ${n}?`
+          : "Belum tidur?"
         : h < 11
-          ? hi("Pagi", "☀️")
+          ? hi("Pagi")
           : h < 15
-            ? hi("Siang", "🌤️")
+            ? hi("Siang")
             : h < 18
-              ? hi("Sore", "🌇")
-              : hi("Malam", "🌙"),
+              ? hi("Sore")
+              : hi("Malam"),
     );
     setToday(
       now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }),
@@ -64,7 +64,7 @@ export default function HomePage() {
       />
       {editing && (
         <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-[13px] text-text-2">
-          <span>✋ Geser kartu untuk pindah posisi. Tap − untuk sembunyikan.</span>
+          <span>Geser kartu untuk pindah posisi. Tap − untuk sembunyikan.</span>
           <Link
             href="/settings/dashboard"
             className="shrink-0 font-semibold text-accent"

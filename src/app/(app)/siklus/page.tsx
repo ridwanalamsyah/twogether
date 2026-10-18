@@ -114,7 +114,7 @@ export default function SiklusPage() {
 
         {hiddenFromMe ? (
           <div className="surface p-5 text-center text-[14px] text-text-3">
-            {person} memilih untuk tidak membagikan siklusnya. 🤍
+            {person} memilih untuk tidak membagikan siklusnya.
           </div>
         ) : (
           <>
@@ -139,7 +139,7 @@ export default function SiklusPage() {
                     {state.daysUntilNext == null
                       ? "Mulai mencatat"
                       : state.phase === "haid"
-                        ? "Semoga lancar 🤍"
+                        ? "Semoga lancar"
                         : state.daysUntilNext > 0
                           ? `Haid ${state.daysUntilNext} hari lagi`
                           : state.daysUntilNext === 0
@@ -407,13 +407,13 @@ function DaySheet({
           onClick={() => toggleMarker("start")}
           className={`flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isStart ? "bg-[#ef5a7a] text-white" : "bg-bg-card text-text-2 shadow-card"}`}
         >
-          🌸 Hari pertama haid
+          Hari pertama haid
         </button>
         <button
           onClick={() => toggleMarker("end")}
           className={`flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isEnd ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2 shadow-card"}`}
         >
-          ✔️ Hari terakhir
+          Hari terakhir
         </button>
       </div>
       <Field label="Darah">

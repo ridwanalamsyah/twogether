@@ -1,5 +1,7 @@
 "use client";
 
+import { Flower2 } from "lucide-react";
+import { TrendCard } from "@/components/charts/TrendCard";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -93,6 +95,7 @@ function WaterSection() {
           </button>
         </div>
       </div>
+      <TrendCard kind="water" title="Air minum" unit="gelas" />
     </Section>
   );
 }
@@ -165,6 +168,7 @@ function WeightSection() {
           ))}
         </div>
       )}
+      <TrendCard kind="weight" title="Berat badan" unit="kg" agg="avg" days={30} />
     </Section>
   );
 }
@@ -250,6 +254,7 @@ function SleepSection() {
           })}
         </div>
       )}
+      <TrendCard kind="sleep" title="Tidur" unit="jam" agg="avg" />
     </Section>
   );
 }
@@ -320,6 +325,7 @@ function ExerciseSection() {
           ))}
         </div>
       )}
+      <TrendCard kind="exercise" title="Olahraga" unit="menit" />
     </Section>
   );
 }
@@ -367,6 +373,7 @@ function MoodSection() {
           ))}
         </div>
       </div>
+      <TrendCard kind="mood" title="Mood" unit="" agg="avg" format={(v) => `${Math.round(v * 10) / 10} / 5`} />
     </Section>
   );
 }
@@ -385,7 +392,7 @@ function PeriodSection() {
         href="/siklus"
         className="pressable flex items-center gap-3 rounded-[20px] bg-bg-card p-4 shadow-card"
       >
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent-soft text-[22px]">🌸</span>
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2"><Flower2 size={20} /></span>
         <span className="flex-1">
           <span className="block text-[15px] font-bold text-text-1">Buka Siklus</span>
           <span className="block text-[12px] text-text-3">Kalender haid, perkiraan & catatan harian</span>

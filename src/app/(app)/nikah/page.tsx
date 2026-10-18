@@ -56,7 +56,7 @@ const TASK_TEMPLATE: [string, string][] = [
   ["1 bulan", "Final meeting semua vendor"],
   ["1 minggu", "Konfirmasi jumlah tamu ke katering"],
   ["1 minggu", "Siapkan amplop & pembayaran vendor"],
-  ["H-1", "Istirahat yang cukup 🤍"],
+  ["H-1", "Istirahat yang cukup"],
 ];
 
 const PRANIKAH_TEMPLATE: [string, string][] = [
@@ -77,13 +77,13 @@ const PRANIKAH_TEMPLATE: [string, string][] = [
 ];
 
 const TALKS: { topic: string; q: string[] }[] = [
-  { topic: "💰 Keuangan", q: ["Gaji digabung, dipisah, atau sebagian?", "Ada utang/cicilan yang perlu diceritakan?", "Berapa yang ditabung tiap bulan & untuk apa?", "Seberapa besar bantu keluarga masing-masing?"] },
-  { topic: "🏠 Tempat tinggal", q: ["Setelah nikah tinggal di mana?", "Ngontrak, KPR, atau tinggal dengan orang tua dulu?"] },
-  { topic: "🤲 Ibadah", q: ["Target ibadah bersama (shalat berjamaah, ngaji, kajian)?", "Siapa yang jadi pengingat kalau salah satu sedang turun?"] },
-  { topic: "👶 Anak", q: ["Ingin punya anak kapan & berapa?", "Pola asuh seperti apa yang kita mau?"] },
-  { topic: "💼 Karier & mimpi", q: ["Apa rencana karier masing-masing 5 tahun ke depan?", "Kalau ada tawaran kerja di kota lain, bagaimana?"] },
-  { topic: "👨‍👩‍👧 Keluarga besar", q: ["Lebaran & liburan dibagi bagaimana?", "Batas keterlibatan keluarga dalam keputusan kita?"] },
-  { topic: "🤝 Saat berselisih", q: ["Kalau marah, butuh waktu sendiri atau langsung dibicarakan?", "Hal kecil apa yang bikin kamu merasa dihargai?"] },
+  { topic: "Keuangan", q: ["Gaji digabung, dipisah, atau sebagian?", "Ada utang/cicilan yang perlu diceritakan?", "Berapa yang ditabung tiap bulan & untuk apa?", "Seberapa besar bantu keluarga masing-masing?"] },
+  { topic: "Tempat tinggal", q: ["Setelah nikah tinggal di mana?", "Ngontrak, KPR, atau tinggal dengan orang tua dulu?"] },
+  { topic: "Ibadah", q: ["Target ibadah bersama (shalat berjamaah, ngaji, kajian)?", "Siapa yang jadi pengingat kalau salah satu sedang turun?"] },
+  { topic: "Anak", q: ["Ingin punya anak kapan & berapa?", "Pola asuh seperti apa yang kita mau?"] },
+  { topic: "Karier & mimpi", q: ["Apa rencana karier masing-masing 5 tahun ke depan?", "Kalau ada tawaran kerja di kota lain, bagaimana?"] },
+  { topic: "Keluarga besar", q: ["Lebaran & liburan dibagi bagaimana?", "Batas keterlibatan keluarga dalam keputusan kita?"] },
+  { topic: "Saat berselisih", q: ["Kalau marah, butuh waktu sendiri atau langsung dibicarakan?", "Hal kecil apa yang bikin kamu merasa dihargai?"] },
 ];
 
 export default function NikahPage() {
@@ -127,10 +127,10 @@ export default function NikahPage() {
               : daysLeft > 0
                 ? `${daysLeft} hari lagi`
                 : daysLeft === 0
-                  ? "Hari ini! 💐"
-                  : "Selamat menempuh hidup baru 💕"}
+                  ? "Hari ini!"
+                  : "Selamat menempuh hidup baru"}
           </div>
-          {meta.venue && <div className="text-[13px] text-white/85">📍 {meta.venue}</div>}
+          {meta.venue && <div className="text-[13px] text-white/85">{meta.venue}</div>}
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <Stat label="Persiapan" value={`${doneTasks}/${tasks.length || 0}`} />
             <Stat label="Terpakai" value={formatRupiahShort(spent)} />
@@ -151,7 +151,7 @@ export default function NikahPage() {
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${Math.min(100, (spent / totalBudget) * 100)}%`,
-                  background: spent > totalBudget ? "var(--negative)" : "linear-gradient(90deg,#b76e79,#f3cf9f)",
+                  background: spent > totalBudget ? "var(--negative)" : "var(--accent)",
                 }}
               />
             </div>
@@ -404,7 +404,7 @@ function TaskSection({ userId, items }: { userId: string; items: ItemRecord[] })
               {list.map((t) => (
                 <SwipeRow key={t.id} onDelete={() => deleteItem(userId, t.id)}>
                   <button onClick={() => toggle(t)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                     <span className={`text-[14px] ${t.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{t.title}</span>
                   </button>
                 </SwipeRow>
@@ -449,7 +449,7 @@ function SeserahanSection({ userId, items }: { userId: string; items: ItemRecord
                 onClick={() => upsertItem(userId, { ...i, status: i.status === "done" ? "todo" : "done" })}
                 className="flex w-full items-center gap-3 bg-bg-card py-3 text-left"
               >
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${i.status === "done" ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${i.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                 <span className={`flex-1 text-[14px] ${i.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{i.title}</span>
                 {(i.amount ?? 0) > 0 && <span className="font-mono text-[12px] text-text-3">{formatRupiahShort(i.amount ?? 0)}</span>}
               </button>
@@ -579,7 +579,7 @@ function PranikahSection({ userId, items, talks }: { userId: string; items: Item
                 {list.map((t) => (
                   <SwipeRow key={t.id} onDelete={() => deleteItem(userId, t.id)}>
                     <button onClick={() => toggle(t)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                       <span className={`text-[14px] ${t.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{t.title}</span>
                     </button>
                   </SwipeRow>
@@ -601,7 +601,7 @@ function PranikahSection({ userId, items, talks }: { userId: string; items: Item
           <ListBox>
             {t.q.map((q) => (
               <button key={q} onClick={() => toggleTalk(q)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${discussed.has(q) ? "border-[#b76e79] bg-[#b76e79] text-white" : "border-border-strong text-transparent"}`}>✓</span>
+                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${discussed.has(q) ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                 <span className={`text-[14px] ${discussed.has(q) ? "text-text-3" : "text-text-1"}`}>{q}</span>
               </button>
             ))}

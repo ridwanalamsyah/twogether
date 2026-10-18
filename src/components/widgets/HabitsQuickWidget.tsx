@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck } from "lucide-react";
+import { Check, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useAuth } from "@/stores/auth";
@@ -36,7 +36,7 @@ export function HabitsQuickWidget() {
       <div className="surface flex items-center justify-between gap-3 p-4">
         <div>
           <div className="flex items-center gap-1.5">
-            <CircleCheck size={17} className="text-[color:var(--positive)]" />
+            <CircleCheck size={17} className="text-text-3" />
             <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           </div>
           <div className="mt-0.5 text-[11px] text-text-3">
@@ -57,7 +57,7 @@ export function HabitsQuickWidget() {
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <CircleCheck size={17} className="text-[color:var(--positive)]" />
+          <CircleCheck size={17} className="text-text-3" />
           <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           <span className="text-[10px] font-medium text-text-3">
             {done}/{total}
@@ -67,7 +67,7 @@ export function HabitsQuickWidget() {
           Lihat ›
         </Link>
       </div>
-      <div className="space-y-1">
+      <div className="divide-y divide-[color:var(--hairline)]">
         {visible.map((h) => {
           const isDone = doneSet.has(h.id);
           return (
@@ -78,19 +78,19 @@ export function HabitsQuickWidget() {
                 hapticTap();
                 await toggleHabitLog(userId, h.id, today, "Saya");
               }}
-              className="flex w-full items-center gap-2.5 rounded-lg border border-border bg-bg-elev1 px-2.5 py-1.5 text-left active:scale-[0.99]"
+              className="flex w-full items-center gap-3 py-2 text-left active:opacity-70"
             >
               <span
-                className={`flex h-5 w-5 items-center justify-center rounded-md border text-[11px] font-bold transition-colors ${
+                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors ${
                   isDone
-                    ? "border-text-1 bg-text-1 text-bg-app"
-                    : "border-border bg-bg-app text-transparent"
+                    ? "border-accent bg-accent text-accent-fg"
+                    : "border-border-strong text-transparent"
                 }`}
               >
-                ✓
+                <Check size={14} strokeWidth={3} />
               </span>
               <span
-                className={`flex-1 truncate text-[12px] ${
+                className={`flex-1 truncate text-[14px] ${
                   isDone ? "text-text-3 line-through" : "text-text-1"
                 }`}
               >

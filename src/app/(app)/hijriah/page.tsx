@@ -79,7 +79,7 @@ export default function HijriahPage() {
                   key={d}
                   title={ev?.title}
                   className={`relative flex aspect-square flex-col items-center justify-center rounded-xl text-center ${
-                    ev?.major ? "bg-[#1fae84] text-white" : ev?.fast ? "bg-[#1fae84]/10 text-text-1" : "text-text-2"
+                    ev?.major ? "bg-accent text-white" : ev?.fast ? "bg-accent/10 text-text-1" : "text-text-2"
                   } ${d === today ? "ring-2 ring-text-1" : ""}`}
                 >
                   <span className="text-[13px] font-semibold leading-none">{Number(d.slice(8))}</span>
@@ -108,7 +108,7 @@ export default function HijriahPage() {
             const n = daysBetween(today, e.date);
             return (
               <li key={e.date + e.title} className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#1fae84]/10 text-[20px]">{e.emoji}</span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-[20px]">{e.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <div className="text-[14px] font-bold text-text-1">{e.title}</div>
                   <div className="text-[12px] text-text-3">

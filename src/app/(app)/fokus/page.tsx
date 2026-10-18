@@ -1,5 +1,6 @@
 "use client";
 
+import { Headphones } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -135,8 +136,8 @@ export default function FokusPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {partner && partnerP && (
           <div className="surface flex items-center gap-3 p-4">
-            <span className="relative grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-[18px]">
-              🎧
+            <span className="relative grid h-10 w-10 place-items-center rounded-full bg-bg-elev1 text-text-2">
+              <Headphones size={18} />
               <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
             </span>
             <div className="min-w-0 flex-1">
@@ -175,7 +176,7 @@ export default function FokusPage() {
                 {myP ? mmss(remaining) : `${String(minutes).padStart(2, "0")}:00`}
               </div>
               <div className="mt-2 max-w-[150px] truncate text-[12px] text-text-3">
-                {myP ? myActive?.valueText || (myP.with ? `Bareng ${partnerName}` : "Fokus…") : justDone ? "Selesai! Istirahat 5 menit ☕" : "Siap?"}
+                {myP ? myActive?.valueText || (myP.with ? `Bareng ${partnerName}` : "Fokus…") : justDone ? "Selesai. Istirahat 5 menit" : "Siap?"}
               </div>
             </div>
           </div>

@@ -27,7 +27,7 @@ export const ITEMS: NavItem[] = [
   {
     href: "/tracker",
     label: "Uang",
-    match: ["/tracker", "/uang", "/goals", "/grafik", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
+    match: ["/tracker", "/uang", "/goals", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
     icon: <Wallet size={21} strokeWidth={2} />,
   },
   {
@@ -174,13 +174,13 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         aria-current={active ? "page" : undefined}
         className={cn(
           "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-colors duration-200 active:opacity-70",
-          active ? "text-accent" : "text-text-4",
+          active ? "text-text-1" : "text-text-4",
         )}
       >
         {active && (
           <motion.span
             layoutId="nav-active-pill"
-            className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-accent-soft"
+            className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-bg-elev2"
             transition={{ type: "spring", stiffness: 520, damping: 38 }}
           />
         )}

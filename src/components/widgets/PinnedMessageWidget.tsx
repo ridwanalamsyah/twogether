@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, Pin } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -51,10 +52,10 @@ export function PinnedMessageWidget() {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="note-card pressable flex w-full items-center gap-2.5 p-3.5 text-left"
+        className="surface pressable flex w-full items-center gap-2.5 p-3.5 text-left"
       >
-        <span className="text-[18px]">💌</span>
-        <span className="text-[12px] text-text-3">
+        <Mail size={18} strokeWidth={2} className="shrink-0 text-text-3" />
+        <span className="text-[13px] text-text-3">
           Tulis pesan manis untuk pasanganmu…
         </span>
       </button>
@@ -63,14 +64,14 @@ export function PinnedMessageWidget() {
 
   if (editing) {
     return (
-      <div className="note-card flex items-center gap-2 p-3">
-        <span className="text-[18px]">💌</span>
+      <div className="surface flex items-center gap-2 p-3">
+        <Mail size={18} strokeWidth={2} className="shrink-0 text-text-3" />
         <input
           autoFocus
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           maxLength={120}
-          placeholder="Mis. Pulang jam 7 ya 💕"
+          placeholder="Mis. Pulang jam 7 ya"
           className="input-base flex-1 text-[13px]"
           onKeyDown={(e) => {
             if (e.key === "Enter") save();
@@ -96,7 +97,7 @@ export function PinnedMessageWidget() {
 
   return (
     <div className="note-card flex items-center gap-2.5 p-3.5">
-      <span className="text-[18px]">💌</span>
+      <Pin size={16} strokeWidth={2} className="shrink-0 opacity-70" />
       <div className="flex-1 truncate">
         <div className="truncate text-[13px] font-medium text-text-1">
           {pin!.title}

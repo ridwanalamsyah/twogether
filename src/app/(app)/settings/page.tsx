@@ -76,7 +76,7 @@ export default function SettingsPage() {
         >
           <div
             className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-lg font-bold text-accent-fg"
-            style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+            style={{ background: "var(--accent)" }}
           >
             {displayAvatar ? (
               <Image
