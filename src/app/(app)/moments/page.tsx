@@ -133,7 +133,7 @@ function MomentCard({ moment }: { moment: MomentRecord }) {
             </span>
             {moment.encrypted ? (
               <span className="ml-1 rounded-full bg-bg-elev2 px-2 py-0.5 text-[10px] font-bold text-text-3">
-                Dikunci
+                Pribadi
               </span>
             ) : null}
             {moment.voice && <Mic size={12} className="text-text-3" />}
@@ -257,11 +257,11 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
           />
           <label className="flex items-center justify-between rounded-md bg-bg-elev2 px-3 py-2.5 text-sm theme-transition">
             <div>
-              <div className="font-semibold">Kunci moment ini</div>
+              <div className="font-semibold">Pribadi</div>
               <div className="text-[11px] text-text-3">
                 {unlocked
-                  ? "Hanya bisa dibaca setelah kamu masuk dengan password."
-                  : "Keluar lalu masuk lagi untuk bisa mengunci moment."}
+                  ? "Isinya dienkripsi dan hanya kamu yang bisa membaca. Pasanganmu cuma melihat judulnya."
+                  : "Keluar lalu masuk lagi dengan password untuk bisa menulis momen pribadi."}
               </div>
             </div>
             <input

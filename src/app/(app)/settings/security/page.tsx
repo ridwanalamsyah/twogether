@@ -378,6 +378,12 @@ function PasswordSection() {
 
       {open && (
         <form onSubmit={submit} className="slide-up mt-3 space-y-2.5">
+          {recovery && (
+            <p className="rounded-md bg-bg-elev1 px-3 py-2 text-[12px] leading-snug text-text-3">
+              Momen pribadi yang dikunci dengan password lama tidak bisa dibuka lagi setelah reset.
+              Catatan lain tetap aman.
+            </p>
+          )}
           {!recovery && (
             <input
               className="input-base"

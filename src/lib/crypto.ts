@@ -73,10 +73,64 @@ let CURRENT_KEY: CryptoKey | null = null;
 
 export async function unlockKey(password: string, saltB64: string): Promise<void> {
   CURRENT_KEY = await deriveKey(password, saltB64);
+  void rememberKey(CURRENT_KEY);
 }
 
 export function lockKey(): void {
   CURRENT_KEY = null;
+  void rememberKey(null);
+}
+
+/**
+ * Salt for a server account's moment key. It only has to be unique per
+ * account (not secret), so it is derived from the account id: the same on
+ * every phone the person signs in to.
+ */
+export async function saltForAccount(accountId: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytesFromString(`twogether-moment-key:${accountId}`));
+  return b64encode(new Uint8Array(digest).slice(0, 16));
+}
+
+// The key survives closing the app: stored in IndexedDB as a non-extractable
+// CryptoKey (the raw bytes can't be read back out, even by this code), and
+// removed on sign-out. Without this, private moments read "terkunci" after
+// every restart because the password is only typed at sign-in.
+const KEY_DB = "twogether-keys";
+
+function keyStore(mode: IDBTransactionMode): Promise<IDBObjectStore> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(KEY_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("k");
+    req.onsuccess = () => resolve(req.result.transaction("k", mode).objectStore("k"));
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function rememberKey(key: CryptoKey | null): Promise<void> {
+  try {
+    const store = await keyStore("readwrite");
+    if (key) store.put(key, "moments");
+    else store.delete("moments");
+  } catch {
+    /* private mode / no IndexedDB: the key just lasts until the app closes */
+  }
+}
+
+/** Bring back the key saved at the last sign-in, if any. */
+export async function restoreKey(): Promise<boolean> {
+  if (CURRENT_KEY) return true;
+  try {
+    const store = await keyStore("readonly");
+    const key = await new Promise<CryptoKey | undefined>((resolve) => {
+      const req = store.get("moments");
+      req.onsuccess = () => resolve(req.result as CryptoKey | undefined);
+      req.onerror = () => resolve(undefined);
+    });
+    if (key) CURRENT_KEY = key;
+  } catch {
+    /* ignore */
+  }
+  return CURRENT_KEY !== null;
 }
 
 export function isUnlocked(): boolean {

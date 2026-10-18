@@ -10,6 +10,8 @@ import {
   hashPassword,
   lockKey,
   unlockKey,
+  restoreKey,
+  saltForAccount,
 } from "@/lib/crypto";
 import { useWorkspace } from "@/stores/workspace";
 import { seedSampleData } from "@/services/seed";
@@ -404,6 +406,7 @@ export const useAuth = create<AuthState>()(
       bootstrap: () => {
         if (bootstrapPromise) return bootstrapPromise;
         bootstrapPromise = (async () => {
+          void restoreKey();
           try {
             // 1) Fast path: a local session exists → show the app right
             //    away from IndexedDB, then reconnect to Supabase in the
@@ -506,6 +509,7 @@ export const useAuth = create<AuthState>()(
               );
             }
           }
+          await unlockKey(password, await saltForAccount(supaUserId));
           try {
             await withTimeout(
               ensureSupaProfile(supaUserId, { name, birthday, avatar: undefined }),
@@ -601,6 +605,7 @@ export const useAuth = create<AuthState>()(
             throw new Error(translateAuthError(error?.message ?? "Login gagal"));
           }
           const supaUserId = data.user.id;
+          await unlockKey(password, await saltForAccount(supaUserId));
           const user = await ensureLocalUserForSupa(supaUserId, email, null);
           set({
             userId: user.id,
@@ -681,29 +686,7 @@ export const useAuth = create<AuthState>()(
           if ((await hashPassword(current, salt)) !== local.passwordHash) {
             throw new Error("Password lama salah");
           }
-          await unlockKey(current, salt);
-          const locked = (await db.moments.where("userId").equals(userId).toArray()).filter(
-            (m) => m.encrypted && m.cipher && !m.deletedAt,
-          );
-          const plain: { id: string; text: string }[] = [];
-          for (const m of locked) {
-            try {
-              plain.push({ id: m.id, text: await decryptString(m.cipher!) });
-            } catch {
-              // Already unreadable — leave as is.
-            }
-          }
-          await unlockKey(next, salt);
-          for (const { id, text } of plain) {
-            const m = await db.moments.get(id);
-            if (!m) continue;
-            await sync.recordWrite("moments", {
-              ...m,
-              cipher: await encryptString(text),
-              updatedAt: now(),
-              dirty: 1 as const,
-            });
-          }
+          await reencryptLockedMoments(userId, () => unlockKey(current, salt), () => unlockKey(next, salt));
           await db.users.put({
             ...local,
             passwordHash: await hashPassword(next, salt),
@@ -733,6 +716,10 @@ export const useAuth = create<AuthState>()(
           "update",
         ).catch((err: Error) => ({ error: err }));
         if (error) throw new Error(translateAuthError(error.message));
+        // Private moments are locked with a key from the password: move them
+        // to the new one so they stay readable.
+        const salt = await saltForAccount(supaUserId);
+        await reencryptLockedMoments(userId, () => unlockKey(current, salt), () => unlockKey(next, salt));
       },
 
       setRecoveredPassword: async (next) => {
@@ -745,6 +732,10 @@ export const useAuth = create<AuthState>()(
           "update",
         ).catch((err: Error) => ({ error: err }));
         if (error) throw new Error(translateAuthError(error.message));
+        // New moments lock with the new password. Ones locked with the
+        // forgotten password can't be opened any more (the reset screen says so).
+        const { supaUserId } = get();
+        if (supaUserId) await unlockKey(next, await saltForAccount(supaUserId));
       },
 
       requestPasswordReset: async (email) => {
@@ -851,4 +842,40 @@ function translateAuthError(msg: string): string {
   if (m.includes("email") && m.includes("invalid"))
     return "Format email tidak valid";
   return msg || "Terjadi kesalahan, coba lagi.";
+}
+
+/**
+ * Re-encrypt this account's private moments after a password change, since
+ * their key comes from the password. Moments that were already unreadable
+ * are left as they are.
+ */
+async function reencryptLockedMoments(
+  userId: string,
+  useOldKey: () => Promise<void>,
+  useNewKey: () => Promise<void>,
+): Promise<void> {
+  const db = getDB();
+  await useOldKey();
+  const locked = (await db.moments.where("userId").equals(userId).toArray()).filter(
+    (m) => m.encrypted && m.cipher && !m.deletedAt,
+  );
+  const plain: { id: string; text: string }[] = [];
+  for (const m of locked) {
+    try {
+      plain.push({ id: m.id, text: await decryptString(m.cipher!) });
+    } catch {
+      // Not ours, or already unreadable: leave as is.
+    }
+  }
+  await useNewKey();
+  for (const { id, text } of plain) {
+    const m = await db.moments.get(id);
+    if (!m) continue;
+    await sync.recordWrite("moments", {
+      ...m,
+      cipher: await encryptString(text),
+      updatedAt: now(),
+      dirty: 1 as const,
+    });
+  }
 }

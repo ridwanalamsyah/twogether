@@ -27,7 +27,7 @@ import {
 } from "@/lib/db";
 import { sync } from "@/services/sync";
 import { useWorkspace } from "@/stores/workspace";
-import { decryptString, encryptString, isUnlocked } from "@/lib/crypto";
+import { decryptString, encryptString, isUnlocked, restoreKey } from "@/lib/crypto";
 import { isoDay } from "@/lib/dates";
 
 /**
@@ -264,11 +264,13 @@ export async function upsertMoment(
 
 export async function readMomentBody(record: MomentRecord): Promise<string> {
   if (record.encrypted && record.cipher) {
-    if (!isUnlocked()) return "🔒 Terkunci — keluar lalu masuk lagi untuk membaca";
+    if (!(await restoreKey())) return "Momen pribadi. Keluar lalu masuk lagi dengan password untuk membacanya.";
     try {
       return await decryptString(record.cipher);
     } catch {
-      return "🔒 Tidak bisa dibuka";
+      // Written by your partner (their key), or locked with a password that
+      // was reset by email since.
+      return "Momen pribadi. Hanya penulisnya yang bisa membaca isinya.";
     }
   }
   return record.body;
