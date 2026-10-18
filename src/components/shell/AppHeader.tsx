@@ -10,13 +10,15 @@ interface AppHeaderProps {
   /** Small line above the title (e.g. today's date on Beranda). */
   eyebrow?: string;
   actions?: React.ReactNode;
+  /** Small decoration after the title (Beranda's time-of-day icon). */
+  titleIcon?: React.ReactNode;
 }
 
 /**
  * Minimalist sticky header. Single-line title with optional faint subtitle
  * underneath. No avatar circle — settings is reachable from bottom nav.
  */
-export function AppHeader({ title, subtitle, eyebrow, actions }: AppHeaderProps) {
+export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -39,13 +41,16 @@ export function AppHeader({ title, subtitle, eyebrow, actions }: AppHeaderProps)
               {eyebrow}
             </div>
           )}
-          <h1
-            className={`${
-              eyebrow ? "line-clamp-2 text-[24px]" : "truncate text-[22px]"
-            } font-extrabold leading-tight tracking-[-0.03em] text-text-1`}
-          >
-            {title}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1
+              className={`${
+                eyebrow ? "line-clamp-2 text-[24px]" : "truncate text-[22px]"
+              } min-w-0 font-extrabold leading-tight tracking-[-0.03em] text-text-1`}
+            >
+              {title}
+            </h1>
+            {titleIcon}
+          </div>
           {subtitle && (
             <div className="mt-0.5 truncate text-[12px] text-text-3">
               {subtitle}
