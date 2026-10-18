@@ -7,6 +7,7 @@ import { useAuth, loadWorkspaceContext } from "@/stores/auth";
 import { useWorkspace, type WorkspaceMember } from "@/stores/workspace";
 import { getSupabase, hasSupabase } from "@/lib/supabase";
 import { getDB } from "@/lib/db";
+import { clearSharedCopy, downloadExport, exportAll } from "@/services/privacy";
 
 interface LocalCounts {
   transactions: number;
@@ -76,6 +77,8 @@ export default function WorkspaceSettingsPage() {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [leaveMsg, setLeaveMsg] = useState<string | null>(null);
+  const [wipeCopy, setWipeCopy] = useState(false);
+  const [backedUp, setBackedUp] = useState(false);
 
   const supaWorkspaceId = auth.supaWorkspaceId;
   const otherMembersCount = members.filter((m) => !m.isMe).length;
@@ -225,6 +228,7 @@ export default function WorkspaceSettingsPage() {
         workspaceName: ctx.workspaceName,
         members: ctx.members,
       });
+      if (wipeCopy && auth.userId) await clearSharedCopy(auth.userId);
       setLeaveMsg("Berhasil keluar. Memuat ulang…");
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
@@ -462,13 +466,40 @@ export default function WorkspaceSettingsPage() {
           body={
             <>
               <p>
-                Kamu akan keluar dari <b>{workspaceName}</b> dan kembali punya
-                ruang sendiri.
+                Kamu akan keluar dari <b>{workspaceName}</b> dan mulai dengan
+                ruang sendiri yang kosong.
               </p>
-              <p className="mt-2 text-[12px] text-text-4">
-                Catatan bersama tetap utuh dan pasanganmu masih bisa pakai
-                seperti biasa.
-              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-4 text-[12px] text-text-3">
+                <li>
+                  Semua catatan bersama, termasuk yang kamu tulis, tetap ada di
+                  ruang lama dan masih bisa dilihat pasanganmu. Kalau ada yang
+                  tidak ingin ditinggalkan, hapus dulu sebelum keluar.
+                </li>
+                <li>Pasanganmu tidak bisa melihat apa pun yang kamu catat setelah ini.</li>
+              </ul>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!auth.userId) return;
+                  await downloadExport(await exportAll(auth.userId));
+                  setBackedUp(true);
+                }}
+                className="mt-3 w-full rounded-full bg-bg-elev2 px-3 py-2 text-[13px] font-semibold text-text-1 active:scale-[0.98]"
+              >
+                {backedUp ? "Cadangan tersimpan ✓" : "Simpan cadangan dulu"}
+              </button>
+              <label className="mt-3 flex items-start gap-2.5 text-[12px] text-text-2">
+                <input
+                  type="checkbox"
+                  checked={wipeCopy}
+                  onChange={(e) => setWipeCopy(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--accent)]"
+                />
+                <span>
+                  Hapus juga salinan catatan bersama dari HP ini. Kalau tidak
+                  dicentang, salinannya tetap bisa kamu lihat di HP ini.
+                </span>
+              </label>
             </>
           }
           confirmLabel="Ya, keluar"

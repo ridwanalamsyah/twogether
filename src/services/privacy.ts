@@ -333,6 +333,20 @@ export async function wipeLocal(userId: string): Promise<void> {
 }
 
 /**
+ * After leaving a shared space: drop this phone's copy of its notes (the
+ * space itself, and your partner's copy, are untouched). Keeps the account
+ * so the person stays signed in to their new, empty space.
+ */
+export async function clearSharedCopy(userId: string): Promise<void> {
+  const db = getDB();
+  for (const table of DOMAIN_TABLES) {
+    await db.table(table).where("userId").equals(userId).delete();
+  }
+  // Unsent edits belong to the old space; don't push them into the new one.
+  await db.outbox.clear();
+}
+
+/**
  * Tombstones every record so the sync engine propagates deletions, then
  * wipes local. Resolves once tombstones are written; the queue drains
  * asynchronously when the user is online.
