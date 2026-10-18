@@ -11,6 +11,7 @@ import { useKabar } from "@/components/kabar/useKabar";
 import { PINGS, STATUS_PRESETS, pingText, timeAgo } from "@/lib/kabar";
 import { parsePayload } from "@/lib/people";
 import { hapticSuccess } from "@/lib/haptic";
+import { notificationText } from "@/stores/privacy";
 
 /** Beranda card: partner's status + one-tap pings. */
 export function KabarWidget() {
@@ -207,7 +208,10 @@ export function PingListener() {
     hapticSuccess();
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
       void navigator.serviceWorker?.getRegistration().then((reg) =>
-        reg?.showNotification(`${t.emoji} Twogether`, { body: t.text, tag: "ping", icon: "/icons/icon-192.png" }),
+        {
+          const n = notificationText(`${t.emoji} Twogether`, t.text);
+          return reg?.showNotification(n.title, { body: n.body, tag: "ping", icon: "/icons/icon-192.png" });
+        },
       );
     }
     const timer = setTimeout(() => setToast(null), 6000);

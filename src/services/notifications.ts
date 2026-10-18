@@ -2,6 +2,7 @@
 
 import { getDB } from "@/lib/db";
 import { todayISO } from "@/lib/utils";
+import { notificationText } from "@/stores/privacy";
 
 /**
  * Lightweight in-app notification service.
@@ -52,9 +53,10 @@ export async function requestNotificationPermission(): Promise<NotificationStatu
   return result as NotificationStatus;
 }
 
-export function showNotification(title: string, body?: string) {
+export function showNotification(rawTitle: string, rawBody?: string) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
+  const { title, body } = notificationText(rawTitle, rawBody);
   try {
     new Notification(title, {
       body,

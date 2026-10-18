@@ -20,7 +20,7 @@ import {
 } from "@/stores/data";
 import { usePeople, parsePayload, fromIsoDay, isoDay } from "@/lib/people";
 import { withWallet } from "@/lib/wallet";
-import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { formatRupiah, formatRupiahShort, formatMoneyInput } from "@/lib/utils";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { konfetti } from "@/lib/konfetti";
 import {
@@ -233,7 +233,7 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
           className="input-base"
           inputMode="numeric"
           placeholder="Rp 0"
-          value={amount ? formatRupiah(amount) : ""}
+          value={amount ? formatMoneyInput(amount) : ""}
           onChange={(e) => setAmount(Number(e.target.value.replace(/\D/g, "")) || 0)}
         />
       </Field>

@@ -169,16 +169,27 @@ self.addEventListener("push", (event) => {
     data = { title: "Twogether", body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || "Twogether", {
-      body: data.body || "",
+    discreetOn().then((discreet) =>
+    self.registration.showNotification(discreet ? "Twogether" : data.title || "Twogether", {
+      body: discreet ? "Ada kabar baru" : data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       tag: data.tag || undefined,
       renotify: Boolean(data.tag),
       data: { url: data.url || "/home" },
-    }),
+    })),
   );
 });
+
+// "Notifikasi samaran" from Pengaturan → Privasi (written by stores/privacy.ts).
+async function discreetOn() {
+  try {
+    const res = await (await caches.open("prefs-v1")).match("/__prefs/discreet");
+    return res ? (await res.text()) === "1" : false;
+  } catch {
+    return false;
+  }
+}
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();

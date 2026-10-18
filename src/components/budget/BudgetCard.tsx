@@ -5,7 +5,7 @@ import { Sheet, Field, FieldGroup, Chips } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { deleteBudget, upsertBudget, useBudgets } from "@/stores/data";
 import { budgetUsage } from "@/lib/budget";
-import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { formatRupiah, formatRupiahShort, formatMoneyInput } from "@/lib/utils";
 import { hapticSuccess } from "@/lib/haptic";
 import type { BudgetRecord, TransactionRecord } from "@/lib/db";
 
@@ -124,7 +124,7 @@ function LimitSheet({
           className="input-base"
           inputMode="numeric"
           placeholder="Rp 0"
-          value={limit ? formatRupiah(limit) : ""}
+          value={limit ? formatMoneyInput(limit) : ""}
           onChange={(e) => setLimit(Number(e.target.value.replace(/\D/g, "")) || 0)}
           autoFocus
         />

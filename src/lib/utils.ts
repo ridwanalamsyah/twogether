@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { getActiveCurrency } from "@/stores/currency";
 import { isoDay } from "@/lib/dates";
+import { privacySnapshot } from "@/stores/privacy";
 
 export function cn(...inputs: ClassValue[]): string {
   return clsx(inputs);
@@ -31,11 +32,24 @@ function getFormatter(locale: string, code: string): Intl.NumberFormat {
  * touch ~21 files. Treat "rupiah" here as a synonym for "money".
  */
 export function formatRupiah(value: number): string {
+  if (privacySnapshot().hideMoney) return maskedMoney();
+  return formatMoneyInput(value);
+}
+
+/** Same as formatRupiah but never masked — for the value inside an input. */
+export function formatMoneyInput(value: number): string {
   const { locale, code } = getActiveCurrency();
   return getFormatter(locale, code).format(Math.round(value));
 }
 
+/** What an amount looks like with "Sembunyikan nominal" on. */
+export function maskedMoney(): string {
+  const { symbol, code } = getActiveCurrency();
+  return code === "IDR" ? `${symbol} •••` : `${symbol}•••`;
+}
+
 export function formatRupiahShort(value: number): string {
+  if (privacySnapshot().hideMoney) return maskedMoney();
   const { symbol, code } = getActiveCurrency();
   const abs = Math.abs(value);
   // Indonesian uses 'rb'/'jt'/'M' as conventional shorthands; everywhere

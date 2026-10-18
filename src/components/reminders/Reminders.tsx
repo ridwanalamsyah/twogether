@@ -9,6 +9,7 @@ import { useReminderPrefs } from "@/stores/reminders";
 import { usePeople, isoDay } from "@/lib/people";
 import { isNative } from "@/lib/native";
 import { notificationId, upcoming, type Reminder, type ReminderData } from "@/lib/reminders";
+import { notificationText } from "@/stores/privacy";
 
 function useReminderData(): ReminderData | null {
   const userId = useAuth((s) => s.userId);
@@ -99,8 +100,7 @@ export function ReminderScheduler() {
           await LocalNotifications.schedule({
             notifications: future.map((r) => ({
               id: notificationId(r.id),
-              title: `${r.emoji} Twogether`,
-              body: r.text,
+              ...notificationText(`${r.emoji} Twogether`, r.text),
               schedule: { at: r.at, allowWhileIdle: true },
               extra: { twogether: true, href: r.href },
             })),

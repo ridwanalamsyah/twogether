@@ -7,6 +7,7 @@ import { useSecurity } from "@/stores/security";
 import { useAuth } from "@/stores/auth";
 import { PushCard } from "@/components/settings/PushCard";
 import { SpaceLockCard } from "@/components/settings/SpaceLockCard";
+import { PrivacyCard } from "@/components/settings/PrivacyCard";
 import {
   notificationStatus,
   requestNotificationPermission,
@@ -104,6 +105,7 @@ export default function SecurityPage() {
         <PasswordSection />
         <PushCard />
         <SpaceLockCard />
+        <PrivacyCard />
         <section className="surface p-4">
           <div className="mb-2 text-[11px] font-bold section-label text-text-3">
             Pengingat

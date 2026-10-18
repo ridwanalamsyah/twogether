@@ -12,7 +12,8 @@ import { hapticTap } from "@/lib/haptic";
 import { formatRupiahShort } from "@/lib/utils";
 import { WidgetShell } from "./WidgetShell";
 import { IconTile } from "@/lib/icons";
-import { CreditCard, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
+import { CreditCard, Eye, EyeOff, HandCoins, PiggyBank, Receipt, Wallet } from "lucide-react";
+import { usePrivacy } from "@/stores/privacy";
 
 interface Stat {
   /** Stable key for the tile's icon choice. */
@@ -151,7 +152,7 @@ export function BalanceWidget() {
   }
 
   return (
-    <WidgetShell title="Uang kita">
+    <WidgetShell title="Uang kita" action={<HideMoneyToggle />}>
       <div className="divide-y divide-[color:var(--hairline)]">
         {stats.map((s, i) => (
           <div key={s.label} className="flex items-center gap-3 py-2.5">
@@ -239,5 +240,24 @@ function AnimatedAmount({
       )}
       <CountUp value={amount} format={formatRupiahShort} className="relative" />
     </div>
+  );
+}
+
+/** Eye button: hide every amount in the app (for when someone's watching). */
+function HideMoneyToggle() {
+  const hidden = usePrivacy((s) => s.hideMoney);
+  const setHidden = usePrivacy((s) => s.setHideMoney);
+  return (
+    <button
+      onClick={() => {
+        hapticTap();
+        setHidden(!hidden);
+      }}
+      aria-label={hidden ? "Tampilkan nominal" : "Sembunyikan nominal"}
+      aria-pressed={hidden}
+      className="-mr-1 grid h-7 w-7 place-items-center rounded-full text-text-3 active:scale-90"
+    >
+      {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+    </button>
   );
 }

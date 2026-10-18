@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useTransactions, addTransaction } from "@/stores/data";
 import { hapticTap, hapticSuccess } from "@/lib/haptic";
+import { formatRupiahShort } from "@/lib/utils";
 import { isoDay } from "@/lib/dates";
 
 const QUICK_INCOME = ["Gaji", "Bonus", "Lainnya"];
@@ -13,14 +14,6 @@ const QUICK_EXPENSE = ["Makan", "Transport", "Belanja", "Lainnya"];
 
 function todayISO(): string {
   return isoDay();
-}
-
-function formatRupiahShort(n: number): string {
-  if (Math.abs(n) >= 1_000_000)
-    return `Rp${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")} jt`;
-  if (Math.abs(n) >= 1_000)
-    return `Rp${(n / 1_000).toFixed(0)}rb`;
-  return `Rp${n.toLocaleString("id-ID")}`;
 }
 
 export function KeuanganQuickWidget() {
