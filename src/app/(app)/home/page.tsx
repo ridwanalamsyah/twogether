@@ -49,7 +49,7 @@ export default function HomePage() {
     setToday(
       now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }),
     );
-  }, [name]);
+  }, [name, custom]);
 
   const refresh = useCallback(() => sync.refresh(), []);
 

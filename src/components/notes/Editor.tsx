@@ -46,7 +46,7 @@ export function Editor({ id }: { id: string }) {
   const [showEmoji, setShowEmoji] = useState(false);
   const dirty = useRef(false);
   const lastSeen = useRef(0);
-  const caretTo = useRef<{ id: string; pos: number | "end" } | null>(null);
+  const [caretTo, setCaretTo] = useState<{ id: string; pos: number | "end" } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const attachAfter = useRef<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -167,7 +167,7 @@ export function Editor({ id }: { id: string }) {
           next.splice(index + 1, 0, nb);
           return next;
         });
-        caretTo.current = { id: nb.id, pos: 0 };
+        setCaretTo({ id: nb.id, pos: 0 });
         setFocusId(nb.id);
       }
       return;
@@ -189,7 +189,7 @@ export function Editor({ id }: { id: string }) {
         next.splice(index + 1, 0, nb);
         return next;
       });
-      caretTo.current = { id: nb.id, pos: 0 };
+      setCaretTo({ id: nb.id, pos: 0 });
       setFocusId(nb.id);
       return;
     }
@@ -209,7 +209,7 @@ export function Editor({ id }: { id: string }) {
         if (isEmbed(prev)) return;
         const pos = prev.text.length;
         update((bs) => bs.filter((x) => x.id !== b.id).map((x) => (x.id === prev.id ? { ...x, text: x.text + b.text } : x)));
-        caretTo.current = { id: prev.id, pos };
+        setCaretTo({ id: prev.id, pos });
         setFocusId(prev.id);
       }
       return;
@@ -218,7 +218,7 @@ export function Editor({ id }: { id: string }) {
       const prev = note!.blocks.slice(0, index).reverse().find((x) => !isEmbed(x));
       if (prev) {
         e.preventDefault();
-        caretTo.current = { id: prev.id, pos: "end" };
+        setCaretTo({ id: prev.id, pos: "end" });
         setFocusId(prev.id);
       }
     }
@@ -240,7 +240,7 @@ export function Editor({ id }: { id: string }) {
           next.splice(i + 1, 0, nb);
           return next;
         });
-        caretTo.current = { id: nb.id, pos: 0 };
+        setCaretTo({ id: nb.id, pos: 0 });
         setFocusId(nb.id);
       }
       return;
@@ -264,12 +264,12 @@ export function Editor({ id }: { id: string }) {
         next.splice(i + 1, 0, nb);
         return next;
       });
-      caretTo.current = { id: nb.id, pos: 0 };
+      setCaretTo({ id: nb.id, pos: 0 });
       setFocusId(nb.id);
       return;
     }
     patch(b.id, { type, text: b.text === "/" ? "" : b.text, ...(type === "todo" ? { checked: false } : {}) });
-    caretTo.current = { id: b.id, pos: "end" };
+    setCaretTo({ id: b.id, pos: "end" });
     setFocusId(b.id);
   }
 
@@ -363,7 +363,7 @@ export function Editor({ id }: { id: string }) {
               e.preventDefault();
               const first = note.blocks[0];
               if (first) {
-                caretTo.current = { id: first.id, pos: 0 };
+                setCaretTo({ id: first.id, pos: 0 });
                 setFocusId(first.id);
               }
             }
@@ -378,8 +378,8 @@ export function Editor({ id }: { id: string }) {
               index={i}
               number={b.type === "bullet" ? 0 : 0}
               focus={focusId === b.id}
-              caret={caretTo.current?.id === b.id ? caretTo.current.pos : null}
-              onCaretDone={() => (caretTo.current = null)}
+              caret={caretTo?.id === b.id ? caretTo.pos : null}
+              onCaretDone={() => setCaretTo(null)}
               onFocus={() => setFocusId(b.id)}
               onChange={(v) => onChange(b, v)}
               onKey={(e) => onKey(e, b, i)}
@@ -407,7 +407,7 @@ export function Editor({ id }: { id: string }) {
           onClick={() => {
             const nb = block("p");
             update((bs) => [...bs, nb]);
-            caretTo.current = { id: nb.id, pos: 0 };
+            setCaretTo({ id: nb.id, pos: 0 });
             setFocusId(nb.id);
           }}
           className="mt-2 w-full rounded-xl py-3 text-left text-[14px] text-text-4 hover:bg-bg-elev1"
