@@ -4,14 +4,12 @@
  * won't see it again (still readable from Pengaturan).
  */
 export const WHATS_NEW = {
-  id: "2026-10-19",
+  id: "2026-10-20",
   items: [
-    "Jelajah lebih fokus: ruang yang sering kalian buka muncul paling atas",
-    "Ruang yang sebulan tidak dibuka bisa disembunyikan sekali ketuk",
-    "Tarik-untuk-refresh tidak lagi muncul sendiri di tengah halaman",
-    "Isian jam & tanggal di iPhone tidak keluar kotak lagi",
-    "Tombol kembali di semua halaman, judul tidak terpotong",
-    "Kirim masukan langsung dari Pengaturan",
+    "Notifikasi walau app ditutup: kabar & moment dari pasangan langsung masuk ke HP",
+    "Tombol kirim notifikasi tes di Pengaturan → Password & keamanan",
+    "Menu bawah lebih halus: penanda tab tidak lagi menembus tombol +",
+    "Pasangan baru mulai dengan ruang inti saja, biar tidak kebanyakan",
   ],
 };
 

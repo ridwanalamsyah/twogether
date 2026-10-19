@@ -112,7 +112,7 @@ export function BottomNav() {
         <div className="app-nav relative mb-1.5 rounded-[26px]">
           <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
             {left.map((item) => (
-              <NavLink key={item.href} item={item} active={isActive(pathname, item)} />
+              <NavLink key={item.href} item={item} side="left" active={isActive(pathname, item)} />
             ))}
             <li className="relative flex items-center justify-center">
               <span className="pointer-events-none absolute left-1/2 top-[calc(50%-14px)] h-0 w-0">
@@ -154,7 +154,7 @@ export function BottomNav() {
               </button>
             </li>
             {right.map((item) => (
-              <NavLink key={item.href} item={item} active={isActive(pathname, item)} />
+              <NavLink key={item.href} item={item} side="right" active={isActive(pathname, item)} />
             ))}
           </ul>
         </div>
@@ -172,7 +172,7 @@ const ICON_MOTION: Record<string, { scale?: number[]; y?: number[]; rotate?: num
   "/fitur": { rotate: [0, 90], scale: [1, 0.86, 1.06], y: [0, -1, -1] },
 };
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({ item, active, side }: { item: NavItem; active: boolean; side: "left" | "right" }) {
   return (
     <li className="flex">
       <Link
@@ -187,8 +187,13 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         )}
       >
         {active && (
+          // The pill slides between neighbours but never across the + button
+          // (it used to show through it going Uang ⇄ Kita): each side has its
+          // own pill, and switching sides pops it in place instead.
           <motion.span
-            layoutId="nav-active-pill"
+            layoutId={`nav-active-pill-${side}`}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
             className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-bg-elev2"
             transition={{ type: "spring", stiffness: 520, damping: 38 }}
           />

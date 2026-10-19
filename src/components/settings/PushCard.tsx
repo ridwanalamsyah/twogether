@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { disablePush, enablePush, pushState, updatePushPrefs, type PushState } from "@/lib/push";
+import { disablePush, enablePush, pushState, sendTestPush, updatePushPrefs, type PushState } from "@/lib/push";
 import { hapticSuccess } from "@/lib/haptic";
 
 const ADZAN_KEY = "twogether:push-adzan";
@@ -11,6 +11,7 @@ export function PushCard() {
   const [adzan, setAdzan] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [tested, setTested] = useState<string | null>(null);
 
   useEffect(() => {
     void pushState().then(setState);
@@ -28,6 +29,19 @@ export function PushCard() {
       const s = await enablePush({ adzan });
       setState(s);
       if (s === "on") hapticSuccess();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function test() {
+    setBusy(true);
+    setErr(null);
+    setTested(null);
+    try {
+      const n = await sendTestPush();
+      setTested(n ? "Terkirim. Kalau dalam 1 menit tidak muncul, cek izin notifikasi di Pengaturan iPhone." : "Perangkat ini belum tercatat di server. Matikan lalu aktifkan lagi.");
     } catch (e) {
       setErr((e as Error).message);
     } finally {
@@ -68,6 +82,10 @@ export function PushCard() {
             Aktif di perangkat ini ✓
           </div>
           <Toggle label="Pengingat adzan 5 waktu" sub="Pakai lokasi di halaman Shalat" on={adzan} onChange={toggleAdzan} />
+          <button onClick={test} disabled={busy} className="w-full rounded-xl bg-bg-elev1 py-2.5 text-[13px] font-semibold text-text-1 disabled:opacity-60">
+            Kirim notifikasi tes
+          </button>
+          {tested && <p className="text-[12px] leading-snug text-text-3">{tested}</p>}
           <button onClick={turnOff} disabled={busy} className="w-full py-2 text-[13px] font-semibold text-text-3">
             Matikan di perangkat ini
           </button>
@@ -86,7 +104,7 @@ export function PushCard() {
             : state === "denied"
               ? "Notifikasi diblokir. Nyalakan lagi di pengaturan HP/browser untuk Twogether."
               : state === "not-configured"
-                ? "Belum disiapkan di server. Sementara ini kabar tetap muncul selama app terbuka."
+                ? "Belum disiapkan di server (lihat README → Notifikasi push). Sementara ini kabar tetap muncul selama app terbuka."
                 : "Perangkat ini belum mendukung notifikasi web. Kabar tetap muncul selama app terbuka."}
         </p>
       )}

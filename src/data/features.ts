@@ -59,13 +59,18 @@ export const FEATURES: Feature[] = [
 ];
 
 /** Ready-made bundles so a couple can switch on a whole theme at once. */
-export const BUNDLES: { id: string; emoji: string; title: string; tint: string; hrefs: string[] }[] = [
-  { id: "ibadah", emoji: "🤲", title: "Ibadah", tint: "#0f7a5c", hrefs: ["/shalat", "/hijriah", "/ramadhan", "/tilawah", "/zakat"] },
-  { id: "uang", emoji: "💰", title: "Uang", tint: "#f59e0b", hrefs: ["/tagihan", "/dompet", "/laporan", "/impor", "/patungan"] },
-  { id: "berdua", emoji: "💞", title: "Berdua", tint: "#ec4899", hrefs: ["/kabar", "/tantangan", "/target", "/belanja", "/catatan"] },
-  { id: "kuliah", emoji: "🎓", title: "Kuliah", tint: "#8b5cf6", hrefs: ["/jadwal", "/skripsi", "/fokus", "/belajar"] },
-  { id: "nikah", emoji: "💍", title: "Menuju halal", tint: "#b76e79", hrefs: ["/nikah", "/target", "/dompet", "/tilawah"] },
-  { id: "sehat", emoji: "🌿", title: "Sehat & rumah", tint: "#0ea5e9", hrefs: ["/sehat", "/siklus", "/rumah", "/belanja"] },
+/**
+ * Space bundles. Onboarding switches on only each bundle's `starter` spaces
+ * (a new couple shouldn't face 20 icons on day one); "Paket ruang" in
+ * Jelajah adds the full set.
+ */
+export const BUNDLES: { id: string; emoji: string; title: string; tint: string; hrefs: string[]; starter: string[] }[] = [
+  { id: "ibadah", emoji: "🤲", title: "Ibadah", tint: "#0f7a5c", hrefs: ["/shalat", "/hijriah", "/ramadhan", "/tilawah", "/zakat"], starter: ["/shalat", "/tilawah"] },
+  { id: "uang", emoji: "💰", title: "Uang", tint: "#f59e0b", hrefs: ["/tagihan", "/dompet", "/laporan", "/impor", "/patungan"], starter: ["/tagihan", "/patungan"] },
+  { id: "berdua", emoji: "💞", title: "Berdua", tint: "#ec4899", hrefs: ["/kabar", "/tantangan", "/target", "/belanja", "/catatan"], starter: ["/kabar", "/tantangan"] },
+  { id: "kuliah", emoji: "🎓", title: "Kuliah", tint: "#8b5cf6", hrefs: ["/jadwal", "/skripsi", "/fokus", "/belajar"], starter: ["/jadwal", "/skripsi"] },
+  { id: "nikah", emoji: "💍", title: "Menuju halal", tint: "#b76e79", hrefs: ["/nikah", "/target", "/dompet", "/tilawah"], starter: ["/nikah", "/target"] },
+  { id: "sehat", emoji: "🌿", title: "Sehat & rumah", tint: "#0ea5e9", hrefs: ["/sehat", "/siklus", "/rumah", "/belanja"], starter: ["/sehat", "/siklus"] },
 ];
 
 export const CORE_FEATURES = FEATURES.filter((f) => f.core).map((f) => f.href);
