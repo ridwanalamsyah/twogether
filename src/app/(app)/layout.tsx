@@ -17,6 +17,7 @@ import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { OfflineBanner } from "@/components/shell/OfflineBanner";
 import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
 import { usePrivacy } from "@/stores/privacy";
+import { recordVisit } from "@/lib/usage";
 
 export default function AppLayout({
   children,
@@ -83,6 +84,7 @@ export default function AppLayout({
       <ReminderScheduler />
       <PWAUpdateBanner />
       <LockGate />
+      <UsageTracker />
       <OnboardingTour />
     </div>
   );
@@ -106,6 +108,16 @@ function CaptureHost() {
     return () => window.removeEventListener("keydown", onKey);
   }, [openCapture]);
   return <QuickCapture open={open} action={action} onClose={close} />;
+}
+
+/** Counts which spaces get opened (this phone only) for Jelajah's "Sering dipakai". */
+function UsageTracker() {
+  const pathname = usePathname();
+  useEffect(() => {
+    const f = FEATURES.find((x) => pathname === x.href || pathname?.startsWith(x.href + "/"));
+    if (f) recordVisit(f.href);
+  }, [pathname]);
+  return null;
 }
 
 function LockGate() {

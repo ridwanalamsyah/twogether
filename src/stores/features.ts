@@ -10,6 +10,8 @@ interface FeaturesState {
   toggle: (href: string) => void;
   /** Switch on several spaces at once (a bundle). */
   enableMany: (hrefs: string[]) => void;
+  /** Hide several spaces at once (Jelajah's "rarely used" tidy-up). */
+  disableMany: (hrefs: string[]) => void;
   /** Move a space to a new position (drag & drop in Jelajah). */
   move: (fromHref: string, toHref: string) => void;
   isOn: (href: string) => boolean;
@@ -27,6 +29,7 @@ export const useFeatures = create<FeaturesState>()(
         })),
       enableMany: (hrefs) =>
         set((s) => ({ enabled: [...s.enabled, ...hrefs.filter((h) => !s.enabled.includes(h))] })),
+      disableMany: (hrefs) => set((s) => ({ enabled: s.enabled.filter((h) => !hrefs.includes(h)) })),
       move: (fromHref, toHref) =>
         set((s) => {
           const from = s.enabled.indexOf(fromHref);
