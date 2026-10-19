@@ -109,6 +109,22 @@ async function mergeIntoLocal(local: string, records: Record<string, unknown>[])
  * the last pull (minus a margin for phone clocks that run a bit off); a full
  * pull at sign-in, once a day, or when asked, so nothing slips through.
  */
+/**
+ * "Hapus permanen" / "Kosongkan sampah": remove the rows on the server too,
+ * otherwise the next full pull brings the tombstones back into Baru dihapus.
+ * Best effort: offline or not signed in just leaves them for later pulls.
+ */
+export async function purgeRemote(table: string, ids: string[]): Promise<void> {
+  const sb = getSupabase();
+  const remote = TABLE_MAP[table];
+  if (!sb || !remote || !ids.length) return;
+  try {
+    await sb.from(remote).delete().in("id", ids);
+  } catch {
+    /* offline */
+  }
+}
+
 export async function pullWorkspace(ctx: SupaContext, opts: { full?: boolean } = {}): Promise<void> {
   if (pulling) return;
   pulling = true;

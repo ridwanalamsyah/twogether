@@ -97,8 +97,8 @@ export function toRow(
     row.created_at = new Date(row.createdAt as number).toISOString();
   if (typeof row.updatedAt === "number")
     row.updated_at = new Date(row.updatedAt as number).toISOString();
-  if (typeof row.deletedAt === "number")
-    row.deleted_at = new Date(row.deletedAt as number).toISOString();
+  // Always sent, so restoring from Baru dihapus clears it on the server too.
+  row.deleted_at = typeof row.deletedAt === "number" ? new Date(row.deletedAt as number).toISOString() : null;
   delete row.createdAt;
   delete row.updatedAt;
   delete row.deletedAt;
@@ -130,6 +130,21 @@ export function toRow(
     } catch {
       // leave as-is
     }
+  }
+
+  // A field cleared on the phone (e.g. a bill's due date) is `undefined`,
+  // which JSON drops, so the upsert kept the old server value. Send null for
+  // the optional columns of entries/items (other tables have not-null
+  // columns with defaults, where null would be rejected).
+  if (table === "entries" || table === "items") {
+    for (const k of ["status", "date", "due", "amount", "who", "tags", "payload", "value_num", "value_text"]) {
+      if (k in row && row[k] === undefined) row[k] = null;
+    }
+  }
+  // Money columns are bigint (whole rupiah): 12.5 would be rejected by the
+  // server and block the sync queue.
+  for (const k of ["amount", "target", "limit", "budget"]) {
+    if (typeof row[k] === "number") row[k] = Math.round(row[k] as number);
   }
 
   return row;

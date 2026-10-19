@@ -364,9 +364,10 @@ function QiblaSheet({ lat, lng, onClose }: { lat: number; lng: number; onClose: 
   const [heading, setHeading] = useState<number | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const listener = useRef<EventListener | null>(null);
+  const eventName = useRef("deviceorientation");
   useEffect(
     () => () => {
-      if (listener.current) window.removeEventListener("deviceorientation", listener.current, true);
+      if (listener.current) window.removeEventListener(eventName.current, listener.current, true);
     },
     [],
   );
@@ -389,8 +390,12 @@ function QiblaSheet({ lat, lng, onClose }: { lat: number; lng: number; onClose: 
       const h = e.webkitCompassHeading ?? (e.alpha != null ? 360 - e.alpha : null);
       if (h != null) setHeading(h);
     };
+    // Android: plain `deviceorientation` alpha is relative to wherever the
+    // phone pointed at start; the absolute event is relative to north.
+    // iOS has no absolute event and uses webkitCompassHeading instead.
+    eventName.current = "ondeviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation";
     listener.current = onOrient as EventListener;
-    window.addEventListener("deviceorientation", listener.current, true);
+    window.addEventListener(eventName.current, listener.current, true);
     setMsg("Pegang HP mendatar, putar sampai panah menunjuk ke atas.");
   }
 

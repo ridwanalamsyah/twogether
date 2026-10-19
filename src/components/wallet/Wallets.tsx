@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertEntry, upsertItem, useEntries, useItems, useTransactions } from "@/stores/data";
-import { toWallet, walletBalances, type Wallet } from "@/lib/wallet";
+import { lastWallet, rememberWallet, toWallet, walletBalances, type Wallet } from "@/lib/wallet";
 import { formatRupiah, formatRupiahShort, todayISO, formatMoneyInput } from "@/lib/utils";
 import { usePeople } from "@/lib/people";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
@@ -112,6 +112,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
               onClick={async () => {
                 if (!confirm("Hapus dompet ini? Transaksinya tetap ada.")) return;
                 await deleteItem(userId, wallet.id);
+                if (lastWallet() === wallet.id) rememberWallet(null);
                 onClose();
               }}
               className="btn-danger"
@@ -146,8 +147,12 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
 export function TransferSheet({ onClose }: { onClose: () => void }) {
   const { userId, wallets, balances } = useWallets();
   const { me } = usePeople();
-  const [from, setFrom] = useState(wallets[0]?.id ?? "");
-  const [to, setTo] = useState(wallets[1]?.id ?? "");
+  // Wallets load after the first render, so default the picks from the live
+  // list until the user chooses.
+  const [fromPick, setFrom] = useState("");
+  const [toPick, setTo] = useState("");
+  const from = fromPick || wallets[0]?.id || "";
+  const to = toPick || wallets.find((w) => w.id !== from)?.id || "";
   const [amount, setAmount] = useState("");
   const n = Number(amount.replace(/\D/g, "")) || 0;
   const opts = wallets.map((w) => ({ value: w.id, label: w.name }));

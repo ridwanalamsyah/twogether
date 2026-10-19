@@ -113,9 +113,14 @@ export function Battery({ level }: { level: number }) {
 
 export function StatusSheet({ onClose }: { onClose: () => void }) {
   const { myStatus, setStatus } = useKabar();
-  const [emoji, setEmoji] = useState(myStatus?.emoji ?? "😊");
-  const [text, setText] = useState(myStatus?.text ?? "");
-  const [energy, setEnergy] = useState(myStatus?.energy ?? 3);
+  // Statuses load after the first render: show the live status until the
+  // user changes a field (null = untouched).
+  const [emojiPick, setEmoji] = useState<string | null>(null);
+  const [textPick, setText] = useState<string | null>(null);
+  const [energyPick, setEnergy] = useState<number | null>(null);
+  const emoji = emojiPick ?? myStatus?.emoji ?? "😊";
+  const text = textPick ?? myStatus?.text ?? "";
+  const energy = energyPick ?? myStatus?.energy ?? 3;
   async function save() {
     await setStatus({ emoji, text: text.trim() || "—", energy });
     onClose();
@@ -214,9 +219,16 @@ export function PingListener() {
         },
       );
     }
+  }, [pings, me]);
+
+  // Own effect: `pings` changes identity every render, which would keep
+  // clearing the timer if it lived in the effect above.
+  const toastId = toast?.id;
+  useEffect(() => {
+    if (!toastId) return;
     const timer = setTimeout(() => setToast(null), 6000);
     return () => clearTimeout(timer);
-  }, [pings, me]);
+  }, [toastId]);
 
   if (!toast || typeof document === "undefined") return null;
   return createPortal(

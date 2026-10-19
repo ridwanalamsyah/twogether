@@ -17,6 +17,7 @@ import {
 } from "@/lib/notes";
 import { usePeople } from "@/lib/people";
 import { hapticTap } from "@/lib/haptic";
+import { pageStack } from "@/lib/nav";
 import { FileView, ImageView, MAX_FILE_BYTES, saveAttachment } from "@/components/notes/Attachment";
 
 const TYPE_MENU: { type: BlockType; label: string; icon: string }[] = [
@@ -146,7 +147,11 @@ export function Editor({ id }: { id: string }) {
     };
     kill(item.id);
     dirty.current = false;
-    router.replace(note?.parentId ? `/catatan?id=${note.parentId}` : "/catatan");
+    // Came here from another in-app page (the list or the parent): step back
+    // to it rather than stacking a second copy on top of the deleted note.
+    // Opened directly (deep link / reload): there's nothing to go back to.
+    if (pageStack.length >= 2) router.back();
+    else router.replace(note?.parentId ? `/catatan?id=${note.parentId}` : "/catatan");
   }
 
   function onKey(e: React.KeyboardEvent<HTMLTextAreaElement>, b: Block, index: number) {

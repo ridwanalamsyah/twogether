@@ -79,6 +79,9 @@ export default function JoinPage() {
           if (/invite_expired/.test(rpcError.message)) {
             throw new Error("Link-nya sudah kedaluwarsa. Minta pasanganmu kirim link baru.");
           }
+          if (/workspace_full/.test(rpcError.message)) {
+            throw new Error("Ruang ini sudah berisi dua orang.");
+          }
           if (/invite_already_used/.test(rpcError.message)) {
             throw new Error(
               "Link ini sudah dipakai. Minta pasanganmu kirim link baru.",

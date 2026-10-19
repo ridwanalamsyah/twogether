@@ -113,6 +113,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 NEXT_PUBLIC_SYNC_URL=...   # optional fallback HTTP endpoint
 ```
 
+Then in **Supabase → SQL Editor** run `supabase/migrations/all_in_one.sql`
+once (it contains every migration 0001–0009 and 0011 and is safe to run
+again after an update). Notifications need one more script, see step 5.
+
 The sync queue is backend-agnostic. Without keys the app runs local-only
 (IndexedDB) — every feature still works on a single device.
 

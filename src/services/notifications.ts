@@ -2,6 +2,7 @@
 
 import { getDB } from "@/lib/db";
 import { todayISO } from "@/lib/utils";
+import { daysBetween, isoDay } from "@/lib/dates";
 import { notificationText } from "@/stores/privacy";
 
 /**
@@ -127,9 +128,7 @@ export async function scanReminders(userId: string): Promise<void> {
     .toArray();
   for (const it of items) {
     if (!it.due) continue;
-    const days = Math.ceil(
-      (new Date(it.due).getTime() - today.getTime()) / 86_400_000,
-    );
+    const days = daysBetween(isoDay(today), it.due.slice(0, 10));
     if (days < 0 || days > 3) continue;
     const key = `bareng:notify:mt:${it.id}:${it.due}`;
     if (sessionStorage.getItem(key)) continue;
@@ -148,9 +147,7 @@ export async function scanReminders(userId: string): Promise<void> {
     .toArray();
   for (const s of subs) {
     if (!s.due) continue;
-    const days = Math.ceil(
-      (new Date(s.due).getTime() - today.getTime()) / 86_400_000,
-    );
+    const days = daysBetween(isoDay(today), s.due.slice(0, 10));
     if (days < 0 || days > 3) continue;
     const key = `bareng:notify:sub:${s.id}:${s.due}`;
     if (sessionStorage.getItem(key)) continue;
@@ -169,9 +166,7 @@ export async function scanReminders(userId: string): Promise<void> {
     .toArray();
   for (const a of annivs) {
     if (!a.due) continue;
-    const days = Math.ceil(
-      (new Date(a.due).getTime() - today.getTime()) / 86_400_000,
-    );
+    const days = daysBetween(isoDay(today), a.due.slice(0, 10));
     if (days < 0 || days > 7) continue;
     const key = `bareng:notify:anv:${a.id}:${a.due}`;
     if (sessionStorage.getItem(key)) continue;
@@ -208,7 +203,7 @@ export async function scanReminders(userId: string): Promise<void> {
   }
 
   // 4. Budget alerts (>=80% used this month)
-  const month = today.toISOString().slice(0, 7);
+  const month = isoDay(today).slice(0, 7);
   const budgets = await db.budgets
     .where("userId")
     .equals(userId)

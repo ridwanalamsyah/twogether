@@ -15,13 +15,16 @@ import {
   addDeposit,
   addTransaction,
   deleteItem,
+  upsertEntry,
   upsertItem,
   useBudgets,
+  useEntries,
   useGoals,
   useItems,
   useTransactions,
 } from "@/stores/data";
 import { formatRupiah, formatDateShort, todayISO } from "@/lib/utils";
+import { daysBetween, isoDay } from "@/lib/dates";
 
 export default function UangPage() {
   return (
@@ -222,7 +225,11 @@ function DebtSection() {
                 <span className="font-mono text-[12px] tabular-nums">
                   {formatRupiah(it.amount ?? 0)}
                 </span>
-                <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
+                <GhostBtn
+                  onClick={() => {
+                    if (userId && confirm("Hapus catatan hutang ini?")) void deleteItem(userId, it.id);
+                  }}
+                >
                   ×
                 </GhostBtn>
               </div>
@@ -242,16 +249,18 @@ function SubscriptionSection() {
   const [amount, setAmount] = useState("");
   const [day, setDay] = useState("1");
   const [period, setPeriod] = useState("monthly");
+  const dayN = Number(day);
+  const dayOk = Number.isInteger(dayN) && dayN >= 1 && dayN <= 31;
 
   async function save() {
-    if (!userId || !t || !amount) return;
+    if (!userId || !t || !amount || !dayOk) return;
     await upsertItem(userId, {
       kind: "subscription",
       title: t,
       amount: Number(amount),
       status: "active",
       payload: JSON.stringify({
-        billDay: Number(day),
+        billDay: dayN,
         period,
       }),
     });
@@ -288,15 +297,22 @@ function SubscriptionSection() {
       return s + (i.amount ?? 0) * factor;
     }, 0);
 
-  // Compute next bill day for each
+  // Compute next bill day for each, in whole days so the billing day is H-0.
+  // A bill day past the month's end (31 in Februari) falls on its last day.
   const today = new Date();
+  const todayStr = todayISO();
+  const billDate = (monthOffset: number, billDay: number) => {
+    const y = today.getFullYear();
+    const m = today.getMonth() + monthOffset;
+    const last = new Date(y, m + 1, 0).getDate();
+    return isoDay(new Date(y, m, Math.min(billDay, last)));
+  };
   const enriched = items.map((it) => {
     const p = JSON.parse(it.payload ?? "{}");
-    const d = new Date(today.getFullYear(), today.getMonth(), p.billDay ?? 1);
-    if (d.getTime() < today.getTime()) {
-      d.setMonth(d.getMonth() + 1);
-    }
-    const days = Math.ceil((d.getTime() - today.getTime()) / 86_400_000);
+    const billDay = Number(p.billDay) || 1;
+    let due = billDate(0, billDay);
+    if (due < todayStr) due = billDate(1, billDay);
+    const days = daysBetween(todayStr, due);
     return { it, p, days };
   });
   const sorted = enriched.sort((a, b) => a.days - b.days);
@@ -340,7 +356,7 @@ function SubscriptionSection() {
               placeholder="Tgl"
               className="w-14 bg-transparent text-[13px] outline-none"
             />
-            <AccentBtn onClick={save} disabled={!t || !amount}>
+            <AccentBtn onClick={save} disabled={!t || !amount || !dayOk}>
               +
             </AccentBtn>
           </div>
@@ -380,7 +396,11 @@ function SubscriptionSection() {
               >
                 Bayar
               </button>
-              <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
+              <GhostBtn
+                onClick={() => {
+                  if (userId && confirm("Hapus langganan ini?")) void deleteItem(userId, it.id);
+                }}
+              >
                 ×
               </GhostBtn>
             </div>
@@ -401,6 +421,7 @@ function PaydaySection() {
   const [wantPct, setWantPct] = useState("30");
   const [splitGoalId, setSplitGoalId] = useState<string>("");
   const [done, setDone] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const salaryN = Number(salary) || 0;
   const save_ = Math.round((salaryN * Number(savePct)) / 100);
@@ -409,25 +430,30 @@ function PaydaySection() {
   const total = Number(savePct) + Number(needPct) + Number(wantPct);
 
   async function execute() {
-    if (!userId || !salaryN) return;
-    // 1. Income transaction
-    await addTransaction(userId, {
-      kind: "in",
-      amount: salaryN,
-      category: "Gaji",
-      who: "",
-      note: "Pay day",
-      date: todayISO(),
-    });
-    // 2. Auto-deposit to selected goal
-    if (splitGoalId && save_ > 0) {
-      await addDeposit(userId, {
-        goalId: splitGoalId,
-        amount: save_,
+    if (!userId || !salaryN || busy) return;
+    setBusy(true);
+    try {
+      // 1. Income transaction
+      await addTransaction(userId, {
+        kind: "in",
+        amount: salaryN,
+        category: "Gaji",
         who: "",
-        note: "Auto pay day",
+        note: "Pay day",
         date: todayISO(),
       });
+      // 2. Auto-deposit to selected goal
+      if (splitGoalId && save_ > 0) {
+        await addDeposit(userId, {
+          goalId: splitGoalId,
+          amount: save_,
+          who: "",
+          note: "Auto pay day",
+          date: todayISO(),
+        });
+      }
+    } finally {
+      setBusy(false);
     }
     setDone(
       splitGoalId && save_ > 0
@@ -521,7 +547,7 @@ function PaydaySection() {
           </div>
         )}
 
-        <AccentBtn onClick={execute} disabled={!salaryN}>
+        <AccentBtn onClick={execute} disabled={!salaryN || busy}>
           Distribusi sekarang
         </AccentBtn>
 
@@ -553,11 +579,15 @@ function ClosingSection() {
   const [transferGoalId, setTransferGoalId] = useState<string>("");
   const [reflection, setReflection] = useState("");
   const [done, setDone] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  // One `month-close` entry per closed month (holds the reflection), so the
+  // surplus can't be deposited twice.
+  const closes = useEntries(userId, "month-close") ?? [];
+  const month = todayISO().slice(0, 7);
+  const closed = closes.some((e) => e.date.startsWith(month));
 
   // Compute current month stats
   const stats = useMemo(() => {
-    const now_ = new Date();
-    const month = now_.toISOString().slice(0, 7);
     const monthTx = txs.filter((t) => t.date.startsWith(month));
     const income = monthTx
       .filter((t) => t.kind === "in")
@@ -589,28 +619,29 @@ function ClosingSection() {
       .filter((b) => b.spent > b.limit);
 
     return { income, expense, surplus, topCat, overBudgets, monthTx };
-  }, [txs, budgets]);
+  }, [txs, budgets, month]);
 
   async function close() {
-    if (!userId) return;
-    if (stats.surplus > 0 && transferGoalId) {
-      await addDeposit(userId, {
-        goalId: transferGoalId,
-        amount: stats.surplus,
-        who: "",
-        note: "Surplus akhir bulan",
+    if (!userId || closed || busy) return;
+    setBusy(true);
+    try {
+      if (stats.surplus > 0 && transferGoalId) {
+        await addDeposit(userId, {
+          goalId: transferGoalId,
+          amount: stats.surplus,
+          who: "",
+          note: "Surplus akhir bulan",
+          date: todayISO(),
+        });
+      }
+      await upsertEntry(userId, {
+        kind: "month-close",
         date: todayISO(),
+        valueNum: stats.surplus,
+        valueText: reflection.trim() || undefined,
       });
-    }
-    if (reflection.trim()) {
-      await addTransaction(userId, {
-        kind: "in",
-        amount: 0,
-        category: "Reflection",
-        who: "",
-        note: `[Closing] ${reflection.trim()}`,
-        date: todayISO(),
-      });
+    } finally {
+      setBusy(false);
     }
     setDone(
       stats.surplus > 0 && transferGoalId
@@ -689,8 +720,8 @@ function ClosingSection() {
           className="w-full resize-none bg-transparent text-[13px] outline-none"
         />
 
-        <AccentBtn onClick={close} disabled={stats.monthTx.length === 0}>
-          Tutup buku bulan ini
+        <AccentBtn onClick={close} disabled={stats.monthTx.length === 0 || closed || busy}>
+          {closed ? "Buku bulan ini sudah ditutup" : "Tutup buku bulan ini"}
         </AccentBtn>
 
         {done && (

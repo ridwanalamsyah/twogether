@@ -34,6 +34,9 @@ export interface SyncSnapshot {
   connection: ConnectionState;
 }
 
+/** After this many failed tries an op stops being retried automatically. */
+const MAX_ATTEMPTS = 5;
+
 const SYNC_URL =
   typeof process !== "undefined" ? process.env.NEXT_PUBLIC_SYNC_URL ?? "" : "";
 
@@ -97,6 +100,14 @@ class SyncManager {
     if (this.supaCtx) await pullWorkspace(this.supaCtx);
   }
 
+  /** "Coba lagi" in Pengaturan: give ops that gave up another round. */
+  async retryFailed(): Promise<void> {
+    const db = getDB();
+    await db.outbox.filter((o) => o.attempts >= MAX_ATTEMPTS).modify({ attempts: 0 });
+    await this.refreshCounts();
+    await this.drain();
+  }
+
   /** Persist a new/updated record and enqueue it for sync. */
   async recordWrite<T extends { id: string }>(table: string, record: T): Promise<void> {
     const db = getDB();
@@ -157,12 +168,22 @@ class SyncManager {
     this.emit();
     try {
       const db = getDB();
-      // Pull a small batch each tick so failures don't block the whole queue.
-      const batch = await db.outbox.orderBy("seq").limit(20).toArray();
+      // Ops that failed MAX_ATTEMPTS times stay in the outbox (shown as
+      // "gagal") but no longer hold up everything queued after them.
+      const batch = await db.outbox
+        .orderBy("seq")
+        .filter((o) => o.attempts < MAX_ATTEMPTS)
+        .limit(20)
+        .toArray();
       this.lastBatchOk = true;
       if (!batch.length) return;
 
+      // Later ops for a record that just failed must wait (keeps each
+      // record's edits in order); other records carry on.
+      const blocked = new Set<string>();
       for (const op of batch) {
+        const key = `${op.table}:${op.recordId}`;
+        if (blocked.has(key)) continue;
         try {
           await this.dispatch(op);
           if (op.seq != null) await db.outbox.delete(op.seq);
@@ -174,16 +195,18 @@ class SyncManager {
               lastError: (err as Error).message,
             });
           }
-          // Stop batch on first failure to preserve order; retry on next tick.
+          blocked.add(key);
           this.lastBatchOk = false;
-          break;
+          // Not signed in / offline: everything would fail, stop for now.
+          const msg = (err as Error).message;
+          if (msg === "NO_AUTH" || msg === "NO_BACKEND" || !navigator.onLine) break;
         }
       }
       this.snapshot.lastSyncAt = Date.now();
     } finally {
       this.snapshot.syncing = false;
       await this.refreshCounts();
-      if (this.drainAgain || (this.snapshot.pending > 0 && this.snapshot.failed === 0 && this.lastBatchOk)) {
+      if (this.drainAgain || (this.snapshot.pending > 0 && this.lastBatchOk)) {
         this.drainAgain = false;
         setTimeout(() => void this.drain(), 50);
       }
@@ -232,8 +255,8 @@ class SyncManager {
   private async refreshCounts(): Promise<void> {
     const db = getDB();
     const all = await db.outbox.toArray();
-    this.snapshot.pending = all.filter((o) => o.attempts < 3).length;
-    this.snapshot.failed = all.filter((o) => o.attempts >= 3).length;
+    this.snapshot.pending = all.filter((o) => o.attempts < MAX_ATTEMPTS).length;
+    this.snapshot.failed = all.filter((o) => o.attempts >= MAX_ATTEMPTS).length;
     this.emit();
   }
 

@@ -201,7 +201,7 @@ function SaveStatus({ snap }: { snap: SyncSnapshot }) {
       </div>
       {!offline && waiting > 0 && (
         <button
-          onClick={() => void sync.drain()}
+          onClick={() => void sync.retryFailed()}
           className="shrink-0 text-[12px] font-semibold text-text-1 active:opacity-60"
         >
           Coba lagi

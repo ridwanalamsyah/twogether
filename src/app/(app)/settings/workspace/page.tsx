@@ -102,6 +102,9 @@ export default function WorkspaceSettingsPage() {
             "Fitur gabung belum siap. Coba lagi nanti.",
           );
         }
+        if (/workspace_full/i.test(error.message)) {
+          throw new Error("Ruang ini sudah berisi dua orang.");
+        }
         if (/workspace_not_found/i.test(error.message)) {
           throw new Error("Kode tidak ditemukan. Cek lagi kodenya.");
         }
@@ -201,7 +204,7 @@ export default function WorkspaceSettingsPage() {
     try {
       const sb = getSupabase();
       if (!sb) throw new Error("Fitur pasangan belum aktif di app ini");
-      const { data, error } = await sb.rpc("leave_workspace");
+      const { data, error } = await sb.rpc("leave_workspace", { p_workspace_id: auth.supaWorkspaceId ?? null });
       if (error) {
         if (
           error.code === "PGRST202" ||

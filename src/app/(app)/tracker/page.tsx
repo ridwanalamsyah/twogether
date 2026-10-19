@@ -434,6 +434,8 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   const [date, setDate] = useState(todayISO());
   const [tags, setTags] = useState<string[]>([]);
   const [walletId, setWalletId] = useState<string | null>(() => lastWallet());
+  const { wallets } = useWallets();
+  const [busy, setBusy] = useState(false);
   const trips = useTrips(userId) ?? [];
   const tagSuggestions = useMemo(
     () => [...trips.map((t) => t.tag), "jajan", "kerja", "darurat", "hadiah"],
@@ -441,19 +443,28 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   );
 
   async function submit() {
-    if (!userId) return;
+    if (!userId || busy) return;
     const num = parseFloat(amount);
     if (!Number.isFinite(num) || num <= 0) return;
-    await addTransaction(userId, {
-      kind,
-      amount: num,
-      category,
-      who,
-      note: note.trim() || undefined,
-      date,
-      tags: withWallet(tags, walletId),
-    });
-      void budgetAlert(userId, { kind, category, amount: num, date: date }).then((a) => a && toast(a.text, a.tone));
+    // A cleared date input gives "".
+    const day = date || todayISO();
+    // A remembered wallet may have been deleted since.
+    const wallet = wallets.some((w) => w.id === walletId) ? walletId : null;
+    setBusy(true);
+    try {
+      await addTransaction(userId, {
+        kind,
+        amount: num,
+        category,
+        who,
+        note: note.trim() || undefined,
+        date: day,
+        tags: withWallet(tags, wallet),
+      });
+    } finally {
+      setBusy(false);
+    }
+      void budgetAlert(userId, { kind, category, amount: num, date: day }).then((a) => a && toast(a.text, a.tone));
     onClose();
   }
 
@@ -545,7 +556,7 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
             suggestions={tagSuggestions}
             placeholder="Tag (opsional, mis. trip:bali)…"
           />
-          <button onClick={submit} className="btn-accent w-full text-sm">
+          <button onClick={submit} disabled={busy} className="btn-accent w-full text-sm disabled:opacity-50">
             Simpan
           </button>
         </div>

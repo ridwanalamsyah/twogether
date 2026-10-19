@@ -26,6 +26,7 @@ import {
   type ItemRecord,
 } from "@/lib/db";
 import { sync } from "@/services/sync";
+import { purgeRemote } from "@/services/supaSync";
 import { useWorkspace } from "@/stores/workspace";
 import { decryptString, encryptString, isUnlocked, restoreKey } from "@/lib/crypto";
 import { isoDay } from "@/lib/dates";
@@ -890,6 +891,7 @@ export async function restoreFromTrash(table: string, id: string) {
 export async function purgeFromTrash(table: string, id: string) {
   const db = getDB();
   await db.table(table).delete(id);
+  await purgeRemote(table, [id]);
 }
 
 export async function emptyTrash(userId: string) {
@@ -901,7 +903,9 @@ export async function emptyTrash(userId: string) {
       .equals(userId)
       .filter((r: Record<string, unknown>) => !!r.deletedAt)
       .toArray();
-    for (const r of rows) await db.table(table).delete((r as { id: string }).id);
+    const ids = rows.map((r) => (r as { id: string }).id);
+    await db.table(table).bulkDelete(ids);
+    await purgeRemote(table, ids);
   }
 }
 
