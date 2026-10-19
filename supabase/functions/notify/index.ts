@@ -1,10 +1,12 @@
 // Supabase Edge Function: sends Web Push notifications for Twogether.
 //
-// Triggers
-//   1. Database Webhook (entries INSERT / moments INSERT) → partner gets
+// Triggers (set up by supabase/migrations/0010_push_triggers.sql)
+//   1. Database trigger (entries INSERT / moments INSERT) → partner gets
 //      "💗 Alya kangen kamu" or "💌 Alya menulis moment baru".
 //   2. Cron every 5 minutes with body {"mode":"adzan"} → adzan reminder for
 //      devices that switched it on (prayer times computed here).
+//   3. The app's "Kirim tes" button: {"mode":"test"} with the user's own
+//      login token → a test notification to that user's devices only.
 //
 // Secrets (supabase secrets set …): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY,
 // VAPID_SUBJECT (mailto:you@example.com), NOTIFY_SECRET (any random string,
@@ -111,7 +113,28 @@ async function adzanTick() {
   }
 }
 
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+};
+
+/** "Kirim tes" from Pengaturan: only ever reaches the caller's own devices. */
+async function testPush(req: Request): Promise<Response> {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const { data } = await sb.auth.getUser(token);
+  if (!data.user) return new Response("unauthorized", { status: 401, headers: CORS });
+  const { data: subs } = await sb.from("push_subscriptions").select("*").eq("user_id", data.user.id);
+  await Promise.all(
+    (subs ?? []).map((s) =>
+      send(s as Sub, { title: "🔔 Twogether", body: "Notifikasi sudah jalan. Kabar dari pasangan akan masuk seperti ini.", url: "/settings/security", tag: "test" }),
+    ),
+  );
+  return new Response(JSON.stringify({ sent: subs?.length ?? 0 }), { headers: { ...CORS, "Content-Type": "application/json" } });
+}
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  if (new URL(req.url).searchParams.get("mode") === "test") return testPush(req);
   if (req.headers.get("x-notify-secret") !== Deno.env.get("NOTIFY_SECRET")) {
     return new Response("forbidden", { status: 403 });
   }

@@ -55,7 +55,7 @@ export function OnboardingTour() {
     hapticTap();
     if (step === 1 && nick.trim()) await setNick(me, nick);
     if (step === 2 && picked.length) {
-      const hrefs = Array.from(new Set(BUNDLES.filter((b) => picked.includes(b.id)).flatMap((b) => b.hrefs)));
+      const hrefs = Array.from(new Set(BUNDLES.filter((b) => picked.includes(b.id)).flatMap((b) => b.starter)));
       enableMany(hrefs);
       if (userId) void revealFor(userId, hrefs);
     }
@@ -149,11 +149,11 @@ export function OnboardingTour() {
           {step === 2 && (
             <div>
               <h2 className="text-[22px] font-extrabold text-text-1">Kalian mau pakai untuk apa?</h2>
-              <p className="mt-1 text-[14px] text-text-3">Pilih satu atau lebih. Sisanya tetap ada di Jelajah.</p>
+              <p className="mt-1 text-[14px] text-text-3">Mulai dari yang penting dulu. Ruang lain bisa ditambah kapan saja dari Jelajah.</p>
               <div className="mt-4 grid grid-cols-2 gap-2.5">
                 {BUNDLES.map((b, i) => {
                   const on = picked.includes(b.id);
-                  const titles = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)?.title).filter(Boolean);
+                  const titles = b.starter.map((h) => FEATURES.find((f) => f.href === h)?.title).filter(Boolean);
                   return (
                     <motion.button
                       key={b.id}

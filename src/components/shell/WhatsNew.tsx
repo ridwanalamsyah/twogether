@@ -5,9 +5,17 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sheet } from "@/components/ui/Sheet";
 import { WHATS_NEW, markWhatsNewSeen, whatsNewSeen } from "@/lib/whatsNew";
+import { PushCard } from "@/components/settings/PushCard";
+import { pushState } from "@/lib/push";
 
 /** The list itself; also used from Pengaturan → Yang baru. */
 export function WhatsNewSheet({ onClose }: { onClose: () => void }) {
+  // Offer notifications right here when the server is ready but this phone
+  // hasn't switched them on yet.
+  const [askPush, setAskPush] = useState(false);
+  useEffect(() => {
+    void pushState().then((s) => setAskPush(s === "off"));
+  }, []);
   return (
     <Sheet
       title="Yang baru"
@@ -26,6 +34,11 @@ export function WhatsNewSheet({ onClose }: { onClose: () => void }) {
           </li>
         ))}
       </ul>
+      {askPush && (
+        <div className="mt-4">
+          <PushCard />
+        </div>
+      )}
     </Sheet>
   );
 }

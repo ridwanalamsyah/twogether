@@ -108,3 +108,15 @@ export async function updatePushPrefs(adzan: boolean) {
   const sub = await reg?.pushManager.getSubscription();
   if (sub) await saveSubscription(sub, adzan);
 }
+
+/**
+ * Ask the server to push a test notification to this person's own devices.
+ * Returns how many devices it was sent to.
+ */
+export async function sendTestPush(): Promise<number> {
+  const sb = getSupabase();
+  if (!sb) throw new Error("Server belum tersambung.");
+  const { data, error } = await sb.functions.invoke<{ sent: number }>("notify?mode=test", { body: {} });
+  if (error) throw new Error("Fungsi notify belum terpasang di Supabase.");
+  return data?.sent ?? 0;
+}
