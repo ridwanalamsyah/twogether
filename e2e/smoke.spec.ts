@@ -1,11 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
+import { WHATS_NEW } from "../src/lib/whatsNew";
 
 // Sign up in local mode (no Supabase in CI), then walk the main screens:
 // each must render without a crash and without anything wider than the phone.
 
 async function signUp(page: Page) {
   await page.goto("/auth");
-  await page.evaluate(() => localStorage.setItem("bareng:onboarded:v1", "1"));
+  // Skip the first-run tour and the "Yang baru" sheet: both cover the page.
+  await page.evaluate((id) => {
+    localStorage.setItem("bareng:onboarded:v1", "1");
+    localStorage.setItem("twogether:whats-new", id);
+  }, WHATS_NEW.id);
   await page.getByText("Daftar", { exact: true }).first().click();
   await page.fill('input[placeholder="nama@gmail.com"]', `e2e${Date.now()}@x.id`);
   await page.fill('input[placeholder="Min. 6 karakter"]', "secret123");

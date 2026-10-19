@@ -12,6 +12,7 @@ import { usePeople } from "@/lib/people";
 import { useNick } from "@/lib/nick";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { IconTile, bundleIcon } from "@/lib/icons";
+import { markWhatsNewSeen } from "@/lib/whatsNew";
 
 // Same key as the old tour, so people who already saw it aren't asked again.
 const KEY = "bareng:onboarded:v1";
@@ -44,6 +45,8 @@ export function OnboardingTour() {
     } catch {
       /* ignore */
     }
+    // Everything is new to a new user; skip the "Yang baru" pop-up.
+    markWhatsNewSeen();
     setOpen(false);
     if (to) router.push(to);
   }

@@ -18,6 +18,7 @@ import { OfflineBanner } from "@/components/shell/OfflineBanner";
 import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
 import { usePrivacy } from "@/stores/privacy";
 import { recordVisit } from "@/lib/usage";
+import { WhatsNew } from "@/components/shell/WhatsNew";
 
 export default function AppLayout({
   children,
@@ -85,6 +86,7 @@ export default function AppLayout({
       <PWAUpdateBanner />
       <LockGate />
       <UsageTracker />
+      <WhatsNew />
       <OnboardingTour />
     </div>
   );
