@@ -9,10 +9,18 @@ const TRIGGER = 72;
 const HOLD = 56;
 const MAX = 120;
 
-/** The page scrolls on window in the browser, on body > div in the PWA / app. */
-function scrollTop(): number {
-  const shell = document.body.firstElementChild as HTMLElement | null;
-  return Math.max(window.scrollY, shell?.scrollTop ?? 0);
+/**
+ * Is the page (and every scroll box around the finger) at its very top?
+ * The page scrolls on window in the browser but on a `body > div` in the
+ * installed PWA / app — and that div isn't body's first child (Next adds a
+ * hidden one), so walk up from the touched element instead of guessing.
+ */
+function atTop(from: EventTarget | null): boolean {
+  if (window.scrollY > 0) return false;
+  for (let el = from as HTMLElement | null; el && el !== document.documentElement; el = el.parentElement) {
+    if (el.scrollTop > 0) return false;
+  }
+  return true;
 }
 
 /**
@@ -44,7 +52,7 @@ export function PullToRefresh({
     if (disabled) return;
 
     function onStart(e: TouchEvent) {
-      if (busyRef.current || e.touches.length !== 1 || scrollTop() > 0) return;
+      if (busyRef.current || e.touches.length !== 1 || !atTop(e.target)) return;
       // Ignore pulls that start inside a sheet or dialog.
       if ((e.target as HTMLElement).closest("[role=dialog], .fixed")) return;
       startY = e.touches[0].clientY;
@@ -53,7 +61,7 @@ export function PullToRefresh({
     function onMove(e: TouchEvent) {
       if (startY === null) return;
       const dy = e.touches[0].clientY - startY;
-      if (dy <= 0 || scrollTop() > 0) {
+      if (dy <= 0 || !atTop(e.target)) {
         y.set(0);
         return;
       }

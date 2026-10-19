@@ -313,17 +313,9 @@ export function Editor({ id }: { id: string }) {
       <AppHeader
         title={parent ? `${readNote(parent).emoji} ${parent.title || "Tanpa judul"}` : "Catatan"}
         actions={
-          <>
-            <button
-              onClick={() => router.push(parent ? `/catatan?id=${parent.id}` : "/catatan")}
-              className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-            >
-              ‹ Kembali
-            </button>
-            <button onClick={removePage} className="rounded-full px-2 py-1.5 text-xs font-semibold text-[color:var(--negative)]">
-              Hapus
-            </button>
-          </>
+          <button onClick={removePage} className="rounded-full px-2 py-1.5 text-xs font-semibold text-[color:var(--negative)]">
+            Hapus
+          </button>
         }
       />
       <article className="mx-auto max-w-[760px] px-5 pb-40 pt-4">

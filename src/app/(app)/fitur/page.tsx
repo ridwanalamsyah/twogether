@@ -4,7 +4,7 @@ import { IconTile, bundleIcon, spaceIcon } from "@/lib/icons";
 import { ChevronRight, GripVertical, Minus, Search, X } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { BUNDLES, FEATURES } from "@/data/features";
 import { useAuth } from "@/stores/auth";
@@ -29,11 +29,13 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Feature } from "@/data/features";
+import { frequent, loadUsage, unused, type Usage } from "@/lib/usage";
 
 export default function JelajahPage() {
   const enabled = useFeatures((s) => s.enabled);
   const toggle = useFeatures((s) => s.toggle);
   const enableMany = useFeatures((s) => s.enableMany);
+  const disableMany = useFeatures((s) => s.disableMany);
   const userId = useAuth((s) => s.userId);
   const revealFor = useDashboard((s) => s.revealFor);
   const move = useFeatures((s) => s.move);
@@ -45,10 +47,27 @@ export default function JelajahPage() {
   const [editing, setEditing] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [query, setQuery] = useState("");
+  const [usage, setUsage] = useState<Usage | null>(null);
+  const [now, setNow] = useState(0);
+  const [tidyDismissed, setTidyDismissed] = useState(false);
+  useEffect(() => {
+    // Read after mount: the page is prerendered without localStorage.
+    setNow(Date.now());
+    setUsage(loadUsage());
+    try {
+      setTidyDismissed(Number(localStorage.getItem(TIDY_KEY) ?? 0) > Date.now());
+    } catch {
+      /* private mode */
+    }
+  }, []);
 
   const mine = enabled
     .map((href) => FEATURES.find((f) => f.href === href))
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f));
+  // Focus: with many spaces, the ones actually opened lately go on top.
+  const top = usage && mine.length > 8 ? frequent(usage, mine.map((f) => f.href), now) : [];
+  const favourites = top.length >= 3 ? top.map((h) => mine.find((f) => f.href === h)!) : [];
+  const stale = usage && !tidyDismissed ? unused(usage, mine.map((f) => f.href), now) : [];
   const others = FEATURES.filter((f) => !enabled.includes(f.href)).sort((a, b) => Number(!!b.isNew) - Number(!!a.isNew));
 
   return (
@@ -103,7 +122,34 @@ export default function JelajahPage() {
             Belum ada ruang. Tambahkan yang kalian butuhkan di bawah.
           </div>
         ) : !editing ? (
-          <SpaceGrid mine={mine} />
+          <>
+            {stale.length >= 3 && (
+              <TidyCard
+                spaces={stale.map((h) => mine.find((f) => f.href === h)!)}
+                onHide={() => {
+                  hapticSuccess();
+                  disableMany(stale);
+                }}
+                onLater={() => {
+                  setTidyDismissed(true);
+                  try {
+                    localStorage.setItem(TIDY_KEY, String(Date.now() + 30 * 86_400_000));
+                  } catch {
+                    /* private mode */
+                  }
+                }}
+              />
+            )}
+            {favourites.length > 0 ? (
+              // The rest in one block: small groups of two cost a heading each.
+              <div className="space-y-5">
+                <IconSection title="Sering dipakai" items={favourites} />
+                <IconSection title="Ruang lain" items={mine.filter((f) => !favourites.includes(f))} start={favourites.length} />
+              </div>
+            ) : (
+              <SpaceGrid mine={mine} />
+            )}
+          </>
         ) : (
           <DndContext
             sensors={sensors}
@@ -134,8 +180,37 @@ export default function JelajahPage() {
           </DndContext>
         )}
 
-        {!query.trim() && BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
+        {!query.trim() && others.length > 0 && (
           <section className="mt-8">
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              className="flex w-full items-center justify-between py-2 text-left active:opacity-60"
+            >
+              <span>
+                <span className="block text-[14px] font-semibold text-text-1">
+                  Tambah ruang
+                </span>
+                <span className="block text-[12px] text-text-3">
+                  {others.length} ruang lain siap dipakai kapan saja
+                  {others.some((f) => f.isNew) && (
+                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
+                      {others.filter((f) => f.isNew).length} baru
+                    </span>
+                  )}
+                </span>
+              </span>
+              <span
+                className={`text-text-3 transition-transform duration-300 ease-ios ${
+                  showMore ? "rotate-90" : ""
+                }`}
+              >
+                ›
+              </span>
+            </button>
+            {showMore && (
+              <>
+              {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
+          <section className="mt-2">
             <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Paket ruang</div>
             <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
               {BUNDLES.map((b) => {
@@ -167,36 +242,8 @@ export default function JelajahPage() {
             </ul>
           </section>
         )}
-
-        {!query.trim() && others.length > 0 && (
-          <section className="mt-8">
-            <button
-              onClick={() => setShowMore((v) => !v)}
-              className="flex w-full items-center justify-between py-2 text-left active:opacity-60"
-            >
-              <span>
-                <span className="block text-[14px] font-semibold text-text-1">
-                  Tambah ruang
-                </span>
-                <span className="block text-[12px] text-text-3">
-                  {others.length} ruang lain siap dipakai kapan saja
-                  {others.some((f) => f.isNew) && (
-                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
-                      {others.filter((f) => f.isNew).length} baru
-                    </span>
-                  )}
-                </span>
-              </span>
-              <span
-                className={`text-text-3 transition-transform duration-300 ease-ios ${
-                  showMore ? "rotate-90" : ""
-                }`}
-              >
-                ›
-              </span>
-            </button>
-            {showMore && (
-              <ul className="surface slide-up mt-2 divide-y divide-[color:var(--hairline)] overflow-hidden">
+              <div className="mb-2 mt-5 px-1 text-[13px] font-semibold text-text-3">Satu per satu</div>
+              <ul className="surface slide-up divide-y divide-[color:var(--hairline)] overflow-hidden">
                 {others.map((f) => (
                   <li key={f.href} className="flex items-center gap-3 px-4 py-3">
                     <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
@@ -226,9 +273,35 @@ export default function JelajahPage() {
                   </li>
                 ))}
               </ul>
+              </>
             )}
           </section>
         )}
+      </div>
+    </div>
+  );
+}
+
+const TIDY_KEY = "twogether:tidy-later";
+
+/** "These haven't been opened in a month — hide them?" (they stay one tap away). */
+function TidyCard({ spaces, onHide, onLater }: { spaces: Feature[]; onHide: () => void; onLater: () => void }) {
+  const names = spaces.map((f) => SHORT[f.href] ?? f.title);
+  return (
+    <div className="surface mb-5 p-4">
+      <div className="text-[14px] font-semibold text-text-1">Biar Jelajah lebih fokus</div>
+      <p className="mt-1 text-[12.5px] leading-relaxed text-text-3">
+        {spaces.length} ruang tidak dibuka sebulan terakhir: {names.slice(0, 4).join(", ")}
+        {names.length > 4 ? `, dan ${names.length - 4} lainnya` : ""}. Sembunyikan dulu? Datanya tetap aman dan
+        bisa ditambah lagi kapan saja.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <button onClick={onHide} className="rounded-full bg-accent px-3.5 py-1.5 text-[12px] font-semibold text-accent-fg active:scale-95">
+          Sembunyikan {spaces.length}
+        </button>
+        <button onClick={onLater} className="rounded-full bg-bg-elev1 px-3.5 py-1.5 text-[12px] font-semibold text-text-2 active:scale-95">
+          Nanti saja
+        </button>
       </div>
     </div>
   );
@@ -259,17 +332,26 @@ function SpaceGrid({ mine }: { mine: Feature[] }) {
   let n = 0;
   return (
     <div className="space-y-5">
-      {groups.map((g) => (
-        <section key={g.title}>
-          <div className="mb-3 px-1 text-[13px] font-semibold text-text-3">{g.title}</div>
-          <div className="grid grid-cols-4 gap-x-1 gap-y-3.5 min-[360px]:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
-            {g.items.map((f) => (
-              <SpaceIcon key={f.href} feature={f} index={n++} />
-            ))}
-          </div>
-        </section>
-      ))}
+      {groups.map((g) => {
+        const start = n;
+        n += g.items.length;
+        return <IconSection key={g.title} title={g.title} items={g.items} start={start} />;
+      })}
     </div>
+  );
+}
+
+function IconSection({ title, items, start = 0 }: { title: string; items: Feature[]; start?: number }) {
+  if (!items.length) return null;
+  return (
+    <section>
+      <div className="mb-3 px-1 text-[13px] font-semibold text-text-3">{title}</div>
+      <div className="grid grid-cols-4 gap-x-1 gap-y-3.5 min-[360px]:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {items.map((f, i) => (
+          <SpaceIcon key={f.href} feature={f} index={start + i} />
+        ))}
+      </div>
+    </section>
   );
 }
 

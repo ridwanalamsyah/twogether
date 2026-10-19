@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -58,14 +57,6 @@ export default function FinancePage() {
     <div className="animate-in">
       <AppHeader
         title="Uang & anggaran"
-        actions={
-          <Link
-            href="/settings"
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-          >
-            Selesai
-          </Link>
-        }
       />
 
       <div className="space-y-4 px-4 pb-8">

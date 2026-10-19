@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Share2 } from "lucide-react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import {
@@ -114,11 +113,6 @@ export default function WrappedPage() {
       <AppHeader
         title={`Wrapped ${YEAR}`}
         subtitle="Ringkasan tahunan kalian"
-        actions={
-          <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
-            Tutup
-          </Link>
-        }
       />
 
       <div className="space-y-3 px-5 mt-3">

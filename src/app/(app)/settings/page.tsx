@@ -1,7 +1,7 @@
 "use client";
 
 import { IconTile, type IconSpec } from "@/lib/icons";
-import { Archive, Bell, Heart, LayoutDashboard, LockKeyhole, Palette, Trash2, UserRound, Wallet } from "lucide-react";
+import { Archive, Bell, Heart, LayoutDashboard, LockKeyhole, MessageCircleHeart, Palette, Sparkles, Trash2, UserRound, Wallet } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,8 @@ import { sync, type SyncSnapshot } from "@/services/sync";
 import { getDB } from "@/lib/db";
 import { hasRemoteSync } from "@/lib/supabase";
 import { lastBackupAt } from "@/services/privacy";
+import { FeedbackSheet } from "@/components/settings/FeedbackSheet";
+import { WhatsNewSheet } from "@/components/shell/WhatsNew";
 
 const SECTIONS: { title: string; rows: { href: string; icon: IconSpec; label: string; hint?: string }[] }[] = [
   {
@@ -48,6 +50,7 @@ export default function SettingsPage() {
 
   useEffect(() => sync.subscribe(setSnap), []);
   const [backupDue, setBackupDue] = useState(false);
+  const [sheet, setSheet] = useState<"feedback" | "new" | null>(null);
   useEffect(() => {
     const t = lastBackupAt();
     setBackupDue(!t || Date.now() - t > 30 * 86_400_000);
@@ -128,6 +131,34 @@ export default function SettingsPage() {
             </ul>
           </div>
         ))}
+
+        <div className="mt-6">
+          <div className="mb-2 text-[11px] font-medium section-label text-text-4">Bantuan</div>
+          <ul className="divide-y divide-border overflow-hidden rounded-[20px] bg-bg-card shadow-card">
+            {(
+              [
+                ["new", { Icon: Sparkles, tint: "#a855f7" }, "Yang baru", "Perubahan terakhir di app"],
+                ["feedback", { Icon: MessageCircleHeart, tint: "#ec4899" }, "Kirim masukan", "Lapor error atau usul fitur"],
+              ] as const
+            ).map(([id, icon, label, hint]) => (
+              <li key={id}>
+                <button
+                  onClick={() => setSheet(id)}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-[15px] text-text-1 active:bg-bg-elev1"
+                >
+                  <IconTile spec={icon} size={36} radius={11} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block">{label}</span>
+                    <span className="block text-[12px] text-text-4">{hint}</span>
+                  </span>
+                  <span className="text-text-4">›</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {sheet === "feedback" && <FeedbackSheet onClose={() => setSheet(null)} />}
+        {sheet === "new" && <WhatsNewSheet onClose={() => setSheet(null)} />}
 
         <SaveStatus snap={snap} />
 

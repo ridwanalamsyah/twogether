@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -123,14 +122,6 @@ export default function DigestPage() {
       <AppHeader
         title="Ringkasan"
         subtitle={dateRangeText}
-        actions={
-          <Link
-            href="/home"
-            className="text-[12px] text-text-3 active:opacity-50"
-          >
-            Tutup
-          </Link>
-        }
       />
 
       <div className="px-5 pt-4 pb-8">

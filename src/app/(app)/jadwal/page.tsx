@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Empty, Section } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
@@ -63,11 +62,6 @@ export default function JadwalPage() {
       <AppHeader
         title="Jadwal Kuliah"
         subtitle="Tap kelas untuk mengubah"
-        actions={
-          <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
-            Tutup
-          </Link>
-        }
       />
       <div className="px-5">
         <div className="mb-3 flex gap-1 overflow-x-auto no-scrollbar">

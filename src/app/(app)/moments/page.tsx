@@ -45,9 +45,10 @@ export default function MomentsPage() {
           <div className="flex items-center gap-1.5">
             <Link
               href="/moments/tempat"
-              className="flex items-center gap-1 rounded-md bg-bg-elev2 px-2.5 py-1 text-xs font-medium text-text-2"
+              aria-label="Tempat kita"
+              className="grid h-8 w-8 place-items-center rounded-md bg-bg-elev2 text-text-2"
             >
-              <MapPin size={13} /> Tempat
+              <MapPin size={15} />
             </Link>
             <button
               onClick={() => setShowAdd(true)}

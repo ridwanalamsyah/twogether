@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { AccentBtn, Empty, ListBox, Section } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
@@ -28,11 +27,6 @@ export default function PencapaianPage() {
       <AppHeader
         title="Pencapaian"
         subtitle="Lencana & hari beruntun"
-        actions={
-          <Link href="/home" className="text-[12px] text-text-3 active:opacity-50">
-            Tutup
-          </Link>
-        }
       />
       <div className="px-5">
         {/* Tabs (underline style) */}
