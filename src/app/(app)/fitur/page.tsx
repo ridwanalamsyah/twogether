@@ -248,14 +248,21 @@ function SpaceGrid({ mine }: { mine: Feature[] }) {
   }
   const rest = mine.filter((f) => !placed.has(f.href));
   if (rest.length) groups.unshift({ title: groups.length ? "Utama" : "Ruang kalian", items: rest });
+  // A heading for a single icon costs a whole row; gather those at the end.
+  const lone = groups.filter((g) => g.items.length === 1);
+  if (lone.length > 1 || (lone.length === 1 && groups.length > 1)) {
+    const kept = groups.filter((g) => g.items.length > 1);
+    groups.length = 0;
+    groups.push(...kept, { title: "Lainnya", items: lone.flatMap((g) => g.items) });
+  }
 
   let n = 0;
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {groups.map((g) => (
         <section key={g.title}>
           <div className="mb-3 px-1 text-[13px] font-semibold text-text-3">{g.title}</div>
-          <div className="grid grid-cols-4 gap-x-2 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
+          <div className="grid grid-cols-4 gap-x-1 gap-y-3.5 min-[360px]:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
             {g.items.map((f) => (
               <SpaceIcon key={f.href} feature={f} index={n++} />
             ))}
@@ -266,6 +273,21 @@ function SpaceGrid({ mine }: { mine: Feature[] }) {
   );
 }
 
+// Under a 5-across icon only ~10 characters fit; like iPhone app names, the
+// grid uses a short form (the full name stays everywhere else).
+const SHORT: Record<string, string> = {
+  "/belanja": "Belanja",
+  "/nikah": "Nikah",
+  "/target": "Target",
+  "/fokus": "Fokus",
+  "/aset": "Aset",
+  "/laporan": "Laporan",
+  "/impor": "Impor",
+  "/hijriah": "Hijriah",
+  "/jadwal": "Kuliah",
+  "/uang": "Hutang",
+};
+
 function SpaceIcon({ feature: f, index }: { feature: Feature; index: number }) {
   return (
     <motion.div
@@ -273,12 +295,12 @@ function SpaceIcon({ feature: f, index }: { feature: Feature; index: number }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 420, damping: 30, delay: Math.min(index, 20) * 0.02 }}
     >
-      <Link href={f.href} className="flex flex-col items-center gap-1.5 active:opacity-80">
+      <Link href={f.href} aria-label={f.title} className="flex flex-col items-center gap-1.5 active:opacity-80">
         <motion.span whileTap={{ scale: 0.88 }} transition={{ type: "spring", stiffness: 600, damping: 25 }}>
-          <IconTile spec={spaceIcon(f.href)} size={58} radius={18} />
+          <IconTile spec={spaceIcon(f.href)} size={52} radius={16} />
         </motion.span>
-        <span className="w-full truncate text-center text-[11px] font-medium leading-tight text-text-2">
-          {f.title}
+        <span className="w-full truncate px-0.5 text-center text-[11px] font-medium leading-tight text-text-2">
+          {SHORT[f.href] ?? f.title}
         </span>
       </Link>
     </motion.div>
@@ -312,7 +334,7 @@ function SearchResults({
   return (
     <div className="space-y-6">
       {mineHits.length > 0 && (
-        <div className="grid grid-cols-4 gap-x-2 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
+        <div className="grid grid-cols-4 gap-x-1 gap-y-3.5 min-[360px]:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
           {mineHits.map((f, i) => (
             <SpaceIcon key={f.href} feature={f} index={i} />
           ))}
