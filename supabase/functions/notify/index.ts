@@ -64,11 +64,12 @@ async function send(sub: Sub, payload: Record<string, unknown>) {
 }
 
 async function notifyPartners(workspaceId: string, senderId: string, payload: Record<string, unknown>) {
-  const { data } = await sb
-    .from("push_subscriptions")
-    .select("*")
-    .eq("workspace_id", workspaceId)
-    .neq("user_id", senderId);
+  // Only people who are still in this space (someone who left keeps an old
+  // subscription row until their app re-saves it).
+  const { data: members } = await sb.from("workspace_members").select("user_id").eq("workspace_id", workspaceId);
+  const ids = (members ?? []).map((m) => m.user_id as string).filter((id) => id !== senderId);
+  if (!ids.length) return;
+  const { data } = await sb.from("push_subscriptions").select("*").in("user_id", ids);
   await Promise.all((data ?? []).map((s) => send(s as Sub, payload)));
 }
 
@@ -115,7 +116,7 @@ async function adzanTick() {
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 /** "Kirim tes" from Pengaturan: only ever reaches the caller's own devices. */

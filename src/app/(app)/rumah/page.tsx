@@ -17,6 +17,7 @@ import {
   useItems,
 } from "@/stores/data";
 import { todayISO, formatDateShort, formatRupiah } from "@/lib/utils";
+import { daysBetween } from "@/lib/dates";
 
 export default function RumahPage() {
   return (
@@ -210,7 +211,7 @@ function PantrySection() {
           {sorted.map((it) => {
             const p = JSON.parse(it.payload ?? "{}");
             const daysToExp = it.due
-              ? Math.ceil((new Date(it.due).getTime() - Date.now()) / 86_400_000)
+              ? daysBetween(todayISO(), it.due.slice(0, 10))
               : null;
             return (
               <div key={it.id} className="flex items-center gap-3 py-2.5">
@@ -493,7 +494,7 @@ function MaintenanceSection() {
             .sort((a, b) => (a.due ?? "z").localeCompare(b.due ?? "z"))
             .map((it) => {
               const days = it.due
-                ? Math.ceil((new Date(it.due).getTime() - Date.now()) / 86_400_000)
+                ? daysBetween(todayISO(), it.due.slice(0, 10))
                 : null;
               return (
                 <div key={it.id} className="flex items-center gap-3 py-2.5">

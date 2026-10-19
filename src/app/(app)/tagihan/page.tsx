@@ -45,6 +45,7 @@ export default function TagihanPage() {
   const bills = useItems(userId, "bill") ?? [];
   const paid = useEntries(userId, "bill-paid") ?? [];
   const [editing, setEditing] = useState<ItemRecord | "new" | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const states = bills
     .filter((b) => b.status !== "archived")
@@ -57,24 +58,29 @@ export default function TagihanPage() {
   const late = unpaid.filter((s) => s.daysLeft < 0).length;
 
   async function pay(s: BillState) {
-    if (!userId) return;
-    const tx = await addTransaction(userId, {
-      kind: "out",
-      amount: s.bill.amount ?? 0,
-      category: s.p.category,
-      who: me,
-      note: s.p.type === "cicilan" && s.p.total ? `${s.bill.title} (${s.paidCount + 1}/${s.p.total})` : s.bill.title,
-      date: isoDay(new Date()),
-      tags: withWallet(["tagihan"], s.p.walletId ?? null),
-    });
-    await upsertEntry(userId, {
-      kind: "bill-paid",
-      date: tx.date,
-      who: me,
-      valueText: s.month,
-      valueNum: tx.amount,
-      payload: JSON.stringify({ billId: s.bill.id, txId: tx.id }),
-    });
+    if (!userId || busy) return;
+    setBusy(true);
+    try {
+      const tx = await addTransaction(userId, {
+        kind: "out",
+        amount: s.bill.amount ?? 0,
+        category: s.p.category,
+        who: me,
+        note: s.p.type === "cicilan" && s.p.total ? `${s.bill.title} (${s.paidCount + 1}/${s.p.total})` : s.bill.title,
+        date: isoDay(new Date()),
+        tags: withWallet(["tagihan"], s.p.walletId ?? null),
+      });
+      await upsertEntry(userId, {
+        kind: "bill-paid",
+        date: tx.date,
+        who: me,
+        valueText: s.month,
+        valueNum: tx.amount,
+        payload: JSON.stringify({ billId: s.bill.id, txId: tx.id }),
+      });
+    } finally {
+      setBusy(false);
+    }
     hapticSuccess();
     if (s.p.type === "cicilan" && s.p.total && s.paidCount + 1 >= s.p.total) konfetti();
   }
@@ -152,7 +158,7 @@ export default function TagihanPage() {
                         {s.finished ? null : s.paid ? (
                           <button onClick={() => undo(s)} className="text-[11px] font-semibold text-text-4">Batalkan</button>
                         ) : (
-                          <button onClick={() => pay(s)} className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-accent-fg active:scale-95">
+                          <button onClick={() => pay(s)} disabled={busy} className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-accent-fg active:scale-95 disabled:opacity-50">
                             Bayar
                           </button>
                         )}

@@ -219,8 +219,11 @@ function ClassEditor({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
+  // "HH:MM" strings compare correctly as text.
+  const timeOk = Boolean(form.start && form.end && form.end > form.start);
+
   async function save() {
-    if (!form.title.trim()) return;
+    if (!form.title.trim() || !timeOk) return;
     setBusy(true);
     try {
       await upsertItem(userId, {
@@ -288,7 +291,9 @@ function ClassEditor({
             />
           </Field>
 
-          <Field label="Hari">
+          {/* Not a <label>: tapping its text or gaps would press the first day. */}
+          <div role="group" aria-label="Hari">
+            <div className="mb-1 text-[11px] font-medium text-text-3">Hari</div>
             <div className="flex flex-wrap gap-1">
               {DAY_ORDER.map((d) => (
                 <button
@@ -304,7 +309,7 @@ function ClassEditor({
                 </button>
               ))}
             </div>
-          </Field>
+          </div>
 
           <div className="grid grid-cols-2 gap-2">
             <Field label="Mulai">
@@ -373,7 +378,7 @@ function ClassEditor({
           </button>
           <button
             onClick={save}
-            disabled={busy || !form.title.trim()}
+            disabled={busy || !form.title.trim() || !timeOk}
             className="flex-1 rounded-full bg-accent py-2.5 text-[13px] font-semibold text-accent-fg disabled:opacity-50"
           >
             {busy ? "Menyimpan..." : "Simpan"}

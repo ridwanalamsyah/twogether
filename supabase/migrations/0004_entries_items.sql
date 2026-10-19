@@ -71,4 +71,16 @@ create policy "items_delete" on public.items for delete
   using (public.is_workspace_member(workspace_id));
 
 -- Realtime
-alter publication supabase_realtime add table public.entries, public.items;
+-- (Skips tables already added, so the script can be run again.)
+do $$
+declare t text;
+begin
+  foreach t in array array['entries','items'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;

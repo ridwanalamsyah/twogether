@@ -131,9 +131,14 @@ async function ensureSupaWorkspace(
   if (existing && existing.length > 0) {
     const wsId = existing[0].workspace_id as string;
     // Best-effort: realign active_workspace_id so future bootstraps are fast.
+    // (A supabase-js query only runs once awaited/then-ed; `void` alone never sent it.)
     void sb
       .from("profiles")
-      .upsert({ id: supaUserId, active_workspace_id: wsId }, { onConflict: "id" });
+      .upsert({ id: supaUserId, active_workspace_id: wsId }, { onConflict: "id" })
+      .then(
+        () => undefined,
+        () => undefined,
+      );
     return wsId;
   }
   // Create workspace + member row
@@ -649,6 +654,13 @@ export const useAuth = create<AuthState>()(
         if (hasSupabase()) {
           const sb = getSupabase();
           if (sb) {
+            // This phone shouldn't keep getting the couple's notifications.
+            // (Imported here: lib/push imports this store.)
+            await withTimeout(
+              import("@/lib/push").then((m) => m.disablePush()),
+              3000,
+              "push",
+            ).catch(() => undefined);
             // Don't let a dead network keep the user signed in.
             await withTimeout(sb.auth.signOut(), 4000, "signout").catch(
               () => undefined,

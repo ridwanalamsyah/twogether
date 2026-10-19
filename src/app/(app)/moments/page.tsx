@@ -24,13 +24,15 @@ export default function MomentsPage() {
   const userId = useAuth((s) => s.userId);
   const moments = useMoments(userId);
   const [showAdd, setShowAdd] = useState(false);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [tagPick, setActiveTag] = useState<string | null>(null);
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
     (moments ?? []).forEach((m) => plainTags(m.tags).forEach((t) => set.add(t)));
     return [...set].sort();
   }, [moments]);
+  // Drop the filter once its last moment is deleted or untagged.
+  const activeTag = tagPick && allTags.includes(tagPick) ? tagPick : null;
 
   const filtered = useMemo(() => {
     if (!activeTag) return moments ?? [];
@@ -167,7 +169,9 @@ function MomentCard({ moment }: { moment: MomentRecord }) {
           </div>
         </button>
         <button
-          onClick={() => userId && deleteMoment(userId, moment.id)}
+          onClick={() => {
+            if (userId && confirm("Hapus moment ini?")) void deleteMoment(userId, moment.id);
+          }}
           className="text-xs font-semibold text-[color:var(--negative)] hover:underline"
         >
           Hapus

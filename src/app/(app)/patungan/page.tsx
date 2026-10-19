@@ -157,30 +157,36 @@ function AddSplitSheet({
   const [mode, setMode] = useState<SplitMode>("half");
   const [custom, setCustom] = useState("");
   const [alsoExpense, setAlsoExpense] = useState(true);
+  const [busy, setBusy] = useState(false);
   const num = Number(amount.replace(/\D/g, "")) || 0;
   const nonPayer = payer === me ? other : me;
   const owe = mode === "half" ? Math.round(num / 2) : mode === "full" ? num : Math.min(num, Number(custom.replace(/\D/g, "")) || 0);
 
   async function save() {
-    if (num <= 0) return;
-    const date = todayISO();
-    await upsertEntry(userId, {
-      kind: "split",
-      date,
-      who: payer,
-      valueNum: num,
-      valueText: note.trim(),
-      payload: JSON.stringify({ note: note.trim(), mode, owe } satisfies SplitPayload),
-    });
-    if (alsoExpense) {
-      await addTransaction(userId, {
-        kind: "out",
-        amount: num,
-        category: "Lainnya",
-        who: payer,
-        note: note.trim() ? `${note.trim()} (patungan)` : "Patungan",
+    if (num <= 0 || busy) return;
+    setBusy(true);
+    try {
+      const date = todayISO();
+      await upsertEntry(userId, {
+        kind: "split",
         date,
+        who: payer,
+        valueNum: num,
+        valueText: note.trim(),
+        payload: JSON.stringify({ note: note.trim(), mode, owe } satisfies SplitPayload),
       });
+      if (alsoExpense) {
+        await addTransaction(userId, {
+          kind: "out",
+          amount: num,
+          category: "Lainnya",
+          who: payer,
+          note: note.trim() ? `${note.trim()} (patungan)` : "Patungan",
+          date,
+        });
+      }
+    } finally {
+      setBusy(false);
     }
     hapticSuccess();
     onClose();
@@ -191,7 +197,7 @@ function AddSplitSheet({
       title="Catat patungan"
       onClose={onClose}
       footer={
-        <button onClick={save} disabled={num <= 0} className="btn-accent w-full disabled:opacity-50">
+        <button onClick={save} disabled={num <= 0 || busy} className="btn-accent w-full disabled:opacity-50">
           Simpan
         </button>
       }

@@ -356,35 +356,30 @@ function PomodoroSection() {
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
   const ref = useRef<NodeJS.Timeout | null>(null);
+  // Read at completion time: the profile may load (or be renamed) mid-session.
+  const meNameRef = useRef(meName);
+  useEffect(() => {
+    meNameRef.current = meName;
+  }, [meName]);
 
   useEffect(() => {
     if (!running) return;
-    ref.current = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          setRunning(false);
-          if (userId) {
-            void upsertEntry(userId, {
-              kind: "pomodoro",
-              date: todayISO(),
-              valueNum: duration,
-              who: meName,
-            });
-            void emitFeed(userId, {
-              who: meName,
-              type: "pomodoro",
-              text: `Selesai pomodoro ${duration} menit`,
-            });
-          }
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
+    ref.current = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000);
     return () => {
       if (ref.current) clearInterval(ref.current);
     };
-  }, [running, duration, userId]);
+  }, [running]);
+
+  // Finishing is handled here, not inside the setRemaining updater: React
+  // may run updaters twice, which saved the session twice.
+  useEffect(() => {
+    if (!running || remaining > 0) return;
+    setRunning(false);
+    if (!userId) return;
+    const who = meNameRef.current;
+    void upsertEntry(userId, { kind: "pomodoro", date: todayISO(), valueNum: duration, who });
+    void emitFeed(userId, { who, type: "pomodoro", text: `Selesai pomodoro ${duration} menit` });
+  }, [running, remaining, duration, userId]);
 
   function start() {
     setRemaining(duration * 60);

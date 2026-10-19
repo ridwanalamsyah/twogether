@@ -114,12 +114,13 @@ export default function CalendarPage() {
         href: cfg.href,
         cal: { uid: it.id, title: it.title, date, repeat: it.kind === "anniv" ? "yearly" : undefined },
       });
-      // Recurring anniv: project to current year too
+      // Recurring anniv: project to the years around the visible month
       if (it.kind === "anniv") {
         try {
           const m = date.slice(5, 7);
           const d = date.slice(8, 10);
-          for (let y = 2025; y <= 2027; y++) {
+          const from = Math.max(cursor.y - 1, Number(date.slice(0, 4)));
+          for (let y = from; y <= cursor.y + 1; y++) {
             const projected = `${y}-${m}-${d}`;
             if (projected !== date) {
               push(projected, {

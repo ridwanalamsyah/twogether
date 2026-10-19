@@ -83,3 +83,32 @@ test("pull-to-refresh does not fire mid-page in the installed app", async ({ pag
   await touch("touchEnd", 0);
   expect(pulled).toEqual([]);
 });
+
+test("quick capture saves 25.000 as twenty-five thousand rupiah", async ({ page }) => {
+  await signUp(page);
+  await page.getByRole("button", { name: "Catat cepat" }).click();
+  await page.getByRole("button", { name: "Catat", exact: true }).click();
+  await page.fill('input[placeholder="Rp 0"]', "25.000");
+  await page.getByRole("button", { name: "Simpan" }).click();
+  // Read what was actually stored on the phone.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<number | undefined>((resolve) => {
+            const open = indexedDB.open("bareng");
+            open.onsuccess = () => {
+              const req = open.result.transaction("transactions").objectStore("transactions").getAll();
+              req.onsuccess = () => {
+                // New accounts get sample rows (all with a note); ours has none.
+                const rows = req.result as { amount: number; note?: string }[];
+                resolve(rows.find((t) => !t.note)?.amount);
+              };
+            };
+          }),
+      )
+      // The page may still be settling after sign-up; just poll again.
+      .catch(() => undefined),
+    )
+    .toBe(25000);
+});

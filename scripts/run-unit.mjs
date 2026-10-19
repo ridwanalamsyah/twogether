@@ -5,3 +5,4 @@ await import("./money.test.mjs");
 await import("./reminders.test.mjs");
 await import("./places.test.mjs");
 await import("./usage.test.mjs");
+await import("./torow.test.mjs");

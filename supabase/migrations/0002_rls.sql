@@ -143,10 +143,16 @@ end $$;
 -- REALTIME
 -- ============================================================
 -- Enable replication so clients can subscribe to changes.
-alter publication supabase_realtime add table
-  public.transactions, public.goals, public.deposits, public.checklists,
-  public.moments, public.dashboards, public.preferences,
-  public.skripsi_chapters, public.skripsi_bimbingan, public.skripsi_meta,
-  public.deadlines, public.konten, public.habits, public.habit_logs,
-  public.reflections, public.recurring, public.budgets, public.trips,
-  public.recurring_goals, public.workspaces, public.workspace_members;
+-- (Skips tables already added, so the script can be run again.)
+do $$
+declare t text;
+begin
+  foreach t in array array['transactions','goals','deposits','checklists','moments','dashboards','preferences','skripsi_chapters','skripsi_bimbingan','skripsi_meta','deadlines','konten','habits','habit_logs','reflections','recurring','budgets','trips','recurring_goals','workspaces','workspace_members'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;

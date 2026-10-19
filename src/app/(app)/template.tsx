@@ -33,6 +33,9 @@ function computeKind(path: string): Kind {
   if (swipedBack) {
     swipedBack = false;
     stack.pop();
+    // Swiped back from a deep-linked page: goBack pushed its tab, which is
+    // now the only page in the stack.
+    if (stack.length === 0) stack.push(path);
     return "none";
   }
   if (stack.length === 0) {

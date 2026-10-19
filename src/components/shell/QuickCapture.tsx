@@ -15,7 +15,7 @@ import { useWorkspace } from "@/stores/workspace";
 import { hapticSuccess, hapticTap, hapticWarn } from "@/lib/haptic";
 import { todayISO } from "@/lib/utils";
 import { ReceiptScanButton } from "@/components/ui/ReceiptScan";
-import { WalletPicker } from "@/components/wallet/Wallets";
+import { WalletPicker, useWallets } from "@/components/wallet/Wallets";
 import { lastWallet, rememberWallet, withWallet } from "@/lib/wallet";
 import { listenOnce, parseSpoken, voiceSupported } from "@/lib/voice";
 import { guessCategory } from "@/lib/csvImport";
@@ -69,6 +69,7 @@ export function QuickCapture({
   const [kind, setKind] = useState<"out" | "in">("out");
   const [amount, setAmount] = useState("");
   const [walletId, setWalletId] = useState<string | null>(() => lastWallet());
+  const { wallets } = useWallets();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -131,7 +132,7 @@ export function QuickCapture({
     setSaved(null);
     try {
       if (mode === "transaction") {
-        const num = parseFloat(amount);
+        const num = Number(amount.replace(/\D/g, ""));
         if (!Number.isFinite(num) || num <= 0) {
           hapticWarn();
           return;
@@ -143,7 +144,8 @@ export function QuickCapture({
           who,
           note: title.trim() || undefined,
           date: todayISO(),
-          tags: withWallet(undefined, walletId),
+          // A remembered wallet may have been deleted since.
+          tags: withWallet(undefined, wallets.some((w) => w.id === walletId) ? walletId : null),
         });
         void budgetAlert(userId, { kind, category, amount: num, date: todayISO() }).then((a) => a && toast(a.text, a.tone));
         setAmount("");
@@ -320,7 +322,7 @@ export function QuickCapture({
               inputMode="numeric"
               placeholder="Rp 0"
               value={amount}
-              onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+              onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
             />
             <input
               className="input-base"
