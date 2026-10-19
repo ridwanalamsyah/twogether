@@ -110,22 +110,20 @@ export default function DompetPage() {
           <button
             onClick={() => setTransfer(true)}
             disabled={wallets.length < 2}
-            className="surface flex min-w-0 items-center gap-2.5 p-3 text-left disabled:opacity-50"
+            className="surface flex min-w-0 items-center gap-2 p-3 text-left disabled:opacity-50"
           >
-            <IconTile spec={{ Icon: ArrowLeftRight, tint: "#94a3b8" }} size={40} radius={12} />
+            <IconTile spec={{ Icon: ArrowLeftRight, tint: "#94a3b8" }} size={36} radius={11} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[14px] font-semibold text-text-1">Transfer</span>
               <span className="block truncate text-[12px] text-text-3">Pindah saldo</span>
             </span>
-            <ChevronRight size={16} className="text-text-4" />
           </button>
-          <button onClick={() => setEdit("new")} className="surface flex min-w-0 items-center gap-2.5 p-3 text-left">
-            <IconTile spec={{ Icon: Plus, tint: "#22c55e" }} size={40} radius={12} />
+          <button onClick={() => setEdit("new")} className="surface flex min-w-0 items-center gap-2 p-3 text-left">
+            <IconTile spec={{ Icon: Plus, tint: "#22c55e" }} size={36} radius={11} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[14px] font-semibold text-text-1">Akun baru</span>
               <span className="block truncate text-[12px] text-text-3">Tambah dompet</span>
             </span>
-            <ChevronRight size={16} className="text-text-4" />
           </button>
         </div>
 

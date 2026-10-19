@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -72,14 +71,6 @@ export default function ProfilePage() {
       <AppHeader
         title="Profil"
         subtitle={auth.email ?? undefined}
-        actions={
-          <Link
-            href="/settings"
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-          >
-            Kembali
-          </Link>
-        }
       />
 
       <div className="space-y-4 px-4 pb-8">
@@ -103,7 +94,7 @@ export default function ProfilePage() {
                 {(name || "B")[0]?.toUpperCase()}
               </span>
             )}
-            <span className="absolute bottom-0 right-0 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-fg">
+            <span className="absolute inset-x-0 bottom-0 bg-black/45 pb-2 pt-1 text-center text-[10px] font-bold text-white">
               Ubah
             </span>
           </button>

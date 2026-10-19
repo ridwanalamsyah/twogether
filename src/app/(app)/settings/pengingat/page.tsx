@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useReminderPrefs } from "@/stores/reminders";
 import { REMINDER_TYPES } from "@/lib/reminders";
@@ -18,11 +17,6 @@ export default function PengingatPage() {
     <div>
       <AppHeader
         title="Pengingat"
-        actions={
-          <Link href="/settings" className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2">
-            Selesai
-          </Link>
-        }
       />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <p className="text-[13px] leading-relaxed text-text-3">

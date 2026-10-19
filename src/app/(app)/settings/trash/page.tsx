@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import {
@@ -26,14 +25,6 @@ export default function TrashPage() {
       <AppHeader
         title="Baru dihapus"
         subtitle={`${items.length} catatan`}
-        actions={
-          <Link
-            href="/settings"
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-          >
-            Selesai
-          </Link>
-        }
       />
       <div className="space-y-3 px-4 pb-8">
         <div className="rounded-md bg-bg-elev2 p-3 text-[11px] text-text-3">

@@ -86,7 +86,7 @@ export default function TargetPage() {
         actions={
           tab === "target" ? (
             <button onClick={() => setEditing("new")} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
-              + Target
+              + Baru
             </button>
           ) : undefined
         }

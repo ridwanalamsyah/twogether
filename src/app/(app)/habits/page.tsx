@@ -57,7 +57,7 @@ export default function HabitsPage() {
             onClick={() => setShowAdd(true)}
             className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg"
           >
-            Kebiasaan
+            + Baru
           </button>
         }
       />

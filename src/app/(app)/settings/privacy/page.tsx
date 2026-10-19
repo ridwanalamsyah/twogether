@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -134,14 +133,6 @@ export default function PrivacyPage() {
     <div className="animate-in">
       <AppHeader
         title="Data & cadangan"
-        actions={
-          <Link
-            href="/settings"
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-          >
-            Selesai
-          </Link>
-        }
       />
 
       <div className="space-y-3 px-4 pb-8 text-sm">

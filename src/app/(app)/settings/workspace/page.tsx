@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth, loadWorkspaceContext } from "@/stores/auth";
@@ -259,14 +258,6 @@ export default function WorkspaceSettingsPage() {
       <AppHeader
         title="Pasangan"
         subtitle={`${members.length} anggota`}
-        actions={
-          <Link
-            href="/settings"
-            className="text-[12px] text-text-3 active:opacity-50"
-          >
-            Kembali
-          </Link>
-        }
       />
 
       <div className="px-5 pb-8">

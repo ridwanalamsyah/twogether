@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { useAuth } from "@/stores/auth";
 import { useDashboard, type WidgetSize } from "@/stores/dashboard";
 import { WIDGET_REGISTRY } from "@/components/widgets/registry";
@@ -69,14 +68,6 @@ export default function CustomizeDashboardPage() {
       <AppHeader
         title="Susun Beranda"
         subtitle="Pilih kartu yang mau tampil"
-        actions={
-          <Link
-            href="/home"
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
-          >
-            Selesai
-          </Link>
-        }
       />
 
       <div className="px-4 pb-8">

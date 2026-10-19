@@ -240,8 +240,8 @@ export default function CalendarPage() {
       <AppHeader
         title="Kalender"
         actions={
-          <button onClick={() => setExporting(true)} className="rounded-full bg-bg-card px-3 py-1.5 text-[13px] font-semibold text-text-2 shadow-card">
-            Google Calendar
+          <button onClick={() => setExporting(true)} aria-label="Sambungkan ke Google Calendar" className="whitespace-nowrap rounded-full bg-bg-card px-3 py-1.5 text-[13px] font-semibold text-text-2 shadow-card">
+            Sinkron
           </button>
         }
       />
