@@ -21,7 +21,11 @@ export function Sidebar() {
   const enabled = useFeatures((s) => s.enabled);
   const name = useAuth((s) => s.name);
   const openCapture = useUi((s) => s.openCapture);
+  // Tabs (e.g. Kita) are already in the list above. Listed twice, both
+  // rows were "active" on that page and the sliding highlight jumped
+  // between them.
   const spaces = enabled
+    .filter((href) => !ITEMS.some((i) => i.href === href))
     .map((href) => FEATURES.find((f) => f.href === href))
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f));
 
