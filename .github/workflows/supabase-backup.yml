@@ -1,0 +1,53 @@
+# Weekly copy of the Supabase database, so a mistake (or a paused/deleted
+# free project) never takes every catatan with it. The dump is encrypted
+# before upload: Actions artifacts can be downloaded by anyone with access to
+# the repo, so only someone with the passphrase can read it.
+#
+# Setup (once): GitHub repo → Settings → Secrets and variables → Actions →
+#   New repository secret:
+#     SUPABASE_DB_URL     Supabase → Project Settings → Database →
+#                         Connection string → URI (Session pooler), with
+#                         your database password filled in
+#     BACKUP_PASSPHRASE   any long password; keep it somewhere safe
+#
+# Restore: download the artifact from the run, then
+#   gpg -d twogether-YYYY-MM-DD.sql.gz.gpg | gunzip > backup.sql
+#   psql "$SUPABASE_DB_URL" -f backup.sql
+name: Supabase backup
+
+on:
+  schedule:
+    - cron: "41 19 * * 0" # every Monday, 02:41 WIB
+  workflow_dispatch: # allow a manual "Run workflow" test
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Dump and encrypt
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::warning::Backup dilewati: secret SUPABASE_DB_URL / BACKUP_PASSPHRASE belum diisi."
+            exit 0
+          fi
+          set -o pipefail
+          name="twogether-$(date -u +%F).sql.gz.gpg"
+          # Postgres 17 client: newer than the server is fine, older is not.
+          docker run --rm -e DB="$SUPABASE_DB_URL" postgres:17 \
+            sh -c 'pg_dump "$DB" --schema=public --no-owner --no-privileges' \
+            | gzip -9 \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 \
+                --passphrase "$BACKUP_PASSPHRASE" -o "$name"
+          ls -lh "$name"
+          echo "FILE=$name" >> "$GITHUB_ENV"
+      - name: Keep for 90 days
+        if: env.FILE != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILE }}
+          path: ${{ env.FILE }}
+          retention-days: 90
