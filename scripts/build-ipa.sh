@@ -22,8 +22,12 @@ xcodebuild -project ios/App/App.xcodeproj \
   CODE_SIGNING_ALLOWED=NO
 
 echo "📦 [4/4] Packaging Twogether.ipa..."
+rm -rf ios/App/build/Payload Twogether.ipa
 mkdir -p ios/App/build/Payload
 cp -R ios/App/build/Build/Products/Release-iphoneos/App.app ios/App/build/Payload/
+rm -rf ios/App/build/Payload/App.app/_CodeSignature
+rm -f ios/App/build/Payload/App.app/embedded.mobileprovision
+find ios/App/build/Payload -name ".DS_Store" -delete
 (cd ios/App/build && zip -r -q ../../../Twogether.ipa Payload)
 
 echo "✅ Selesai! File installer siap:"

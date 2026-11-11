@@ -44,8 +44,12 @@ jobs:
 
       - name: Package Payload into Twogether.ipa
         run: |
+          rm -rf ios/App/build/Payload Twogether.ipa
           mkdir -p ios/App/build/Payload
           cp -R ios/App/build/Build/Products/Release-iphoneos/App.app ios/App/build/Payload/
+          rm -rf ios/App/build/Payload/App.app/_CodeSignature
+          rm -f ios/App/build/Payload/App.app/embedded.mobileprovision
+          find ios/App/build/Payload -name ".DS_Store" -delete
           cd ios/App/build
           zip -r -q ../../../Twogether.ipa Payload
           cd ../../..
