@@ -147,9 +147,16 @@ Pilihan distribusi:
 
 | Cara | Biaya | Catatan |
 |---|---|---|
-| Apple ID gratis | Rp0 | App harus di-install ulang dari Xcode tiap 7 hari |
+| **SideStore** / **AltStore** | Rp0 | Auto re-sign di background via Wi-Fi/VPN lokal tanpa expire 7 hari (lihat [docs/SIDESTORE.md](docs/SIDESTORE.md)) |
+| Apple ID gratis (Xcode langsung) | Rp0 | App harus di-install ulang dari Xcode tiap 7 hari |
+| Sertifikat UDID pihak ke-3 | ~$10/thn | Install langsung via browser/Feather tanpa Mac, aktif 1 tahun |
 | Apple Developer Program | $99/tahun | Install permanen; bisa kirim ke HP pasangan lewat **TestFlight** atau rilis ke App Store |
 | PWA (Safari → Bagikan → *Add to Home Screen*) | Rp0 | Tanpa Mac; fiturnya hampir sama |
+
+Untuk build `.ipa` siap SideStore:
+- Di Mac: jalankan `npm run build:ipa`
+- Tanpa Mac: jalankan workflow GitHub Actions **Build iOS IPA (SideStore / AltStore)** di tab Actions.
+
 
 Setiap kali kode web berubah: `npm run ios:sync` lalu Run lagi di Xcode.
 Login magic link disembunyikan di app native (link email terbuka di Safari);

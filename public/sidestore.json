@@ -1,0 +1,25 @@
+{
+  "name": "Twogether Source",
+  "identifier": "com.twogether.source",
+  "subtitle": "Ruang privat berdua: keuangan, tracker, & moments",
+  "description": "Sumber aplikasi resmi Twogether untuk SideStore dan AltStore.",
+  "iconURL": "https://raw.githubusercontent.com/ridwanalamsyah/twogether/main/public/icons/icon-512.png",
+  "website": "https://github.com/ridwanalamsyah/twogether",
+  "apps": [
+    {
+      "name": "Twogether",
+      "bundleIdentifier": "com.twogether.app",
+      "developerName": "Twogether",
+      "subtitle": "Workspace & Keuangan Berdua",
+      "localizedDescription": "Aplikasi workspace & tracker keuangan untuk berdua. Offline-first, dashboard modular, sinkronisasi otomatis, dan privasi penuh.",
+      "version": "0.1.0",
+      "versionDate": "2026-11-11T00:00:00Z",
+      "versionDescription": "Versi awal iOS SideStore dengan Taptic feedback dan offline support.",
+      "downloadURL": "https://github.com/ridwanalamsyah/twogether/releases/latest/download/Twogether.ipa",
+      "iconURL": "https://raw.githubusercontent.com/ridwanalamsyah/twogether/main/public/icons/icon-512.png",
+      "tintColor": "f97316",
+      "size": 15000000,
+      "minOSVersion": "15.0"
+    }
+  ]
+}
