@@ -105,7 +105,7 @@ export function SehatQuickWidget() {
       <div className="rounded-xl border border-border bg-bg-elev1 p-3">
         <div className="mb-1.5 flex items-center justify-between">
           <span className="text-[11px] font-medium text-text-3">Air minum hari ini</span>
-          <span className="font-mono text-[13px] font-bold text-text-1">
+          <span className="text-[13px] font-bold tabular-nums text-text-1">
             {waterToday}
             <span className="text-[10px] font-normal text-text-3">/8 gelas</span>
           </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Flame, Headphones } from "lucide-react";
+import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -126,12 +127,12 @@ export function FokusWidget() {
 
   return (
     <Link href="/fokus" className="pressable surface flex items-center gap-3 p-4">
-      <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
-        <Headphones size={20} strokeWidth={2} />
+      <div className="relative">
+        <IconTile spec={spaceIcon("/fokus")} size={44} radius={14} />
         {(mine || theirs) && (
           <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
         )}
-      </span>
+      </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[15px] font-bold text-text-1">
           {mine
@@ -181,7 +182,7 @@ export function RamadhanWidget() {
           {next ? (
             <div className="mt-0.5 flex items-baseline gap-2">
               <span className="text-[14px] font-semibold">{next.label}</span>
-              <span className="font-mono text-[28px] font-extrabold leading-none">{fmtTime(next.at)}</span>
+              <span className="text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{fmtTime(next.at)}</span>
               <span className="text-[12px] text-white/80">
                 {mins >= 60 ? `${Math.floor(mins / 60)}j ${mins % 60}m lagi` : `${mins} menit lagi`}
               </span>

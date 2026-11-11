@@ -44,7 +44,7 @@ export function TransactionsWidget() {
                 </div>
               </div>
               <div
-                className={`font-mono text-[12px] font-medium tabular-nums ${
+                className={`text-[13px] font-semibold tabular-nums ${
                   t.kind === "in"
                     ? "text-[color:var(--positive)]"
                     : "text-text-1"

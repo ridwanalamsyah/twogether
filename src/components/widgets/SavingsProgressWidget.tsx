@@ -46,7 +46,7 @@ export function SavingsProgressWidget() {
                 <span className="truncate text-[13px] text-text-1">
                   {it.goal.name}
                 </span>
-                <span className="font-mono text-[11px] tabular-nums text-text-3">
+                <span className="text-[12px] font-semibold tabular-nums text-text-3">
                   {Math.round(it.pct)}%
                 </span>
               </div>
@@ -56,7 +56,7 @@ export function SavingsProgressWidget() {
                   style={{ width: `${it.pct}%` }}
                 />
               </div>
-              <div className="mt-1 font-mono text-[10px] text-text-4">
+              <div className="mt-1 text-[11px] tabular-nums text-text-3">
                 {formatRupiahShort(it.saved)} / {formatRupiahShort(it.goal.target)}
               </div>
             </div>

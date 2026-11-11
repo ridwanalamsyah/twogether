@@ -1,6 +1,6 @@
 "use client";
 
-import { Headphones } from "lucide-react";
+import { IconTile, spaceIcon } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -136,10 +136,10 @@ export default function FokusPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {partner && partnerP && (
           <div className="surface flex items-center gap-3 p-4">
-            <span className="relative grid h-10 w-10 place-items-center rounded-full bg-bg-elev1 text-text-2">
-              <Headphones size={18} />
+            <div className="relative">
+              <IconTile spec={spaceIcon("/fokus")} size={40} radius={12} />
               <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
-            </span>
+            </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[14px] font-bold text-text-1">{partnerName} lagi fokus</div>
               <div className="truncate text-[12px] text-text-3">

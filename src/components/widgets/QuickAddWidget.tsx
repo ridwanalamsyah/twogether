@@ -89,7 +89,7 @@ export function QuickAddWidget() {
 
       <div className="space-y-1.5">
         <input
-          className={`input-base font-mono text-lg font-semibold ${
+          className={`input-base text-lg font-semibold tabular-nums ${
             pulse ? "ring-2 ring-[color:var(--positive)]" : ""
           }`}
           inputMode="numeric"

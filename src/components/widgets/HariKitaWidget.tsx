@@ -22,6 +22,7 @@ export function HariKitaWidget() {
   const annivs = useItems(userId, "anniv") ?? [];
   const accent = useTheme((s) => s.accent);
   const [tick, setTick] = useState(0);
+  const [milestoneView, setMilestoneView] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 60_000);
@@ -73,8 +74,6 @@ export function HariKitaWidget() {
   const hours = Math.floor((diff % 86_400_000) / 3_600_000);
   const mins = Math.floor((diff % 3_600_000) / 60_000);
   const ym = yearsMonths(anchorDate);
-
-  const [milestoneView, setMilestoneView] = useState<0 | 1 | 2>(0);
 
   // Suppress unused tick warning
   void tick;

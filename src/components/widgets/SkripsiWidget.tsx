@@ -45,7 +45,7 @@ export function SkripsiWidget() {
       }
     >
       <div className="flex items-baseline justify-between">
-        <span className="font-mono text-[20px] font-semibold tracking-tight text-text-1">
+        <span className="text-[20px] font-bold tracking-tight text-text-1 tabular-nums">
           {overall}%
         </span>
         {meta?.judul && (
@@ -63,10 +63,10 @@ export function SkripsiWidget() {
         {(chapters ?? []).slice(0, 3).map((c) => (
           <li key={c.id} className="flex items-center justify-between gap-2 text-[12px]">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="font-mono text-[10px] text-text-4">BAB {c.number}</span>
+              <span className="text-[10px] font-semibold tracking-wide text-text-4">BAB {c.number}</span>
               <span className="truncate text-text-2">{c.title}</span>
             </div>
-            <span className="font-mono text-[10px] tabular-nums text-text-3">
+            <span className="text-[11px] font-medium tabular-nums text-text-3">
               {c.progress}%
             </span>
           </li>

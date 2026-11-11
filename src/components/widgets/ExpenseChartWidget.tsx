@@ -42,7 +42,7 @@ export function ExpenseChartWidget() {
 
   return (
     <WidgetShell title="7 hari" action={
-      <span className="font-mono text-[11px] tabular-nums text-text-3">
+      <span className="text-[12px] font-semibold tabular-nums text-text-3">
         {formatRupiahShort(total)}
       </span>
     }>

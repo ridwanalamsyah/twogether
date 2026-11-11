@@ -141,11 +141,11 @@ export function spaceIcon(href: string): IconSpec {
   return SPACE[href] ?? { Icon: Zap, tint: "#94a3b8" };
 }
 
-/** Rounded neutral tile with a line icon. */
+/** Apple-style tinted squircle tile with tactile touch feedback. */
 export function IconTile({
   spec,
   size = 44,
-  radius = 14,
+  radius,
   className = "",
 }: {
   spec: IconSpec;
@@ -153,14 +153,23 @@ export function IconTile({
   radius?: number;
   className?: string;
 }) {
-  const { Icon } = spec;
+  const { Icon, tint } = spec;
+  const r = radius ?? Math.max(8, Math.round(size * 0.28));
   return (
     <span
-      className={`grid shrink-0 place-items-center bg-bg-elev1 text-text-2 ${className}`}
-      style={{ width: size, height: size, borderRadius: radius }}
+      className={`grid shrink-0 place-items-center transition-all duration-150 active:scale-95 ${className}`}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: r,
+        backgroundColor: `color-mix(in srgb, ${tint} 13%, var(--bg-card, transparent))`,
+        color: tint,
+        border: `1px solid color-mix(in srgb, ${tint} 22%, transparent)`,
+        boxShadow: `0 2px 8px -2px color-mix(in srgb, ${tint} 18%, transparent)`,
+      }}
       aria-hidden
     >
-      <Icon size={Math.round(size * 0.46)} strokeWidth={2} />
+      <Icon size={Math.round(size * 0.48)} strokeWidth={2.2} />
     </span>
   );
 }

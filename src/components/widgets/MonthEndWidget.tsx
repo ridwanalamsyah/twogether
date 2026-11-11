@@ -91,7 +91,7 @@ export function MonthEndWidget() {
                 {f === 1 ? "Semua" : "Setengah"}
               </button>
             ))}
-            <span className="ml-auto self-center font-mono text-[14px] font-bold text-text-1">{formatRupiah(value)}</span>
+            <span className="ml-auto self-center text-[14px] font-bold tabular-nums text-text-1">{formatRupiah(value)}</span>
           </div>
           <div className="mt-3 flex gap-2">
             <button onClick={() => close(false)} disabled={busy} className="rounded-full bg-bg-elev2 px-4 py-2.5 text-[13px] font-semibold text-text-2">

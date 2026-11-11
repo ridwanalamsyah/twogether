@@ -60,7 +60,7 @@ export function JadwalHariIniWidget() {
               className="flex items-baseline justify-between gap-2 text-[12px]"
             >
               <span className="truncate text-text-1">{c.title}</span>
-              <span className="font-mono text-[11px] tabular-nums text-text-3">
+              <span className="text-[12px] font-medium tabular-nums text-text-3">
                 {c.start}–{c.end}
                 {c.room ? ` · ${c.room}` : ""}
               </span>

@@ -32,7 +32,7 @@ export function PencapaianWidget() {
       }
     >
       <div className="flex items-baseline gap-1.5">
-        <div className="font-mono text-[28px] font-semibold leading-none tracking-tight text-text-1 tabular-nums">
+        <div className="text-[28px] font-bold leading-none tracking-tight text-text-1 tabular-nums">
           {count}
         </div>
         <div className="text-[12px] text-text-3">/ {total} badge</div>

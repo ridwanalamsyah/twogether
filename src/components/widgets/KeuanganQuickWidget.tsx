@@ -71,28 +71,28 @@ export function KeuanganQuickWidget() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="rounded-lg bg-emerald-500/10 p-2 text-center">
-          <div className="text-[9px] font-medium section-label text-emerald-700/80 dark:text-emerald-400">
+      <div className="mb-3 grid grid-cols-3 divide-x divide-[color:var(--hairline)] rounded-2xl bg-bg-elev1/50 py-2.5">
+        <div className="px-2 text-center">
+          <div className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
             Masuk
           </div>
-          <div className="font-mono text-[12px] font-bold text-emerald-700 dark:text-emerald-300">
+          <div className="text-[13px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
             {formatRupiahShort(totals.income)}
           </div>
         </div>
-        <div className="rounded-lg bg-rose-500/10 p-2 text-center">
-          <div className="text-[9px] font-medium section-label text-rose-700/80 dark:text-rose-400">
+        <div className="px-2 text-center">
+          <div className="text-[10px] font-semibold text-rose-600 dark:text-rose-400">
             Keluar
           </div>
-          <div className="font-mono text-[12px] font-bold text-rose-700 dark:text-rose-300">
+          <div className="text-[13px] font-bold text-rose-600 dark:text-rose-400 tabular-nums">
             {formatRupiahShort(totals.expense)}
           </div>
         </div>
-        <div className="rounded-lg bg-bg-elev1 p-2 text-center">
-          <div className="text-[9px] font-medium section-label text-text-3">
-            Net
+        <div className="px-2 text-center">
+          <div className="text-[10px] font-semibold text-text-3">
+            Bersih
           </div>
-          <div className="font-mono text-[12px] font-bold text-text-1">
+          <div className="text-[13px] font-bold text-text-1 tabular-nums">
             {formatRupiahShort(totals.net)}
           </div>
         </div>
@@ -105,7 +105,7 @@ export function KeuanganQuickWidget() {
               hapticTap();
               setMode("in");
             }}
-            className="rounded-md bg-emerald-500 py-2 text-[12px] font-semibold text-white active:scale-95"
+            className="pressable rounded-xl bg-emerald-600 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-500"
           >
             + Pemasukan
           </button>
@@ -114,54 +114,54 @@ export function KeuanganQuickWidget() {
               hapticTap();
               setMode("out");
             }}
-            className="rounded-md bg-rose-500 py-2 text-[12px] font-semibold text-white active:scale-95"
+            className="pressable rounded-xl bg-rose-600 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-rose-500"
           >
             − Pengeluaran
           </button>
         </div>
       ) : (
-        <div className="space-y-2 rounded-lg border border-border bg-bg-elev1 p-2.5">
+        <div className="space-y-2 rounded-2xl border border-[color:var(--hairline)] bg-bg-elev1/60 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-text-2">
+            <span className="text-[12px] font-semibold text-text-2">
               {mode === "in" ? "Pemasukan baru" : "Pengeluaran baru"}
             </span>
             <button
               onClick={() => setMode(null)}
-              className="text-[11px] text-text-3 active:opacity-60"
+              className="pressable text-[11px] font-medium text-text-3 hover:text-text-1"
             >
               Batal
             </button>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {cats.map((c) => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={`rounded-md border px-2 py-1 text-[10px] font-medium transition-colors ${
+                className={`pressable rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
                   category === c
-                    ? "border-text-1 bg-bg-elev2 text-text-1"
-                    : "border-border bg-bg-app text-text-3"
+                    ? "border-accent bg-accent text-accent-fg"
+                    : "border-border bg-bg-card text-text-2"
                 }`}
               >
                 {c}
               </button>
             ))}
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <input
               type="number"
               inputMode="decimal"
-              placeholder="Rp"
+              placeholder="Rp 0"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="input-base flex-1 font-mono text-sm"
+              className="input-base flex-1 text-sm font-semibold tabular-nums"
               autoFocus
             />
             <button
               onClick={save}
               disabled={!category || !amount}
-              className={`rounded-md px-3 text-[12px] font-semibold text-white disabled:opacity-50 ${
-                mode === "in" ? "bg-emerald-500" : "bg-rose-500"
+              className={`pressable rounded-xl px-4 text-[12px] font-semibold text-white disabled:opacity-40 ${
+                mode === "in" ? "bg-emerald-600" : "bg-rose-600"
               }`}
             >
               Simpan

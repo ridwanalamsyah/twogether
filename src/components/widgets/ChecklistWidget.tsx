@@ -49,7 +49,7 @@ export function ChecklistWidget() {
     <WidgetShell
       title="Hari ini"
       action={
-        <span className="font-mono text-[11px] tabular-nums text-text-3">
+        <span className="text-[12px] font-semibold tabular-nums text-text-3">
           {done}/{todays.length}
         </span>
       }

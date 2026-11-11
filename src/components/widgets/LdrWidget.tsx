@@ -98,8 +98,16 @@ export function LdrWidget() {
   return (
     <div className="surface p-4">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
-          <Clock size={20} />
+        <span
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl transition-transform active:scale-95"
+          style={{
+            backgroundColor: "color-mix(in srgb, #0ea5e9 13%, var(--bg-card, transparent))",
+            color: "#0ea5e9",
+            border: "1px solid color-mix(in srgb, #0ea5e9 22%, transparent)",
+            boxShadow: "0 2px 8px -2px color-mix(in srgb, #0ea5e9 18%, transparent)",
+          }}
+        >
+          <Clock size={20} strokeWidth={2.2} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">Jam di tempat {name}</div>

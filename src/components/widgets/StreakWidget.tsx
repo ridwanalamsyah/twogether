@@ -38,7 +38,7 @@ export function StreakWidget() {
   return (
     <WidgetShell title="Streak">
       <div className="flex items-baseline gap-1.5">
-        <div className="font-mono text-[28px] font-semibold leading-none tracking-tight text-text-1">
+        <div className="text-[28px] font-bold leading-none tracking-tight text-text-1 tabular-nums">
           {streak}
         </div>
         <div className="text-[12px] text-text-3">hari berturut</div>

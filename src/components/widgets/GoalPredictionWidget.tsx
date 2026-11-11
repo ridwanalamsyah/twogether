@@ -88,7 +88,7 @@ export function GoalPredictionWidget() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
-      <div className="font-mono text-[12px] font-medium text-text-1">{value}</div>
+      <div className="text-[12px] font-semibold tabular-nums text-text-1">{value}</div>
       <div className="mt-0.5 text-[10px] text-text-4">{label}</div>
     </div>
   );

@@ -134,22 +134,20 @@ export async function resolveMedia(src: string): Promise<string | null> {
  * file can't be reached (offline and not downloaded yet).
  */
 export function useMediaSrc(src: string | undefined | null): string | null | undefined {
-  const [url, setUrl] = useState<string | null | undefined>(() => (src && !isMediaRef(src) ? src : undefined));
+  const [resolvedUrl, setResolvedUrl] = useState<string | null | undefined>(undefined);
+
   useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    if (!isMediaRef(src)) {
-      setUrl(src);
-      return;
-    }
+    if (!src || !isMediaRef(src)) return;
     let alive = true;
-    setUrl(undefined);
-    void resolveMedia(src).then((u) => alive && setUrl(u));
+    resolveMedia(src).then((u) => {
+      if (alive) setResolvedUrl(u);
+    });
     return () => {
       alive = false;
     };
   }, [src]);
-  return url;
+
+  if (!src) return null;
+  if (!isMediaRef(src)) return src;
+  return resolvedUrl;
 }

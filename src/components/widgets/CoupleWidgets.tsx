@@ -1,6 +1,6 @@
 "use client";
 
-import { Flower2, HandCoins } from "lucide-react";
+import { IconTile, spaceIcon } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -36,7 +36,7 @@ export function ShalatWidget() {
     >
       <div className="text-[12px] font-semibold text-white/85">{next.name} berikutnya</div>
       <div className="mt-0.5 flex items-baseline gap-2">
-        <span className="font-mono text-[28px] font-extrabold leading-none">{fmtTime(next.at)}</span>
+        <span className="text-[28px] font-extrabold leading-none tracking-tight tabular-nums">{fmtTime(next.at)}</span>
         <span className="text-[12px] text-white/80">
           {mins >= 60 ? `${Math.floor(mins / 60)}j ${mins % 60}m lagi` : `${mins} menit lagi`}
         </span>
@@ -73,9 +73,7 @@ export function SiklusWidget() {
   return (
     <Link href="/siklus" className="pressable surface block p-4">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
-          <Flower2 size={20} strokeWidth={2} />
-        </span>
+        <IconTile spec={spaceIcon("/siklus")} size={44} radius={14} />
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">
             {who === me ? "Siklusku" : `Siklus ${nick(who ?? partner)}`}
@@ -109,9 +107,7 @@ export function PatunganWidget() {
   const other = partner ? nick(partner) : "Pasangan";
   return (
     <Link href="/patungan" className="pressable surface flex items-center gap-3 p-4">
-      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-bg-elev1 text-text-2">
-        <HandCoins size={20} strokeWidth={2} />
-      </span>
+      <IconTile spec={spaceIcon("/patungan")} size={44} radius={14} />
       <div className="min-w-0 flex-1">
         <div className="text-[12px] font-semibold text-text-3">Patungan</div>
         <div className="text-[15px] font-bold text-text-1">

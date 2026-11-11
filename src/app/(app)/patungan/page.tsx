@@ -91,16 +91,22 @@ export default function PatunganPage() {
                 <li key={e.id} className="border-b border-border last:border-0">
                   <SwipeRow onDelete={() => userId && deleteEntry(userId, e.id)}>
                     <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-bg-elev1 text-text-2">
-                        {isSettle ? <Check size={16} /> : <Receipt size={16} />}
+                      <span
+                        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-all ${
+                          isSettle
+                            ? "border-emerald-500/25 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                            : "border-amber-500/25 bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        {isSettle ? <Check size={16} strokeWidth={2.5} /> : <Receipt size={16} strokeWidth={2.2} />}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-[14px] text-text-1">
+                        <div className="truncate text-[14px] font-semibold text-text-1">
                           {isSettle
                             ? `${payer === me ? "Kamu" : payer} melunasi`
                             : p.note || "Patungan"}
                         </div>
-                        <div className="text-[11px] text-text-4">
+                        <div className="text-[11px] text-text-3">
                           {fromIsoDay(e.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                           {!isSettle &&
                             ` · ${payer === me ? "kamu" : payer} bayar ${formatRupiah(e.valueNum ?? 0)} · ${
@@ -109,7 +115,7 @@ export default function PatunganPage() {
                         </div>
                       </div>
                       <div
-                        className={`font-mono text-[14px] font-semibold ${
+                        className={`text-[14px] font-bold tabular-nums ${
                           (payer === me) !== isSettle ? "text-[color:var(--positive)]" : "text-text-1"
                         }`}
                       >
