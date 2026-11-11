@@ -216,6 +216,10 @@ function AnimatedAmount({
   /** For spending totals a rise is bad news, so it glows red. */
   spending?: boolean;
 }) {
+  const hidden = usePrivacy((s) => s.hideMoney);
+  const [peek, setPeek] = useState(false);
+  const isBlurred = hidden && !peek;
+
   const prev = useRef<number | null>(null);
   const [flash, setFlash] = useState<{ up: boolean; n: number } | null>(null);
 
@@ -227,10 +231,18 @@ function AnimatedAmount({
   }, [amount]);
 
   return (
-    <div
-      className={`num relative -mr-1.5 px-1.5 text-[15px] font-semibold ${
+    <motion.div
+      onClick={() => {
+        if (hidden) {
+          hapticTap();
+          setPeek((p) => !p);
+        }
+      }}
+      whileTap={{ scale: 0.95 }}
+      className={`num relative -mr-1.5 px-2 py-0.5 rounded-lg text-[15px] font-semibold tabular-nums cursor-pointer select-none transition-colors ${
         negative ? "text-[color:var(--negative)]" : "text-text-1"
-      }`}
+      } ${isBlurred ? "bg-bg-elev1/50" : ""}`}
+      title={hidden ? "Ketuk untuk intip nominal" : undefined}
     >
       {flash && (
         <motion.span
@@ -243,8 +255,17 @@ function AnimatedAmount({
           transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
         />
       )}
-      <CountUp value={amount} format={formatRupiahShort} className="relative" />
-    </div>
+      <motion.span
+        animate={{
+          filter: isBlurred ? "blur(7px)" : "blur(0px)",
+          opacity: isBlurred ? 0.65 : 1,
+        }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="inline-block"
+      >
+        <CountUp value={amount} format={formatRupiahShort} className="relative tracking-tight" />
+      </motion.span>
+    </motion.div>
   );
 }
 

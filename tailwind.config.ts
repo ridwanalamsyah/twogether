@@ -58,7 +58,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font)"],
-        mono: ["var(--mono)"],
+        mono: ["var(--font)"],
       },
       // Extra-bold everywhere read as "template"; 700 is the heaviest we use.
       fontWeight: {

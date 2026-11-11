@@ -74,6 +74,8 @@ export function HariKitaWidget() {
   const mins = Math.floor((diff % 3_600_000) / 60_000);
   const ym = yearsMonths(anchorDate);
 
+  const [milestoneView, setMilestoneView] = useState<0 | 1 | 2>(0);
+
   // Suppress unused tick warning
   void tick;
 
@@ -93,43 +95,66 @@ export function HariKitaWidget() {
     <div className="relative">
       <Link
         href="/kita"
-        className="pressable relative block overflow-hidden rounded-[24px] p-5 shadow-float"
+        className="pressable relative block overflow-hidden rounded-[26px] p-5 shadow-float active:scale-[0.98] transition-transform duration-200"
         style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
       >
-        <div className="text-[13px] font-semibold opacity-85">
+        <div className="text-[13px] font-semibold opacity-90 tracking-tight">
           {celebration?.kind === "anniv"
             ? `Selamat hari jadi yang ke-${celebration.years}!`
             : celebration?.kind === "milestone"
               ? "Hari ini angka bulat!"
               : "Sudah bersama"}
         </div>
-        <div className="mt-1 flex items-baseline gap-2">
+        <motion.div 
+          className="mt-1 flex items-baseline gap-2 cursor-pointer"
+          whileTap={{ scale: 0.94 }}
+        >
           <CountUp
             value={days}
             duration={1.2}
-            className="font-mono text-[46px] font-bold leading-none tracking-tight"
+            className="text-[48px] font-bold leading-none tracking-tight tabular-nums"
           />
-          <span className="text-[16px] font-semibold opacity-85">hari</span>
-        </div>
-        <div className="mt-1 text-[12px] opacity-75">
+          <span className="text-[17px] font-semibold opacity-90">hari</span>
+        </motion.div>
+        <div className="mt-1 text-[12px] opacity-80 tracking-tight">
           {ym.years} tahun {ym.months} bulan · {hours} jam {mins} menit
         </div>
-        <div className="mt-4 flex items-center gap-3">
+        <div 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            hapticTap();
+            setMilestoneView((v) => ((v + 1) % 3) as 0 | 1 | 2);
+          }}
+          className="mt-4 flex items-center gap-3 cursor-pointer select-none rounded-xl py-1 active:opacity-70 transition-opacity"
+          title="Ketuk untuk ubah ringkasan"
+        >
           <div
             className="h-1.5 flex-1 overflow-hidden rounded-full"
-            style={{ background: fgMix(22) }}
+            style={{ background: fgMix(25) }}
           >
             <motion.div
               className="h-full rounded-full"
               style={{ background: "var(--accent-fg)", originX: 0 }}
               initial={{ scaleX: 0 }}
-              animate={{ scaleX: Math.max(0.03, progress) }}
+              animate={{ scaleX: Math.max(0.04, progress) }}
               transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             />
           </div>
-          <span className="shrink-0 text-[12px] font-semibold opacity-85">
-            {toMilestone} hari lagi menuju {nextMilestone.toLocaleString("id-ID")}
-          </span>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={milestoneView}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="shrink-0 text-[12px] font-semibold opacity-90 tracking-tight"
+            >
+              {milestoneView === 0 && `${toMilestone} hari lagi ke ${nextMilestone.toLocaleString("id-ID")}`}
+              {milestoneView === 1 && `${Math.round(progress * 100)}% perjalanan fase ini`}
+              {milestoneView === 2 && `Total ${Math.floor(days / 7)} minggu bersama`}
+            </motion.span>
+          </AnimatePresence>
         </div>
       </Link>
       <HeartBurst />
@@ -138,11 +163,12 @@ export function HariKitaWidget() {
 }
 
 const BURST = [
-  { x: -34, y: -58, r: -18, s: 0.8 },
-  { x: -10, y: -78, r: -6, s: 1 },
-  { x: 16, y: -66, r: 10, s: 0.9 },
-  { x: 36, y: -46, r: 20, s: 0.7 },
-  { x: -2, y: -40, r: 0, s: 0.6 },
+  { x: -38, y: -65, r: -24, s: 0.9 },
+  { x: -14, y: -88, r: -8, s: 1.1 },
+  { x: 18, y: -72, r: 12, s: 1 },
+  { x: 42, y: -52, r: 24, s: 0.8 },
+  { x: -2, y: -48, r: 0, s: 0.7 },
+  { x: 26, y: -95, r: 18, s: 0.85 },
 ];
 
 /** Softly beating heart in the corner; a tap sends a little burst up. */

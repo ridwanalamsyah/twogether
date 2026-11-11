@@ -182,7 +182,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         }}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-colors duration-200 active:opacity-70",
+          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-all duration-150 active:scale-90 select-none",
           active ? "text-text-1" : "text-text-4",
         )}
       >
