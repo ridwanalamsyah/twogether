@@ -12,13 +12,13 @@
       "developerName": "Twogether",
       "subtitle": "Workspace & Keuangan Berdua",
       "localizedDescription": "Aplikasi workspace & tracker keuangan untuk berdua. Offline-first, dashboard modular, sinkronisasi otomatis, dan privasi penuh.",
-      "version": "0.1.0",
-      "versionDate": "2026-11-11T00:00:00Z",
-      "versionDescription": "Versi awal iOS SideStore dengan Taptic feedback dan offline support.",
+      "version": "1.0.1",
+      "versionDate": "2026-11-11T19:00:00Z",
+      "versionDescription": "Update desain RYUX Intelligence, ikon Apple tinted squircle, dan penghapusan monoscript.",
       "downloadURL": "https://github.com/ridwanalamsyah/twogether/releases/latest/download/Twogether.ipa",
       "iconURL": "https://raw.githubusercontent.com/ridwanalamsyah/twogether/main/public/icons/icon-512.png",
       "tintColor": "f97316",
-      "size": 15000000,
+      "size": 11867035,
       "minOSVersion": "15.0"
     }
   ]
