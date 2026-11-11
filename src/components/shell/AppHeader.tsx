@@ -66,7 +66,7 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
             <h1
               className={`${
                 eyebrow ? "line-clamp-2 text-[24px]" : "truncate text-[22px]"
-              } min-w-0 font-extrabold leading-tight tracking-[-0.03em] text-text-1`}
+              } min-w-0 font-bold leading-tight tracking-tight text-text-1`}
             >
               {title}
             </h1>

@@ -107,7 +107,7 @@ export function HariKitaWidget() {
           <CountUp
             value={days}
             duration={1.2}
-            className="font-mono text-[44px] font-extrabold leading-none tracking-tight"
+            className="font-mono text-[46px] font-bold leading-none tracking-tight"
           />
           <span className="text-[16px] font-semibold opacity-85">hari</span>
         </div>

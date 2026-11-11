@@ -7,10 +7,9 @@
    Override via [data-theme="dark"] / [data-accent="purple"].
 ─────────────────────────────────────────────────────────── */
 :root {
-  --font: var(--font-jakarta), -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
-  /* Numbers use the same friendly font with tabular figures — the old
-     monospace stack fell back to Courier on Android/web and looked pixelated. */
-  --mono: var(--font-jakarta), -apple-system, system-ui, sans-serif;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Helvetica Neue", var(--font-jakarta), system-ui, sans-serif;
+  /* Numbers & amounts: clean tabular lining figures, matching Apple native apps */
+  --mono: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", var(--font-jakarta), system-ui, sans-serif;
 
   /* Surface — warm paper background, white floating cards */
   --bg-app: #f6f3ef;
@@ -678,36 +677,52 @@ input::-webkit-date-and-time-value {
   }
 }
 
-/* ── TYPE ─────────────────────────────────────────────── */
-/* Amounts & counters: same rounded font, evenly spaced digits. */
-.font-mono {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+/* ── RYUX TYPE SYSTEM ─────────────────────────────────── */
+/* Optical tracking & proportional leading according to Apple HIG & RYUX RX-UI-14 */
+h1, .h1 {
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
-/* Section headings — sentence case instead of SHOUTY micro-caps. */
+h2, .h2 {
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+}
+
+h3, .h3 {
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+/* Amounts & counters: tabular lining figures so numbers stay evenly spaced. */
+.font-mono,
+.tabular-nums,
+[data-amount] {
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.015em;
+}
+
+/* Section headings — crisp micro-caps / sentence-case with intentional tracking. */
 .section-label {
   text-transform: none;
-  letter-spacing: -0.01em;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  color: var(--text-2) !important;
-}
-.section-label::first-letter {
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 650 !important;
+  font-size: 12px !important;
+  color: var(--text-3) !important;
 }
 
-/* Playful gradient text for hero numbers. */
+/* Confident solid hero accent (replaces AI-slop gradient text) */
 .text-gradient {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent);
 }
+
 .text-\[10px\].section-label,
 .text-\[9px\].section-label {
   font-size: 11px !important;
   font-weight: 600 !important;
+  letter-spacing: 0.03em;
   color: var(--text-3) !important;
 }
 
