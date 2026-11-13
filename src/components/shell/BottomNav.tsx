@@ -108,9 +108,12 @@ export function BottomNav() {
           />
         )}
       </AnimatePresence>
-      <nav className="md:hidden fixed -bottom-[var(--nav-bottom-offset)] left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3 pb-[var(--nav-bottom-pad)]">
-        <div className="app-nav relative mb-1.5 rounded-[26px]">
-          <ul className="grid h-[var(--nav-content-h)] grid-cols-5">
+      <nav
+        className="md:hidden fixed left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3 pointer-events-none"
+        style={{ bottom: "var(--nav-bottom-spacing, calc(env(safe-area-inset-bottom, 0px) + 12px))" }}
+      >
+        <div className="app-nav pointer-events-auto relative rounded-[28px]">
+          <ul className="grid h-[var(--nav-content-h,58px)] grid-cols-5">
             {left.map((item) => (
               <NavLink key={item.href} item={item} active={isActive(pathname, item)} />
             ))}

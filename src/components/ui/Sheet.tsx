@@ -96,7 +96,9 @@ export function Sheet({
             </button>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 pb-4">{children}</div>
+        <div className={`flex-1 overflow-y-auto px-5 ${footer ? "pb-4" : "pb-[calc(20px+var(--sab))]"}`}>
+          {children}
+        </div>
         {footer && (
           <div className="border-t border-border px-5 pb-[calc(16px+var(--sab))] pt-3">{footer}</div>
         )}

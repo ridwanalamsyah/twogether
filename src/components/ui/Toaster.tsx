@@ -6,7 +6,7 @@ export function Toaster() {
   const { text, tone, hide } = useToast();
   if (!text) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--nav-h,64px)+var(--sab)+20px)] z-[95] flex justify-center px-4 md:bottom-8">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--nav-h,80px)+16px)] z-[95] flex justify-center px-4 md:bottom-8">
       <button
         onClick={hide}
         role="status"

@@ -445,7 +445,7 @@ export function Editor({ id }: { id: string }) {
         }}
       />
       {/* Formatting bar (sits above the keyboard on phones) */}
-      <div className="fixed inset-x-0 bottom-[calc(var(--nav-h)+var(--sab)+8px)] z-30 mx-auto flex max-w-[480px] justify-center px-3 md:bottom-6 md:left-[var(--sidebar-w)] md:max-w-none">
+      <div className="fixed inset-x-0 bottom-[calc(var(--nav-h)+8px)] z-30 mx-auto flex max-w-[480px] justify-center px-3 md:bottom-6 md:left-[var(--sidebar-w)] md:max-w-none">
         <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-bg-card p-1.5 shadow-float">
           <button
             onMouseDown={(e) => e.preventDefault()}
