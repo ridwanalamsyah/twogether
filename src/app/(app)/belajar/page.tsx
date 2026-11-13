@@ -401,7 +401,7 @@ function PomodoroSection() {
     >
       <div className="border-y border-border py-3">
         <div className="text-center">
-          <div className="font-mono text-[36px] font-light tabular-nums">
+          <div className="text-[36px] font-light tabular-nums">
             {String(Math.floor((remaining || duration * 60) / 60)).padStart(2, "0")}:
             {String((remaining || duration * 60) % 60).padStart(2, "0")}
           </div>
@@ -503,7 +503,7 @@ function TimeSection() {
               <div key={k} className="py-2">
                 <div className="flex items-center justify-between text-[12px]">
                   <span className="text-text-2 capitalize">{k}</span>
-                  <span className="font-mono text-text-3">{v} mnt</span>
+                  <span className="tabular-nums text-text-3">{v} mnt</span>
                 </div>
                 <div className="mt-1 h-1 overflow-hidden rounded bg-bg-elev2">
                   <div className="h-full bg-accent" style={{ width: `${pct}%` }} />

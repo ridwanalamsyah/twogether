@@ -52,22 +52,24 @@ export default function PatunganPage() {
               <div className="mt-1 text-[15px] font-semibold">
                 {net > 0 ? `${other} perlu bayar ke kamu` : `Kamu perlu bayar ke ${other}`}
               </div>
-              <div className="font-mono text-[34px] font-extrabold leading-tight">
+              <div className="text-[34px] font-extrabold leading-tight tabular-nums">
                 {formatRupiah(Math.abs(net))}
               </div>
             </>
           )}
           <div className="mt-4 flex gap-2">
             <button
+              type="button"
               onClick={() => setAdding(true)}
-              className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--warning)] active:scale-[0.98]"
+              className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--warning)] transition-transform active:scale-[0.98]"
             >
               + Catat patungan
             </button>
             {net !== 0 && (
               <button
+                type="button"
                 onClick={() => setSettling(true)}
-                className="rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold active:scale-[0.98]"
+                className="rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold transition-transform active:scale-[0.98]"
               >
                 Lunasi
               </button>
@@ -92,7 +94,7 @@ export default function PatunganPage() {
                   <SwipeRow onDelete={() => userId && deleteEntry(userId, e.id)}>
                     <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
                       <span
-                        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-all ${
+                        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-colors ${
                           isSettle
                             ? "border-emerald-500/25 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
                             : "border-amber-500/25 bg-amber-500/15 text-amber-600 dark:text-amber-400"
@@ -106,7 +108,7 @@ export default function PatunganPage() {
                             ? `${payer === me ? "Kamu" : payer} melunasi`
                             : p.note || "Patungan"}
                         </div>
-                        <div className="text-[11px] text-text-3">
+                        <div className="text-[12px] text-text-3">
                           {fromIsoDay(e.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                           {!isSettle &&
                             ` · ${payer === me ? "kamu" : payer} bayar ${formatRupiah(e.valueNum ?? 0)} · ${
@@ -203,16 +205,16 @@ function AddSplitSheet({
       title="Catat patungan"
       onClose={onClose}
       footer={
-        <button onClick={save} disabled={num <= 0 || busy} className="btn-accent w-full disabled:opacity-50">
+        <button type="button" onClick={save} disabled={num <= 0 || busy} className="btn-accent w-full disabled:opacity-50">
           Simpan
         </button>
       }
     >
       <Field label="Total yang dibayar">
         <input
-          className="input-base text-[20px] font-bold"
+          className="input-base text-[20px] font-bold tabular-nums"
           inputMode="numeric"
-          placeholder="Rp 0"
+          placeholder="Rp0"
           autoFocus
           value={amount ? formatMoneyInput(num) : ""}
           onChange={(e) => setAmount(e.target.value)}
@@ -250,9 +252,9 @@ function AddSplitSheet({
       {mode === "custom" && (
         <Field label={`Bagian ${nonPayer === me ? "aku" : nonPayer}`}>
           <input
-            className="input-base"
+            className="input-base tabular-nums"
             inputMode="numeric"
-            placeholder="Rp 0"
+            placeholder="Rp0"
             value={custom ? formatMoneyInput(Number(custom.replace(/\D/g, "")) || 0) : ""}
             onChange={(e) => setCustom(e.target.value)}
           />

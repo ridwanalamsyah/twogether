@@ -196,7 +196,7 @@ function StreakTab() {
             </div>
           </div>
           <div className="text-right">
-            <div className="font-mono text-[24px] font-light tabular-nums">
+            <div className="text-[24px] font-light tabular-nums">
               {r.current}
             </div>
             <div className="text-[10px] text-text-3">hari beruntun</div>
@@ -306,7 +306,7 @@ function BadgeCard({
       </div>
       <div className="mt-2 h-[3px] w-full bg-border">
         <div
-          className="h-full bg-text-1 transition-all"
+          className="h-full bg-text-1 transition-[width] duration-300"
           style={{ width: `${Math.min(100, Math.round(progress * 100))}%` }}
         />
       </div>

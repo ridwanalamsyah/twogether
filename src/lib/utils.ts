@@ -39,7 +39,8 @@ export function formatRupiah(value: number): string {
 /** Same as formatRupiah but never masked — for the value inside an input. */
 export function formatMoneyInput(value: number): string {
   const { locale, code } = getActiveCurrency();
-  return getFormatter(locale, code).format(Math.round(value));
+  const formatted = getFormatter(locale, code).format(Math.round(value));
+  return code === "IDR" ? formatted.replace(/Rp\s+/g, "Rp") : formatted;
 }
 
 /** What an amount looks like with "Sembunyikan nominal" on. */
@@ -52,21 +53,22 @@ export function formatRupiahShort(value: number): string {
   if (privacySnapshot().hideMoney) return maskedMoney();
   const { symbol, code } = getActiveCurrency();
   const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
   // Indonesian uses 'rb'/'jt'/'M' as conventional shorthands; everywhere
   // else we use English K/M/B which match the user's expectations.
   if (code === "IDR") {
     if (abs >= 1_000_000_000)
-      return `${symbol} ${(value / 1_000_000_000).toFixed(1)}M`;
+      return `${sign}${symbol}${(abs / 1_000_000_000).toFixed(1)}M`;
     if (abs >= 1_000_000)
-      return `${symbol} ${(value / 1_000_000).toFixed(1)}jt`;
-    if (abs >= 1_000) return `${symbol} ${(value / 1_000).toFixed(0)}rb`;
-    return `${symbol} ${Math.round(value)}`;
+      return `${sign}${symbol}${(abs / 1_000_000).toFixed(1)}jt`;
+    if (abs >= 1_000) return `${sign}${symbol}${(abs / 1_000).toFixed(0)}rb`;
+    return `${sign}${symbol}${Math.round(abs)}`;
   }
   if (abs >= 1_000_000_000)
-    return `${symbol}${(value / 1_000_000_000).toFixed(1)}B`;
-  if (abs >= 1_000_000) return `${symbol}${(value / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${symbol}${(value / 1_000).toFixed(0)}K`;
-  return `${symbol}${Math.round(value)}`;
+    return `${sign}${symbol}${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}${symbol}${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}${symbol}${(abs / 1_000).toFixed(0)}K`;
+  return `${sign}${symbol}${Math.round(abs)}`;
 }
 
 export function formatDateShort(date: string | number | Date): string {

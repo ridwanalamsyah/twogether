@@ -142,7 +142,7 @@ function AnniversarySection() {
           {upcoming.map((it) => (
             <div key={it.id} className="flex items-center gap-3 py-2.5">
               <div className="w-12 text-center">
-                <div className="font-mono text-[15px] font-semibold tabular-nums">
+                <div className="text-[15px] font-semibold tabular-nums">
                   {it.days === 0 ? "Hari ini" : it.days < 0 ? "lewat" : `H-${it.days}`}
                 </div>
               </div>

@@ -1,4 +1,4 @@
-const VERSION = "twogether-v12";
+const VERSION = "twogether-v13";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const PAGE_CACHE = `${VERSION}-pages`;

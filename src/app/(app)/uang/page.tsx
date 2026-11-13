@@ -174,7 +174,7 @@ function DebtSection() {
               >
                 <span>{name}</span>
                 <span
-                  className={`font-mono tabular-nums ${
+                  className={`tabular-nums ${
                     net > 0
                       ? "text-[color:var(--positive)]"
                       : net < 0
@@ -222,7 +222,7 @@ function DebtSection() {
                     {settled && it.due && ` · lunas ${formatDateShort(it.due)}`}
                   </div>
                 </div>
-                <span className="font-mono text-[12px] tabular-nums">
+                <span className="text-[12px] tabular-nums">
                   {formatRupiah(it.amount ?? 0)}
                 </span>
                 <GhostBtn
@@ -565,7 +565,7 @@ function Row({ label, v }: { label: string; v: number }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-text-3">{label}</span>
-      <span className="font-mono tabular-nums">{formatRupiah(v)}</span>
+      <span className="tabular-nums">{formatRupiah(v)}</span>
     </div>
   );
 }
@@ -678,7 +678,7 @@ function ClosingSection() {
             {stats.topCat.map(([cat, v]) => (
               <div key={cat} className="flex justify-between text-[12px]">
                 <span className="text-text-3">{cat}</span>
-                <span className="font-mono tabular-nums">{formatRupiah(v)}</span>
+                <span className="tabular-nums">{formatRupiah(v)}</span>
               </div>
             ))}
           </div>
@@ -751,7 +751,7 @@ function Stat({
         {label}
       </div>
       <div
-        className={`font-mono text-[13px] tabular-nums ${
+        className={`text-[13px] tabular-nums ${
           pos ? "text-[color:var(--positive)]" : neg ? "text-[color:var(--negative)]" : ""
         }`}
       >

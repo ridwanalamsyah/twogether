@@ -431,21 +431,26 @@ export function GlobalSearch({
   // Portal to <body>: the sticky header uses backdrop-filter, which would
   // otherwise trap this fixed overlay inside the header's box.
   return createPortal(
-    <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/50 pt-[10vh] backdrop-in"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-[80] flex items-start justify-center pt-[10vh]">
+      <button
+        type="button"
+        aria-label="Tutup pencarian"
+        onClick={onClose}
+        className="backdrop-in fixed inset-0 bg-black/50"
+      />
       <div
-        className="pop-in mx-4 w-full max-w-[480px] overflow-hidden rounded-xl bg-bg-app shadow-2xl theme-transition"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Pencarian"
+        className="pop-in relative z-10 mx-4 w-full max-w-[480px] overflow-hidden rounded-xl bg-bg-app shadow-2xl theme-transition"
       >
-        <div className="border-b border-border">
+        <div className="border-b border-border focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40">
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search or command: 25000, note..., moment..., task..."
-            className="w-full bg-transparent px-4 py-3 text-sm outline-none"
+            className="w-full bg-transparent px-4 py-3 text-sm focus:outline-none"
           />
           {actionMsg && (
             <div className="px-4 pb-2 text-[11px] font-semibold text-[color:var(--positive)]">

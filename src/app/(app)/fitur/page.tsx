@@ -2,7 +2,7 @@
 
 import { IconTile, bundleIcon, spaceIcon } from "@/lib/icons";
 import { ChevronRight, GripVertical, Minus, Search, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -39,6 +39,7 @@ export default function JelajahPage() {
   const userId = useAuth((s) => s.userId);
   const revealFor = useDashboard((s) => s.revealFor);
   const move = useFeatures((s) => s.move);
+  const reduced = useReducedMotion();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 160, tolerance: 6 } }),
@@ -77,6 +78,7 @@ export default function JelajahPage() {
         actions={
           mine.length > 0 ? (
             <button
+              type="button"
               onClick={() => setEditing((v) => !v)}
               className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
                 editing ? "bg-accent text-accent-fg" : "text-text-2"
@@ -90,16 +92,16 @@ export default function JelajahPage() {
 
       <div className="px-5 pt-4 pb-8">
         {!editing && (
-          <label className="mb-5 flex items-center gap-2 rounded-full bg-bg-elev1 px-3.5 py-2.5">
+          <label className="mb-5 flex items-center gap-2 rounded-full bg-bg-elev1 px-3.5 py-2.5 transition-shadow focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40">
             <Search size={16} className="shrink-0 text-text-4" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cari ruang…"
-              className="min-w-0 flex-1 bg-transparent text-[15px] text-text-1 outline-none placeholder:text-text-4"
+              className="min-w-0 flex-1 bg-transparent text-[15px] text-text-1 placeholder:text-text-4 focus:outline-none"
             />
             {query && (
-              <button onClick={() => setQuery("")} aria-label="Hapus pencarian" className="text-text-4">
+              <button type="button" onClick={() => setQuery("")} aria-label="Hapus pencarian" className="text-text-4">
                 <X size={16} />
               </button>
             )}
@@ -183,6 +185,8 @@ export default function JelajahPage() {
         {!query.trim() && others.length > 0 && (
           <section className="mt-8">
             <button
+              type="button"
+              aria-expanded={showMore}
               onClick={() => setShowMore((v) => !v)}
               className="flex w-full items-center justify-between py-2 text-left active:opacity-60"
             >
@@ -193,88 +197,96 @@ export default function JelajahPage() {
                 <span className="block text-[12px] text-text-3">
                   {others.length} ruang lain siap dipakai kapan saja
                   {others.some((f) => f.isNew) && (
-                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
+                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-accent-fg">
                       {others.filter((f) => f.isNew).length} baru
                     </span>
                   )}
                 </span>
               </span>
-              <span
-                className={`text-text-3 transition-transform duration-300 ease-ios ${
+              <ChevronRight
+                size={18}
+                className={`text-text-3 transition-transform duration-200 ease-ios ${
                   showMore ? "rotate-90" : ""
                 }`}
-              >
-                ›
-              </span>
+              />
             </button>
-            {showMore && (
-              <>
-              {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
-          <section className="mt-2">
-            <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Paket ruang</div>
-            <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
-              {BUNDLES.map((b) => {
-                const items = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)).filter(Boolean) as Feature[];
-                const missing = items.filter((f) => !enabled.includes(f.href));
-                return (
-                  <li key={b.id} className="flex items-center gap-3 px-4 py-3">
-                    <IconTile spec={bundleIcon(b.id)} size={36} radius={10} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-medium text-text-1">{b.title}</span>
-                      <span className="block truncate text-[12px] text-text-3">
-                        {items.map((f) => f.title).join(", ")}
-                      </span>
-                    </span>
-                    <button
-                      onClick={() => {
-                        hapticTap();
-                        enableMany(missing.map((f) => f.href));
-                        if (userId) void revealFor(userId, missing.map((f) => f.href));
-                      }}
-                      disabled={!missing.length}
-                      className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95 disabled:bg-transparent disabled:text-text-4"
-                    >
-                      {missing.length ? `Tambah ${missing.length}` : "Dipakai"}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-              <div className="mb-2 mt-5 px-1 text-[13px] font-semibold text-text-3">Satu per satu</div>
-              <ul className="surface slide-up divide-y divide-[color:var(--hairline)] overflow-hidden">
-                {others.map((f) => (
-                  <li key={f.href} className="flex items-center gap-3 px-4 py-3">
-                    <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-1.5 text-[14px] text-text-1">
-                        {f.title}
-                        {f.isNew && (
-                          <span className="rounded-full bg-accent px-1.5 py-px text-[10px] font-bold text-accent-fg">
-                            Baru
+            <AnimatePresence initial={false}>
+              {showMore && (
+                <motion.div
+                  initial={reduced ? false : { opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                  transition={{ duration: reduced ? 0 : 0.2 }}
+                >
+                  {BUNDLES.some((b) => b.hrefs.some((h) => !enabled.includes(h))) && (
+                    <section className="mt-2">
+                      <div className="mb-2 px-1 text-[13px] font-semibold text-text-3">Paket ruang</div>
+                      <ul className="surface divide-y divide-[color:var(--hairline)] overflow-hidden">
+                        {BUNDLES.map((b) => {
+                          const items = b.hrefs.map((h) => FEATURES.find((f) => f.href === h)).filter(Boolean) as Feature[];
+                          const missing = items.filter((f) => !enabled.includes(f.href));
+                          return (
+                            <li key={b.id} className="flex items-center gap-3 px-4 py-3">
+                              <IconTile spec={bundleIcon(b.id)} size={36} radius={10} />
+                              <span className="min-w-0 flex-1">
+                                <span className="block text-[15px] font-medium text-text-1">{b.title}</span>
+                                <span className="block truncate text-[12px] text-text-3">
+                                  {items.map((f) => f.title).join(", ")}
+                                </span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  hapticTap();
+                                  enableMany(missing.map((f) => f.href));
+                                  if (userId) void revealFor(userId, missing.map((f) => f.href));
+                                }}
+                                disabled={!missing.length}
+                                className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 transition-transform active:scale-95 disabled:bg-transparent disabled:text-text-4"
+                              >
+                                {missing.length ? `Tambah ${missing.length}` : "Dipakai"}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  )}
+                  <div className="mb-2 mt-5 px-1 text-[13px] font-semibold text-text-3">Satu per satu</div>
+                  <ul className="surface slide-up divide-y divide-[color:var(--hairline)] overflow-hidden">
+                    {others.map((f) => (
+                      <li key={f.href} className="flex items-center gap-3 px-4 py-3">
+                        <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-1.5 text-[14px] text-text-1">
+                            {f.title}
+                            {f.isNew && (
+                              <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-accent-fg">
+                                Baru
+                              </span>
+                            )}
                           </span>
-                        )}
-                      </span>
-                      <span className="block truncate text-[12px] text-text-4">
-                        {f.subtitle}
-                      </span>
-                    </span>
-                    <button
-                      onClick={() => {
-                        hapticTap();
-                        toggle(f.href);
-                        if (userId) void revealFor(userId, [f.href]);
-                      }}
-                      className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95"
-                    >
-                      Tambah
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              </>
-            )}
+                          <span className="block truncate text-[12px] text-text-4">
+                            {f.subtitle}
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            hapticTap();
+                            toggle(f.href);
+                            if (userId) void revealFor(userId, [f.href]);
+                          }}
+                          className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 transition-transform active:scale-95"
+                        >
+                          Tambah
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </section>
         )}
       </div>
@@ -371,14 +383,19 @@ const SHORT: Record<string, string> = {
 };
 
 function SpaceIcon({ feature: f, index }: { feature: Feature; index: number }) {
+  const reduced = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.92 }}
+      initial={reduced ? false : { opacity: 0, y: 6, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 420, damping: 30, delay: Math.min(index, 20) * 0.02 }}
+      transition={
+        reduced
+          ? { duration: 0 }
+          : { duration: 0.18, ease: [0.22, 1, 0.36, 1], delay: Math.min(index, 10) * 0.01 }
+      }
     >
       <Link href={f.href} aria-label={f.title} className="flex flex-col items-center gap-1.5 active:opacity-80">
-        <motion.span whileTap={{ scale: 0.88 }} transition={{ type: "spring", stiffness: 600, damping: 25 }}>
+        <motion.span whileTap={reduced ? undefined : { scale: 0.88 }} transition={{ type: "spring", stiffness: 600, damping: 25 }}>
           <IconTile spec={spaceIcon(f.href)} size={52} radius={16} />
         </motion.span>
         <span className="w-full truncate px-0.5 text-center text-[11px] font-medium leading-tight text-text-2">

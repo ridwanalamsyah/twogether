@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import {
   deleteTrip,
@@ -145,14 +146,14 @@ function TripCard({
       <div className="mt-3 grid grid-cols-3 gap-3 border-y border-border py-3">
         <div>
           <div className="text-[10px] text-text-4">Terpakai</div>
-          <div className="font-mono text-[13px] font-medium tabular-nums">
+          <div className="text-[13px] font-medium tabular-nums">
             {formatRupiah(spent)}
           </div>
         </div>
         <div>
           <div className="text-[10px] text-text-4">Sisa</div>
           <div
-            className={`font-mono text-[13px] font-medium tabular-nums ${
+            className={`text-[13px] font-medium tabular-nums ${
               remaining < 0 ? "text-[color:var(--negative)]" : ""
             }`}
           >
@@ -161,7 +162,7 @@ function TripCard({
         </div>
         <div>
           <div className="text-[10px] text-text-4">Hari ke</div>
-          <div className="font-mono text-[13px] font-medium tabular-nums">
+          <div className="text-[13px] font-medium tabular-nums">
             {daysElapsed}/{totalDays}
           </div>
         </div>
@@ -182,7 +183,7 @@ function TripCard({
 
       <div className="mt-2 flex items-center justify-between text-[11px]">
         <span className="text-text-4">
-          Per hari <span className="font-mono text-text-2">{formatRupiah(dailyBudget)}</span>
+          Per hari <span className="tabular-nums text-text-2">{formatRupiah(dailyBudget)}</span>
         </span>
         {status !== "ended" && (
           <span
@@ -209,6 +210,7 @@ function TripCard({
       )}
 
       <button
+        type="button"
         onClick={() => userId && deleteTrip(userId, trip.id)}
         className="mt-3 text-[11px] text-text-4 active:opacity-50"
       >
@@ -255,84 +257,76 @@ function TripSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in">
-      <div className="mx-auto max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] sheet-up theme-transition">
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{trip ? "Edit trip" : "Trip baru"}</h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
-          </button>
+    <Sheet title={trip ? "Edit trip" : "Trip baru"} onClose={onClose}>
+      <div className="space-y-2">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {EMOJIS.map((e) => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => setEmoji(e)}
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-xl ${
+                emoji === e ? "bg-accent" : "bg-bg-elev2"
+              }`}
+            >
+              {e}
+            </button>
+          ))}
         </div>
-
-        <div className="space-y-2">
-          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {EMOJIS.map((e) => (
-              <button
-                key={e}
-                onClick={() => setEmoji(e)}
-                className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-xl ${
-                  emoji === e ? "bg-accent" : "bg-bg-elev2"
-                }`}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-          <input
-            className="input-base"
-            placeholder="Destinasi (mis. Bali, Jepang)"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-1.5">
-            <label className="text-[11px] text-text-3">
-              Berangkat
-              <input
-                className="input-base mt-0.5 text-sm"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </label>
-            <label className="text-[11px] text-text-3">
-              Pulang
-              <input
-                className="input-base mt-0.5 text-sm"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </label>
-          </div>
-          <input
-            className="input-base font-mono"
-            inputMode="numeric"
-            placeholder="Total budget (Rp)"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value.replace(/[^\d.]/g, ""))}
-          />
-          <textarea
-            className="input-base min-h-[80px] py-2 leading-relaxed"
-            placeholder="Packing list (satu item per baris)"
-            value={packing}
-            onChange={(e) => setPacking(e.target.value)}
-          />
-          <input
-            className="input-base"
-            placeholder="Catatan (opsional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <button
-            onClick={submit}
-            disabled={!destination.trim() || !budget}
-            className="btn-accent w-full text-sm disabled:opacity-50"
-          >
-            {trip ? "Simpan perubahan" : "Bikin trip"}
-          </button>
+        <input
+          className="input-base"
+          placeholder="Destinasi (mis. Bali, Jepang)"
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
+        />
+        <div className="grid grid-cols-2 gap-1.5">
+          <label className="text-[11px] text-text-3">
+            Berangkat
+            <input
+              className="input-base mt-0.5 text-sm"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+          <label className="text-[11px] text-text-3">
+            Pulang
+            <input
+              className="input-base mt-0.5 text-sm"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
         </div>
+        <input
+          className="input-base tabular-nums"
+          inputMode="numeric"
+          placeholder="Total budget (Rp)"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value.replace(/[^\d.]/g, ""))}
+        />
+        <textarea
+          className="input-base min-h-[80px] py-2 leading-relaxed"
+          placeholder="Packing list (satu item per baris)"
+          value={packing}
+          onChange={(e) => setPacking(e.target.value)}
+        />
+        <input
+          className="input-base"
+          placeholder="Catatan (opsional)"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!destination.trim() || !budget}
+          className="btn-accent w-full text-sm disabled:opacity-50"
+        >
+          {trip ? "Simpan perubahan" : "Bikin trip"}
+        </button>
       </div>
-    </div>
+    </Sheet>
   );
 }

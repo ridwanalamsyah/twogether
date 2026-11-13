@@ -586,24 +586,31 @@ function ConfirmDialog({
   }, [onCancel]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center backdrop-in"
-      onClick={onCancel}
-    >
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        onClick={onCancel}
+        className="backdrop-in fixed inset-0 bg-black/40"
+      />
       <div
-        className="w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="relative z-10 w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
       >
         <h2 className="text-[16px] font-semibold text-text-1">{title}</h2>
         <div className="mt-2 space-y-1 text-[13px] text-text-2">{body}</div>
         <div className="mt-5 flex gap-2">
           <button
+            type="button"
             onClick={onCancel}
             className="flex-1 rounded-md border border-border px-3 py-2 text-[13px] text-text-2 active:opacity-60"
           >
             {cancelLabel}
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             className={`flex-1 rounded-md px-3 py-2 text-[13px] font-medium active:opacity-80 ${
               danger
@@ -629,6 +636,14 @@ function AddMemberSheet({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   function submit() {
     const trimmed = name.trim();
     if (!trimmed) return;
@@ -644,13 +659,18 @@ function AddMemberSheet({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center backdrop-in"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        onClick={onClose}
+        className="backdrop-in fixed inset-0 bg-black/40"
+      />
       <div
-        className="w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tambah anggota"
+        className="relative z-10 w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
       >
         <h2 className="text-[16px] font-semibold text-text-1">
           Tambah anggota

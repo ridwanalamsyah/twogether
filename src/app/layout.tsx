@@ -10,9 +10,19 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 // Plus Jakarta Sans — rounded, warm, and designed in Indonesia. Bundled
 // locally so it works offline and inside the iOS app.
 const jakarta = localFont({
-  src: "../../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2",
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2",
+      weight: "200 800",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-italic.woff2",
+      weight: "200 800",
+      style: "italic",
+    },
+  ],
   variable: "--font-jakarta",
-  weight: "200 800",
   display: "swap",
 });
 
@@ -59,8 +69,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
   themeColor: "#faf6f1",
 };

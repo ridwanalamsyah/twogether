@@ -165,7 +165,7 @@ export default function TilawahPage() {
                   <div key={x.name} className="mb-2.5">
                     <div className="mb-1 flex justify-between text-[13px]">
                       <span className="font-semibold text-text-2">{x.name}</span>
-                      <span className="font-mono text-text-3">
+                      <span className="tabular-nums text-text-3">
                         {x.pages} hal · juz {Math.floor(x.pages / PAGES_PER_JUZ)}
                       </span>
                     </div>

@@ -14,6 +14,7 @@ import {
 import type { HabitRecord } from "@/lib/db";
 import { todayISO } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Sheet } from "@/components/ui/Sheet";
 
 const BUCKETS = ["Pagi", "Siang", "Sore", "Malam", "Seharian"];
 
@@ -64,14 +65,14 @@ export default function HabitsPage() {
 
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-baseline justify-between">
-          <span className="font-mono text-[28px] font-semibold tracking-tight text-text-1">
+          <span className="text-[28px] font-semibold tracking-tight tabular-nums text-text-1">
             {progress}%
           </span>
           <span className="text-[11px] text-text-3">selesai hari ini</span>
         </div>
         <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
           <div
-            className="h-full rounded-full bg-accent transition-[width] duration-500"
+            className="h-full rounded-full bg-accent transition-[width] duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -81,6 +82,7 @@ export default function HabitsPage() {
             {members.map((m) => (
               <button
                 key={m.id}
+                type="button"
                 onClick={() => setWho(m.name)}
                 className={`flex-shrink-0 -mb-px border-b pb-2 font-medium transition-colors ${
                   who === m.name
@@ -109,6 +111,7 @@ export default function HabitsPage() {
                   return (
                     <li key={h.id} className="group flex items-center gap-3 py-2.5">
                       <button
+                        type="button"
                         onClick={() =>
                           userId &&
                           void toggleHabitLog(userId, h.id, today, who)
@@ -133,6 +136,7 @@ export default function HabitsPage() {
                         {h.label}
                       </span>
                       <button
+                        type="button"
                         onClick={() => setEditing(h)}
                         className="text-[11px] text-text-4 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                       >
@@ -194,62 +198,45 @@ function HabitSheet({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in"
-      onClick={onClose}
-    >
-      <div
-        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">
-            {record ? "Edit habit" : "Tambah habit"}
-          </h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
-          </button>
-        </div>
-        <div className="space-y-3">
-          <label className="block">
-            <div className="mb-1 text-[11px] font-bold section-label text-text-3">
-              Kebiasaan
-            </div>
-            <input
-              className="input-base"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="misal: Baca 10 halaman buku"
-              autoFocus
-            />
-          </label>
-          <label className="block">
-            <div className="mb-1 text-[11px] font-bold section-label text-text-3">
-              Waktu
-            </div>
-            <select
-              className="input-base"
-              value={bucket}
-              onChange={(e) => setBucket(e.target.value)}
-            >
-              {BUCKETS.map((b) => (
-                <option key={b}>{b}</option>
-              ))}
-            </select>
-          </label>
-          <div className="flex gap-2">
-            <button onClick={save} className="btn-accent flex-1 text-sm">
-              Simpan
-            </button>
-            {record && (
-              <button onClick={del} className="btn-danger text-sm">
-                Hapus
-              </button>
-            )}
+    <Sheet title={record ? "Edit habit" : "Tambah habit"} onClose={onClose}>
+      <div className="space-y-3">
+        <label className="block">
+          <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+            Kebiasaan
           </div>
+          <input
+            className="input-base"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="misal: Baca 10 halaman buku"
+            autoFocus
+          />
+        </label>
+        <label className="block">
+          <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+            Waktu
+          </div>
+          <select
+            className="input-base"
+            value={bucket}
+            onChange={(e) => setBucket(e.target.value)}
+          >
+            {BUCKETS.map((b) => (
+              <option key={b}>{b}</option>
+            ))}
+          </select>
+        </label>
+        <div className="flex gap-2">
+          <button type="button" onClick={save} className="btn-accent flex-1 text-sm">
+            Simpan
+          </button>
+          {record && (
+            <button type="button" onClick={del} className="btn-danger text-sm">
+              Hapus
+            </button>
+          )}
         </div>
       </div>
-    </div>
+    </Sheet>
   );
 }

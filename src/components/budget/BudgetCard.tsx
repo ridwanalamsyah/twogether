@@ -25,29 +25,29 @@ export function BudgetCard({ txs, month, categories }: { txs: TransactionRecord[
     <div className="surface mt-3 p-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[14px] font-bold text-text-1">Batas belanja bulan ini</span>
-        <button onClick={() => setEditing("new")} className="text-[12px] font-semibold text-accent">
+        <button type="button" onClick={() => setEditing("new")} className="text-[12px] font-semibold text-accent">
           + Atur
         </button>
       </div>
       {usage.length === 0 ? (
-        <button onClick={() => setEditing("new")} className="w-full py-1 text-left text-[13px] leading-relaxed text-text-3">
-          Pasang batas per kategori (mis. Makan Rp 1,5jt) — nanti diingatkan saat sudah 80%.
+        <button type="button" onClick={() => setEditing("new")} className="w-full py-1 text-left text-[13px] leading-relaxed text-text-3">
+          Pasang batas per kategori (mis. Makan Rp1.500.000), nanti diingatkan saat sudah 80%.
         </button>
       ) : (
         <div className="space-y-3">
           {usage.map((u) => (
-            <button key={u.budget.id} onClick={() => setEditing(u.budget)} className="block w-full text-left">
+            <button type="button" key={u.budget.id} onClick={() => setEditing(u.budget)} className="block w-full text-left">
               <div className="mb-1 flex items-baseline justify-between text-[13px]">
                 <span className="font-semibold text-text-1">
                   {u.budget.category}
                   {u.level === "over" ? " · lewat batas" : ""}
                 </span>
                 <span className={u.level === "ok" ? "text-text-3" : u.level === "warn" ? "text-[color:var(--warning)]" : "text-[color:var(--negative)]"}>
-                  <span className="font-mono font-semibold">{formatRupiahShort(u.spent)}</span> / {formatRupiahShort(u.budget.limit)}
+                  <span className="font-semibold tabular-nums">{formatRupiahShort(u.spent)}</span> / {formatRupiahShort(u.budget.limit)}
                 </span>
               </div>
               <div className="relative h-2.5 overflow-hidden rounded-full bg-bg-elev2">
-                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, u.ratio * 100)}%`, background: BAR[u.level] }} />
+                <div className="h-full rounded-full transition-[width] duration-300" style={{ width: `${Math.min(100, u.ratio * 100)}%`, background: BAR[u.level] }} />
                 {/* Where spending "should" be by today if spread evenly. */}
                 <span aria-hidden className="absolute inset-y-0 w-[2px] bg-text-4/60" style={{ left: `${monthPct * 100}%` }} />
               </div>
@@ -104,11 +104,11 @@ function LimitSheet({
       footer={
         <div className="flex gap-2">
           {record && (
-            <button onClick={remove} className="rounded-full bg-bg-elev2 px-4 text-[14px] font-semibold text-[color:var(--negative)]">
+            <button type="button" onClick={remove} className="rounded-full bg-bg-elev2 px-4 text-[14px] font-semibold text-[color:var(--negative)]">
               Hapus
             </button>
           )}
-          <button onClick={save} disabled={!limit} className="btn-accent flex-1 disabled:opacity-50">
+          <button type="button" onClick={save} disabled={!limit} className="btn-accent flex-1 disabled:opacity-50">
             Simpan
           </button>
         </div>
@@ -121,9 +121,9 @@ function LimitSheet({
       )}
       <Field label="Batas per bulan">
         <input
-          className="input-base"
+          className="input-base tabular-nums"
           inputMode="numeric"
-          placeholder="Rp 0"
+          placeholder="Rp0"
           value={limit ? formatMoneyInput(limit) : ""}
           onChange={(e) => setLimit(Number(e.target.value.replace(/\D/g, "")) || 0)}
           autoFocus
@@ -131,7 +131,7 @@ function LimitSheet({
       </Field>
       <div className="flex flex-wrap gap-1.5">
         {[300_000, 500_000, 1_000_000, 1_500_000, 2_000_000].map((v) => (
-          <button key={v} onClick={() => setLimit(v)} className="rounded-full bg-bg-elev2 px-3 py-1.5 text-[12px] font-semibold text-text-2">
+          <button type="button" key={v} onClick={() => setLimit(v)} className="rounded-full bg-bg-elev2 px-3 py-1.5 text-[12px] font-semibold text-text-2">
             {formatRupiahShort(v)}
           </button>
         ))}

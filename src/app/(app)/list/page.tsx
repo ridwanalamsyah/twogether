@@ -649,7 +649,7 @@ function DonationSection() {
                   {formatDateShort(e.date)}
                 </div>
               </div>
-              <span className="font-mono text-[13px] tabular-nums">
+              <span className="text-[13px] tabular-nums">
                 {formatRupiah(e.valueNum ?? 0)}
               </span>
               <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>

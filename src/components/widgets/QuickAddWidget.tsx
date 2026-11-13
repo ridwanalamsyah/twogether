@@ -3,6 +3,7 @@
 import { useNick } from "@/lib/nick";
 import { budgetAlert } from "@/lib/budget";
 import { toast } from "@/lib/toast";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -26,6 +27,7 @@ const CATEGORIES = [
 export function QuickAddWidget() {
   const { nick } = useNick();
   const userId = useAuth((s) => s.userId);
+  const reduced = useReducedMotion();
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
   const people = useMemo(
@@ -71,20 +73,30 @@ export function QuickAddWidget() {
 
   return (
     <WidgetShell title="Tambah cepat">
-      <div className="mb-2 flex gap-4 text-xs">
-        {(["out", "in"] as const).map((k) => (
-          <button
-            key={k}
-            onClick={() => setKind(k)}
-            className={`-mb-px border-b pb-1.5 font-medium transition-colors ${
-              kind === k
-                ? "border-text-1 text-text-1"
-                : "border-transparent text-text-4"
-            }`}
-          >
-            {k === "out" ? "Keluar" : "Masuk"}
-          </button>
-        ))}
+      <div className="mb-2 flex gap-4 border-b border-[color:var(--hairline)] text-xs">
+        {(["out", "in"] as const).map((k) => {
+          const active = kind === k;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKind(k)}
+              className={`relative pb-1.5 font-medium transition-colors ${
+                active ? "text-text-1" : "text-text-4"
+              }`}
+            >
+              {k === "out" ? "Keluar" : "Masuk"}
+              {active && (
+                <motion.span
+                  layoutId="quick-add-kind"
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-[1.5px] bg-text-1"
+                  transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 36 }}
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="space-y-1.5">
@@ -93,7 +105,7 @@ export function QuickAddWidget() {
             pulse ? "ring-2 ring-[color:var(--positive)]" : ""
           }`}
           inputMode="numeric"
-          placeholder="Rp 0"
+          placeholder="Rp0"
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
           onKeyDown={(e) => {
@@ -125,6 +137,7 @@ export function QuickAddWidget() {
           </select>
         </div>
         <button
+          type="button"
           onClick={submit}
           disabled={busy || !amount}
           className="btn-accent w-full text-sm disabled:opacity-50"

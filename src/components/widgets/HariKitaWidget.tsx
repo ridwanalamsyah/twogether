@@ -7,9 +7,8 @@ import { useItems } from "@/stores/data";
 import { celebrationToday, relationshipStart, yearsMonths } from "@/lib/anniv";
 import { konfetti } from "@/lib/konfetti";
 import { fromIsoDay, isoDay } from "@/lib/dates";
-import { accentEmoji, useTheme } from "@/stores/theme";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { ChevronRight, Heart } from "lucide-react";
 import { CountUp } from "@/components/ui/CountUp";
 import { hapticTap } from "@/lib/haptic";
 
@@ -19,8 +18,9 @@ import { hapticTap } from "@/lib/haptic";
  */
 export function HariKitaWidget() {
   const userId = useAuth((s) => s.userId);
-  const annivs = useItems(userId, "anniv") ?? [];
-  const accent = useTheme((s) => s.accent);
+  const annivsRaw = useItems(userId, "anniv");
+  const annivs = annivsRaw ?? [];
+  const reduce = useReducedMotion();
   const [tick, setTick] = useState(0);
   const [milestoneView, setMilestoneView] = useState<0 | 1 | 2>(0);
 
@@ -46,25 +46,50 @@ export function HariKitaWidget() {
     return () => clearTimeout(t);
   }, [celebration]);
 
+  if (annivsRaw === undefined) {
+    return (
+      <div
+        className="skeleton h-[176px] w-full rounded-[26px]"
+        role="status"
+        aria-label="Memuat hari bersama"
+      />
+    );
+  }
+
   if (!anchorDate) {
     return (
-      <div className="surface flex items-center justify-between gap-3 p-4">
-        <div>
-          <div className="text-[11px] font-medium text-text-3">Hari kita</div>
-          <div className="mt-0.5 text-[13px] font-semibold text-text-1">
-            Tambah anniversary
+      <Link
+        href="/kita"
+        className="pressable relative block overflow-hidden rounded-[26px] p-5 shadow-float transition-transform duration-200 active:scale-[0.98]"
+        style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[13px] font-semibold opacity-90">Hari kita</div>
+            <div className="mt-1 text-[22px] font-bold leading-tight tracking-tight">
+              Tandai tanggal jadian
+            </div>
+            <p className="mt-1 text-[13px] opacity-85">
+              Hitung hari bersama dan rayakan tiap fase berdua.
+            </p>
           </div>
-          <div className="mt-0.5 text-[11px] text-text-3">
-            Lacak berapa lama bersama
-          </div>
+          <span
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+            style={{
+              background: "color-mix(in srgb, var(--accent-fg) 16%, transparent)",
+              color: "var(--accent-fg)",
+            }}
+          >
+            <Heart size={20} strokeWidth={2.2} aria-hidden />
+          </span>
         </div>
-        <Link
-          href="/kita"
-          className="rounded-md bg-text-1 px-3 py-1.5 text-[11px] font-semibold text-bg-app"
+        <span
+          className="mt-4 inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[12px] font-semibold"
+          style={{ background: "var(--accent-fg)", color: "var(--accent)" }}
         >
-          Atur
-        </Link>
-      </div>
+          Atur sekarang <ChevronRight size={14} strokeWidth={2.4} aria-hidden />
+        </span>
+      </Link>
     );
   }
 
@@ -85,48 +110,47 @@ export function HariKitaWidget() {
   const prevMilestone = nextMilestone - 100;
   const progress = (days - prevMilestone) / 100;
 
-  // Text and chips follow --accent-fg: with the dark "mono" accent the card
-  // is cream, and hard-coded white text vanished into it.
   const fgMix = (pct: number) =>
     `color-mix(in srgb, var(--accent-fg) ${pct}%, transparent)`;
 
   return (
     <div className="relative">
-      <Link
-        href="/kita"
-        className="pressable relative block overflow-hidden rounded-[26px] p-5 shadow-float active:scale-[0.98] transition-transform duration-200"
+      <div
+        className="relative overflow-hidden rounded-[26px] p-5 shadow-float"
         style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
       >
-        <div className="text-[13px] font-semibold opacity-90 tracking-tight">
-          {celebration?.kind === "anniv"
-            ? `Selamat hari jadi yang ke-${celebration.years}!`
-            : celebration?.kind === "milestone"
-              ? "Hari ini angka bulat!"
-              : "Sudah bersama"}
-        </div>
-        <motion.div 
-          className="mt-1 flex items-baseline gap-2 cursor-pointer"
-          whileTap={{ scale: 0.94 }}
+        <Link
+          href="/kita"
+          className="block pr-12 transition-opacity active:opacity-85"
         >
-          <CountUp
-            value={days}
-            duration={1.2}
-            className="text-[48px] font-bold leading-none tracking-tight tabular-nums"
-          />
-          <span className="text-[17px] font-semibold opacity-90">hari</span>
-        </motion.div>
-        <div className="mt-1 text-[12px] opacity-80 tracking-tight">
-          {ym.years} tahun {ym.months} bulan · {hours} jam {mins} menit
-        </div>
-        <div 
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          <div className="text-[13px] font-semibold tracking-tight opacity-90">
+            {celebration?.kind === "anniv"
+              ? `Selamat hari jadi yang ke-${celebration.years}!`
+              : celebration?.kind === "milestone"
+                ? "Hari ini angka bulat!"
+                : "Sudah bersama"}
+          </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <CountUp
+              value={days}
+              duration={1.1}
+              className="tabular-nums text-[48px] font-bold leading-none tracking-tight"
+            />
+            <span className="text-[17px] font-semibold opacity-90">hari</span>
+          </div>
+          <div className="mt-1 text-[12px] tracking-tight opacity-85">
+            {ym.years} tahun {ym.months} bulan · {hours} jam {mins} menit
+          </div>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => {
             hapticTap();
             setMilestoneView((v) => ((v + 1) % 3) as 0 | 1 | 2);
           }}
-          className="mt-4 flex items-center gap-3 cursor-pointer select-none rounded-xl py-1 active:opacity-70 transition-opacity"
-          title="Ketuk untuk ubah ringkasan"
+          aria-label="Ubah ringkasan milestone"
+          className="mt-4 flex w-full items-center gap-3 rounded-xl py-1 text-left transition-opacity active:opacity-75"
         >
           <div
             className="h-1.5 flex-1 overflow-hidden rounded-full"
@@ -135,27 +159,27 @@ export function HariKitaWidget() {
             <motion.div
               className="h-full rounded-full"
               style={{ background: "var(--accent-fg)", originX: 0 }}
-              initial={{ scaleX: 0 }}
+              initial={reduce ? false : { scaleX: 0 }}
               animate={{ scaleX: Math.max(0.04, progress) }}
-              transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              transition={reduce ? { duration: 0.1 } : { duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             />
           </div>
           <AnimatePresence mode="wait">
             <motion.span
               key={milestoneView}
-              initial={{ opacity: 0, y: 4 }}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="shrink-0 text-[12px] font-semibold opacity-90 tracking-tight"
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+              transition={{ duration: 0.18 }}
+              className="shrink-0 tabular-nums text-[12px] font-semibold tracking-tight opacity-90"
             >
               {milestoneView === 0 && `${toMilestone} hari lagi ke ${nextMilestone.toLocaleString("id-ID")}`}
               {milestoneView === 1 && `${Math.round(progress * 100)}% perjalanan fase ini`}
               {milestoneView === 2 && `Total ${Math.floor(days / 7)} minggu bersama`}
             </motion.span>
           </AnimatePresence>
-        </div>
-      </Link>
+        </button>
+      </div>
       <HeartBurst />
     </div>
   );
@@ -170,7 +194,7 @@ const BURST = [
   { x: 26, y: -95, r: 18, s: 0.85 },
 ];
 
-/** Softly beating heart in the corner; a tap sends a little burst up. */
+/** Calm heart trigger in the corner; a tap sends an interactive heart burst up. */
 function HeartBurst() {
   const reduce = useReducedMotion();
   const [bursts, setBursts] = useState<number[]>([]);
@@ -178,15 +202,18 @@ function HeartBurst() {
   function pop(e: React.MouseEvent) {
     e.stopPropagation();
     hapticTap();
+    if (reduce) return;
     const id = Date.now();
     setBursts((b) => [...b, id]);
     setTimeout(() => setBursts((b) => b.filter((x) => x !== id)), 1000);
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={pop}
+      whileHover={reduce ? undefined : { scale: 1.08 }}
+      whileTap={reduce ? undefined : { scale: 0.82 }}
       aria-label="Kirim hati"
       className="absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center rounded-full"
       style={{
@@ -196,11 +223,11 @@ function HeartBurst() {
     >
       <motion.span
         className="grid place-items-center"
-        animate={reduce ? undefined : { scale: [1, 1.14, 1, 1.08, 1] }}
-        transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 0.8, ease: "easeInOut" }}
-        whileTap={{ scale: 0.8 }}
+        initial={reduce ? false : { scale: 0.85 }}
+        animate={reduce ? undefined : { scale: [0.85, 1.14, 1] }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
-        <Heart size={20} strokeWidth={2.2} fill="currentColor" />
+        <Heart size={20} strokeWidth={2.2} fill="currentColor" aria-hidden />
       </motion.span>
       <AnimatePresence>
         {bursts.map((id) =>
@@ -213,11 +240,11 @@ function HeartBurst() {
               animate={{ x: b.x, y: b.y, scale: b.s, opacity: 0, rotate: b.r }}
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: i * 0.03 }}
             >
-              <Heart size={16} strokeWidth={2} fill="var(--accent-fg)" />
+              <Heart size={16} strokeWidth={2} fill="var(--accent-fg)" aria-hidden />
             </motion.span>
           )),
         )}
       </AnimatePresence>
-    </button>
+    </motion.button>
   );
 }

@@ -142,13 +142,13 @@ export default function NikahPage() {
           <div className="surface mt-4 p-4">
             <div className="flex items-baseline justify-between">
               <span className="text-[14px] font-bold text-text-1">Anggaran</span>
-              <span className="font-mono text-[13px] text-text-3">
+              <span className="text-[13px] tabular-nums text-text-3">
                 {formatRupiahShort(spent)} / {formatRupiahShort(totalBudget)}
               </span>
             </div>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-elev2">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-[width] duration-300"
                 style={{
                   width: `${Math.min(100, (spent / totalBudget) * 100)}%`,
                   background: spent > totalBudget ? "var(--negative)" : "var(--accent)",
@@ -177,7 +177,7 @@ export default function NikahPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white/20 py-2 backdrop-blur">
-      <div className="font-mono text-[16px] font-extrabold">{value}</div>
+      <div className="text-[16px] font-extrabold tabular-nums">{value}</div>
       <div className="text-[11px] text-white/85">{label}</div>
     </div>
   );
@@ -212,16 +212,16 @@ function MetaSheet({
     <Sheet
       title="Hari H"
       onClose={onClose}
-      footer={<button onClick={save} className="btn-accent w-full">Simpan</button>}
+      footer={<button type="button" onClick={save} className="btn-accent w-full">Simpan</button>}
     >
       <Field label="Tanggal">
         <input type="date" className="input-base" value={date} onChange={(e) => setDate(e.target.value)} />
       </Field>
       <Field label="Total budget">
         <input
-          className="input-base"
+          className="input-base tabular-nums"
           inputMode="numeric"
-          placeholder="Rp 0"
+          placeholder="Rp0"
           value={budget ? formatMoneyInput(Number(budget.replace(/\D/g, "")) || 0) : ""}
           onChange={(e) => setBudget(e.target.value)}
         />
@@ -255,7 +255,7 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
       {items.length === 0 ? (
         <div className="space-y-3">
           <Empty>Belum ada pos anggaran.</Empty>
-          <button onClick={seed} className="btn-accent w-full">
+          <button type="button" onClick={seed} className="btn-accent w-full">
             Pakai daftar pos umum
           </button>
         </div>
@@ -265,10 +265,10 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
             const p = parsePayload<BudgetPayload>(b.payload, { spent: 0, vendor: "" });
             const over = (b.amount ?? 0) > 0 && p.spent > (b.amount ?? 0);
             return (
-              <button key={b.id} onClick={() => setEdit(b)} className="block w-full py-3 text-left">
+              <button type="button" key={b.id} onClick={() => setEdit(b)} className="block w-full py-3 text-left">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-[14px] font-semibold text-text-1">{b.title}</span>
-                  <span className={`font-mono text-[12px] ${over ? "text-[color:var(--negative)]" : "text-text-3"}`}>
+                  <span className={`text-[12px] tabular-nums ${over ? "text-[color:var(--negative)]" : "text-text-3"}`}>
                     {formatRupiahShort(p.spent)} / {formatRupiahShort(b.amount ?? 0)}
                   </span>
                 </div>
@@ -320,6 +320,7 @@ function BudgetSheet({ userId, item, onClose }: { userId: string; item?: ItemRec
         <div className="flex gap-2">
           {item && (
             <button
+              type="button"
               onClick={async () => {
                 await deleteItem(userId, item.id);
                 onClose();
@@ -329,7 +330,7 @@ function BudgetSheet({ userId, item, onClose }: { userId: string; item?: ItemRec
               Hapus
             </button>
           )}
-          <button onClick={save} className="btn-accent flex-1">Simpan</button>
+          <button type="button" onClick={save} className="btn-accent flex-1">Simpan</button>
         </div>
       }
     >
@@ -337,10 +338,10 @@ function BudgetSheet({ userId, item, onClose }: { userId: string; item?: ItemRec
         <input className="input-base" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Katering" />
       </Field>
       <Field label="Rencana">
-        <input className="input-base" inputMode="numeric" value={plan ? formatMoneyInput(n(plan)) : ""} onChange={(e) => setPlan(e.target.value)} placeholder="Rp 0" />
+        <input className="input-base tabular-nums" inputMode="numeric" value={plan ? formatMoneyInput(n(plan)) : ""} onChange={(e) => setPlan(e.target.value)} placeholder="Rp0" />
       </Field>
       <Field label="Sudah dibayar">
-        <input className="input-base" inputMode="numeric" value={spent ? formatMoneyInput(n(spent)) : ""} onChange={(e) => setSpent(e.target.value)} placeholder="Rp 0" />
+        <input className="input-base tabular-nums" inputMode="numeric" value={spent ? formatMoneyInput(n(spent)) : ""} onChange={(e) => setSpent(e.target.value)} placeholder="Rp0" />
       </Field>
       <Field label="Vendor">
         <input className="input-base" value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Opsional" />
@@ -451,7 +452,7 @@ function SeserahanSection({ userId, items }: { userId: string; items: ItemRecord
               >
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${i.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                 <span className={`flex-1 text-[14px] ${i.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{i.title}</span>
-                {(i.amount ?? 0) > 0 && <span className="font-mono text-[12px] text-text-3">{formatRupiahShort(i.amount ?? 0)}</span>}
+                {(i.amount ?? 0) > 0 && <span className="text-[12px] tabular-nums text-text-3">{formatRupiahShort(i.amount ?? 0)}</span>}
               </button>
             </SwipeRow>
           ))}

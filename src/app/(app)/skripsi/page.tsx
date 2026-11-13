@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { NotebookPen } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import {
   deleteSkripsiBimbingan,
@@ -54,7 +56,7 @@ export default function SkripsiPage() {
 
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="font-mono text-[28px] font-semibold tracking-tight text-text-1">
+          <span className="tabular-nums text-[28px] font-semibold tracking-tight text-text-1">
             {overall}%
           </span>
           <span className="text-[11px] text-text-3">
@@ -63,7 +65,7 @@ export default function SkripsiPage() {
         </div>
         <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
           <div
-            className="h-full rounded-full bg-accent transition-[width] duration-500"
+            className="h-full rounded-full bg-accent transition-[width] duration-300"
             style={{ width: `${overall}%` }}
           />
         </div>
@@ -78,6 +80,7 @@ export default function SkripsiPage() {
           ).map((t) => (
             <button
               key={t.id}
+              type="button"
               onClick={() => setTab(t.id)}
               className={`-mb-px border-b pb-2 font-medium transition-colors ${
                 tab === t.id
@@ -97,12 +100,13 @@ export default function SkripsiPage() {
             {(chapters ?? []).map((c) => (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => setEditChapter(c)}
                 className="surface block w-full p-3 text-left theme-transition active:scale-[0.99]"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-mono text-[10px] font-bold section-label text-text-3">
+                    <div className="text-[11px] font-bold section-label text-text-3">
                       BAB {c.number}
                     </div>
                     <div className="truncate font-semibold text-text-1">
@@ -114,20 +118,23 @@ export default function SkripsiPage() {
                       </div>
                     )}
                   </div>
-                  <div className="font-mono text-sm font-bold">
+                  <div className="tabular-nums text-sm font-bold">
                     {c.progress}%
                   </div>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-elev3">
                   <div
-                    className="h-full rounded-full bg-accent transition-[width] duration-500"
+                    className="h-full rounded-full bg-accent transition-[width] duration-300"
                     style={{ width: `${c.progress}%` }}
                   />
                 </div>
                 <div className="mt-1.5 flex items-center justify-between text-[11px]">
                   <span className="text-text-2">{c.status}</span>
                   {c.note && (
-                    <span className="truncate text-text-3">📝 {c.note}</span>
+                    <span className="inline-flex min-w-0 items-center gap-1 truncate text-text-3">
+                      <NotebookPen size={11} className="shrink-0" aria-hidden />
+                      {c.note}
+                    </span>
                   )}
                 </div>
               </button>
@@ -457,36 +464,5 @@ function Field({
       </div>
       {children}
     </label>
-  );
-}
-
-function Sheet({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in"
-      onClick={onClose}
-    >
-      <div
-        className="mx-auto max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] sheet-up theme-transition"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
   );
 }

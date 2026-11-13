@@ -68,7 +68,7 @@ export default function ReflectionPage() {
 
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-baseline justify-between">
-          <span className="font-mono text-[28px] font-semibold tracking-tight text-text-1">
+          <span className="tabular-nums text-[28px] font-semibold tracking-tight text-text-1">
             {weeklyAvg ?? "—"}
           </span>
           <span className="text-[11px] text-text-3">rata-rata mood (7 hari)</span>

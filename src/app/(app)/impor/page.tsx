@@ -184,7 +184,7 @@ export default function ImporPage() {
                       <div className="truncate text-[13px] text-text-1">{r.note || "(tanpa keterangan)"}</div>
                       <div className="text-[11px] text-text-4">{r.date} · {r.category}{r.dup ? " · sudah ada" : ""}</div>
                     </div>
-                    <span className={`font-mono text-[13px] font-semibold ${r.kind === "in" ? "text-[color:var(--positive)]" : "text-text-1"}`}>
+                    <span className={`tabular-nums text-[13px] font-semibold ${r.kind === "in" ? "text-[color:var(--positive)]" : "text-text-1"}`}>
                       {r.kind === "in" ? "+" : "−"}{formatRupiah(r.amount)}
                     </span>
                   </li>

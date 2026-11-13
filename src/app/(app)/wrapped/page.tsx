@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Share2 } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  Droplets,
+  Flame,
+  Mail,
+  Share2,
+  Target,
+  Wallet,
+} from "lucide-react";
+import { IconTile, type IconSpec } from "@/lib/icons";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import {
@@ -117,12 +127,12 @@ export default function WrappedPage() {
 
       <div className="space-y-3 px-5 mt-3">
         <ShareCard activeDays={stats.totalActiveDays} moments={stats.momentsCount} />
-        <Card emoji="📅" title="Hari aktif">
+        <Card spec={{ Icon: CalendarDays, tint: "var(--accent)" }} title="Hari aktif">
           <Big>{stats.totalActiveDays}</Big>
           <Sub>hari isi tracker tahun ini</Sub>
         </Card>
 
-        <Card emoji="🔥" title="Hari tersibuk">
+        <Card spec={{ Icon: Flame, tint: "var(--accent)" }} title="Hari tersibuk">
           <Big>
             {stats.topDay
               ? new Date(stats.topDay).toLocaleDateString("id-ID", {
@@ -135,7 +145,7 @@ export default function WrappedPage() {
           <Sub>{stats.topCount} catatan dalam sehari</Sub>
         </Card>
 
-        <Card emoji="💰" title="Keuangan">
+        <Card spec={{ Icon: Wallet, tint: "var(--accent)" }} title="Keuangan">
           <div className="grid grid-cols-3 gap-2">
             <Stat label="Masuk" value={formatRupiah(stats.income)} tone="emerald" />
             <Stat label="Keluar" value={formatRupiah(stats.expense)} tone="rose" />
@@ -143,7 +153,7 @@ export default function WrappedPage() {
           </div>
           {stats.topCats.length > 0 && (
             <div className="mt-3 space-y-1">
-              <div className="text-[10px] section-label text-text-3">
+              <div className="text-[11px] section-label text-text-3">
                 Top 3 kategori boros
               </div>
               {stats.topCats.map(([cat, amt], i) => (
@@ -151,7 +161,7 @@ export default function WrappedPage() {
                   <span className="font-medium text-text-1">
                     {i + 1}. {cat}
                   </span>
-                  <span className="font-mono text-text-3">
+                  <span className="tabular-nums text-text-3">
                     {formatRupiah(amt)}
                   </span>
                 </div>
@@ -160,17 +170,17 @@ export default function WrappedPage() {
           )}
         </Card>
 
-        <Card emoji="🎯" title="Tabungan">
+        <Card spec={{ Icon: Target, tint: "var(--accent)" }} title="Tabungan">
           <Big>{formatRupiah(stats.saved)}</Big>
           <Sub>setoran goal tahun ini</Sub>
         </Card>
 
-        <Card emoji="📚" title="Belajar">
+        <Card spec={{ Icon: BookOpen, tint: "var(--accent)" }} title="Belajar">
           <Big>{stats.pomodoroHours} jam</Big>
           <Sub>fokus dengan pomodoro</Sub>
         </Card>
 
-        <Card emoji="💧" title="Sehat">
+        <Card spec={{ Icon: Droplets, tint: "var(--accent)" }} title="Sehat">
           <div className="grid grid-cols-3 gap-2">
             <Stat label="Air" value={`${stats.waterCups} gelas`} tone="default" />
             <Stat label="Olahraga" value={`${stats.exerciseSessions}×`} tone="default" />
@@ -182,12 +192,12 @@ export default function WrappedPage() {
           </div>
         </Card>
 
-        <Card emoji="💌" title="Moments">
+        <Card spec={{ Icon: Mail, tint: "var(--accent)" }} title="Moments">
           <Big>{stats.momentsCount}</Big>
           <Sub>kenangan tertulis tahun ini</Sub>
         </Card>
 
-        <p className="pt-4 text-center text-[10px] text-text-4">
+        <p className="pt-4 text-center text-[11px] text-text-3">
           Twogether · Wrapped {YEAR}
         </p>
       </div>
@@ -196,18 +206,18 @@ export default function WrappedPage() {
 }
 
 function Card({
-  emoji,
+  spec,
   title,
   children,
 }: {
-  emoji: string;
+  spec: IconSpec;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="surface p-4">
-      <div className="mb-1.5 flex items-center gap-1.5">
-        <span className="text-base">{emoji}</span>
+      <div className="mb-2 flex items-center gap-2">
+        <IconTile spec={spec} size={26} radius={8} />
         <h2 className="text-[12px] font-semibold section-label text-text-3">
           {title}
         </h2>
@@ -219,14 +229,14 @@ function Card({
 
 function Big({ children }: { children: React.ReactNode }) {
   return (
-    <div className="font-mono text-[24px] font-bold leading-tight text-text-1">
+    <div className="tabular-nums text-[24px] font-bold leading-tight text-text-1">
       {children}
     </div>
   );
 }
 
 function Sub({ children }: { children: React.ReactNode }) {
-  return <div className="mt-0.5 text-[11px] text-text-3">{children}</div>;
+  return <div className="mt-0.5 text-[12px] text-text-3">{children}</div>;
 }
 
 function Stat({
@@ -240,16 +250,16 @@ function Stat({
 }) {
   const toneClass =
     tone === "emerald"
-      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      ? "bg-positive-bg text-[color:var(--positive)]"
       : tone === "rose"
-        ? "bg-rose-500/10 text-rose-700 dark:text-rose-300"
+        ? "bg-negative-bg text-[color:var(--negative)]"
         : "bg-bg-elev1 text-text-1";
   return (
     <div className={`rounded-lg p-2 text-center ${toneClass}`}>
-      <div className="text-[9px] font-medium section-label opacity-80">
+      <div className="text-[11px] font-semibold opacity-90">
         {label}
       </div>
-      <div className="font-mono text-[12px] font-bold">{value}</div>
+      <div className="mt-0.5 tabular-nums text-[12px] font-bold">{value}</div>
     </div>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/stores/auth";
 import { isNative } from "@/lib/native";
 
@@ -9,6 +11,7 @@ type Mode = "signin" | "signup";
 
 export default function AuthPage() {
   const router = useRouter();
+  const reduce = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const signIn = useAuth((s) => s.signIn);
   const signUp = useAuth((s) => s.signUp);
@@ -36,7 +39,7 @@ export default function AuthPage() {
   // to /join so the RPC can consume the token under the new auth session.
   function postAuthTarget(): string {
     if (typeof window === "undefined") return "/home";
-    // Opened from a "lupa password" email → go straight to setting a new one.
+    // Opened from a "lupa password" email -> go straight to setting a new one.
     if (new URLSearchParams(window.location.search).get("reset") === "1") {
       return "/settings/security?reset=1";
     }
@@ -85,18 +88,7 @@ export default function AuthPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-bg-app pt-safe theme-transition">
-      {/* Soft colour blobs behind the form */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-40 blur-3xl"
-        style={{ background: "var(--accent)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-20 top-40 h-56 w-56 rounded-full opacity-30 blur-3xl"
-        style={{ background: "var(--accent-2)" }}
-      />
-      <div className="relative flex flex-1 flex-col justify-center px-7 pt-6">
+      <div className="relative mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center px-7 pt-6">
         <div
           className="pop-in mb-7 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] text-accent-fg shadow-float"
           style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
@@ -109,45 +101,47 @@ export default function AuthPage() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="h-9 w-9"
+            aria-hidden
           >
             <circle cx="17" cy="22" r="10" />
             <circle cx="27" cy="22" r="10" />
           </svg>
         </div>
-        <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em] text-text-1">
-          {mode === "signin" ? "Halo lagi 👋" : "Mulai berdua 💞"}
+        <h1 className="text-[32px] font-bold leading-tight tracking-[-0.03em] text-text-1">
+          {mode === "signin" ? "Halo lagi" : "Mulai berdua"}
         </h1>
-        <p className="mt-1.5 text-[13px] text-text-3">
+        <p className="mt-1.5 text-[14px] text-text-3">
           {mode === "signin"
             ? "Masuk untuk lanjut cerita kalian."
-            : "Satu ruang untuk kalian berdua — uang, jadwal, kenangan."}
+            : "Satu ruang untuk kalian berdua: uang, jadwal, kenangan."}
         </p>
 
-        <div className="relative mt-7 mb-5 grid grid-cols-2 rounded-[11px] bg-bg-elev2 p-1 text-sm">
-          <span
-            aria-hidden
-            className="absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-[8px] bg-bg-app shadow-sm transition-transform duration-300 ease-ios"
-            style={{
-              transform:
-                mode === "signin" ? "translateX(0)" : "translateX(100%)",
-              left: 4,
-            }}
-          />
-          {(["signin", "signup"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m);
-                setError(null);
-              }}
-              className={`relative py-2 font-medium transition-colors duration-200 ${
-                mode === m ? "text-text-1" : "text-text-3"
-              }`}
-            >
-              {m === "signin" ? "Masuk" : "Daftar"}
-            </button>
-          ))}
+        <div className="relative mt-7 mb-5 grid grid-cols-2 rounded-[13px] bg-bg-elev2 p-1 text-sm">
+          {(["signin", "signup"] as Mode[]).map((m) => {
+            const active = mode === m;
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => {
+                  setMode(m);
+                  setError(null);
+                }}
+                className={`relative rounded-[9px] py-2 font-semibold transition-colors duration-200 ${
+                  active ? "text-bg-app" : "text-text-3"
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="auth-mode"
+                    className="absolute inset-0 rounded-[9px] bg-text-1 shadow-sm"
+                    transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 520, damping: 36 }}
+                  />
+                )}
+                <span className="relative z-10">{m === "signin" ? "Masuk" : "Daftar"}</span>
+              </button>
+            );
+          })}
         </div>
 
         <form onSubmit={submit} className="space-y-3">
@@ -185,38 +179,47 @@ export default function AuthPage() {
               </button>
             </div>
           </Field>
-          {mode === "signup" && (
-            <div key="signup-fields" className="slide-up space-y-3">
-              <Field label="Nama">
-                <input
-                  className="input-base"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Nama lengkap"
-                />
-              </Field>
-              <Field label="Tanggal lahir (opsional)">
-                <input
-                  className="input-base"
-                  type="date"
-                  value={birthday}
-                  onChange={(e) => setBirthday(e.target.value)}
-                />
-              </Field>
-              <label className="flex cursor-pointer items-start gap-2 py-1">
-                <input
-                  type="checkbox"
-                  checked={seed}
-                  onChange={(e) => setSeed(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
-                />
-                <span className="text-[12px] leading-snug text-text-2">
-                  Isi dengan contoh data supaya bisa langsung dijelajah.
-                </span>
-              </label>
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {mode === "signup" && (
+              <motion.div
+                key="signup-fields"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                animate={reduce ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-3 overflow-hidden"
+              >
+                <Field label="Nama">
+                  <input
+                    className="input-base"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Nama lengkap"
+                  />
+                </Field>
+                <Field label="Tanggal lahir (opsional)">
+                  <input
+                    className="input-base"
+                    type="date"
+                    value={birthday}
+                    onChange={(e) => setBirthday(e.target.value)}
+                  />
+                </Field>
+                <label className="flex cursor-pointer items-start gap-2 py-1">
+                  <input
+                    type="checkbox"
+                    checked={seed}
+                    onChange={(e) => setSeed(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
+                  />
+                  <span className="text-[12px] leading-snug text-text-2">
+                    Isi dengan contoh data supaya bisa langsung dijelajah.
+                  </span>
+                </label>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {info && (
             <div className="pop-in rounded-md bg-positive-bg px-3 py-2 text-xs font-medium text-[color:var(--positive)]">
@@ -284,7 +287,7 @@ export default function AuthPage() {
                   try {
                     await signInMagicLink(email.trim().toLowerCase());
                     setMagicSent(true);
-                    setInfo(`Cek email ${email} — tap link-nya untuk langsung masuk.`);
+                    setInfo(`Cek email ${email}, lalu tap link-nya untuk langsung masuk.`);
                   } catch (err) {
                     setError((err as Error).message);
                   } finally {
@@ -299,8 +302,9 @@ export default function AuthPage() {
           </div>
         )}
       </div>
-      <p className="relative px-7 pb-[calc(24px+var(--sab))] pt-6 text-center text-[12px] text-text-4">
-        Catatan kalian tetap aman, bahkan tanpa internet 💕
+      <p className="relative flex items-center justify-center gap-1.5 px-7 pb-[calc(24px+var(--sab))] pt-6 text-center text-[12px] text-text-4">
+        <ShieldCheck size={14} strokeWidth={2.2} className="shrink-0 text-[color:var(--positive)]" aria-hidden />
+        <span>Catatan kalian tetap aman, bahkan tanpa internet</span>
       </p>
     </main>
   );
@@ -315,7 +319,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11px] font-medium text-text-3">
+      <span className="mb-1 block text-[12px] font-medium text-text-3">
         {label}
       </span>
       {children}

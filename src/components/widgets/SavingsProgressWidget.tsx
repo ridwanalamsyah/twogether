@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/stores/auth";
 import { useDeposits, useGoals } from "@/stores/data";
 import { WidgetShell } from "./WidgetShell";
@@ -11,6 +13,7 @@ export function SavingsProgressWidget() {
   const userId = useAuth((s) => s.userId);
   const goals = useGoals(userId);
   const deposits = useDeposits(userId);
+  const reduce = useReducedMotion();
 
   const items = useMemo(() => {
     return (goals ?? []).map((g) => {
@@ -28,9 +31,10 @@ export function SavingsProgressWidget() {
       action={
         <Link
           href="/goals"
-          className="text-[11px] text-text-3 hover:text-text-1"
+          className="inline-flex items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
         >
-          Lihat ›
+          Lihat
+          <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
         </Link>
       }
     >
@@ -46,17 +50,19 @@ export function SavingsProgressWidget() {
                 <span className="truncate text-[13px] text-text-1">
                   {it.goal.name}
                 </span>
-                <span className="text-[12px] font-semibold tabular-nums text-text-3">
+                <span className="tabular-nums text-[12px] font-semibold text-text-3">
                   {Math.round(it.pct)}%
                 </span>
               </div>
               <div className="mt-1 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
-                <div
-                  className="h-full rounded-full bg-accent transition-[width] duration-700"
-                  style={{ width: `${it.pct}%` }}
+                <motion.div
+                  className="h-full rounded-full bg-accent"
+                  initial={reduce ? false : { width: 0 }}
+                  animate={{ width: `${it.pct}%` }}
+                  transition={reduce ? { duration: 0.1 } : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
-              <div className="mt-1 text-[11px] tabular-nums text-text-3">
+              <div className="mt-1 tabular-nums text-[12px] text-text-3">
                 {formatRupiahShort(it.saved)} / {formatRupiahShort(it.goal.target)}
               </div>
             </div>
@@ -64,29 +70,5 @@ export function SavingsProgressWidget() {
         </div>
       )}
     </WidgetShell>
-  );
-}
-
-function Ring({ pct }: { pct: number }) {
-  const r = 22;
-  const c = 2 * Math.PI * r;
-  return (
-    <div className="relative h-[52px] w-[52px] flex-shrink-0">
-      <svg viewBox="0 0 52 52" className="h-full w-full -rotate-90">
-        <circle cx="26" cy="26" r={r} fill="none" stroke="var(--bg-elev3)" strokeWidth="4" />
-        <circle
-          cx="26"
-          cy="26"
-          r={r}
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c - (pct / 100) * c}
-          style={{ transition: "stroke-dashoffset 800ms cubic-bezier(.4,0,.2,1)" }}
-        />
-      </svg>
-    </div>
   );
 }

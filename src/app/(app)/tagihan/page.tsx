@@ -109,14 +109,14 @@ export default function TagihanPage() {
         <div className="grid grid-cols-2 gap-2.5">
           <div className="surface p-3.5">
             <div className="text-[12px] font-semibold text-text-3">Belum dibayar</div>
-            <div className="mt-0.5 font-mono text-[18px] font-extrabold text-text-1">{formatRupiahShort(unpaidSum)}</div>
+            <div className="mt-0.5 text-[18px] font-extrabold tabular-nums text-text-1">{formatRupiahShort(unpaidSum)}</div>
             <div className={`text-[11px] ${late ? "font-semibold text-[color:var(--negative)]" : "text-text-4"}`}>
               {late ? `${late} telat` : `${unpaid.length} tagihan`}
             </div>
           </div>
           <div className="surface p-3.5">
             <div className="text-[12px] font-semibold text-text-3">Per bulan</div>
-            <div className="mt-0.5 font-mono text-[18px] font-extrabold text-text-1">{formatRupiahShort(perMonth)}</div>
+            <div className="mt-0.5 text-[18px] font-extrabold tabular-nums text-text-1">{formatRupiahShort(perMonth)}</div>
             <div className="text-[11px] text-text-4">{active.length} rutin</div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function TagihanPage() {
             <p className="mt-1 text-[13px] text-text-3">
               Listrik, kos, cicilan, langganan. Tinggal ketuk &ldquo;Bayar&rdquo; — langsung tercatat sebagai pengeluaran.
             </p>
-            <button onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tambah tagihan</button>
+            <button type="button" onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tambah tagihan</button>
           </div>
         ) : (
           <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
@@ -139,7 +139,7 @@ export default function TagihanPage() {
                 <li key={s.bill.id} className="border-b border-border last:border-0">
                   <SwipeRow onDelete={() => userId && deleteItem(userId, s.bill.id)}>
                     <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
-                      <button onClick={() => setEditing(s.bill)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      <button type="button" onClick={() => setEditing(s.bill)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-[22px]">{s.p.emoji}</span>
                         <span className="min-w-0">
                           <span className={`block truncate text-[15px] font-semibold ${done ? "text-text-3" : "text-text-1"}`}>{s.bill.title}</span>
@@ -154,11 +154,11 @@ export default function TagihanPage() {
                         </span>
                       </button>
                       <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="font-mono text-[13px] font-semibold text-text-1">{formatRupiahShort(s.bill.amount ?? 0)}</span>
+                        <span className="text-[13px] font-semibold tabular-nums text-text-1">{formatRupiahShort(s.bill.amount ?? 0)}</span>
                         {s.finished ? null : s.paid ? (
-                          <button onClick={() => undo(s)} className="text-[11px] font-semibold text-text-4">Batalkan</button>
+                          <button type="button" onClick={() => undo(s)} className="text-[11px] font-semibold text-text-4">Batalkan</button>
                         ) : (
-                          <button onClick={() => pay(s)} disabled={busy} className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-accent-fg active:scale-95 disabled:opacity-50">
+                          <button type="button" onClick={() => pay(s)} disabled={busy} className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-accent-fg active:scale-95 disabled:opacity-50">
                             Bayar
                           </button>
                         )}
@@ -211,7 +211,7 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
     <Sheet
       title={bill ? "Ubah tagihan" : "Tagihan baru"}
       onClose={onClose}
-      footer={<button onClick={save} disabled={!title.trim() || !amount} className="btn-accent w-full disabled:opacity-50">Simpan</button>}
+      footer={<button type="button" onClick={save} disabled={!title.trim() || !amount} className="btn-accent w-full disabled:opacity-50">Simpan</button>}
     >
       {!bill && (
         <FieldGroup label="Cepat pilih">
@@ -219,6 +219,7 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
             {BILL_PRESETS.map((x) => (
               <button
                 key={x.title}
+                type="button"
                 onClick={() => {
                   setTitle(x.title);
                   setP({ ...p, emoji: x.emoji, type: x.type, category: x.category });
@@ -236,9 +237,9 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
       </Field>
       <Field label="Jumlah per bulan">
         <input
-          className="input-base"
+          className="input-base tabular-nums"
           inputMode="numeric"
-          placeholder="Rp 0"
+          placeholder="Rp0"
           value={amount ? formatMoneyInput(amount) : ""}
           onChange={(e) => setAmount(Number(e.target.value.replace(/\D/g, "")) || 0)}
         />

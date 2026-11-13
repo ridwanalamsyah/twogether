@@ -172,7 +172,7 @@ export default function FokusPage() {
               />
             </svg>
             <div className="text-center">
-              <div className="font-mono text-[44px] font-extrabold tabular-nums leading-none text-text-1">
+              <div className="text-[44px] font-extrabold tabular-nums leading-none text-text-1">
                 {myP ? mmss(remaining) : `${String(minutes).padStart(2, "0")}:00`}
               </div>
               <div className="mt-2 max-w-[150px] truncate text-[12px] text-text-3">

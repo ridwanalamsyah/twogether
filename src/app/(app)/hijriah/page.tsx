@@ -79,11 +79,11 @@ export default function HijriahPage() {
                   key={d}
                   title={ev?.title}
                   className={`relative flex aspect-square flex-col items-center justify-center rounded-xl text-center ${
-                    ev?.major ? "bg-accent text-white" : ev?.fast ? "bg-accent/10 text-text-1" : "text-text-2"
+                    ev?.major ? "bg-accent text-accent-fg" : ev?.fast ? "bg-accent/10 text-text-1" : "text-text-2"
                   } ${d === today ? "ring-2 ring-text-1" : ""}`}
                 >
-                  <span className="text-[13px] font-semibold leading-none">{Number(d.slice(8))}</span>
-                  <span className={`mt-0.5 text-[9px] leading-none ${ev?.major ? "text-white/85" : "text-text-4"}`}>{hd.day}</span>
+                  <span className="text-[13px] font-semibold leading-none tabular-nums">{Number(d.slice(8))}</span>
+                  <span className={`mt-0.5 text-[10px] leading-none tabular-nums ${ev?.major ? "opacity-85" : "text-text-4"}`}>{hd.day}</span>
                 </div>
               );
             })}

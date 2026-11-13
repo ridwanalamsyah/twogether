@@ -81,9 +81,15 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
       </button>
       {open &&
         createPortal(
-          <div className="backdrop-in fixed inset-0 z-[90] grid place-items-center bg-black/90 p-4" onClick={() => setOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-label={a.name} className="backdrop-in fixed inset-0 z-[90] grid place-items-center bg-black/90 p-4">
+            <button
+              type="button"
+              aria-label="Tutup pratinjau foto"
+              onClick={() => setOpen(false)}
+              className="absolute inset-0"
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt={a.name} className="max-h-full max-w-full object-contain" />
+            <img src={src} alt={a.name} className="pointer-events-none relative z-10 max-h-full max-w-full object-contain" />
           </div>,
           document.body,
         )}

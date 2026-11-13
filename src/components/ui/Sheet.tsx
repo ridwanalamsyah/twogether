@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 import {
   animate,
   motion,
@@ -78,21 +79,32 @@ export function Sheet({
 
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={onClose}>
-      <motion.div aria-hidden className="absolute inset-0 bg-black/40 backdrop-in" {...drag.backdrop} />
+    <div className="fixed inset-0 z-[70] flex items-end justify-center">
+      <motion.button
+        type="button"
+        aria-label="Tutup dialog"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/40 backdrop-in"
+        {...drag.backdrop}
+      />
       <motion.div
         role="dialog"
+        aria-modal="true"
         aria-label={title}
-        className="sheet-up relative mx-auto flex max-h-[88vh] w-full max-w-[480px] flex-col rounded-t-[26px] bg-bg-app shadow-float"
-        onClick={(e) => e.stopPropagation()}
+        className="sheet-up relative z-10 mx-auto flex max-h-[88vh] w-full max-w-[480px] flex-col rounded-t-[26px] bg-bg-app shadow-float"
         {...drag.panel}
       >
         <div className="cursor-grab px-5 pt-3 active:cursor-grabbing" {...drag.handle}>
           <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[18px] font-extrabold tracking-tight text-text-1">{title}</h2>
-            <button onClick={onClose} className="text-[13px] font-medium text-text-3">
-              Tutup
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup"
+              className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-3 transition-transform active:scale-90"
+            >
+              <X size={16} />
             </button>
           </div>
         </div>

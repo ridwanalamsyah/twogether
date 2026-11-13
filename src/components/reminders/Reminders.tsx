@@ -1,6 +1,16 @@
 "use client";
 
-import { Bell } from "lucide-react";
+import {
+  Bell,
+  BookOpen,
+  Flame,
+  Heart,
+  MessageCircleHeart,
+  PenLine,
+  Receipt,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/stores/auth";
@@ -9,8 +19,24 @@ import { useReminderPrefs } from "@/stores/reminders";
 import { usePeople, isoDay } from "@/lib/people";
 import { useNick } from "@/lib/nick";
 import { isNative } from "@/lib/native";
-import { notificationId, upcoming, type Reminder, type ReminderData } from "@/lib/reminders";
+import { IconTile, type IconSpec } from "@/lib/icons";
+import {
+  notificationId,
+  upcoming,
+  type Reminder,
+  type ReminderData,
+  type ReminderType,
+} from "@/lib/reminders";
 import { notificationText } from "@/stores/privacy";
+
+const REMINDER_ICON: Record<ReminderType, IconSpec> = {
+  tagihan: { Icon: Receipt, tint: "#ef4444" },
+  anniv: { Icon: Heart, tint: "#ec4899" },
+  catat: { Icon: PenLine, tint: "#f59e0b" },
+  tilawah: { Icon: BookOpen, tint: "#10b981" },
+  tantangan: { Icon: Flame, tint: "#f97316" },
+  kabar: { Icon: MessageCircleHeart, tint: "#f43f5e" },
+};
 
 function useReminderData(): ReminderData | null {
   const userId = useAuth((s) => s.userId);
@@ -52,25 +78,43 @@ export function RemindersWidget() {
   const all = useReminders();
   const dismissed = useReminderPrefs((s) => s.dismissed);
   const dismiss = useReminderPrefs((s) => s.dismiss);
+  const reduced = useReducedMotion();
   const today = isoDay(new Date());
   const hidden = new Set(dismissed.date === today ? dismissed.ids : []);
   const list = all.filter((r) => r.current && !hidden.has(r.id)).slice(0, 4);
   if (!list.length) return null;
   return (
     <div className="surface p-4">
-      <div className="mb-2 flex items-center gap-2 text-[15px] font-semibold text-text-1"><Bell size={16} className="text-accent" /> Pengingat</div>
+      <div className="mb-2.5 flex items-center gap-2 text-[15px] font-semibold text-text-1">
+        <Bell size={16} className="text-accent" /> Pengingat
+      </div>
       <ul className="space-y-1.5">
-        {list.map((r) => (
-          <li key={r.id} className="flex items-center gap-2 rounded-2xl bg-bg-elev1 pr-1">
-            <Link href={r.href} className="flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5">
-              <span className="text-[18px]">{r.emoji}</span>
-              <span className="truncate text-[14px] font-medium text-text-1">{r.text}</span>
-            </Link>
-            <button onClick={() => dismiss(r.id, today)} aria-label="Sembunyikan untuk hari ini" className="grid h-8 w-8 shrink-0 place-items-center text-[13px] text-text-4">
-              ✕
-            </button>
-          </li>
-        ))}
+        <AnimatePresence initial={false}>
+          {list.map((r) => (
+            <motion.li
+              key={r.id}
+              layout
+              initial={reduced ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduced ? undefined : { opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: reduced ? 0 : 0.18 }}
+              className="flex items-center gap-2 rounded-2xl bg-bg-elev1 pr-1.5"
+            >
+              <Link href={r.href} className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5 py-2">
+                <IconTile spec={REMINDER_ICON[r.type]} size={34} radius={10} />
+                <span className="truncate text-[14px] font-medium text-text-1">{r.text}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => dismiss(r.id, today)}
+                aria-label="Sembunyikan untuk hari ini"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
+              >
+                <X size={15} />
+              </button>
+            </motion.li>
+          ))}
+        </AnimatePresence>
       </ul>
     </div>
   );

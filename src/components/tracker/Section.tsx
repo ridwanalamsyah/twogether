@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { hapticTap } from "@/lib/haptic";
 
 /* ───────────────────────── Section tabs ─────────────────────────
@@ -57,6 +58,7 @@ export function SectionTabs({
   const [active, setActive] = useState<string | null>(null);
   const [dir, setDir] = useState<1 | -1>(1);
   const barRef = useRef<HTMLDivElement | null>(null);
+  const reduced = useReducedMotion();
 
   const register = useCallback((meta: TabMeta) => {
     setTabs((prev) => {
@@ -133,15 +135,28 @@ export function SectionTabs({
           return (
             <button
               key={t.title}
+              type="button"
               role="tab"
               aria-selected={on}
               onClick={() => select(t.title)}
-              className={`shrink-0 rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
+              className={`relative z-0 shrink-0 overflow-hidden rounded-full px-4 py-2 text-[14px] font-medium transition-transform duration-150 active:scale-95 ${
                 on
-                  ? "bg-text-1 text-bg-app"
+                  ? "text-bg-app"
                   : "bg-bg-card text-text-2 ring-1 ring-[color:var(--hairline)]"
               }`}
             >
+              {on && (
+                <motion.span
+                  layoutId={`sec-tab-${storageKey}`}
+                  aria-hidden
+                  className="absolute inset-0 -z-10 rounded-full bg-text-1"
+                  transition={
+                    reduced
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 520, damping: 36 }
+                  }
+                />
+              )}
               {t.title}
             </button>
           );
@@ -213,6 +228,7 @@ export function Section({
     <section className="mt-6 first:mt-4">
       <div className="mb-2 flex items-end justify-between">
         <button
+          type="button"
           onClick={() => setOpen(!open)}
           className="text-left active:opacity-50"
         >
@@ -226,8 +242,9 @@ export function Section({
         <div className="flex items-center gap-2">
           {action}
           <button
+            type="button"
             onClick={() => setOpen(!open)}
-            className="text-[11px] text-text-3 active:opacity-50"
+            className="text-[12px] text-text-3 active:opacity-50"
           >
             {open ? "Tutup" : "Buka"}
           </button>
@@ -265,9 +282,10 @@ export function AccentBtn({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
-      className="grid h-10 min-w-10 shrink-0 place-items-center rounded-full bg-accent px-3 text-[14px] font-semibold text-accent-fg active:scale-95 disabled:bg-bg-elev3 disabled:text-text-4"
+      className="grid h-10 min-w-10 shrink-0 place-items-center rounded-full bg-accent px-3 text-[14px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:bg-bg-elev3 disabled:text-text-4"
     >
       {children}
     </button>
@@ -283,6 +301,7 @@ export function GhostBtn({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="text-[13px] font-medium text-text-3 active:opacity-50"
     >

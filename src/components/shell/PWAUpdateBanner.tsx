@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { RefreshCw, Sparkles } from "lucide-react";
+import { IconTile } from "@/lib/icons";
 
 let reloadRequested = false;
 
 /**
  * Listens to service-worker updates. When a new SW takes control, show a
- * subtle banner with a "Reload" button so users always run the latest UI.
+ * calm banner with a "Reload" button so users always run the latest UI.
  */
 export function PWAUpdateBanner() {
   const [available, setAvailable] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -68,25 +72,36 @@ export function PWAUpdateBanner() {
     });
   }
 
-  if (!available) return null;
-
   return (
-    <div className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 mx-auto flex max-w-[456px] items-center gap-2 rounded-lg border border-border bg-bg-elev2 px-3 py-2 shadow-lg">
-      <span className="text-base">✨</span>
-      <div className="flex-1">
-        <div className="text-[12px] font-semibold text-text-1">
-          Versi baru tersedia
-        </div>
-        <div className="text-[10px] text-text-3">
-          Tap reload untuk dapat fitur terbaru
-        </div>
-      </div>
-      <button
-        onClick={reload}
-        className="rounded-md bg-text-1 px-3 py-1.5 text-[11px] font-semibold text-bg-app active:scale-95"
-      >
-        Reload
-      </button>
-    </div>
+    <AnimatePresence>
+      {available && (
+        <motion.div
+          role="status"
+          initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.97 }}
+          animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+          exit={reduce ? { opacity: 0 } : { opacity: 0, y: 12 }}
+          transition={{ type: "spring", stiffness: 420, damping: 32 }}
+          className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 mx-auto flex max-w-[456px] items-center gap-2.5 rounded-2xl border border-border bg-bg-card px-3 py-2.5 shadow-float"
+        >
+          <IconTile spec={{ Icon: Sparkles, tint: "var(--accent)" }} size={34} radius={10} />
+          <div className="min-w-0 flex-1">
+            <div className="text-[13px] font-semibold text-text-1">
+              Versi baru tersedia
+            </div>
+            <div className="text-[12px] text-text-3">
+              Tap reload untuk pembaruan terbaru
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={reload}
+            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] font-semibold text-accent-fg transition-transform active:scale-95"
+          >
+            <RefreshCw size={13} strokeWidth={2.2} />
+            Reload
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,6 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  Coffee,
+  Footprints,
+  Heart,
+  Moon,
+  NotebookPen,
+  Sunrise,
+  Timer,
+  Trees,
+  Utensils,
+} from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Empty, Section } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
@@ -119,7 +132,7 @@ export default function JadwalPage() {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-mono text-[13px] tabular-nums">
+                    <div className="text-[13px] tabular-nums">
                       {c._parsed.start}–{c._parsed.end}
                     </div>
                     {c._parsed.room && (
@@ -135,6 +148,7 @@ export default function JadwalPage() {
         )}
 
         <button
+          type="button"
           onClick={() => setAdding(true)}
           className="mt-4 w-full rounded-full border border-border bg-bg-app py-2.5 text-[13px] font-medium text-text-2 active:bg-bg-elev1"
         >
@@ -259,14 +273,27 @@ function ClassEditor({
     }
   }
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-in"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        onClick={onClose}
+        className="backdrop-in absolute inset-0 bg-black/50"
+      />
       <div
-        className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={item ? "Edit kelas" : "Tambah kelas"}
+        className="relative z-10 mx-auto max-h-[88vh] w-full max-w-[480px] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up"
       >
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 text-center text-[15px] font-semibold">
@@ -298,6 +325,7 @@ function ClassEditor({
               {DAY_ORDER.map((d) => (
                 <button
                   key={d}
+                  type="button"
                   onClick={() => set("day", d)}
                   className={`rounded-md border px-2.5 py-1 text-[11px] ${
                     form.day === d
@@ -362,6 +390,7 @@ function ClassEditor({
         <div className="mt-5 flex gap-2">
           {item && (
             <button
+              type="button"
               onClick={remove}
               disabled={busy}
               className="rounded-full border border-border px-4 py-2.5 text-[13px] font-medium text-rose-600"
@@ -370,6 +399,7 @@ function ClassEditor({
             </button>
           )}
           <button
+            type="button"
             onClick={onClose}
             disabled={busy}
             className="flex-1 rounded-full bg-bg-elev2 py-2.5 text-[13px] font-semibold text-text-2"
@@ -377,6 +407,7 @@ function ClassEditor({
             Batal
           </button>
           <button
+            type="button"
             onClick={save}
             disabled={busy || !form.title.trim() || !timeOk}
             className="flex-1 rounded-full bg-accent py-2.5 text-[13px] font-semibold text-accent-fg disabled:opacity-50"
@@ -407,23 +438,23 @@ function Field({
 type Slot = {
   start: string;
   end: string;
-  emoji: string;
+  Icon: LucideIcon;
   title: string;
   detail: string;
 };
 
 const BASE_DAY_PLAN: Slot[] = [
-  { start: "04:30", end: "05:30", emoji: "🌅", title: "Subuh + dzikir", detail: "Mulai hari dengan tenang" },
-  { start: "05:30", end: "06:30", emoji: "🏃", title: "Olahraga ringan / jalan", detail: "15–30 menit, naikkan energi" },
-  { start: "06:30", end: "07:00", emoji: "🥣", title: "Sarapan + siapkan kuliah", detail: "Protein + air 1 gelas" },
-  { start: "12:00", end: "13:00", emoji: "🍽️", title: "Makan siang + Dzuhur", detail: "Istirahat aktif, jauhi layar" },
-  { start: "13:00", end: "14:00", emoji: "💤", title: "Power nap (opsional)", detail: "Maks 20 menit, jangan kelamaan" },
-  { start: "15:30", end: "16:30", emoji: "📚", title: "Review materi kuliah", detail: "Tulis 3 poin penting hari ini" },
-  { start: "16:30", end: "17:00", emoji: "🌳", title: "Outdoor / refresh", detail: "Asar + jalan ringan" },
-  { start: "19:00", end: "21:00", emoji: "🍅", title: "Pomodoro deep work", detail: "Tugas / skripsi / usaha (25×4)" },
-  { start: "21:00", end: "21:30", emoji: "💞", title: "Check-in pasangan", detail: "Apresiasi + rencana besok" },
-  { start: "21:30", end: "22:00", emoji: "📝", title: "Jurnal + refleksi", detail: "1 hal disyukuri, 1 yang diperbaiki" },
-  { start: "22:00", end: "04:30", emoji: "🌙", title: "Tidur 7+ jam", detail: "No screen 30 menit sebelumnya" },
+  { start: "04:30", end: "05:30", Icon: Sunrise, title: "Subuh + dzikir", detail: "Mulai hari dengan tenang" },
+  { start: "05:30", end: "06:30", Icon: Footprints, title: "Olahraga ringan / jalan", detail: "15–30 menit, naikkan energi" },
+  { start: "06:30", end: "07:00", Icon: Coffee, title: "Sarapan + siapkan kuliah", detail: "Protein + air 1 gelas" },
+  { start: "12:00", end: "13:00", Icon: Utensils, title: "Makan siang + Dzuhur", detail: "Istirahat aktif, jauhi layar" },
+  { start: "13:00", end: "14:00", Icon: Moon, title: "Power nap (opsional)", detail: "Maks 20 menit, jangan kelamaan" },
+  { start: "15:30", end: "16:30", Icon: BookOpen, title: "Review materi kuliah", detail: "Tulis 3 poin penting hari ini" },
+  { start: "16:30", end: "17:00", Icon: Trees, title: "Outdoor / refresh", detail: "Asar + jalan ringan" },
+  { start: "19:00", end: "21:00", Icon: Timer, title: "Pomodoro deep work", detail: "Tugas / skripsi / usaha (25×4)" },
+  { start: "21:00", end: "21:30", Icon: Heart, title: "Check-in pasangan", detail: "Apresiasi + rencana besok" },
+  { start: "21:30", end: "22:00", Icon: NotebookPen, title: "Jurnal + refleksi", detail: "1 hal disyukuri, 1 yang diperbaiki" },
+  { start: "22:00", end: "04:30", Icon: Moon, title: "Tidur 7+ jam", detail: "No screen 30 menit sebelumnya" },
 ];
 
 function timeOverlaps(a: { start: string; end: string }, b: { start: string; end: string }): boolean {
@@ -460,8 +491,7 @@ function Recommendations({
         </span>
       </div>
       <p className="mb-3 text-[11px] text-text-3">
-        Slot kosong di luar kuliah — tap kelas tetap muncul di atas. Disesuaikan
-        bila bentrok jadwal.
+        Slot kosong di luar kuliah: tap kelas tetap muncul di atas, disesuaikan bila bentrok jadwal.
       </p>
       <ul className="space-y-1.5">
         {slots.map((s) => {
@@ -473,13 +503,15 @@ function Recommendations({
                 active ? "bg-bg-app ring-1 ring-text-1" : ""
               }`}
             >
-              <span className="text-base leading-tight pt-0.5">{s.emoji}</span>
+              <span className="pt-0.5 text-text-3" aria-hidden>
+                <s.Icon size={15} strokeWidth={1.9} />
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-[12px] font-medium text-text-1">
                     {s.title}
                   </span>
-                  <span className="font-mono text-[10px] tabular-nums text-text-3">
+                  <span className="text-[11px] tabular-nums text-text-3">
                     {s.start}–{s.end}
                   </span>
                 </div>

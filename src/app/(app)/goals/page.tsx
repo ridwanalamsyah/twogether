@@ -5,6 +5,7 @@ import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import {
@@ -29,14 +30,19 @@ import { GoalSimulator } from "@/components/goals/GoalSimulator";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { konfetti } from "@/lib/konfetti";
 import { hapticUnlock, hapticTap } from "@/lib/haptic";
+import { PiggyBank, Plane, Store, Target, type LucideIcon } from "lucide-react";
 
-const CATEGORY_OPTIONS: { id: GoalRecord["category"]; label: string; emoji: string }[] =
-  [
-    { id: "savings", label: "Tabungan", emoji: "💰" },
-    { id: "modal", label: "Modal Usaha", emoji: "🏪" },
-    { id: "travel", label: "Traveling", emoji: "✈️" },
-    { id: "custom", label: "Lain", emoji: "🎯" },
-  ];
+const CATEGORY_OPTIONS: {
+  id: GoalRecord["category"];
+  label: string;
+  emoji: string;
+  Icon: LucideIcon;
+}[] = [
+  { id: "savings", label: "Tabungan", emoji: "💰", Icon: PiggyBank },
+  { id: "modal", label: "Modal Usaha", emoji: "🏪", Icon: Store },
+  { id: "travel", label: "Traveling", emoji: "✈️", Icon: Plane },
+  { id: "custom", label: "Lain", emoji: "🎯", Icon: Target },
+];
 
 export default function GoalsPage() {
   const params = useSearchParams();
@@ -77,8 +83,9 @@ export default function GoalsPage() {
           {(goals ?? []).map((g) => (
             <button
               key={g.id}
+              type="button"
               onClick={() => setFocusId(g.id)}
-              className={`flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-200 ease-ios active:scale-95 ${
+              className={`flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-transform duration-150 active:scale-95 ${
                 focus?.id === g.id
                   ? "bg-text-1 text-bg-app shadow-sm"
                   : "bg-bg-elev2 text-text-3"
@@ -122,6 +129,7 @@ export default function GoalsPage() {
               ).map(([id, label]) => (
                 <button
                   key={id}
+                  type="button"
                   onClick={() => setPanel(id)}
                   className={`relative py-1.5 font-medium transition-colors ${
                     panel === id ? "text-text-1" : "text-text-3"
@@ -145,7 +153,7 @@ export default function GoalsPage() {
           <EmptyState
             emoji="🎯"
             title="Belum ada goal"
-            body="Tambahkan target — laptop baru, dana nikah, traveling — dan kami bantu hitung kapan tercapainya."
+            body="Tambahkan target, misalnya laptop baru, dana nikah, atau traveling, dan kami bantu hitung kapan tercapainya."
             cta="Bikin goal pertama"
             onCta={() => setShowAdd(true)}
           />
@@ -204,7 +212,7 @@ function GoalCard({
           <div className="truncate text-[17px] font-semibold tracking-tight">
             {goal.name}
           </div>
-          <div className="mt-1 font-mono text-[12px] text-text-3">
+          <div className="mt-1 text-[12px] tabular-nums text-text-3">
             {formatRupiah(saved)} <span className="text-text-4">/ {formatRupiah(goal.target)}</span>
             {goal.deadline && (
               <span className="ml-1.5 text-text-4">· {goal.deadline}</span>
@@ -212,10 +220,10 @@ function GoalCard({
           </div>
         </div>
         <div className="flex gap-3 text-[11px]">
-          <button onClick={onEdit} className="text-text-3 hover:text-text-1">
+          <button type="button" onClick={onEdit} className="text-text-3 hover:text-text-1">
             Ubah
           </button>
-          <button onClick={onDelete} className="text-text-4 hover:text-[color:var(--negative)]">
+          <button type="button" onClick={onDelete} className="text-text-4 hover:text-[color:var(--negative)]">
             Hapus
           </button>
         </div>
@@ -223,11 +231,11 @@ function GoalCard({
       <div className="mt-3 flex items-center gap-3">
         <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-bg-elev2">
           <div
-            className="h-full rounded-full bg-accent transition-all duration-700"
+            className="h-full rounded-full bg-accent transition-[width] duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="font-mono text-[11px] tabular-nums text-text-3">{Math.round(pct)}%</span>
+        <span className="text-[11px] tabular-nums text-text-3">{Math.round(pct)}%</span>
       </div>
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-[10px] font-medium tabular-nums">
@@ -262,7 +270,7 @@ function GoalCard({
                 <div key={name}>
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold">{name}</span>
-                    <span className="font-mono text-text-2">
+                    <span className="tabular-nums text-text-2">
                       {formatRupiah(amount)} · {Math.round(share)}%
                     </span>
                   </div>
@@ -379,7 +387,7 @@ function RecurringGoalSheet({
       <div className="space-y-3">
         <Field label="Nominal/bulan">
           <input
-            className="input-base font-mono"
+            className="input-base tabular-nums"
             inputMode="numeric"
             value={amount}
             onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
@@ -400,7 +408,7 @@ function RecurringGoalSheet({
           </Field>
           <Field label="Tanggal (1–28)">
             <input
-              className="input-base font-mono"
+              className="input-base tabular-nums"
               inputMode="numeric"
               value={day}
               onChange={(e) =>
@@ -525,7 +533,7 @@ function GoalSheet({
         </Field>
         <Field label="Target (Rp)">
           <input
-            className="input-base font-mono"
+            className="input-base tabular-nums"
             inputMode="numeric"
             value={target}
             onChange={(e) => setTarget(e.target.value.replace(/[^\d]/g, ""))}
@@ -534,21 +542,24 @@ function GoalSheet({
         </Field>
         <Field label="Kategori">
           <div className="grid grid-cols-4 gap-2">
-            {CATEGORY_OPTIONS.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setCategory(c.id)}
-                className={`rounded-md border p-2 text-xs font-semibold transition-colors ${
-                  category === c.id
-                    ? "border-text-1 bg-bg-elev1 text-text-1 ring-1 ring-text-1"
-                    : "border-border bg-bg-elev1 text-text-2 hover:bg-bg-elev2"
-                }`}
-              >
-                <div className="text-base">{c.emoji}</div>
-                <div className="mt-0.5">{c.label}</div>
-              </button>
-            ))}
+            {CATEGORY_OPTIONS.map((c) => {
+              const Icon = c.Icon;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCategory(c.id)}
+                  className={`flex flex-col items-center rounded-md border p-2 text-xs font-semibold transition-colors ${
+                    category === c.id
+                      ? "border-text-1 bg-bg-elev1 text-text-1 ring-1 ring-text-1"
+                      : "border-border bg-bg-elev1 text-text-2 hover:bg-bg-elev2"
+                  }`}
+                >
+                  <Icon size={18} strokeWidth={2} aria-hidden="true" />
+                  <div className="mt-1">{c.label}</div>
+                </button>
+              );
+            })}
           </div>
         </Field>
         <Field label="Deadline (opsional)">
@@ -561,13 +572,14 @@ function GoalSheet({
         </Field>
         <Field label="Milestone % (pisah koma)">
           <input
-            className="input-base font-mono text-sm"
+            className="input-base tabular-nums text-sm"
             value={milestonesText}
             onChange={(e) => setMilestonesText(e.target.value)}
             placeholder="25, 50, 75, 100"
           />
         </Field>
         <button
+          type="button"
           onClick={submit}
           disabled={!name.trim() || !(parseFloat(target) > 0)}
           className="btn-accent w-full text-sm disabled:opacity-50"
@@ -575,7 +587,7 @@ function GoalSheet({
           {goal ? "Simpan perubahan" : "Bikin goal"}
         </button>
         {(!name.trim() || !(parseFloat(target) > 0)) && (
-          <p className="text-center text-[11px] text-text-3">
+          <p className="text-center text-[12px] text-text-3">
             Isi nama goal & target {">"} 0 untuk melanjutkan
           </p>
         )}
@@ -632,7 +644,7 @@ function DepositSheet({
       <div className="space-y-3">
         <Field label="Nominal">
           <input
-            className="input-base font-mono"
+            className="input-base tabular-nums"
             inputMode="numeric"
             value={amount}
             onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
@@ -657,7 +669,7 @@ function DepositSheet({
             onChange={(e) => setNote(e.target.value)}
           />
         </Field>
-        <button onClick={submit} className="btn-accent w-full text-sm">
+        <button type="button" onClick={submit} className="btn-accent w-full text-sm">
           Simpan setoran
         </button>
       </div>
@@ -674,39 +686,10 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-bold section-label text-text-3">
+      <span className="mb-1 block text-[11px] font-bold section-label text-text-3">
         {label}
       </span>
       {children}
     </label>
-  );
-}
-
-function Sheet({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0 backdrop-in">
-      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition">
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Tutup"
-            className="text-xl text-text-3"
-          >
-            ×
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
   );
 }

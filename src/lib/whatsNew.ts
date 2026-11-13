@@ -4,12 +4,12 @@
  * won't see it again (still readable from Pengaturan).
  */
 export const WHATS_NEW = {
-  id: "2026-10-20",
+  id: "2026-11-13",
   items: [
-    "Notifikasi walau app ditutup: kabar & moment dari pasangan langsung masuk ke HP",
-    "Tombol kirim notifikasi tes di Pengaturan → Password & keamanan",
-    "Menu bawah lebih halus: penanda tab tidak lagi menembus tombol +",
-    "Pasangan baru mulai dengan ruang inti saja, biar tidak kebanyakan",
+    "Tipografi Plus Jakarta Sans kini aktif penuh di iPhone dan web, termasuk angka tabular yang rapi",
+    "Banner status offline menyatu di header atas agar tidak menumpuk di atas judul atau tombol",
+    "Navigasi bawah dan tombol cepat pakai gerak pegas yang responsif saat ditekan",
+    "Kontras warna terang, gelap, dan seluruh tema musiman disesuaikan ke standar AA",
   ],
 };
 

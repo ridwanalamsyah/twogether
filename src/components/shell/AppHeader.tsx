@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Search, Settings } from "lucide-react";
 import { goBack, isTabRoot } from "@/lib/nav";
 import { hapticTap } from "@/lib/haptic";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
+import { OfflineBanner } from "@/components/shell/OfflineBanner";
 
 interface AppHeaderProps {
   title: string;
@@ -20,7 +21,7 @@ interface AppHeaderProps {
 
 /**
  * Minimalist sticky header. Single-line title with optional faint subtitle
- * underneath. No avatar circle — settings is reachable from bottom nav.
+ * underneath, plus inline offline banner when connectivity drops.
  */
 export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -80,20 +81,15 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
-            onClick={() => setSearchOpen(true)}
+            type="button"
+            onClick={() => {
+              hapticTap();
+              setSearchOpen(true);
+            }}
             aria-label="Cari"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2"
+            className="grid h-9 w-9 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              className="h-4 w-4"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
-            </svg>
+            <Search size={18} strokeWidth={2} />
           </button>
           {actions}
           {/* Sub-pages already have the back button; the gear there only
@@ -101,23 +97,16 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
           {!showBack && (
             <Link
               href="/settings"
-              aria-label="Settings"
-              className="flex h-9 w-9 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2"
+              onClick={() => hapticTap()}
+              aria-label="Pengaturan"
+              className="grid h-9 w-9 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                className="h-4 w-4"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
+              <Settings size={18} strokeWidth={2} />
             </Link>
           )}
         </div>
       </div>
+      <OfflineBanner />
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );

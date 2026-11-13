@@ -29,7 +29,7 @@ jobs:
   e2e:
     # Builds the real static export and clicks through it in Chromium:
     # main screens open without errors or overflow, pull-to-refresh behaves.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

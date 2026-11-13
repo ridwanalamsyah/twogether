@@ -1,5 +1,7 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import { Check, Moon, Smartphone, Sun } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   ACCENT_OPTIONS,
@@ -10,10 +12,10 @@ import {
 } from "@/stores/theme";
 import { hapticTap } from "@/lib/haptic";
 
-const MODES: { id: "light" | "dark" | "system"; label: string; emoji: string }[] = [
-  { id: "light", label: "Terang", emoji: "☀️" },
-  { id: "dark", label: "Gelap", emoji: "🌙" },
-  { id: "system", label: "Ikut HP", emoji: "📱" },
+const MODES: { id: "light" | "dark" | "system"; label: string; Icon: LucideIcon }[] = [
+  { id: "light", label: "Terang", Icon: Sun },
+  { id: "dark", label: "Gelap", Icon: Moon },
+  { id: "system", label: "Ikut HP", Icon: Smartphone },
 ];
 
 export default function ThemePage() {
@@ -42,13 +44,14 @@ export default function ThemePage() {
             {MODES.map((m) => (
               <button
                 key={m.id}
+                type="button"
                 onClick={() => setMode(m.id)}
-                className={`rounded-[18px] py-3 text-[13px] font-semibold transition-all ${
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-[18px] py-3 text-[13px] font-semibold transition-transform active:scale-95 ${
                   mode === m.id ? "bg-accent text-accent-fg shadow-[0_8px_18px_-10px_var(--accent)]" : "bg-bg-card text-text-2 shadow-card"
                 }`}
               >
-                <span className="block text-[20px]">{m.emoji}</span>
-                {m.label}
+                <m.Icon size={20} strokeWidth={2} aria-hidden />
+                <span>{m.label}</span>
               </button>
             ))}
           </div>
@@ -60,6 +63,7 @@ export default function ThemePage() {
             {SEASONAL_OPTIONS.map((o) => (
               <button
                 key={o.id}
+                type="button"
                 onClick={() => pick(o)}
                 className={`pressable relative overflow-hidden rounded-[20px] p-3.5 text-left text-white ${
                   accent === o.id ? "ring-4 ring-offset-2 ring-offset-[color:var(--bg-app)]" : ""
@@ -73,8 +77,9 @@ export default function ThemePage() {
                 <span className="block text-[15px] font-extrabold">{o.label}</span>
                 <span className="block text-[12px] text-white/85">{o.seasonal?.note}</span>
                 {accent === o.id && (
-                  <span className="mt-2 inline-block rounded-full bg-white/25 px-2 py-0.5 text-[11px] font-bold">
-                    Dipakai ✓
+                  <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[11px] font-bold">
+                    <Check size={11} strokeWidth={2.5} aria-hidden />
+                    Dipakai
                   </span>
                 )}
               </button>

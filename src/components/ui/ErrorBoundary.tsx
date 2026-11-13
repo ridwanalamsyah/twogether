@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { AlertTriangle } from "lucide-react";
 import { reportError } from "@/services/errorReports";
 
 interface State {
@@ -35,11 +36,13 @@ export class ErrorBoundary extends React.Component<
     if (!this.state.error) return this.props.children;
     if (this.props.fallback) return this.props.fallback;
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <div className="mb-3 text-4xl">😵‍💫</div>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-bg-app px-6 text-center text-text-1">
+        <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-negative-bg text-[color:var(--negative)]">
+          <AlertTriangle size={28} strokeWidth={2.1} aria-hidden />
+        </div>
         <div className="text-base font-bold">Ada yang tidak beres</div>
         <p className="mx-auto mt-1 max-w-[300px] text-xs text-text-3">
-          App ketemu error tak terduga. Data lokal kamu aman — coba reload
+          App ketemu error tak terduga. Data lokal kamu aman, coba reload
           atau lanjut ke halaman lain.
         </p>
         <pre className="mt-3 max-h-32 max-w-[320px] overflow-auto rounded bg-bg-elev2 p-2 text-left text-[10px] text-text-3">

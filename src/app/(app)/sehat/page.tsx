@@ -3,6 +3,7 @@
 import { TrendCard } from "@/components/charts/TrendCard";
 import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
@@ -158,7 +159,7 @@ function WeightSection() {
               <span className="text-[12px] text-text-2">
                 {formatDateShort(e.date)}
               </span>
-              <span className="font-mono text-[13px] tabular-nums">
+              <span className="text-[13px] tabular-nums">
                 {e.valueNum} kg
               </span>
               <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -243,7 +244,7 @@ function SleepSection() {
                 <span className="text-[12px] text-text-2">
                   {formatDateShort(e.date)}
                 </span>
-                <span className="font-mono text-[13px] tabular-nums">
+                <span className="text-[13px] tabular-nums">
                   {e.valueNum} jam · q{q}
                 </span>
                 <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -315,7 +316,7 @@ function ExerciseSection() {
                   {formatDateShort(e.date)}
                 </div>
               </div>
-              <span className="font-mono text-[13px] tabular-nums text-text-2">
+              <span className="text-[13px] tabular-nums text-text-2">
                 {e.valueNum} mnt
               </span>
               <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -397,7 +398,7 @@ function PeriodSection() {
           <span className="block text-[15px] font-bold text-text-1">Buka Siklus</span>
           <span className="block text-[12px] text-text-3">Kalender haid, perkiraan & catatan harian</span>
         </span>
-        <span className="text-text-4">›</span>
+        <ChevronRight size={16} className="text-text-4" aria-hidden="true" />
       </Link>
     </Section>
   );
@@ -471,7 +472,7 @@ function BodyMetricsSection() {
                 <span className="text-[12px] text-text-2">
                   {formatDateShort(e.date)}
                 </span>
-                <span className="font-mono text-[12px] text-text-3">
+                <span className="tabular-nums text-[12px] text-text-3">
                   {[p.waist && `pinggang ${p.waist}`, p.chest && `dada ${p.chest}`, p.hip && `pinggul ${p.hip}`]
                     .filter(Boolean)
                     .join(" · ")}

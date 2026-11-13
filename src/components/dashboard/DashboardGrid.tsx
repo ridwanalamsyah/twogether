@@ -182,7 +182,7 @@ function SortableWidget({
         style={{
           animationDelay: editing
             ? `${(index % 3) * -0.11}s`
-            : `${Math.min(index, 8) * 55}ms`,
+            : `${Math.min(index, 6) * 24}ms`,
         }}
       >
         <Component />

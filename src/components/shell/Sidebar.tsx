@@ -4,6 +4,7 @@ import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ITEMS, isActive } from "@/components/shell/BottomNav";
 import { FEATURES } from "@/data/features";
@@ -41,14 +42,15 @@ export function Sidebar() {
             <circle cx="27" cy="22" r="10" />
           </svg>
         </span>
-        <span className="text-[17px] font-extrabold tracking-tight text-text-1">Twogether</span>
+        <span className="text-[17px] font-bold tracking-tight text-text-1">Twogether</span>
       </Link>
 
       <button
+        type="button"
         onClick={() => openCapture()}
-        className="mb-4 flex items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-[14px] font-semibold text-accent-fg active:scale-[0.98]"
+        className="mb-4 flex items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-[14px] font-semibold text-accent-fg transition-transform active:scale-[0.98]"
       >
-        <span className="text-[18px] leading-none">＋</span> Catat cepat
+        <Plus size={16} strokeWidth={2.4} /> Catat cepat
       </button>
 
       <nav className="space-y-0.5">
@@ -80,8 +82,8 @@ export function Sidebar() {
           href="/fitur"
           className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-text-3 hover:bg-bg-elev1"
         >
-          <span className="grid h-6 w-6 place-items-center rounded-lg border border-dashed border-border-strong text-[13px]">
-            +
+          <span className="grid h-6 w-6 place-items-center rounded-lg border border-dashed border-border-strong">
+            <Plus size={14} strokeWidth={2} />
           </span>
           Tambah ruang
         </Link>

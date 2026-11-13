@@ -1,8 +1,9 @@
 "use client";
 
-import { Wallet } from "lucide-react";
+import { ChevronRight, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/stores/auth";
 import { useTransactions, addTransaction } from "@/stores/data";
 import { hapticTap, hapticSuccess } from "@/lib/haptic";
@@ -19,6 +20,7 @@ function todayISO(): string {
 export function KeuanganQuickWidget() {
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId) ?? [];
+  const reduce = useReducedMotion();
   const [mode, setMode] = useState<"in" | "out" | null>(null);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<string>("");
@@ -66,109 +68,145 @@ export function KeuanganQuickWidget() {
           <Wallet size={16} className="text-text-3" />
           <h3 className="text-[13px] font-semibold text-text-1">Keuangan</h3>
         </div>
-        <Link href="/uang" className="text-[11px] text-text-3 active:opacity-60">
-          Lihat ›
+        <Link
+          href="/uang"
+          className="inline-flex items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
+        >
+          Lihat
+          <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
         </Link>
       </div>
 
-      <div className="mb-3 grid grid-cols-3 divide-x divide-[color:var(--hairline)] rounded-2xl bg-bg-elev1/50 py-2.5">
+      <div className="mb-3 grid grid-cols-3 divide-x divide-[color:var(--hairline)] rounded-2xl bg-bg-elev1/60 py-2.5">
         <div className="px-2 text-center">
-          <div className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="text-[11px] font-semibold text-[color:var(--positive)]">
             Masuk
           </div>
-          <div className="text-[13px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+          <div className="tabular-nums text-[13px] font-bold text-[color:var(--positive)]">
             {formatRupiahShort(totals.income)}
           </div>
         </div>
         <div className="px-2 text-center">
-          <div className="text-[10px] font-semibold text-rose-600 dark:text-rose-400">
+          <div className="text-[11px] font-semibold text-[color:var(--negative)]">
             Keluar
           </div>
-          <div className="text-[13px] font-bold text-rose-600 dark:text-rose-400 tabular-nums">
+          <div className="tabular-nums text-[13px] font-bold text-[color:var(--negative)]">
             {formatRupiahShort(totals.expense)}
           </div>
         </div>
         <div className="px-2 text-center">
-          <div className="text-[10px] font-semibold text-text-3">
+          <div className="text-[11px] font-semibold text-text-3">
             Bersih
           </div>
-          <div className="text-[13px] font-bold text-text-1 tabular-nums">
+          <div className="tabular-nums text-[13px] font-bold text-text-1">
             {formatRupiahShort(totals.net)}
           </div>
         </div>
       </div>
 
-      {!mode ? (
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => {
-              hapticTap();
-              setMode("in");
-            }}
-            className="pressable rounded-xl bg-emerald-600 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-500"
+      <AnimatePresence mode="wait" initial={false}>
+        {!mode ? (
+          <motion.div
+            key="triggers"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            transition={{ duration: 0.16 }}
+            className="grid grid-cols-2 gap-2"
           >
-            + Pemasukan
-          </button>
-          <button
-            onClick={() => {
-              hapticTap();
-              setMode("out");
-            }}
-            className="pressable rounded-xl bg-rose-600 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-rose-500"
-          >
-            − Pengeluaran
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-2 rounded-2xl border border-[color:var(--hairline)] bg-bg-elev1/60 p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-text-2">
-              {mode === "in" ? "Pemasukan baru" : "Pengeluaran baru"}
-            </span>
             <button
-              onClick={() => setMode(null)}
-              className="pressable text-[11px] font-medium text-text-3 hover:text-text-1"
+              type="button"
+              onClick={() => {
+                hapticTap();
+                setMode("in");
+              }}
+              className="rounded-xl border border-[color:var(--positive)]/25 bg-positive-bg py-2.5 text-[13px] font-semibold text-[color:var(--positive)] transition-transform active:scale-95"
             >
-              Batal
+              + Pemasukan
             </button>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {cats.map((c) => (
+            <button
+              type="button"
+              onClick={() => {
+                hapticTap();
+                setMode("out");
+              }}
+              className="rounded-xl border border-[color:var(--negative)]/25 bg-negative-bg py-2.5 text-[13px] font-semibold text-[color:var(--negative)] transition-transform active:scale-95"
+            >
+              − Pengeluaran
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="drawer"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 460, damping: 32 }}
+            className="space-y-2.5 rounded-2xl border border-[color:var(--hairline)] bg-bg-elev1/70 p-3"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-semibold text-text-2">
+                {mode === "in" ? "Pemasukan baru" : "Pengeluaran baru"}
+              </span>
               <button
-                key={c}
-                onClick={() => setCategory(c)}
-                className={`pressable rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                  category === c
-                    ? "border-accent bg-accent text-accent-fg"
-                    : "border-border bg-bg-card text-text-2"
-                }`}
+                type="button"
+                onClick={() => {
+                  setMode(null);
+                  setCategory("");
+                }}
+                className="text-[12px] font-medium text-text-3 hover:text-text-1"
               >
-                {c}
+                Batal
               </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="Rp 0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="input-base flex-1 text-sm font-semibold tabular-nums"
-              autoFocus
-            />
-            <button
-              onClick={save}
-              disabled={!category || !amount}
-              className={`pressable rounded-xl px-4 text-[12px] font-semibold text-white disabled:opacity-40 ${
-                mode === "in" ? "bg-emerald-600" : "bg-rose-600"
-              }`}
-            >
-              Simpan
-            </button>
-          </div>
-        </div>
-      )}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {cats.map((c) => {
+                const active = category === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      hapticTap();
+                      setCategory(c);
+                    }}
+                    className={`rounded-lg border px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                      active
+                        ? "border-transparent bg-text-1 text-bg-app"
+                        : "border-border bg-bg-card text-text-2"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Rp0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void save();
+                  if (e.key === "Escape") setMode(null);
+                }}
+                className="input-base flex-1 font-semibold tabular-nums"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={save}
+                disabled={!category || !amount}
+                className="rounded-xl bg-accent px-4 text-[13px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:opacity-40"
+              >
+                Simpan
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

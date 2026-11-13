@@ -41,7 +41,7 @@ export function GoalSimulator({
         <div className="text-[11px] font-bold section-label text-text-3">
           What-if simulator
         </div>
-        <span className="font-mono text-xs text-text-3">
+        <span className="tabular-nums text-xs text-text-3">
           +{formatRupiahShort(extra)}/minggu
         </span>
       </div>
@@ -84,7 +84,7 @@ export function GoalSimulator({
           <div className="text-[10px] section-label text-text-3">
             Saat ini
           </div>
-          <div className="font-mono text-sm font-bold text-text-1">
+          <div className="tabular-nums text-sm font-bold text-text-1">
             {fmtWeeks(baseWeeks)}
           </div>
         </div>
@@ -92,7 +92,7 @@ export function GoalSimulator({
           <div className="text-[10px] section-label text-accent">
             Proyeksi
           </div>
-          <div className="font-mono text-sm font-bold text-accent">
+          <div className="tabular-nums text-sm font-bold text-accent">
             {hasProjection ? fmtWeeks(newWeeks) : "atur slider"}
           </div>
         </div>

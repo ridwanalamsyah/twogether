@@ -154,7 +154,7 @@ export default function LaporanPage() {
                       <div className="mb-1 flex items-baseline justify-between text-[13px]">
                         <span className="font-semibold text-text-1">{cat}</span>
                         <span className="text-text-3">
-                          <span className="font-mono font-semibold text-text-1">{formatRupiahShort(v)}</span>
+                          <span className="tabular-nums font-semibold text-text-1">{formatRupiahShort(v)}</span>
                           {" · "}
                           {Math.round((v / Math.max(1, s.out)) * 100)}%
                           {diff != null && Math.abs(diff) >= 10 && (
@@ -180,7 +180,7 @@ export default function LaporanPage() {
                     <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-bg-elev2">
                       <div className="h-full rounded-full" style={{ width: `${(v / Math.max(1, s.out)) * 100}%`, background: "var(--accent)" }} />
                     </div>
-                    <span className="w-20 text-right font-mono text-text-2">{formatRupiahShort(v)}</span>
+                    <span className="w-20 text-right tabular-nums text-text-2">{formatRupiahShort(v)}</span>
                   </div>
                 ))}
               </section>
@@ -194,7 +194,7 @@ export default function LaporanPage() {
                   return (
                     <div key={wid || "none"} className="mb-2 flex items-center justify-between text-[13px]">
                       <span className="text-text-2">{w ? `${w.emoji} ${w.name}` : "Tanpa dompet"}</span>
-                      <span className="font-mono font-semibold text-text-1">{formatRupiah(v)}</span>
+                      <span className="tabular-nums font-semibold text-text-1">{formatRupiah(v)}</span>
                     </div>
                   );
                 })}
@@ -211,7 +211,7 @@ export default function LaporanPage() {
                       {fromIsoDay(t.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · {nick(t.who)}
                     </span>
                   </span>
-                  <span className="font-mono font-semibold text-text-1">{formatRupiah(t.amount)}</span>
+                  <span className="tabular-nums font-semibold text-text-1">{formatRupiah(t.amount)}</span>
                 </div>
               ))}
             </section>
@@ -226,7 +226,7 @@ function Tile({ label, value, sub, negative }: { label: string; value: string; s
   return (
     <div className="surface p-3.5">
       <div className="text-[12px] font-semibold text-text-3">{label}</div>
-      <div className={`mt-0.5 font-mono text-[18px] font-extrabold tracking-tight ${negative ? "text-[color:var(--negative)]" : "text-text-1"}`}>{value}</div>
+      <div className={`mt-0.5 tabular-nums text-[18px] font-extrabold tracking-tight ${negative ? "text-[color:var(--negative)]" : "text-text-1"}`}>{value}</div>
       <div className="mt-0.5 text-[11px] text-text-4">{sub}</div>
     </div>
   );

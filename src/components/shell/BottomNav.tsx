@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { hapticTap } from "@/lib/haptic";
 import { useUi, type CaptureAction } from "@/stores/ui";
@@ -81,6 +81,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const openCapture = useUi((s) => s.openCapture);
   const [menu, setMenu] = useState(false);
+  const reduce = useReducedMotion();
   const left = ITEMS.slice(0, 2);
   const right = ITEMS.slice(2);
 
@@ -98,9 +99,10 @@ export function BottomNav() {
         {menu && (
           <motion.button
             key="scrim"
+            type="button"
             aria-label="Tutup"
             onClick={() => setMenu(false)}
-            className="fixed inset-0 z-30 bg-black/45 backdrop-blur-[2px] md:hidden"
+            className="surface-blur fixed inset-0 z-30 bg-black/50 md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -109,6 +111,7 @@ export function BottomNav() {
         )}
       </AnimatePresence>
       <nav
+        aria-label="Navigasi utama"
         className="md:hidden fixed left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3 pointer-events-none"
         style={{ bottom: "var(--nav-bottom-spacing, calc(env(safe-area-inset-bottom, 0px) + 12px))" }}
       >
@@ -128,15 +131,17 @@ export function BottomNav() {
                       onClick={() => pick(a.id)}
                       aria-label={a.label}
                       className="pointer-events-auto absolute -left-[27px] -top-[27px] flex w-[54px] flex-col items-center gap-1.5"
-                      initial={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
+                      initial={reduce ? { x: a.x, y: a.y, opacity: 0 } : { x: 0, y: 0, scale: 0.4, opacity: 0 }}
                       animate={{ x: a.x, y: a.y, scale: 1, opacity: 1 }}
-                      exit={{ x: 0, y: 0, scale: 0.4, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 520, damping: 30, delay: i * 0.03 }}
+                      exit={reduce ? { opacity: 0 } : { x: 0, y: 0, scale: 0.4, opacity: 0 }}
+                      transition={reduce ? { duration: 0.12 } : { type: "spring", stiffness: 520, damping: 30, delay: i * 0.03 }}
                     >
                       <span className="grid h-[54px] w-[54px] place-items-center rounded-full bg-bg-card text-text-1 shadow-float ring-1 ring-[color:var(--hairline)]">
                         <a.Icon size={22} strokeWidth={2} />
                       </span>
-                      <span className="text-[11px] font-semibold text-white drop-shadow">{a.label}</span>
+                      <span className="rounded-full bg-bg-card px-2 py-0.5 text-[11px] font-semibold text-text-1 shadow-card">
+                        {a.label}
+                      </span>
                     </motion.button>
                   ))}
               </AnimatePresence>
@@ -176,6 +181,7 @@ const ICON_MOTION: Record<string, { scale?: number[]; y?: number[]; rotate?: num
 };
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  const reduce = useReducedMotion();
   return (
     <li className="flex">
       <Link
@@ -185,29 +191,33 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         }}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[10px] leading-none transition-all duration-150 active:scale-90 select-none",
+          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[11px] leading-none transition-transform duration-150 active:scale-90 select-none",
           active ? "text-text-1" : "text-text-4",
         )}
       >
         {active && (
-          // Each tab draws its own pill and pops it in place. (A shared
-          // layoutId made it slide in from wherever it last was; on iPhone
-          // Safari that could be the wrong tab, so tapping Kita looked like
-          // it was heading for Jelajah.)
           <motion.span
-            initial={{ opacity: 0, scale: 0.6 }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
             className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-bg-elev2"
-            transition={{ type: "spring", stiffness: 520, damping: 34 }}
+            transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 520, damping: 34 }}
           />
         )}
         <motion.span
           className="relative h-[21px] w-[21px]"
-          animate={active ? ICON_MOTION[item.href] ?? { scale: 1.06, y: -1 } : { scale: 1, y: 0, rotate: 0 }}
+          animate={
+            reduce
+              ? { scale: active ? 1.04 : 1 }
+              : active
+                ? ICON_MOTION[item.href] ?? { scale: 1.06, y: -1 }
+                : { scale: 1, y: 0, rotate: 0 }
+          }
           transition={
-            active
-              ? { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
-              : { type: "spring", stiffness: 500, damping: 30 }
+            reduce
+              ? { duration: 0.1 }
+              : active
+                ? { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
+                : { type: "spring", stiffness: 500, damping: 30 }
           }
         >
           {item.icon}

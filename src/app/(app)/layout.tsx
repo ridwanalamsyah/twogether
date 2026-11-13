@@ -14,11 +14,12 @@ import { useAuth } from "@/stores/auth";
 import { useSecurity } from "@/stores/security";
 import { LockScreen } from "@/components/security/LockScreen";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
-import { OfflineBanner } from "@/components/shell/OfflineBanner";
 import { PWAUpdateBanner } from "@/components/shell/PWAUpdateBanner";
 import { usePrivacy } from "@/stores/privacy";
 import { recordVisit } from "@/lib/usage";
 import { WhatsNew } from "@/components/shell/WhatsNew";
+import { spaceIcon } from "@/lib/icons";
+import { LockKeyhole } from "lucide-react";
 
 export default function AppLayout({
   children,
@@ -72,7 +73,6 @@ export default function AppLayout({
   return (
     <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app md:max-w-none md:pl-[var(--sidebar-w)]">
       <Sidebar />
-      <OfflineBanner />
       <main className="flex-1 pb-nav">
         <div key={hideMoney ? "hidden" : "shown"} className="md:mx-auto md:max-w-[1080px]">
           {children}
@@ -145,7 +145,7 @@ function LockGate() {
     const f = FEATURES.find((x) => x.href === space) ?? SPACE_NAMES[space];
     return (
       <LockScreen
-        emoji={f?.emoji ?? "🔒"}
+        icon={space ? spaceIcon(space) : { Icon: LockKeyhole, tint: "var(--accent)" }}
         title={`${f?.title ?? "Ruang ini"} terkunci`}
         subtitle="Masukkan PIN untuk membuka."
         onCancel={() => router.replace("/home")}
@@ -156,9 +156,9 @@ function LockGate() {
 }
 
 /** Lockable spaces that aren't in the Jelajah catalogue. */
-const SPACE_NAMES: Record<string, { emoji: string; title: string }> = {
-  "/tracker": { emoji: "💳", title: "Uang" },
-  "/kita": { emoji: "💞", title: "Kita" },
+const SPACE_NAMES: Record<string, { title: string }> = {
+  "/tracker": { title: "Uang" },
+  "/kita": { title: "Kita" },
 };
 
 /** Calm loading state that matches the splash, instead of bare text. */

@@ -251,14 +251,14 @@ export const BADGES: BadgeDef[] = [
   {
     id: "deposit_1jt",
     title: "Total tabungan 1jt",
-    description: "Total setoran tembus Rp 1.000.000",
+    description: "Total setoran tembus Rp1.000.000",
     category: "Uang",
     check: (d) => Math.min(1, d.totalDeposits / 1_000_000),
   },
   {
     id: "deposit_10jt",
     title: "Total tabungan 10jt",
-    description: "Total setoran tembus Rp 10.000.000",
+    description: "Total setoran tembus Rp10.000.000",
     category: "Uang",
     check: (d) => Math.min(1, d.totalDeposits / 10_000_000),
   },

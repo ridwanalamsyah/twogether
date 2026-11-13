@@ -2,7 +2,7 @@
 
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { CountUp } from "@/components/ui/CountUp";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -80,7 +80,7 @@ export function BalanceWidget() {
           key: `member:${m.name}`,
           label: `Sisa ${nick(m.name) !== m.name ? nick(m.name) : m.name.split(" ")[0]}`,
           value: formatRupiahShort(sisa),
-        amount: sisa,
+          amount: sisa,
           hint: `${inM.length + outM.length} transaksi`,
           tone: sisa >= 0 ? "positive" : "negative",
         });
@@ -161,9 +161,10 @@ export function BalanceWidget() {
         {stats.map((s, i) => (
           <div key={s.label} className="flex items-center gap-3 py-2.5">
             <button
+              type="button"
               onClick={() => setPicking(s)}
               aria-label={`Ganti ikon ${s.label}`}
-              className="rounded-full active:scale-90"
+              className="rounded-full transition-transform active:scale-90"
             >
               {custom(s) ? (
                 <span className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-[16px] leading-none">{custom(s)}</span>
@@ -187,8 +188,9 @@ export function BalanceWidget() {
             {ICONS.map((e) => (
               <button
                 key={e}
+                type="button"
                 onClick={() => choose(e)}
-                className={`grid aspect-square place-items-center rounded-xl text-[22px] active:scale-90 ${
+                className={`grid aspect-square place-items-center rounded-xl text-[22px] transition-transform active:scale-90 ${
                   iconOf(picking, stats.indexOf(picking)) === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev1"
                 }`}
               >
@@ -217,6 +219,7 @@ function AnimatedAmount({
   spending?: boolean;
 }) {
   const hidden = usePrivacy((s) => s.hideMoney);
+  const reduced = useReducedMotion();
   const [peek, setPeek] = useState(false);
   const isBlurred = hidden && !peek;
 
@@ -230,29 +233,21 @@ function AnimatedAmount({
     prev.current = amount;
   }, [amount]);
 
-  return (
-    <motion.div
-      onClick={() => {
-        if (hidden) {
-          hapticTap();
-          setPeek((p) => !p);
-        }
-      }}
-      whileTap={{ scale: 0.95 }}
-      className={`num relative -mr-1.5 px-2 py-0.5 rounded-lg text-[15px] font-semibold tabular-nums cursor-pointer select-none transition-colors ${
-        negative ? "text-[color:var(--negative)]" : "text-text-1"
-      } ${isBlurred ? "bg-bg-elev1/50" : ""}`}
-      title={hidden ? "Ketuk untuk intip nominal" : undefined}
-    >
-      {flash && (
+  const cls = `num relative -mr-1.5 rounded-lg px-2 py-0.5 text-[15px] font-semibold tabular-nums select-none transition-colors ${
+    negative ? "text-[color:var(--negative)]" : "text-text-1"
+  } ${isBlurred ? "bg-bg-elev1/50" : ""}`;
+
+  const inner = (
+    <>
+      {flash && !reduced && (
         <motion.span
           key={flash.n}
           aria-hidden
           className="absolute inset-0 rounded-md"
           style={{ background: flash.up !== !!spending ? "var(--positive)" : "var(--negative)" }}
-          initial={{ opacity: 0.32, scale: 1.12 }}
+          initial={{ opacity: 0.32, scale: 1.08 }}
           animate={{ opacity: 0, scale: 1 }}
-          transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         />
       )}
       <motion.span
@@ -260,13 +255,34 @@ function AnimatedAmount({
           filter: isBlurred ? "blur(7px)" : "blur(0px)",
           opacity: isBlurred ? 0.65 : 1,
         }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
+        transition={{ duration: reduced ? 0 : 0.22, ease: "easeOut" }}
         className="inline-block"
       >
         <CountUp value={amount} format={formatRupiahShort} className="relative tracking-tight" />
       </motion.span>
-    </motion.div>
+    </>
   );
+
+  if (hidden) {
+    return (
+      <motion.button
+        type="button"
+        onClick={() => {
+          hapticTap();
+          setPeek((p) => !p);
+        }}
+        whileTap={reduced ? undefined : { scale: 0.95 }}
+        aria-label="Intip nominal"
+        aria-pressed={peek}
+        className={`${cls} cursor-pointer`}
+        title={peek ? "Ketuk untuk blur lagi" : "Ketuk untuk intip nominal"}
+      >
+        {inner}
+      </motion.button>
+    );
+  }
+
+  return <div className={cls}>{inner}</div>;
 }
 
 /** Eye button: hide every amount in the app (for when someone's watching). */
@@ -275,13 +291,14 @@ function HideMoneyToggle() {
   const setHidden = usePrivacy((s) => s.setHideMoney);
   return (
     <button
+      type="button"
       onClick={() => {
         hapticTap();
         setHidden(!hidden);
       }}
       aria-label={hidden ? "Tampilkan nominal" : "Sembunyikan nominal"}
       aria-pressed={hidden}
-      className="-mr-1 grid h-7 w-7 place-items-center rounded-full text-text-3 active:scale-90"
+      className="-mr-1 grid h-7 w-7 place-items-center rounded-full text-text-3 transition-transform active:scale-90"
     >
       {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
     </button>

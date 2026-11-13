@@ -138,7 +138,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
         <input className="input-base" placeholder="Rekening utama, uang harian…" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
       <Field label="Saldo awal (saldo saat ini sebelum dicatat di Twogether)">
-        <input className="input-base" inputMode="numeric" placeholder="Rp 0" value={initial ? formatMoneyInput(n) : ""} onChange={(e) => setInitial(e.target.value)} />
+        <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" value={initial ? formatMoneyInput(n) : ""} onChange={(e) => setInitial(e.target.value)} />
       </Field>
     </Sheet>
   );
@@ -173,7 +173,7 @@ export function TransferSheet({ onClose }: { onClose: () => void }) {
       title="Pindah saldo"
       onClose={onClose}
       footer={
-        <button onClick={save} disabled={!from || !to || from === to || n <= 0} className="btn-accent w-full disabled:opacity-50">
+        <button type="button" onClick={save} disabled={!from || !to || from === to || n <= 0} className="btn-accent w-full disabled:opacity-50">
           Pindahkan
         </button>
       }
@@ -185,7 +185,7 @@ export function TransferSheet({ onClose }: { onClose: () => void }) {
         <Chips options={opts.filter((o) => o.value !== from)} value={to} onChange={setTo} />
       </Field>
       <Field label="Jumlah">
-        <input className="input-base text-[18px] font-bold" inputMode="numeric" placeholder="Rp 0" value={amount ? formatMoneyInput(n) : ""} onChange={(e) => setAmount(e.target.value)} />
+        <input className="input-base text-[18px] font-bold tabular-nums" inputMode="numeric" placeholder="Rp0" value={amount ? formatMoneyInput(n) : ""} onChange={(e) => setAmount(e.target.value)} />
       </Field>
       <p className="text-[12px] text-text-4">Misalnya tarik tunai dari BCA atau isi saldo GoPay. Tidak dihitung sebagai pengeluaran.</p>
     </Sheet>

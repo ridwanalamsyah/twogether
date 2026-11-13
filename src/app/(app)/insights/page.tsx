@@ -254,7 +254,7 @@ export default function InsightsPage() {
               {perMember.map((m) => (
                 <li key={m.name} className="flex items-center justify-between py-2.5">
                   <span className="text-[13px] font-medium text-text-1">{m.name}</span>
-                  <div className="text-right text-[12px] font-mono tabular-nums">
+                  <div className="text-right text-[12px] tabular-nums">
                     <span className="text-[color:var(--positive)]">+{formatRupiahShort(m.in)}</span>
                     <span className="ml-3 text-text-3">−{formatRupiahShort(m.out)}</span>
                   </div>
@@ -263,7 +263,7 @@ export default function InsightsPage() {
               {members.length >= 2 && (
                 <li className="flex items-center justify-between py-2.5">
                   <span className="text-[13px] font-medium text-text-3">{sharedLabel}</span>
-                  <div className="text-right text-[12px] font-mono tabular-nums">
+                  <div className="text-right text-[12px] tabular-nums">
                     <span className="text-[color:var(--positive)]">+{formatRupiahShort(shared.in)}</span>
                     <span className="ml-3 text-text-3">−{formatRupiahShort(shared.out)}</span>
                   </div>
@@ -283,7 +283,7 @@ export default function InsightsPage() {
                 <span className="font-medium">{splitBill.debtor}</span> utang ke{" "}
                 <span className="font-medium">{splitBill.creditor}</span>
               </div>
-              <div className="mt-1 font-mono text-[15px] font-medium tabular-nums text-text-1">
+              <div className="mt-1 text-[15px] font-medium tabular-nums text-text-1">
                 {formatRupiah(splitBill.amount)}
               </div>
               <p className="mt-1 text-[11px] text-text-4">
@@ -352,11 +352,11 @@ export default function InsightsPage() {
                   <div key={goal.id}>
                     <div className="flex items-baseline justify-between text-[12px]">
                       <span className="text-text-1">{goal.name}</span>
-                      <span className="font-mono tabular-nums text-text-3">{pct}%</span>
+                      <span className="tabular-nums text-text-3">{pct}%</span>
                     </div>
                     <div className="mt-1 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
                       <div
-                        className="h-full rounded-full bg-accent transition-[width] duration-500"
+                        className="h-full rounded-full bg-accent transition-[width] duration-300"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -395,7 +395,7 @@ function Stat({
     <div>
       <div className="text-[11px] text-text-4">{label}</div>
       <div
-        className={`mt-1 font-mono text-[20px] font-semibold tracking-tight tabular-nums ${
+        className={`mt-1 text-[20px] font-semibold tracking-tight tabular-nums ${
           tone === "positive" ? "text-[color:var(--positive)]" : "text-text-1"
         }`}
       >

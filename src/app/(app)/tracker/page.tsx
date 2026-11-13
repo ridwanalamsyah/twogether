@@ -193,11 +193,12 @@ export default function TrackerPage() {
         <section className="surface overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-3.5">
             <div className="flex items-center gap-0.5 rounded-full bg-bg-elev1 p-0.5">
-              <button onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Bulan sebelumnya" className="grid h-7 w-7 place-items-center rounded-full text-text-3">
+              <button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Bulan sebelumnya" className="grid h-7 w-7 place-items-center rounded-full text-text-3">
                 <ChevronLeft size={15} />
               </button>
               <span className="px-1 text-[13px] font-semibold text-text-2">{monthLabel}</span>
               <button
+                type="button"
                 onClick={() => setMonth(shiftMonth(month, 1))}
                 disabled={month >= thisMonth}
                 aria-label="Bulan berikutnya"
@@ -269,6 +270,7 @@ export default function TrackerPage() {
           <h2 className="text-[19px] font-semibold text-text-1">Transaksi</h2>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setShowAdd(true)}
               aria-label="Tambah transaksi"
               className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 ring-1 ring-[color:var(--hairline)]"
@@ -276,13 +278,16 @@ export default function TrackerPage() {
               <Plus size={17} />
             </button>
             <button
+              type="button"
               onClick={() => setSearching((v) => !v)}
               aria-label="Cari"
+              aria-pressed={searching}
               className={`grid h-9 w-9 place-items-center rounded-full ring-1 ring-[color:var(--hairline)] ${searching ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2"}`}
             >
               <Search size={16} />
             </button>
             <button
+              type="button"
               onClick={() => setFilterOpen(true)}
               className="flex h-9 items-center gap-1 rounded-full bg-bg-card px-3.5 text-[13px] font-medium text-text-1 ring-1 ring-[color:var(--hairline)]"
             >
@@ -309,7 +314,7 @@ export default function TrackerPage() {
               {search ? "Tidak ada yang cocok." : `Belum ada transaksi di ${monthLabel}.`}
             </div>
             {!search && (
-              <button onClick={() => setShowAdd(true)} className="btn-accent mt-4 px-5 py-2.5 text-[14px]">
+              <button type="button" onClick={() => setShowAdd(true)} className="btn-accent mt-4 px-5 py-2.5 text-[14px]">
                 Catat transaksi
               </button>
             )}
@@ -469,98 +474,99 @@ function AddTxSheet({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in">
-      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition">
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Tambah transaksi</h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
+    <Sheet
+      title="Tambah transaksi"
+      onClose={onClose}
+      footer={
+        <button
+          type="button"
+          onClick={submit}
+          disabled={busy || !amount}
+          className="btn-accent w-full text-sm disabled:opacity-50"
+        >
+          {busy ? "Menyimpan…" : "Simpan"}
+        </button>
+      }
+    >
+      <div className="mb-3 flex gap-5 border-b border-border text-sm">
+        {(["out", "in"] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setKind(k)}
+            className={`-mb-px border-b pb-2 font-medium transition-colors ${
+              kind === k
+                ? "border-text-1 text-text-1"
+                : "border-transparent text-text-4"
+            }`}
+          >
+            {k === "out" ? "Pengeluaran" : "Pemasukan"}
           </button>
-        </div>
+        ))}
+      </div>
 
-        <div className="mb-3 flex gap-5 border-b border-border text-sm">
-          {(["out", "in"] as const).map((k) => (
-            <button
-              key={k}
-              onClick={() => setKind(k)}
-              className={`-mb-px border-b pb-2 font-medium transition-colors ${
-                kind === k
-                  ? "border-text-1 text-text-1"
-                  : "border-transparent text-text-4"
-              }`}
-            >
-              {k === "out" ? "Pengeluaran" : "Pemasukan"}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-2">
-          <WalletPicker
-            value={walletId}
-            onChange={(id) => {
-              setWalletId(id);
-              rememberWallet(id);
+      <div className="space-y-2">
+        <WalletPicker
+          value={walletId}
+          onChange={(id) => {
+            setWalletId(id);
+            rememberWallet(id);
+          }}
+        />
+        {kind === "out" && (
+          <ReceiptScanButton
+            onResult={(r) => {
+              if (r.amount) setAmount(String(r.amount));
+              if (r.merchant && !note) setNote(r.merchant);
             }}
           />
-          {kind === "out" && (
-            <ReceiptScanButton
-              onResult={(r) => {
-                if (r.amount) setAmount(String(r.amount));
-                if (r.merchant && !note) setNote(r.merchant);
-              }}
-            />
-          )}
-          <input
-            className="input-base font-mono text-lg"
-            inputMode="numeric"
-            placeholder="Rp 0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <select
-              className="input-base text-sm"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-            <select
-              className="input-base text-sm"
-              value={who}
-              onChange={(e) => setWho(e.target.value)}
-            >
-              {people.map((p) => (
-                <option key={p} value={p}>{nick(p)}</option>
-              ))}
-            </select>
-          </div>
-          <input
+        )}
+        <input
+          className="input-base text-lg font-semibold tabular-nums"
+          inputMode="numeric"
+          placeholder="Rp0"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
+        />
+        <div className="grid grid-cols-2 gap-2">
+          <select
             className="input-base text-sm"
-            placeholder="Catatan (opsional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <input
-            type="date"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+          <select
             className="input-base text-sm"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-          <TagInput
-            value={tags}
-            onChange={setTags}
-            suggestions={tagSuggestions}
-            placeholder="Tag (opsional, mis. trip:bali)…"
-          />
-          <button onClick={submit} disabled={busy} className="btn-accent w-full text-sm disabled:opacity-50">
-            Simpan
-          </button>
+            value={who}
+            onChange={(e) => setWho(e.target.value)}
+          >
+            {people.map((p) => (
+              <option key={p} value={p}>{nick(p)}</option>
+            ))}
+          </select>
         </div>
+        <input
+          className="input-base text-sm"
+          placeholder="Catatan (opsional)"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <input
+          type="date"
+          className="input-base text-sm"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <TagInput
+          value={tags}
+          onChange={setTags}
+          suggestions={tagSuggestions}
+          placeholder="Tag (opsional, mis. trip:bali)…"
+        />
       </div>
-    </div>
+    </Sheet>
   );
 }

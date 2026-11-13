@@ -5,6 +5,7 @@ import Link from "next/link";
 import { placeOf, plainTags, summarizePlaces, withPlace } from "@/lib/places";
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import {
   deleteMoment,
@@ -241,86 +242,77 @@ function AddMomentSheet({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in">
-      <div className="mx-auto w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up theme-transition">
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Moment baru</h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
-          </button>
+    <Sheet title="Moment baru" onClose={onClose}>
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <input
+            className="input-base h-12 w-14 flex-shrink-0 text-center text-2xl"
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
+            maxLength={2}
+          />
+          <input
+            className="input-base flex-1"
+            placeholder="Judul moment"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
-
-        <div className="space-y-2">
-          <div className="flex gap-2">
-            <input
-              className="input-base h-12 w-14 flex-shrink-0 text-center text-2xl"
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
-              maxLength={2}
-            />
-            <input
-              className="input-base flex-1"
-              placeholder="Judul moment"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          <textarea
-            className="input-base min-h-[100px] py-2 leading-relaxed"
-            placeholder="Cerita atau catatan…"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
+        <textarea
+          className="input-base min-h-[100px] py-2 leading-relaxed"
+          placeholder="Cerita atau catatan…"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+        <VoiceRecorder value={voice} onChange={setVoice} />
+        <label className="flex items-center gap-2 rounded-md bg-bg-elev2 px-3">
+          <MapPin size={15} className="shrink-0 text-text-3" />
+          <input
+            className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-text-4"
+            placeholder="Tempat (opsional), mis. Kopi Tuku Cipete"
+            value={place}
+            onChange={(e) => setPlace(e.target.value)}
+            list="moment-places"
+            maxLength={60}
           />
-          <VoiceRecorder value={voice} onChange={setVoice} />
-          <label className="flex items-center gap-2 rounded-md bg-bg-elev2 px-3">
-            <MapPin size={15} className="shrink-0 text-text-3" />
-            <input
-              className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-text-4"
-              placeholder="Tempat (opsional), mis. Kopi Tuku Cipete"
-              value={place}
-              onChange={(e) => setPlace(e.target.value)}
-              list="moment-places"
-              maxLength={60}
-            />
-            <datalist id="moment-places">
-              {knownPlaces.map((p) => (
-                <option key={p} value={p} />
-              ))}
-            </datalist>
-          </label>
-          <TagInput
-            value={tags}
-            onChange={setTags}
-            suggestions={TAG_SUGGESTIONS}
-          />
-          <label className="flex items-center justify-between rounded-md bg-bg-elev2 px-3 py-2.5 text-sm theme-transition">
-            <div>
-              <div className="font-semibold">Pribadi</div>
-              <div className="text-[11px] text-text-3">
-                {unlocked
-                  ? "Isinya dienkripsi dan hanya kamu yang bisa membaca. Pasanganmu cuma melihat judulnya."
-                  : "Keluar lalu masuk lagi dengan password untuk bisa menulis momen pribadi."}
-              </div>
+          <datalist id="moment-places">
+            {knownPlaces.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
+        </label>
+        <TagInput
+          value={tags}
+          onChange={setTags}
+          suggestions={TAG_SUGGESTIONS}
+        />
+        <label className="flex items-center justify-between rounded-md bg-bg-elev2 px-3 py-2.5 text-sm theme-transition">
+          <div>
+            <div className="font-semibold">Pribadi</div>
+            <div className="text-[11px] text-text-3">
+              {unlocked
+                ? "Isinya dienkripsi dan hanya kamu yang bisa membaca. Pasanganmu cuma melihat judulnya."
+                : "Keluar lalu masuk lagi dengan password untuk bisa menulis momen pribadi."}
             </div>
-            <input
-              type="checkbox"
-              checked={encrypt && unlocked}
-              disabled={!unlocked}
-              onChange={(e) => setEncrypt(e.target.checked)}
-              className="h-5 w-5 accent-[var(--accent)]"
-            />
-          </label>
-          <button
-            onClick={submit}
-            disabled={!canSubmit}
-            className="btn-accent w-full text-sm disabled:opacity-50"
-          >
-            Simpan moment
-          </button>
-        </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={encrypt && unlocked}
+            disabled={!unlocked}
+            onChange={(e) => setEncrypt(e.target.checked)}
+            className="h-5 w-5 accent-[var(--accent)]"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!canSubmit}
+          className="btn-accent w-full text-sm disabled:opacity-50"
+        >
+          Simpan moment
+        </button>
       </div>
-    </div>
+    </Sheet>
   );
 }
 

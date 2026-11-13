@@ -160,7 +160,7 @@ export default function DigestPage() {
                       {cat}{" "}
                       <span className="text-[11px] text-text-4">{share}%</span>
                     </span>
-                    <span className="font-mono tabular-nums text-text-2">
+                    <span className="tabular-nums text-text-2">
                       {formatRupiahShort(amt)}
                     </span>
                   </li>
@@ -179,7 +179,7 @@ export default function DigestPage() {
               {[...stats.byMember.entries()].map(([who, amt]) => (
                 <li key={who} className="flex justify-between py-2 text-[13px]">
                   <span className="text-text-1">{who}</span>
-                  <span className="font-mono tabular-nums text-text-2">
+                  <span className="tabular-nums text-text-2">
                     {formatRupiahShort(amt)}
                   </span>
                 </li>
@@ -236,7 +236,7 @@ function Stat({
     <div>
       <div className="text-[11px] text-text-4">{label}</div>
       <div
-        className={`mt-1 font-mono text-[18px] font-semibold tabular-nums tracking-tight ${color}`}
+        className={`mt-1 text-[18px] font-semibold tabular-nums tracking-tight ${color}`}
       >
         {value}
       </div>

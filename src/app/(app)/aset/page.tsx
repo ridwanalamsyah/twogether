@@ -54,7 +54,7 @@ export default function AsetPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#0f766e" }}>
           <div className="text-[13px] font-semibold text-white/85">Total kekayaan berdua</div>
-          <div className="mt-1 font-mono text-[32px] font-extrabold leading-tight">{formatRupiah(now?.total ?? 0)}</div>
+          <div className="mt-1 text-[32px] font-extrabold leading-tight tabular-nums">{formatRupiah(now?.total ?? 0)}</div>
           {prev && (
             <div className="mt-1 text-[13px] text-white/90">
               {change >= 0 ? "▲" : "▼"} {formatRupiahShort(Math.abs(change))} dari akhir bulan lalu
@@ -141,7 +141,7 @@ export default function AsetPage() {
                   <IconTile spec={r.spec} size={34} radius={10} />
                   {r.label}
                 </span>
-                <span className={`font-mono font-semibold ${r.v < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
+                <span className={`tabular-nums font-semibold ${r.v < 0 ? "text-[color:var(--negative)]" : "text-text-1"}`}>
                   {r.v < 0 ? "−" : ""}{formatRupiah(Math.abs(r.v))}
                 </span>
               </Link>

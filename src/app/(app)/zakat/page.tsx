@@ -95,8 +95,8 @@ export default function ZakatPage() {
           <div className="text-[13px] font-semibold text-white/85">
             Zakat {tab === "fitrah" ? "fitrah" : tab === "mal" ? "mal (harta)" : "penghasilan / bulan"}
           </div>
-          <div className="mt-1 font-mono text-[34px] font-extrabold leading-tight">
-            {result.amount == null ? "—" : formatRupiah(result.amount)}
+          <div className="mt-1 text-[34px] font-extrabold leading-tight tabular-nums">
+            {result.amount == null ? "0" : formatRupiah(result.amount)}
           </div>
           <div className="mt-1 text-[13px] leading-snug text-white/85">{result.note}</div>
         </div>
@@ -108,7 +108,7 @@ export default function ZakatPage() {
             style={{ transform: `translateX(${["fitrah", "mal", "penghasilan"].indexOf(tab) * 100}%)` }}
           />
           {(["fitrah", "mal", "penghasilan"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
+            <button type="button" key={t} onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
               {t === "fitrah" ? "Fitrah" : t === "mal" ? "Harta" : "Penghasilan"}
             </button>
           ))}
@@ -119,38 +119,38 @@ export default function ZakatPage() {
             <>
               <Row label="Jumlah jiwa">
                 <div className="flex items-center gap-3">
-                  <button aria-label="Kurangi jumlah jiwa" onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">−</button>
-                  <span className="w-8 text-center font-mono text-[20px] font-extrabold">{v.jiwa}</span>
-                  <button aria-label="Tambah jumlah jiwa" onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
+                  <button type="button" aria-label="Kurangi jumlah jiwa" onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">−</button>
+                  <span className="w-8 text-center text-[20px] font-extrabold tabular-nums">{v.jiwa}</span>
+                  <button type="button" aria-label="Tambah jumlah jiwa" onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
                 </div>
               </Row>
               <Row label="Per jiwa (sesuai ketetapan daerahmu)">
-                <input className="input-base" inputMode="numeric" {...num("fitrahPerJiwa")} />
+                <input className="input-base tabular-nums" inputMode="numeric" {...num("fitrahPerJiwa")} />
               </Row>
             </>
           ) : (
             <>
               <Row label="Harga emas per gram (cek harga hari ini)">
-                <input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("hargaEmas")} />
+                <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hargaEmas")} />
               </Row>
               {tab === "mal" ? (
                 <>
                   <Row label="Tabungan & deposito">
-                    <input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("tabungan")} />
+                    <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("tabungan")} />
                     {saved > 0 && v.tabungan === 0 && (
-                      <button onClick={() => setV({ ...v, tabungan: saved })} className="mt-1 text-[12px] font-semibold text-accent">
+                      <button type="button" onClick={() => setV({ ...v, tabungan: saved })} className="mt-1 text-[12px] font-semibold text-accent">
                         Pakai total Goals: {formatRupiah(saved)}
                       </button>
                     )}
                   </Row>
-                  <Row label="Emas / perak (nilai rupiah)"><input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("emas")} /></Row>
-                  <Row label="Saham, reksa dana, kripto"><input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("investasi")} /></Row>
-                  <Row label="Piutang yang bisa ditagih"><input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("piutang")} /></Row>
-                  <Row label="Hutang jatuh tempo (pengurang)"><input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("hutang")} /></Row>
+                  <Row label="Emas / perak (nilai rupiah)"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("emas")} /></Row>
+                  <Row label="Saham, reksa dana, kripto"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("investasi")} /></Row>
+                  <Row label="Piutang yang bisa ditagih"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("piutang")} /></Row>
+                  <Row label="Hutang jatuh tempo (pengurang)"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hutang")} /></Row>
                 </>
               ) : (
                 <Row label="Penghasilan per bulan">
-                  <input className="input-base" inputMode="numeric" placeholder="Rp 0" {...num("gaji")} />
+                  <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("gaji")} />
                 </Row>
               )}
               {v.hargaEmas > 0 && (

@@ -136,7 +136,7 @@ export default function ShalatPage() {
           <div className="mt-3 text-[13px] font-semibold text-white/85">Berikutnya</div>
           <div className="flex items-baseline gap-2">
             <span className="text-[34px] font-extrabold leading-none">{next.name}</span>
-            <span className="font-mono text-[22px] font-bold">{fmtTime(next.at)}</span>
+            <span className="text-[22px] font-bold tabular-nums">{fmtTime(next.at)}</span>
           </div>
           <div className="mt-1 text-[13px] text-white/85">
             {minsLeft >= 60
@@ -148,6 +148,7 @@ export default function ShalatPage() {
               {streak} hari lengkap
             </span>
             <button
+              type="button"
               onClick={() => setShowQibla(true)}
               className="rounded-full bg-white/20 px-3 py-1 font-semibold"
             >
@@ -175,13 +176,14 @@ export default function ShalatPage() {
                 <IconTile spec={PRAYER_ICON[p.id]} size={40} radius={12} />
                 <div className="min-w-0 flex-1">
                   <div className="text-[15px] font-bold text-text-1">{p.name}</div>
-                  <div className="font-mono text-[12px] text-text-3">
+                  <div className="text-[12px] tabular-nums text-text-3">
                     {fmtTime(times[p.id])}
                     {isNext && " · berikutnya"}
                   </div>
                 </div>
                 {done && !myLibur && (
                   <button
+                    type="button"
                     onClick={() => toggleJamaah(p.id)}
                     className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       jamaah ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-3"
@@ -191,10 +193,11 @@ export default function ShalatPage() {
                   </button>
                 )}
                 <button
+                  type="button"
                   disabled={myLibur}
                   onClick={() => toggle(p.id)}
                   aria-label={done ? `Batalkan ${p.name}` : `Tandai ${p.name} sudah`}
-                  className={`grid h-9 w-9 place-items-center rounded-full text-[16px] font-bold transition-all active:scale-90 ${
+                  className={`grid h-9 w-9 place-items-center rounded-full text-[16px] font-bold transition-transform active:scale-90 ${
                     myLibur
                       ? "bg-bg-elev2 text-text-4"
                       : done
@@ -255,18 +258,20 @@ export default function ShalatPage() {
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setQadha((qadha?.amount ?? 0) - 1)}
-            className="grid h-9 w-9 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold text-text-2 active:scale-90"
+            className="grid h-9 w-9 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold text-text-2 transition-transform active:scale-90"
             aria-label="Kurangi (sudah diganti)"
           >
             −
           </button>
-          <span className="w-8 text-center font-mono text-[20px] font-extrabold text-text-1">
+          <span className="w-8 text-center text-[20px] font-extrabold tabular-nums text-text-1">
             {qadha?.amount ?? 0}
           </span>
           <button
+            type="button"
             onClick={() => setQadha((qadha?.amount ?? 0) + 1)}
-            className="grid h-9 w-9 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold text-text-2 active:scale-90"
+            className="grid h-9 w-9 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold text-text-2 transition-transform active:scale-90"
             aria-label="Tambah"
           >
             +

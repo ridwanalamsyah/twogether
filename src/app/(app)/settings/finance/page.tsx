@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import {
@@ -452,37 +453,6 @@ function Field({
       </div>
       {children}
     </label>
-  );
-}
-
-function Sheet({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-in"
-      onClick={onClose}
-    >
-      <div
-        className="mx-auto max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-t-[20px] bg-bg-app p-5 pb-[calc(20px+var(--sab))] sheet-up theme-transition"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
-          <button aria-label="Tutup" onClick={onClose} className="text-xl text-text-3">
-            ×
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
   );
 }
 

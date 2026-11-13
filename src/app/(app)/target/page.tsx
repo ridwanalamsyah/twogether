@@ -1,7 +1,17 @@
 "use client";
 
-import { Trophy } from "lucide-react";
-import { IconTile } from "@/lib/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Dumbbell,
+  GraduationCap,
+  Heart,
+  HeartHandshake,
+  Sprout,
+  Trophy,
+  Wallet,
+} from "lucide-react";
+import { IconTile, type IconSpec } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
@@ -27,15 +37,14 @@ interface ReviewPayload {
   next: string;
 }
 
-const AREAS = [
-  { id: "ibadah", emoji: "🤲", label: "Ibadah" },
-  { id: "uang", emoji: "💰", label: "Keuangan" },
-  { id: "sehat", emoji: "💪", label: "Kesehatan" },
-  { id: "kuliah", emoji: "🎓", label: "Kuliah & kerja" },
-  { id: "kita", emoji: "💞", label: "Hubungan" },
-  { id: "diri", emoji: "🌱", label: "Diri sendiri" },
+const AREAS: { id: string; spec: IconSpec; label: string }[] = [
+  { id: "ibadah", spec: { Icon: HeartHandshake, tint: "var(--accent)" }, label: "Ibadah" },
+  { id: "uang", spec: { Icon: Wallet, tint: "var(--accent)" }, label: "Keuangan" },
+  { id: "sehat", spec: { Icon: Dumbbell, tint: "var(--accent)" }, label: "Kesehatan" },
+  { id: "kuliah", spec: { Icon: GraduationCap, tint: "var(--accent)" }, label: "Kuliah & kerja" },
+  { id: "kita", spec: { Icon: Heart, tint: "var(--accent)" }, label: "Hubungan" },
+  { id: "diri", spec: { Icon: Sprout, tint: "var(--accent)" }, label: "Diri sendiri" },
 ];
-const areaOf = (id: string) => AREAS.find((a) => a.id === id) ?? AREAS[5];
 const RATING = ["", "😣", "😕", "😐", "🙂", "🤩"];
 
 function quarterOf(d: Date) {
@@ -85,7 +94,7 @@ export default function TargetPage() {
         title="Target tahunan"
         actions={
           tab === "target" ? (
-            <button onClick={() => setEditing("new")} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
+            <button type="button" onClick={() => setEditing("new")} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
               + Baru
             </button>
           ) : undefined
@@ -93,16 +102,20 @@ export default function TargetPage() {
       />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div className="flex items-center justify-between">
-          <button onClick={() => setYear(year - 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun sebelumnya">‹</button>
-          <div className="text-[17px] font-extrabold text-text-1">{year}</div>
-          <button onClick={() => setYear(year + 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun berikutnya">›</button>
+          <button type="button" onClick={() => setYear(year - 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun sebelumnya">
+            <ChevronLeft size={16} aria-hidden />
+          </button>
+          <div className="tabular-nums text-[17px] font-extrabold text-text-1">{year}</div>
+          <button type="button" onClick={() => setYear(year + 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun berikutnya">
+            <ChevronRight size={16} aria-hidden />
+          </button>
         </div>
 
         <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#8b5cf6" }}>
           <div className="text-[13px] font-semibold text-white/85">
             {targets.length ? `${doneCount} dari ${targets.length} target tercapai` : "Belum ada target"}
           </div>
-          <div className="mt-1 font-mono text-[34px] font-extrabold leading-tight">{Math.round(overall * 100)}%</div>
+          <div className="mt-1 tabular-nums text-[34px] font-extrabold leading-tight">{Math.round(overall * 100)}%</div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/25">
             <div className="h-full rounded-full bg-white" style={{ width: `${overall * 100}%` }} />
           </div>
@@ -118,7 +131,7 @@ export default function TargetPage() {
             style={{ transform: `translateX(${tab === "target" ? 0 : 100}%)` }}
           />
           {(["target", "review"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
+            <button key={t} type="button" onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
               {t === "target" ? "Target" : "Review kuartal"}
             </button>
           ))}
@@ -130,12 +143,15 @@ export default function TargetPage() {
               <IconTile spec={{ Icon: Trophy, tint: "#8b5cf6" }} size={64} radius={22} className="mx-auto" />
               <div className="mt-2 text-[17px] font-extrabold text-text-1">Mau jadi apa kita tahun ini?</div>
               <p className="mt-1 text-[13px] text-text-3">Tulis 3–6 target saja. Yang angka bisa dicicil, yang lain tinggal dicentang.</p>
-              <button onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tulis target</button>
+              <button type="button" onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tulis target</button>
             </div>
           ) : (
             AREAS.filter((a) => targets.some((t) => parsePayload<TargetPayload>(t.payload, { area: "diri" }).area === a.id)).map((a) => (
               <div key={a.id}>
-                <div className="mb-2 px-1 text-[13px] font-bold text-text-3">{a.emoji} {a.label}</div>
+                <div className="mb-2 flex items-center gap-2 px-1 text-[13px] font-bold text-text-3">
+                  <IconTile spec={a.spec} size={22} radius={7} />
+                  <span>{a.label}</span>
+                </div>
                 <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
                   {targets
                     .filter((t) => parsePayload<TargetPayload>(t.payload, { area: "diri" }).area === a.id)
@@ -147,13 +163,13 @@ export default function TargetPage() {
                           <SwipeRow onDelete={() => userId && deleteItem(userId, t.id)}>
                             <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
                               {p.goal ? (
-                                <button onClick={() => setLogging(t)} className="min-w-0 flex-1 text-left">
+                                <button type="button" onClick={() => setLogging(t)} className="min-w-0 flex-1 text-left">
                                   <div className={`truncate text-[14px] font-semibold ${pct >= 1 ? "text-text-3 line-through" : "text-text-1"}`}>{t.title}</div>
                                   <div className="mt-1.5 flex items-center gap-2">
                                     <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg-elev2">
                                       <div className="h-full rounded-full bg-accent" style={{ width: `${pct * 100}%` }} />
                                     </div>
-                                    <span className="shrink-0 font-mono text-[11px] text-text-3">
+                                    <span className="shrink-0 tabular-nums text-[11px] text-text-3">
                                       {progressOf(t).toLocaleString("id-ID")}/{p.goal.toLocaleString("id-ID")} {p.unit}
                                     </span>
                                   </div>
@@ -161,13 +177,14 @@ export default function TargetPage() {
                               ) : (
                                 <>
                                   <button
+                                    type="button"
                                     onClick={() => toggleDone(t)}
                                     aria-label={t.status === "done" ? "Tandai belum" : "Tandai tercapai"}
                                     className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border"}`}
                                   >
                                     {t.status === "done" ? "✓" : ""}
                                   </button>
-                                  <button onClick={() => setEditing(t)} className={`min-w-0 flex-1 truncate text-left text-[14px] font-semibold ${t.status === "done" ? "text-text-3 line-through" : "text-text-1"}`}>
+                                  <button type="button" onClick={() => setEditing(t)} className={`min-w-0 flex-1 truncate text-left text-[14px] font-semibold ${t.status === "done" ? "text-text-3 line-through" : "text-text-1"}`}>
                                     {t.title}
                                   </button>
                                 </>
@@ -335,7 +352,7 @@ function TargetSheet({
         <input className="input-base" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="mis. Khatam Al-Qur'an 2×" autoFocus />
       </Field>
       <FieldGroup label="Bidang">
-        <Chips options={AREAS.map((a) => ({ value: a.id, label: `${a.emoji} ${a.label}` }))} value={area} onChange={setArea} />
+        <Chips options={AREAS.map((a) => ({ value: a.id, label: a.label }))} value={area} onChange={setArea} />
       </FieldGroup>
       <FieldGroup label="Punya siapa">
         <Chips
@@ -408,7 +425,7 @@ function LogSheet({
   }
 
   return (
-    <Sheet title={target.title} onClose={onClose} footer={<button onClick={add} className="btn-accent w-full">Tambah</button>}>
+    <Sheet title={target.title} onClose={onClose} footer={<button type="button" onClick={add} className="btn-accent w-full">Tambah</button>}>
       <p className="mb-3 text-[13px] text-text-3">
         Sekarang {current.toLocaleString("id-ID")} dari {p.goal?.toLocaleString("id-ID")} {p.unit}
       </p>
@@ -423,12 +440,12 @@ function LogSheet({
             .map((l) => (
               <div key={l.id} className="flex justify-between py-1">
                 <span>{l.date} · {(l.who || me) === me ? "Kamu" : l.who}</span>
-                <span className="font-mono">+{l.valueNum}</span>
+                <span className="tabular-nums">+{l.valueNum}</span>
               </div>
             ))}
         </div>
       )}
-      <button onClick={onEdit} className="text-[13px] font-semibold text-accent">Ubah target</button>
+      <button type="button" onClick={onEdit} className="text-[13px] font-semibold text-accent">Ubah target</button>
     </Sheet>
   );
 }

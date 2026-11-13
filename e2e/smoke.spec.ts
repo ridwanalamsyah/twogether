@@ -88,7 +88,7 @@ test("quick capture saves 25.000 as twenty-five thousand rupiah", async ({ page 
   await signUp(page);
   await page.getByRole("button", { name: "Catat cepat" }).click();
   await page.getByRole("button", { name: "Catat", exact: true }).click();
-  await page.fill('input[placeholder="Rp 0"]', "25.000");
+  await page.fill('input[placeholder="Rp0"]', "25.000");
   await page.getByRole("button", { name: "Simpan" }).click();
   // Read what was actually stored on the phone.
   await expect

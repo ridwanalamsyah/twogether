@@ -7,9 +7,9 @@
    Override via [data-theme="dark"] / [data-accent="purple"].
 ─────────────────────────────────────────────────────────── */
 :root {
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Helvetica Neue", var(--font-jakarta), system-ui, sans-serif;
-  /* Numbers & amounts: clean tabular lining figures, matching Apple native apps */
-  --mono: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", var(--font-jakarta), system-ui, sans-serif;
+  --font: var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* Genuine monospace reserved only for invite codes, IDs, and technical tokens */
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Surface — warm paper background, white floating cards */
   --bg-app: #f6f3ef;
@@ -23,28 +23,33 @@
   --shadow-card: 0 1px 2px rgba(60, 36, 24, 0.04), 0 6px 20px -12px rgba(60, 36, 24, 0.12);
   --shadow-float: 0 12px 32px -14px rgba(60, 36, 24, 0.28);
 
-  /* Text — warm ink instead of pure grey */
+  /* Text — warm ink meeting WCAG AA on all surfaces */
   --text-1: #1f1a17;
   --text-2: #463e39;
-  --text-3: #776d66;
-  --text-4: #a39a93;
+  --text-3: #615750;
+  --text-4: #6c625b;
   --text-5: #d3cbc4;
 
   /* Semantic */
-  --positive: #16a34a;
+  --positive: #147438;
   --positive-bg: #ddf4e8;
-  --negative: #e5484d;
+  --negative: #c82832;
   --negative-bg: #fde4e1;
-  --warning: #d98a0b;
+  --warning: #9a5b04;
   --warning-bg: #fdf0d5;
-  --info: #3b6ef5;
+  --info: #2251d1;
   --info-bg: #e0e8ff;
 
-  /* Accent — warm rose/coral, the "us" colour */
-  --accent: #f0566a;
-  --accent-2: #ff8a5c;
+  /* Sticky note tokens */
+  --note-bg: #fff4c7;
+  --note-fg: #5b4300;
+  --note-shadow: 0 1px 0 rgba(120, 90, 0, 0.08), 0 10px 22px -14px rgba(120, 90, 0, 0.45);
+
+  /* Accent — warm rose/coral, the "us" colour (5.06:1 vs #fff, 4.58:1 on app/soft) */
+  --accent: #d02d47;
+  --accent-2: #f46d54;
   --accent-fg: #ffffff;
-  --accent-soft: #ffe4e4;
+  --accent-soft: #fff0f1;
 
   /* Radius — soft and friendly */
   --r-sm: 10px;
@@ -69,7 +74,7 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --transition: 250ms var(--ease-ios);
-  --hairline: rgba(60, 36, 24, 0.07);
+  --hairline: rgba(60, 36, 24, 0.08);
 }
 
 [data-theme="dark"] {
@@ -86,24 +91,27 @@
 
   --text-1: #f6f2ef;
   --text-2: #d8d0cb;
-  --text-3: #9b928d;
-  --text-4: #6a625e;
+  --text-3: #aba19b;
+  --text-4: #968c86;
   --text-5: #403a3d;
 
   --positive: #4ade80;
-  --positive-bg: rgba(74, 222, 128, 0.12);
-  --negative: #ff6b6b;
-  --negative-bg: rgba(255, 107, 107, 0.15);
-  --warning: #ffb547;
-  --warning-bg: rgba(255, 181, 71, 0.15);
-  --info: #7aa2ff;
-  --info-bg: rgba(122, 162, 255, 0.15);
+  --positive-bg: rgba(74, 222, 128, 0.14);
+  --negative: #ff7a7a;
+  --negative-bg: rgba(255, 107, 107, 0.16);
+  --warning: #ffb84d;
+  --warning-bg: rgba(255, 181, 71, 0.16);
+  --info: #8bb0ff;
+  --info-bg: rgba(122, 162, 255, 0.16);
 
-  --accent: #ff6b7d;
+  --note-bg: #3a3220;
+  --note-fg: #ffe9a8;
+
+  --accent: #ff7083;
   --accent-2: #ff9a6c;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(255, 107, 125, 0.16);
-  --hairline: rgba(255, 240, 235, 0.07);
+  --accent-fg: #1b0a0e;
+  --accent-soft: rgba(255, 112, 131, 0.16);
+  --hairline: rgba(255, 240, 235, 0.08);
 }
 
 /* Accent presets — applied independently of light/dark */
@@ -126,28 +134,28 @@
   --accent-soft: #dbeafe;
 }
 [data-theme="dark"][data-accent="blue"] {
-  --accent: #0a84ff;
-  --accent-2: #64a8ff;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(10, 132, 255, 0.18);
+  --accent: #3b9eff;
+  --accent-2: #72b9ff;
+  --accent-fg: #071526;
+  --accent-soft: rgba(59, 158, 255, 0.18);
 }
 
 [data-accent="purple"] {
-  --accent: #7c3aed;
-  --accent-2: #b26bff;
+  --accent: #6d28d9;
+  --accent-2: #a855f7;
   --accent-fg: #ffffff;
   --accent-soft: #ede9fe;
 }
 [data-theme="dark"][data-accent="purple"] {
   --accent: #bf5af2;
   --accent-2: #d48cff;
-  --accent-fg: #ffffff;
+  --accent-fg: #14091b;
   --accent-soft: rgba(191, 90, 242, 0.18);
 }
 
 [data-accent="green"] {
-  --accent: #16a34a;
-  --accent-2: #4cc38a;
+  --accent: #147438;
+  --accent-2: #3ab273;
   --accent-fg: #ffffff;
   --accent-soft: #dcfce7;
 }
@@ -159,8 +167,8 @@
 }
 
 [data-accent="orange"] {
-  --accent: #ea580c;
-  --accent-2: #ffa94d;
+  --accent: #c2410c;
+  --accent-2: #f97316;
   --accent-fg: #ffffff;
   --accent-soft: #ffedd5;
 }
@@ -172,16 +180,16 @@
 }
 
 [data-accent="pink"] {
-  --accent: #db2777;
-  --accent-2: #ff7eb6;
+  --accent: #c01e65;
+  --accent-2: #ec4899;
   --accent-fg: #ffffff;
   --accent-soft: #fce7f3;
 }
 [data-theme="dark"][data-accent="pink"] {
-  --accent: #ff375f;
+  --accent: #ff5c7c;
   --accent-2: #ff8fb0;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(255, 55, 95, 0.18);
+  --accent-fg: #1a080e;
+  --accent-soft: rgba(255, 92, 124, 0.18);
 }
 
 /* ── BASE ─────────────────────────────────────────────── */
@@ -268,8 +276,19 @@ button {
   color: inherit;
 }
 
-button {
+button,
+[role="button"] {
   cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+:where(a, button, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -388,10 +407,15 @@ html.theme-switching *::after {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-1);
   outline: none;
   transition: border-color var(--transition), background var(--transition);
+}
+@media (min-width: 768px) {
+  .input-base {
+    font-size: 15px;
+  }
 }
 .input-base:focus {
   border-color: var(--accent);
@@ -561,7 +585,7 @@ input::-webkit-date-and-time-value {
   }
 }
 .widget-in {
-  animation: widget-in 420ms var(--ease-out) backwards;
+  animation: widget-in 260ms var(--ease-out) backwards;
 }
 
 /* Tactile press feedback for tappable cards, buttons, and interactive rows (RYUX RX-UI-11). */
@@ -641,6 +665,11 @@ input::-webkit-date-and-time-value {
   backdrop-filter: blur(2px);
 }
 
+.surface-blur {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
 /* Section tab switch — slides in from the side you swiped towards. */
 @keyframes tab-in-right {
   from {
@@ -696,8 +725,13 @@ h3, .h3 {
   line-height: 1.35;
 }
 
-/* Amounts & counters: tabular lining figures so numbers stay evenly spaced. */
-.font-mono,
+/* Code / IDs / tags stay crisp monospace; numeric amounts stay Plus Jakarta Sans tabular */
+.font-mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.01em;
+}
+
 .tabular-nums,
 [data-amount] {
   font-variant-numeric: tabular-nums lining-nums;
@@ -730,10 +764,10 @@ h3, .h3 {
 
 /* Sticky-note card for the pinned message to your partner. */
 .note-card {
-  background: #fff4c7;
-  color: #5b4300;
+  background: var(--note-bg);
+  color: var(--note-fg);
   border-radius: 18px;
-  box-shadow: 0 1px 0 rgba(120, 90, 0, 0.08), 0 10px 22px -14px rgba(120, 90, 0, 0.45);
+  box-shadow: var(--note-shadow);
   transform: rotate(-0.6deg);
 }
 .note-card .text-text-1,
@@ -741,11 +775,7 @@ h3, .h3 {
   color: inherit;
 }
 .note-card .text-text-3 {
-  opacity: 0.7;
-}
-[data-theme="dark"] .note-card {
-  background: #3a3220;
-  color: #ffe9a8;
+  opacity: 0.78;
 }
 /* Lands like a sticky note being pressed on, then settles at its tilt. */
 @keyframes note-drop {
@@ -775,10 +805,10 @@ h3, .h3 {
   }
 }
 .float-heart {
-  animation: float-heart 3s ease-in-out infinite;
+  animation: float-heart 2.4s ease-in-out 2;
 }
 .float-heart-slow {
-  animation: float-heart 4.2s ease-in-out infinite 0.6s;
+  animation: float-heart 3.2s ease-in-out 2 0.4s;
 }
 
 /* Frosted header & tab bar (Tailwind's /opacity can't tint CSS-var colours). */
@@ -795,6 +825,25 @@ h3, .h3 {
   box-shadow: var(--shadow-float);
 }
 
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .app-header {
+    background: var(--bg-app);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .app-nav {
+    background: var(--bg-card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--border-strong);
+  }
+  .backdrop-in,
+  .surface-blur {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* Big money figures: large but light, tabular, tight — like a banking app. */
 .num-hero {
   font-weight: 600;
@@ -807,16 +856,9 @@ h3, .h3 {
   letter-spacing: -0.01em;
 }
 
-/* Soft light at the top of money screens. */
+/* Calm surface top for money screens (no decorative radial gradient). */
 .hero-glow {
-  background:
-    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-    var(--bg-app);
-}
-[data-theme="dark"] .hero-glow {
-  background:
-    radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 62%),
-    var(--bg-app);
+  background: var(--bg-app);
 }
 
 /* ── WIDE SCREENS (iPad & laptop, ≥768px) ─────────────── */
@@ -867,9 +909,9 @@ h3, .h3 {
   }
 }
 
-/* Arranging cards: gentle jiggle like iOS home screen editing. */
+/* Arranging cards: tactile jiggle cue without infinite background motion. */
 .edit-jiggle {
-  animation: wiggle 0.28s ease-in-out infinite alternate;
+  animation: wiggle 0.28s ease-in-out 6 alternate;
   transform-origin: 50% 50%;
 }
 .is-dragging .edit-jiggle {
@@ -878,7 +920,7 @@ h3, .h3 {
 
 /* ── SEASONAL SKINS (accent + warm background tint) ───── */
 [data-accent="ramadhan"] {
-  --accent: #0f8a5f;
+  --accent: #0f7a54;
   --accent-2: #d9b24c;
   --accent-fg: #ffffff;
   --accent-soft: #e2f3ea;
@@ -889,13 +931,14 @@ h3, .h3 {
 [data-theme="dark"][data-accent="ramadhan"] {
   --accent: #2fbf87;
   --accent-2: #e8c35c;
+  --accent-fg: #071f15;
   --accent-soft: rgba(47, 191, 135, 0.16);
   --bg-app: #0f1512;
   --bg-elev1: #141c18;
   --bg-elev2: #1c2620;
 }
 [data-accent="valentine"] {
-  --accent: #e11d48;
+  --accent: #d01a42;
   --accent-2: #fb7185;
   --accent-fg: #ffffff;
   --accent-soft: #ffe1e7;
@@ -904,15 +947,16 @@ h3, .h3 {
   --bg-elev2: #fde2e7;
 }
 [data-theme="dark"][data-accent="valentine"] {
-  --accent: #ff4d73;
-  --accent-2: #ff8fa6;
-  --accent-soft: rgba(255, 77, 115, 0.16);
+  --accent: #ff6b8b;
+  --accent-2: #ff9eb4;
+  --accent-fg: #1c070d;
+  --accent-soft: rgba(255, 107, 139, 0.16);
   --bg-app: #170d10;
   --bg-elev1: #1f1215;
   --bg-elev2: #2a181d;
 }
 [data-accent="senja"] {
-  --accent: #f97316;
+  --accent: #c2410c;
   --accent-2: #a855f7;
   --accent-fg: #ffffff;
   --accent-soft: #ffead9;
@@ -921,12 +965,13 @@ h3, .h3 {
 [data-theme="dark"][data-accent="senja"] {
   --accent: #ff8a3d;
   --accent-2: #c084fc;
+  --accent-fg: #1c0b04;
   --accent-soft: rgba(255, 138, 61, 0.16);
   --bg-app: #16101a;
 }
 [data-accent="laut"] {
-  --accent: #0ea5e9;
-  --accent-2: #14b8a6;
+  --accent: #0369a1;
+  --accent-2: #0d9488;
   --accent-fg: #ffffff;
   --accent-soft: #dff3fc;
   --bg-app: #f3f8fa;
@@ -943,8 +988,8 @@ h3, .h3 {
   --bg-elev2: #18262c;
 }
 [data-accent="matcha"] {
-  --accent: #65a30d;
-  --accent-2: #a3c25a;
+  --accent: #4d7c0f;
+  --accent-2: #84a942;
   --accent-fg: #ffffff;
   --accent-soft: #ecf5dc;
   --bg-app: #f7f8f1;
@@ -957,8 +1002,8 @@ h3, .h3 {
   --bg-app: #10140c;
 }
 [data-accent="lavender"] {
-  --accent: #8b5cf6;
-  --accent-2: #c4b5fd;
+  --accent: #6d28d9;
+  --accent-2: #a855f7;
   --accent-fg: #ffffff;
   --accent-soft: #efe9ff;
   --bg-app: #f8f6fd;
@@ -992,8 +1037,15 @@ h3, .h3 {
   border-radius: 12px;
   padding: 10px 12px;
   min-height: 42px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-1);
+}
+@media (min-width: 768px) {
+  .form-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .form-card select,
+  .form-card textarea {
+    font-size: 15px;
+  }
 }
 .form-card input::placeholder,
 .form-card textarea::placeholder {
@@ -1010,11 +1062,8 @@ h3, .h3 {
 .text-\[10px\] { font-size: 11px; }
 .text-\[11px\] { font-size: 12px; }
 
-/* ── Space hero cards: a soft tint of the space's colour instead of a loud
-   gradient banner. Pages mark the card .hero-soft and set --hero. ── */
+/* ── Space hero cards: plain card with accent data marks ── */
 .hero-soft {
-  /* One accent for the whole app: per-space hero colours set inline are
-     overridden, so heroes read as plain cards with accent data marks. */
   --hero: var(--accent) !important;
   background: var(--bg-card) !important;
   border: 0;
@@ -1026,9 +1075,9 @@ h3, .h3 {
 .hero-soft [class*="bg-white/"] { background: var(--bg-elev1) !important; color: var(--text-2) !important; backdrop-filter: none !important; }
 .hero-soft .bg-white {
   background: var(--hero) !important;
-  color: #fff !important;
+  color: var(--accent-fg) !important;
 }
-.hero-soft .bg-white * { color: #fff !important; }
+.hero-soft .bg-white * { color: var(--accent-fg) !important; }
 .hero-soft .font-extrabold,
 .hero-soft .font-bold { font-weight: 600; }
 /* Decorative giant glyphs/illustrations in the old banners */

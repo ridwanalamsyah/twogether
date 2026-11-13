@@ -187,10 +187,10 @@ function Row({
   return (
     <li className="border-b border-border last:border-0">
       <SwipeRow onDelete={onDelete}>
-        <button onClick={onToggle} className="flex w-full items-center gap-3 bg-bg-card px-4 py-3.5 text-left">
+        <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 bg-bg-card px-4 py-3.5 text-left">
           <span
-            className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-[14px] font-bold transition-all ${
-              isDone ? "border-accent bg-accent text-white" : "border-border-strong text-transparent"
+            className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-[14px] font-bold transition-colors ${
+              isDone ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"
             }`}
           >
             ✓

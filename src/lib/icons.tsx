@@ -157,7 +157,7 @@ export function IconTile({
   const r = radius ?? Math.max(8, Math.round(size * 0.28));
   return (
     <span
-      className={`grid shrink-0 place-items-center transition-all duration-150 active:scale-95 ${className}`}
+      className={`grid shrink-0 place-items-center transition-transform duration-150 active:scale-95 ${className}`}
       style={{
         width: size,
         height: size,

@@ -10,38 +10,26 @@ const serviceWorker = readFileSync(new URL("../public/sw.js", import.meta.url), 
 
 assert.match(
   css,
-  /--nav-visual-bottom-pad:\s*2px;/,
-  "bottom nav should sit close to the viewport bottom without a large visual gap",
+  /--nav-content-h:\s*58px;/,
+  "bottom nav content height should remain 58px",
 );
 
 assert.match(
   css,
-  /--nav-safe-bottom:\s*max\(var\(--sab\),\s*0px\);/,
-  "bottom nav should know the iOS safe-area height",
+  /--nav-bottom-spacing:\s*calc\(var\(--sab\) \+ 12px\);/,
+  "bottom nav should reserve safe-area spacing above the iPhone home indicator",
 );
 
 assert.match(
   css,
-  /--nav-bottom-offset:\s*var\(--nav-safe-bottom\);/,
-  "bottom nav should pull fully into the iOS safe area",
-);
-
-assert.match(
-  css,
-  /--nav-bottom-pad:\s*calc\(var\(--nav-visual-bottom-pad\) \+ var\(--nav-bottom-offset\)\);/,
-  "bottom nav background should continue through the pulled-up safe area",
-);
-
-assert.match(
-  css,
-  /--nav-h:\s*calc\(var\(--nav-content-h\) \+ var\(--nav-visual-bottom-pad\)\);/,
-  "visible bottom nav height should stay compact even when covering iOS safe area",
+  /--nav-h:\s*calc\(var\(--nav-content-h\) \+ var\(--nav-bottom-spacing\)\);/,
+  "total bottom nav height should include safe-area bottom spacing",
 );
 
 assert.match(
   bottomNav,
-  /-bottom-\[var\(--nav-bottom-offset\)\]/,
-  "bottom nav wrapper should reach into the iOS safe area (the pill floats just above the home indicator)",
+  /var\(--nav-bottom-spacing/,
+  "bottom nav wrapper should offset above the iOS home indicator via --nav-bottom-spacing",
 );
 
 assert.doesNotMatch(
@@ -52,12 +40,12 @@ assert.doesNotMatch(
 
 assert.match(
   bottomNav,
-  /grid h-\[var\(--nav-content-h\)\] grid-cols-5/,
+  /grid h-\[var\(--nav-content-h,58px\)\] grid-cols-5/,
   "bottom nav items should keep a fixed shared content height",
 );
 
 assert.match(
   serviceWorker,
-  /const VERSION = "twogether-v12";/,
+  /const VERSION = "twogether-v13";/,
   "service worker cache version should bump when shell spacing changes",
 );
