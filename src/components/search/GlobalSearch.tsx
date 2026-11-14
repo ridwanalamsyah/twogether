@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/stores/auth";
 import {
   addTransaction,
@@ -64,6 +65,7 @@ export function GlobalSearch({
   const [q, setQ] = useState("");
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (open) {
@@ -82,13 +84,13 @@ export function GlobalSearch({
           href: "/tracker",
           kind: "Aksi",
           label: "Tambah transaksi",
-          detail: "Catat pemasukan/pengeluaran cepat",
+          detail: "Catat pemasukan atau pengeluaran",
         },
         {
           href: "/moments",
           kind: "Aksi",
           label: "Tulis moment",
-          detail: "Simpan cerita atau catatan pasangan",
+          detail: "Simpan cerita atau catatan berdua",
         },
         {
           href: "/settings/dashboard",
@@ -100,7 +102,7 @@ export function GlobalSearch({
           href: "/settings/workspace",
           kind: "Aksi",
           label: "Undang pasangan",
-          detail: "Kirim link supaya bisa pakai bareng",
+          detail: "Kirim link untuk pakai berdua",
         },
         {
           href: "/settings/theme",
@@ -223,7 +225,7 @@ export function GlobalSearch({
     // Spaces: typing "zakat" or "fokus" opens the space.
     for (const f of FEATURES) {
       if (`${f.title} ${f.subtitle} ${f.href.slice(1)}`.toLowerCase().includes(needle)) {
-        out.push({ href: f.href, kind: "Ruang", label: `${f.emoji} ${f.title}`, detail: f.subtitle });
+        out.push({ href: f.href, kind: "Ruang", label: f.title, detail: f.subtitle });
       }
     }
     // Catatan: title and the text inside the page.
@@ -235,7 +237,7 @@ export function GlobalSearch({
         out.push({
           href: `/catatan?id=${n.id}`,
           kind: "Catatan",
-          label: `${note.emoji} ${n.title || "Tanpa judul"}`,
+          label: n.title || "Tanpa judul",
           detail: at >= 0 ? body.slice(Math.max(0, at - 20), at + 50).trim() : undefined,
         });
       }
@@ -281,7 +283,7 @@ export function GlobalSearch({
         out.push({
           href: "/skripsi",
           kind: "Skripsi",
-          label: `BAB ${c.number} — ${c.title}`,
+          label: `BAB ${c.number} · ${c.title}`,
           detail: c.status,
         });
       }
@@ -400,7 +402,7 @@ export function GlobalSearch({
             href: "/jadwal",
             kind: "Kuliah",
             label: it.title,
-            detail: `${c.day} ${c.start}–${c.end} · ${it.who ?? ""}`,
+            detail: `${c.day} ${c.start}-${c.end} · ${it.who ?? ""}`,
           });
         }
       } catch {
@@ -427,77 +429,108 @@ export function GlobalSearch({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open || typeof document === "undefined") return null;
-  // Portal to <body>: the sticky header uses backdrop-filter, which would
-  // otherwise trap this fixed overlay inside the header's box.
+  if (typeof document === "undefined") return null;
+  // Portal to <body> so sticky headers or transforms never clip or trap it.
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex items-start justify-center pt-[10vh]">
-      <button
-        type="button"
-        aria-label="Tutup pencarian"
-        onClick={onClose}
-        className="backdrop-in fixed inset-0 bg-black/50"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Pencarian"
-        className="pop-in relative z-10 mx-4 w-full max-w-[480px] overflow-hidden rounded-xl bg-bg-app shadow-2xl theme-transition"
-      >
-        <div className="border-b border-border focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40">
-          <input
-            ref={inputRef}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search or command: 25000, note..., moment..., task..."
-            className="w-full bg-transparent px-4 py-3 text-sm focus:outline-none"
-          />
-          {actionMsg && (
-            <div className="px-4 pb-2 text-[11px] font-semibold text-[color:var(--positive)]">
-              {actionMsg}
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[80] flex items-start justify-center px-4 pt-[10vh]">
+          <motion.div
+            className="fixed inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduced ? 0.05 : 0.18 }}
+          >
+            <button
+              type="button"
+              aria-label="Tutup pencarian"
+              onClick={onClose}
+              className="h-full w-full bg-black/55"
+            />
+          </motion.div>
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pencarian"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={
+              reduced
+                ? { opacity: 0, transition: { duration: 0.06 } }
+                : { opacity: 0, y: -8, transition: { duration: 0.14, ease: [0.22, 1, 0.36, 1] } }
+            }
+            transition={reduced ? { duration: 0.08 } : { type: "spring", stiffness: 460, damping: 34 }}
+            className="relative z-10 w-full max-w-[480px] overflow-hidden rounded-[20px] bg-bg-app shadow-float theme-transition"
+          >
+            <div className="flex items-center border-b border-border pr-1.5">
+              <label htmlFor="global-search-input" className="sr-only">
+                Cari atau perintah cepat
+              </label>
+              <input
+                id="global-search-input"
+                ref={inputRef}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Cari atau ketik nominal, note..., moment..."
+                className="min-h-[48px] flex-1 rounded-tl-[20px] bg-transparent px-4 py-3 text-sm text-text-1 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--accent)]"
+              />
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup pencarian"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-3 hover:bg-bg-elev1"
+              >
+                <span aria-hidden className="text-lg leading-none">×</span>
+              </button>
             </div>
-          )}
+            {actionMsg && (
+              <div className="border-b border-border px-4 py-2 text-[12px] font-semibold text-[color:var(--positive)]">
+                {actionMsg}
+              </div>
+            )}
+            <ul className="max-h-[50vh] divide-y divide-border overflow-y-auto">
+              {hits.length === 0 ? (
+                <li className="px-4 py-6 text-center text-sm text-text-4">
+                  {q ? "Tidak ada hasil" : "Ketik untuk mencari"}
+                </li>
+              ) : (
+                hits.map((h, i) => (
+                  <li key={i}>
+                    <Link
+                      href={h.href}
+                      onClick={(e) => {
+                        if (h.action) {
+                          e.preventDefault();
+                          void runAction(h);
+                          return;
+                        }
+                        onClose();
+                      }}
+                      className="block min-h-[44px] px-4 py-2.5 active:bg-bg-elev2"
+                    >
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-sm font-semibold text-text-1">
+                          {h.label}
+                        </span>
+                        <span className="shrink-0 text-[12px] font-semibold text-text-3">
+                          {h.kind}
+                        </span>
+                      </div>
+                      {h.detail && (
+                        <div className="truncate text-[12px] text-text-3">
+                          {h.detail}
+                        </div>
+                      )}
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+          </motion.div>
         </div>
-        <ul className="max-h-[50vh] divide-y divide-border overflow-y-auto">
-          {hits.length === 0 ? (
-            <li className="px-4 py-6 text-center text-sm text-text-4">
-              {q ? "Tidak ada hasil" : "Ketik untuk mencari"}
-            </li>
-          ) : (
-            hits.map((h, i) => (
-              <li key={i}>
-                <Link
-                  href={h.href}
-                  onClick={(e) => {
-                    if (h.action) {
-                      e.preventDefault();
-                      void runAction(h);
-                      return;
-                    }
-                    onClose();
-                  }}
-                  className="block px-4 py-2.5 active:bg-bg-elev2"
-                >
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-sm font-semibold text-text-1">
-                      {h.label}
-                    </span>
-                    <span className="text-[10px] font-bold section-label text-text-3">
-                      {h.kind}
-                    </span>
-                  </div>
-                  {h.detail && (
-                    <div className="truncate text-[11px] text-text-3">
-                      {h.detail}
-                    </div>
-                  )}
-                </Link>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-    </div>,
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }

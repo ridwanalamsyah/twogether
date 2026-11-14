@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/stores/auth";
 import { useDeposits, useEntries } from "@/stores/data";
 import { isoDay, addDays, fromIsoDay } from "@/lib/people";
@@ -28,6 +29,7 @@ export function TrendCard({ kind, title = "Tren", unit, agg = "sum", days: initi
   const deposits = useDeposits(userId) ?? [];
   const [days, setDays] = useState<7 | 14 | 30>(initialDays);
   const [pick, setPick] = useState<number | null>(null);
+  const reduced = useReducedMotion();
 
   const series = useMemo(() => {
     const today = isoDay(new Date());
@@ -63,19 +65,25 @@ export function TrendCard({ kind, title = "Tren", unit, agg = "sum", days: initi
             <div className="num text-[24px] font-semibold text-text-1">{fmt(shown ? shown.v : avg)}</div>
           ) : null}
         </div>
-        <div className="flex rounded-[9px] bg-bg-elev2 p-0.5 text-[12px] font-semibold">
-          {([7, 14, 30] as const).map((n) => (
-            <button
-              key={n}
-              onClick={() => {
-                setDays(n);
-                setPick(null);
-              }}
-              className={`rounded-[7px] px-2.5 py-1 ${days === n ? "bg-bg-card text-text-1 shadow-sm" : "text-text-3"}`}
-            >
-              {n === 7 ? "M" : n === 14 ? "2M" : "B"}
-            </button>
-          ))}
+        <div className="flex gap-1 rounded-[11px] bg-bg-elev2 p-1 text-[12px] font-semibold">
+          {([7, 14, 30] as const).map((n) => {
+            const label = n === 7 ? "M" : n === 14 ? "2M" : "B";
+            return (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={days === n}
+                aria-label={`${label} (${n} hari)`}
+                onClick={() => {
+                  setDays(n);
+                  setPick(null);
+                }}
+                className={`min-h-[44px] min-w-[44px] rounded-[8px] px-2.5 ${days === n ? "bg-bg-card text-text-1 shadow-sm" : "text-text-3"}`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
       {filled.length === 0 ? (
@@ -87,13 +95,19 @@ export function TrendCard({ kind, title = "Tren", unit, agg = "sum", days: initi
             return (
               <button
                 key={x.d}
+                type="button"
                 onMouseEnter={() => setPick(i)}
+                onFocus={() => setPick(i)}
                 onClick={() => setPick(pick === i ? null : i)}
+                aria-pressed={pick === i}
                 aria-label={`${x.d}: ${fmt(x.v)}`}
-                className="flex h-full flex-1 items-end"
+                className="flex h-full min-h-[44px] flex-1 items-end rounded-[3px]"
               >
-                <span
-                  className={`w-full rounded-[3px] transition-opacity ${pick != null && pick !== i ? "opacity-35" : ""}`}
+                <motion.span
+                  initial={reduced ? false : { scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 0.35, delay: Math.min(i * 0.015, 0.25), ease: [0.22, 1, 0.36, 1] }}
+                  className={`origin-bottom w-full rounded-[3px] transition-opacity ${pick != null && pick !== i ? "opacity-35" : ""}`}
                   style={{ height: `${h}%`, background: x.has ? color : "transparent" }}
                 />
               </button>
@@ -101,7 +115,7 @@ export function TrendCard({ kind, title = "Tren", unit, agg = "sum", days: initi
           })}
         </div>
       )}
-      <div className="mt-1.5 flex justify-between text-[11px] text-text-4">
+      <div className="mt-1.5 flex justify-between text-[12px] text-text-4">
         <span>{fromIsoDay(series[0].d).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span>
         <span>Hari ini</span>
       </div>

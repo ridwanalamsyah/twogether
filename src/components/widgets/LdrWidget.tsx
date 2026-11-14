@@ -99,7 +99,7 @@ export function LdrWidget() {
   return (
     <div className="surface p-4">
       <div className="flex items-center gap-3">
-        <IconTile spec={{ Icon: Clock, tint: "#0ea5e9" }} size={44} radius={14} />
+        <IconTile spec={{ Icon: Clock, tint: "var(--tint-sky)" }} size={44} radius={14} />
         <div className="min-w-0 flex-1">
           <div className="text-[12px] font-semibold text-text-3">Jam di tempat {name}</div>
           {theirZone ? (
@@ -115,20 +115,30 @@ export function LdrWidget() {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-3 rounded-xl bg-bg-elev1 px-3 py-2.5">
-        <CalendarHeart size={18} className="shrink-0 text-accent" />
+      <div className="mt-3 flex min-h-[48px] items-center gap-3 rounded-xl bg-bg-elev1 px-3 py-1.5">
+        <CalendarHeart size={18} className="shrink-0 text-accent" aria-hidden />
         {editing ? (
-          <input
-            type="date"
-            autoFocus
-            min={today}
-            defaultValue={p.nextMeet ?? ""}
-            onChange={(e) => e.target.value && void setMeet(e.target.value)}
-            onBlur={() => setEditing(false)}
-            className="input-base h-9 flex-1 text-[14px]"
-          />
+          <>
+            <label htmlFor="ldr-next-meet" className="sr-only">
+              Tanggal ketemu berikutnya
+            </label>
+            <input
+              id="ldr-next-meet"
+              type="date"
+              autoFocus
+              min={today}
+              defaultValue={p.nextMeet ?? ""}
+              onChange={(e) => e.target.value && void setMeet(e.target.value)}
+              onBlur={() => setEditing(false)}
+              className="input-base min-h-[44px] flex-1 text-[14px]"
+            />
+          </>
         ) : (
-          <button onClick={() => setEditing(true)} className="min-w-0 flex-1 text-left">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="flex min-h-[44px] min-w-0 flex-1 items-center text-left"
+          >
             {daysLeft === null || daysLeft < 0 ? (
               <span className="text-[14px] font-semibold text-text-2">Atur tanggal ketemu berikutnya</span>
             ) : daysLeft === 0 ? (

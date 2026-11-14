@@ -52,7 +52,7 @@ export default function AsetPage() {
     <div>
       <AppHeader title="Aset bersih" />
       <div className="space-y-4 px-5 pb-10 pt-3">
-        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#0f766e" }}>
+        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "var(--tint-teal)" }}>
           <div className="text-[13px] font-semibold text-white/85">Total kekayaan berdua</div>
           <div className="mt-1 text-[32px] font-extrabold leading-tight tabular-nums">{formatRupiah(now?.total ?? 0)}</div>
           {prev && (
@@ -63,23 +63,25 @@ export default function AsetPage() {
         </div>
 
         {!hasWallets && (
-          <Link href="/dompet" className="block rounded-2xl bg-[color:var(--warning-bg)] px-4 py-3 text-[13px] text-[color:var(--warning)]">
-            Tambahkan dompet (rekening, e-wallet, tunai) beserta saldo awalnya supaya angka ini akurat →
+          <Link href="/dompet" className="block min-h-[44px] rounded-2xl bg-[color:var(--warning-bg)] px-4 py-3 text-[13px] text-[color:var(--warning)]">
+            Tambahkan dompet (rekening, e-wallet, tunai) beserta saldo awalnya supaya angka ini akurat.
           </Link>
         )}
 
         <section className="surface p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-bold text-text-1">Dari bulan ke bulan</h2>
-            <div className="flex gap-1 rounded-full bg-bg-elev2 p-0.5 text-[12px] font-semibold">
+            <div className="flex gap-1 rounded-full bg-bg-elev2 p-1 text-[12px] font-semibold">
               {RANGES.map((r) => (
                 <button
                   key={r}
+                  type="button"
                   onClick={() => {
                     setRange(r);
                     setPick(null);
                   }}
-                  className={`rounded-full px-2.5 py-1 ${range === r ? "bg-bg-card text-text-1 shadow-sm" : "text-text-3"}`}
+                  aria-pressed={range === r}
+                  className={`min-h-[44px] rounded-full px-3.5 ${range === r ? "bg-bg-card text-text-1 shadow-sm" : "text-text-3"}`}
                 >
                   {r} bln
                 </button>
@@ -101,6 +103,7 @@ export default function AsetPage() {
                 return (
                   <button
                     key={x.d}
+                    type="button"
                     onMouseEnter={() => setPick(i)}
                     onClick={() => setPick(pick === i ? null : i)}
                     className="relative h-full flex-1"
@@ -119,7 +122,7 @@ export default function AsetPage() {
               })}
             </div>
           </div>
-          <div className="mt-1.5 flex gap-2 text-center text-[10px] text-text-4">
+          <div className="mt-1.5 flex gap-2 text-center text-[12px] text-text-4">
             {series.map((x) => (
               <span key={x.d} className="flex-1">{fromIsoDay(x.d).toLocaleDateString("id-ID", { month: "short" })}</span>
             ))}
@@ -130,13 +133,13 @@ export default function AsetPage() {
           <section className="surface p-4">
             <h2 className="mb-2 text-[15px] font-bold text-text-1">Rinciannya</h2>
             {[
-              { label: "Saldo dompet", v: now.wallets, href: "/dompet", spec: { Icon: Wallet, tint: "#f59e0b" } },
-              { label: "Tabungan Goals", v: now.savings, href: "/goals", spec: { Icon: Target, tint: "#22c55e" } },
-              { label: "Piutang (dipinjam orang)", v: now.lent, href: "/uang", spec: { Icon: HandCoins, tint: "#0ea5e9" } },
-              { label: "Hutang", v: -now.owe, href: "/uang", spec: { Icon: CreditCard, tint: "#ef4444" } },
-              { label: "Sisa cicilan", v: -now.installments, href: "/tagihan", spec: { Icon: Receipt, tint: "#a855f7" } },
+              { label: "Saldo dompet", v: now.wallets, href: "/dompet", spec: { Icon: Wallet, tint: "var(--tint-amber)" } },
+              { label: "Tabungan Goals", v: now.savings, href: "/goals", spec: { Icon: Target, tint: "var(--tint-pine)" } },
+              { label: "Piutang (dipinjam orang)", v: now.lent, href: "/uang", spec: { Icon: HandCoins, tint: "var(--tint-sky)" } },
+              { label: "Hutang", v: -now.owe, href: "/uang", spec: { Icon: CreditCard, tint: "var(--tint-red)" } },
+              { label: "Sisa cicilan", v: -now.installments, href: "/tagihan", spec: { Icon: Receipt, tint: "var(--tint-purple)" } },
             ].map((r) => (
-              <Link key={r.label} href={r.href} className="flex items-center justify-between border-b border-border py-2.5 text-[14px] last:border-0">
+              <Link key={r.label} href={r.href} className="flex min-h-[44px] items-center justify-between border-b border-border py-2.5 text-[14px] last:border-0">
                 <span className="flex items-center gap-3 text-text-2">
                   <IconTile spec={r.spec} size={34} radius={10} />
                   {r.label}
@@ -148,8 +151,8 @@ export default function AsetPage() {
             ))}
           </section>
         )}
-        <p className="px-1 text-[11px] leading-snug text-text-4">
-          Dihitung dari dompet, Goals, hutang/piutang, dan cicilan yang dicatat di Twogether. Barang seperti motor atau emas belum ikut dihitung.
+        <p className="px-1 text-[12px] leading-snug text-text-4">
+          Dihitung dari dompet, Goals, hutang/piutang, dan cicilan yang dicatat di Twogether.
         </p>
       </div>
     </div>

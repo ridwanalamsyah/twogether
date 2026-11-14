@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, HeartHandshake, Images, Moon, Send, Smile, Wallet } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/stores/auth";
@@ -20,6 +20,7 @@ const STEPS = 4;
 
 export function OnboardingTour() {
   const router = useRouter();
+  const reduce = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
   const { setNick } = useNick();
@@ -74,156 +75,188 @@ export function OnboardingTour() {
     setStep(step + 1);
   }
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 backdrop-in md:items-center">
-      <div className="mx-auto flex max-h-[92vh] w-full max-w-[480px] flex-col rounded-t-[28px] bg-bg-app p-6 pb-[calc(20px+var(--sab))] sheet-up theme-transition md:rounded-[28px]">
-        <div className="mb-5 flex items-center justify-between">
-          <div className="flex gap-1.5">
-            {Array.from({ length: partner ? STEPS - 1 : STEPS }, (_, i) => (
-              <motion.span
-                key={i}
-                className={`h-1.5 rounded-full ${i === step ? "bg-accent" : i < step ? "bg-text-4" : "bg-bg-elev3"}`}
-                animate={{ width: i === step ? 24 : 6 }}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              />
-            ))}
-          </div>
-          <button onClick={() => finish()} className="text-[13px] font-semibold text-text-3">
-            Lewati
-          </button>
-        </div>
-
-        {/* Small inset so selected cards' ring isn't clipped by the scroller. */}
-        <div className="-mx-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1.5 pb-1.5 pt-0.5">
-          <AnimatePresence mode="wait" initial={false} custom={dir}>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          key="onboarding-tour"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pengenalan Twogether"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduce ? 0.08 : 0.2 }}
+          className="fixed inset-0 z-[80] flex items-end justify-center bg-black/55 md:items-center md:p-6"
+        >
           <motion.div
-            key={step}
-            custom={dir}
-            initial={{ opacity: 0, x: dir * 28 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: dir * -28 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 36, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
+            transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 460, damping: 34 }}
+            className="mx-auto flex max-h-[92vh] w-full max-w-[480px] flex-col rounded-t-[28px] bg-bg-app p-6 pb-[calc(20px+var(--sab))] shadow-float theme-transition md:rounded-[28px]"
           >
-          {step === 0 && (
-            <div className="text-center">
-              <IconTile spec={{ Icon: HeartHandshake, tint: "#f43f5e" }} size={72} radius={22} className="float-heart-slow mx-auto" />
-              <h2 className="mt-4 text-[24px] font-extrabold leading-tight text-text-1">Satu tempat untuk kalian berdua</h2>
-              <p className="mx-auto mt-2 max-w-[320px] text-[14px] leading-relaxed text-text-3">
-                Uang, ibadah, jadwal, dan kenangan — dicatat bareng, tersimpan di HP berdua. Tetap jalan walau tanpa internet.
-              </p>
-              <div className="mt-5 grid grid-cols-3 gap-2 text-[12px] font-semibold text-text-2">
-                {(
-                  [
-                    [Wallet, "Uang bareng"],
-                    [Moon, "Ibadah"],
-                    [Images, "Kenangan"],
-                  ] as const
-                ).map(([Icon, l]) => (
-                  <div key={l} className="flex flex-col items-center gap-1.5 rounded-2xl bg-bg-card py-3 shadow-card">
-                    <Icon size={22} strokeWidth={2} className="text-text-2" />
-                    {l}
-                  </div>
+            <div className="mb-5 flex items-center justify-between">
+              <div className="flex gap-1.5">
+                {Array.from({ length: partner ? STEPS - 1 : STEPS }, (_, i) => (
+                  <motion.span
+                    key={i}
+                    layout
+                    className={`h-1.5 rounded-full ${
+                      i === step ? "w-6 bg-accent" : i < step ? "w-1.5 bg-text-4" : "w-1.5 bg-bg-elev3"
+                    }`}
+                    transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 420, damping: 32 }}
+                  />
                 ))}
               </div>
-            </div>
-          )}
-
-          {step === 1 && (
-            <div>
-              <IconTile spec={{ Icon: Smile, tint: "#f59e0b" }} size={56} radius={18} />
-              <h2 className="mt-3 text-[22px] font-extrabold text-text-1">Mau dipanggil apa?</h2>
-              <p className="mt-1 text-[14px] text-text-3">Dipakai di sapaan dan terlihat oleh pasanganmu. Bisa diganti kapan saja.</p>
-              <input
-                className="input-base mt-4 text-[17px]"
-                value={nick}
-                onChange={(e) => setNickInput(e.target.value)}
-                placeholder={`mis. ${me.split(" ")[0]}, Mas, Adek`}
-                maxLength={20}
-                autoFocus
-              />
-            </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <h2 className="text-[22px] font-extrabold text-text-1">Kalian mau pakai untuk apa?</h2>
-              <p className="mt-1 text-[14px] text-text-3">Mulai dari yang penting dulu. Ruang lain bisa ditambah kapan saja dari Jelajah.</p>
-              <div className="mt-4 grid grid-cols-2 gap-2.5">
-                {BUNDLES.map((b, i) => {
-                  const on = picked.includes(b.id);
-                  const titles = b.starter.map((h) => FEATURES.find((f) => f.href === h)?.title).filter(Boolean);
-                  return (
-                    <motion.button
-                      key={b.id}
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0, scale: on ? 1 : 0.985 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 420,
-                        damping: 28,
-                        opacity: { duration: 0.25, delay: 0.05 + i * 0.045 },
-                        y: { type: "spring", stiffness: 380, damping: 30, delay: 0.05 + i * 0.045 },
-                      }}
-                      onClick={() => {
-                        hapticTap();
-                        setPicked(on ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
-                      }}
-                      aria-pressed={on}
-                      className={`relative rounded-[20px] p-3.5 text-left transition-[background-color,box-shadow] duration-200 ${on ? "ring-2 ring-accent" : ""}`}
-                      style={{ background: tintBg(b.tint, on ? 22 : 12) }}
-                    >
-                      <AnimatePresence>
-                        {on && (
-                          <motion.span
-                            className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-fg"
-                            initial={{ scale: 0, rotate: -45 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            exit={{ scale: 0, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 600, damping: 22 }}
-                          >
-                            <Check size={12} strokeWidth={3.2} />
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                      <IconTile spec={bundleIcon(b.id)} size={38} radius={12} />
-                      <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
-                      <div className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-text-3">{titles.join(", ")}</div>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="text-center">
-              <IconTile spec={{ Icon: Send, tint: "#3b82f6" }} size={72} radius={22} className="mx-auto" />
-              <h2 className="mt-4 text-[22px] font-extrabold text-text-1">Ajak pasanganmu</h2>
-              <p className="mx-auto mt-2 max-w-[320px] text-[14px] leading-relaxed text-text-3">
-                Kirim undangan supaya catatan kalian tersambung — yang satu mencatat, yang lain langsung lihat.
-              </p>
-              <button onClick={() => finish("/settings/workspace")} className="btn-accent mt-6 w-full">
-                Kirim undangan
+              <button
+                type="button"
+                onClick={() => finish()}
+                className="-mr-2 inline-flex min-h-[44px] items-center rounded-full px-3 text-[13px] font-semibold text-text-3 hover:text-text-1"
+              >
+                Lewati
               </button>
             </div>
-          )}
-          </motion.div>
-          </AnimatePresence>
-        </div>
 
-        {step < 3 ? (
-          <button onClick={next} className="btn-accent mt-5 w-full">
-            {step === 0 ? "Mulai" : step === 2 && !picked.length ? "Nanti saja" : "Lanjut"}
-          </button>
-        ) : (
-          <button onClick={() => finish()} className="mt-3 w-full py-2 text-[14px] font-semibold text-text-3">
-            Nanti saja
-          </button>
-        )}
-      </div>
-    </div>
+            {/* Small inset so selected cards' ring isn't clipped by the scroller. */}
+            <div className="-mx-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-1.5 pb-1.5 pt-0.5">
+              <AnimatePresence mode="wait" initial={false} custom={dir}>
+                <motion.div
+                  key={step}
+                  custom={dir}
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, x: dir * 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, x: dir * -24 }}
+                  transition={{ duration: reduce ? 0.08 : 0.2, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {step === 0 && (
+                    <div className="text-center">
+                      <IconTile spec={{ Icon: HeartHandshake, tint: "var(--tint-rose)" }} size={72} radius={22} className="float-heart-slow mx-auto" />
+                      <h2 className="mt-4 text-[24px] font-extrabold leading-tight text-text-1">Ruang untuk berdua</h2>
+                      <p className="mx-auto mt-2 max-w-[300px] text-[14px] leading-relaxed text-text-3">
+                        Uang, ibadah, dan kenangan tersimpan rapi di kedua HP, tetap jalan offline.
+                      </p>
+                      <div className="mt-5 grid grid-cols-3 gap-2 text-[12px] font-semibold text-text-2">
+                        {(
+                          [
+                            [Wallet, "Uang"],
+                            [Moon, "Ibadah"],
+                            [Images, "Kenangan"],
+                          ] as const
+                        ).map(([Icon, l]) => (
+                          <div key={l} className="flex flex-col items-center gap-1.5 rounded-2xl bg-bg-card py-3 shadow-card">
+                            <Icon size={22} strokeWidth={2} aria-hidden />
+                            {l}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 1 && (
+                    <div>
+                      <IconTile spec={{ Icon: Smile, tint: "var(--tint-amber)" }} size={56} radius={18} />
+                      <h2 className="mt-3 text-[22px] font-extrabold text-text-1">Mau dipanggil apa?</h2>
+                      <p className="mt-1 text-[14px] text-text-3">Tampil di sapaan, bisa diganti kapan saja.</p>
+                      <label htmlFor="onboarding-nick" className="sr-only">Nama panggilan</label>
+                      <input
+                        id="onboarding-nick"
+                        className="input-base mt-4 text-[17px]"
+                        value={nick}
+                        onChange={(e) => setNickInput(e.target.value)}
+                        placeholder={`mis. ${me.split(" ")[0]}, Mas, Adek`}
+                        maxLength={20}
+                        autoFocus
+                      />
+                    </div>
+                  )}
+
+                  {step === 2 && (
+                    <div>
+                      <h2 className="text-[22px] font-extrabold text-text-1">Pilih ruang awal</h2>
+                      <p className="mt-1 text-[14px] text-text-3">Ruang lain selalu ada di Jelajah.</p>
+                      <div className="mt-4 grid grid-cols-2 gap-2.5">
+                        {BUNDLES.map((b, i) => {
+                          const on = picked.includes(b.id);
+                          const titles = b.starter.map((h) => FEATURES.find((f) => f.href === h)?.title).filter(Boolean);
+                          return (
+                            <motion.button
+                              key={b.id}
+                              type="button"
+                              initial={reduce ? false : { opacity: 0, y: 14 }}
+                              animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: on ? 1 : 0.985 }}
+                              whileTap={reduce ? undefined : { scale: 0.95 }}
+                              transition={
+                                reduce
+                                  ? { duration: 0.08 }
+                                  : {
+                                      type: "spring",
+                                      stiffness: 420,
+                                      damping: 28,
+                                      opacity: { duration: 0.25, delay: 0.04 + i * 0.04 },
+                                      y: { type: "spring", stiffness: 380, damping: 30, delay: 0.04 + i * 0.04 },
+                                    }
+                              }
+                              onClick={() => {
+                                hapticTap();
+                                setPicked(on ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
+                              }}
+                              aria-pressed={on}
+                              className={`relative rounded-[20px] p-3.5 text-left transition-[background-color,box-shadow] duration-200 ${on ? "ring-2 ring-accent" : ""}`}
+                              style={{ background: tintBg(b.tint, on ? 22 : 12) }}
+                            >
+                              <AnimatePresence>
+                                {on && (
+                                  <motion.span
+                                    aria-hidden="true"
+                                    className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-accent text-accent-fg"
+                                    initial={reduce ? { opacity: 0 } : { scale: 0, rotate: -45 }}
+                                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                                    exit={reduce ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+                                    transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 600, damping: 22 }}
+                                  >
+                                    <Check size={12} strokeWidth={3.2} aria-hidden />
+                                  </motion.span>
+                                )}
+                              </AnimatePresence>
+                              <IconTile spec={bundleIcon(b.id)} size={38} radius={12} />
+                              <div className="mt-2 text-[14px] font-bold text-text-1">{b.title}</div>
+                              <div className="mt-0.5 line-clamp-2 text-[12px] leading-4 text-text-3">{titles.join(", ")}</div>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {step === 3 && (
+                    <div className="text-center">
+                      <IconTile spec={{ Icon: Send, tint: "var(--tint-blue)" }} size={72} radius={22} className="mx-auto" />
+                      <h2 className="mt-4 text-[22px] font-extrabold text-text-1">Ajak pasanganmu</h2>
+                      <p className="mx-auto mt-2 max-w-[300px] text-[14px] leading-relaxed text-text-3">
+                        Kirim undangan supaya catatan langsung tersambung berdua.
+                      </p>
+                      <button type="button" onClick={() => finish("/settings/workspace")} className="btn-accent mt-6 w-full">
+                        Kirim undangan
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {step < 3 ? (
+              <button type="button" onClick={next} className="btn-accent mt-5 w-full">
+                {step === 0 ? "Mulai" : step === 2 && !picked.length ? "Nanti saja" : "Lanjut"}
+              </button>
+            ) : (
+              <button type="button" onClick={() => finish()} className="mt-3 min-h-[44px] w-full py-2 text-[14px] font-semibold text-text-3">
+                Nanti saja
+              </button>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

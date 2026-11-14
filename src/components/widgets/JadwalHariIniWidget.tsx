@@ -45,7 +45,7 @@ export function JadwalHariIniWidget() {
     <WidgetShell
       title={`Jadwal · ${day}`}
       action={
-        <Link href="/jadwal" className="text-[11px] text-text-3">
+        <Link href="/jadwal" className="-my-2 inline-flex min-h-[44px] items-center text-[12px] text-text-3 hover:text-text-1">
           Lihat semua
         </Link>
       }

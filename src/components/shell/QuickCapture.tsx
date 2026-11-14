@@ -217,230 +217,280 @@ export function QuickCapture({
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center">
-      <motion.button
-        type="button"
-        aria-label="Tutup panel catat"
-        onClick={onClose}
-        className="absolute inset-0 bg-black/40 backdrop-in"
-        {...drag.backdrop}
-      />
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Catat apa?"
-        className="relative z-10 mx-auto w-full max-w-[480px] rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-2xl sheet-up theme-transition"
-        {...drag.panel}
-      >
-        <div className="-mx-5 -mt-5 cursor-grab px-5 pt-5 active:cursor-grabbing" {...drag.handle}>
-          <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <div className="text-[17px] font-semibold text-text-1">
-                Catat apa?
-              </div>
-            </div>
-            <button
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-6">
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduced ? 0.06 : 0.2 }}
+          >
+            <motion.button
               type="button"
+              aria-label="Tutup panel catat"
               onClick={onClose}
-              aria-label="Tutup"
-              className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-3 transition-transform active:scale-90"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div role="tablist" aria-label="Jenis catatan" className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-bg-elev2 p-1 text-[11px] font-semibold">
-          {[
-            ["transaction", "Uang"],
-            ["moment", "Moment"],
-            ["note", "Catatan"],
-            ["task", "Tugas"],
-          ].map(([id, label]) => {
-            const active = mode === id;
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => {
-                  setMode(id as QuickCaptureMode);
-                  hapticTap();
-                }}
-                className={`relative z-0 rounded-full py-2 transition-colors ${
-                  active ? "text-bg-app" : "text-text-3"
-                }`}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="qc-mode"
-                    aria-hidden
-                    className="absolute inset-0 -z-10 rounded-full bg-text-1"
-                    transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 36 }}
-                  />
-                )}
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        <AnimatePresence mode="wait" initial={false}>
-          {mode === "transaction" ? (
+              className="h-full w-full bg-black/45"
+              {...drag.backdrop}
+            />
+          </motion.div>
+          <motion.div
+            className="relative z-10 mx-auto w-full max-w-[480px]"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={
+              reduced
+                ? { opacity: 0, transition: { duration: 0.08 } }
+                : { opacity: 0, y: 28, transition: { duration: 0.15, ease: [0.22, 1, 0.36, 1] } }
+            }
+            transition={reduced ? { duration: 0.08 } : { type: "spring", stiffness: 460, damping: 35 }}
+          >
             <motion.div
-              key="transaction"
-              initial={reduced ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduced ? undefined : { opacity: 0, y: -6 }}
-              transition={{ duration: reduced ? 0 : 0.16 }}
-              className="space-y-2"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Catat apa?"
+              className="rounded-t-[24px] border-t border-border bg-bg-app p-5 pb-[calc(var(--sab)+20px)] shadow-float theme-transition md:rounded-[26px] md:border md:pb-6"
+              {...drag.panel}
             >
-              <div className="flex gap-4 border-b border-border text-xs">
-                {(["out", "in"] as const).map((k) => (
+              <div className="-mx-5 -mt-5 cursor-grab px-5 pt-5 active:cursor-grabbing" {...drag.handle}>
+                <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-bg-elev3" />
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-[17px] font-semibold text-text-1">
+                      Catat apa?
+                    </div>
+                  </div>
                   <button
-                    key={k}
                     type="button"
-                    onClick={() => setKind(k)}
-                    className={`-mb-px border-b pb-2 font-medium ${
-                      kind === k
-                        ? "border-text-1 text-text-1"
-                        : "border-transparent text-text-4"
-                    }`}
+                    onClick={onClose}
+                    aria-label="Tutup"
+                    className="-mr-1.5 grid h-11 w-11 place-items-center rounded-full text-text-3 transition-transform active:scale-90"
                   >
-                    {k === "out" ? "Keluar" : "Masuk"}
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1">
+                      <X size={16} aria-hidden />
+                    </span>
                   </button>
-                ))}
+                </div>
               </div>
-              <WalletPicker
-                value={walletId}
-                onChange={(id) => {
-                  setWalletId(id);
-                  rememberWallet(id);
-                }}
-              />
-              {(listening || heard) && (
-                <div className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 ${listening ? "bg-accent-soft" : "bg-bg-elev1"}`}>
-                  <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${listening ? "bg-accent text-accent-fg" : "bg-bg-card text-text-3"}`}>
-                    <Mic size={17} />
-                  </span>
-                  <span className="min-w-0 flex-1 text-[13px] leading-snug text-text-2">
-                    {listening ? (
-                      <>Mendengarkan… ucapkan misalnya <b>&ldquo;makan bakso dua puluh lima ribu&rdquo;</b></>
-                    ) : (
-                      <>&ldquo;{heard}&rdquo;, cek lagi lalu simpan</>
+
+              <div role="tablist" aria-label="Jenis catatan" className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-bg-elev2 p-1 text-[12px] font-semibold">
+                {[
+                  ["transaction", "Uang"],
+                  ["moment", "Moment"],
+                  ["note", "Catatan"],
+                  ["task", "Tugas"],
+                ].map(([id, label]) => {
+                  const active = mode === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => {
+                        setMode(id as QuickCaptureMode);
+                        hapticTap();
+                      }}
+                      className={`relative z-0 min-h-[44px] rounded-full py-2 transition-colors ${
+                        active ? "text-bg-app" : "text-text-3"
+                      }`}
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="qc-mode"
+                          aria-hidden
+                          className="absolute inset-0 -z-10 rounded-full bg-text-1"
+                          transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 36 }}
+                        />
+                      )}
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <AnimatePresence mode="wait" initial={false}>
+                {mode === "transaction" ? (
+                  <motion.div
+                    key="transaction"
+                    initial={reduced ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                    transition={{ duration: reduced ? 0 : 0.16 }}
+                    className="space-y-2"
+                  >
+                    <div className="flex gap-4 border-b border-border text-[13px]">
+                      {(["out", "in"] as const).map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => setKind(k)}
+                          className={`relative min-h-[44px] px-1 py-2 font-medium transition-colors ${
+                            kind === k ? "text-text-1" : "text-text-4"
+                          }`}
+                        >
+                          {k === "out" ? "Keluar" : "Masuk"}
+                          {kind === k && (
+                            <motion.span
+                              layoutId="qc-kind"
+                              aria-hidden
+                              className="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-text-1"
+                              transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 36 }}
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <WalletPicker
+                      value={walletId}
+                      onChange={(id) => {
+                        setWalletId(id);
+                        rememberWallet(id);
+                      }}
+                    />
+                    {(listening || heard) && (
+                      <div className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 ${listening ? "bg-accent-soft" : "bg-bg-elev1"}`}>
+                        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${listening ? "bg-accent text-accent-fg" : "bg-bg-card text-text-3"}`}>
+                          <Mic size={17} aria-hidden />
+                        </span>
+                        <span className="min-w-0 flex-1 text-[13px] leading-snug text-text-2">
+                          {listening ? (
+                            <>Mendengarkan… ucapkan misalnya <b>&ldquo;makan bakso dua puluh lima ribu&rdquo;</b></>
+                          ) : (
+                            <>&ldquo;{heard}&rdquo;, cek lagi lalu simpan</>
+                          )}
+                        </span>
+                        {listening ? (
+                          <button type="button" onClick={() => stopListening.current?.()} className="min-h-[44px] px-2 text-[12px] font-semibold text-text-3">Selesai</button>
+                        ) : (
+                          <button type="button" onClick={startVoice} className="min-h-[44px] px-2 text-[12px] font-semibold text-accent">Ulangi</button>
+                        )}
+                      </div>
                     )}
-                  </span>
-                  {listening ? (
-                    <button type="button" onClick={() => stopListening.current?.()} className="text-[12px] font-semibold text-text-3">Selesai</button>
-                  ) : (
-                    <button type="button" onClick={startVoice} className="text-[12px] font-semibold text-accent">Ulangi</button>
-                  )}
+                    {kind === "out" && (
+                      <ReceiptScanButton
+                        autoStart={open && action === "scan"}
+                        onResult={(r) => {
+                          if (r.amount) setAmount(String(r.amount));
+                          if (r.merchant && !title) setTitle(r.merchant);
+                        }}
+                      />
+                    )}
+                    <label htmlFor="qc-amount" className="sr-only">Nominal transaksi</label>
+                    <input
+                      id="qc-amount"
+                      ref={inputRef as React.RefObject<HTMLInputElement>}
+                      className="input-base h-12 text-lg font-semibold tabular-nums"
+                      inputMode="numeric"
+                      placeholder="Rp0"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                    />
+                    <label htmlFor="qc-note" className="sr-only">Catatan singkat</label>
+                    <input
+                      id="qc-note"
+                      className="input-base"
+                      placeholder="Catatan singkat (opsional)"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label htmlFor="qc-category" className="sr-only">Kategori</label>
+                        <select
+                          id="qc-category"
+                          className="input-base"
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                        >
+                          {CATEGORIES.map((c) => (
+                            <option key={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="qc-who" className="sr-only">Untuk siapa</label>
+                        <select
+                          id="qc-who"
+                          className="input-base"
+                          value={who}
+                          onChange={(e) => setWho(e.target.value)}
+                        >
+                          {people.map((p) => (
+                            <option key={p} value={p}>{nick(p)}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={mode}
+                    initial={reduced ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                    transition={{ duration: reduced ? 0 : 0.16 }}
+                    className="space-y-2"
+                  >
+                    <label htmlFor="qc-title" className="sr-only">
+                      {mode === "moment" ? "Judul moment" : mode === "task" ? "Tugas baru" : "Judul singkat"}
+                    </label>
+                    <input
+                      id="qc-title"
+                      ref={inputRef as React.RefObject<HTMLInputElement>}
+                      className="input-base"
+                      placeholder={
+                        mode === "moment"
+                          ? "Judul moment"
+                          : mode === "task"
+                            ? "Tugas baru"
+                            : "Judul singkat"
+                      }
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <label htmlFor="qc-body" className="sr-only">
+                      {mode === "moment" ? "Cerita moment" : mode === "task" ? "Detail tugas" : "Isi catatan"}
+                    </label>
+                    <textarea
+                      id="qc-body"
+                      className="input-base min-h-[112px] w-full resize-none py-2.5 text-[14px]"
+                      placeholder={
+                        mode === "moment"
+                          ? "Tulis ceritanya…"
+                          : mode === "task"
+                            ? "Detail opsional…"
+                            : "Tulis catatan…"
+                      }
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {saved && (
+                <div className="mt-3 rounded-[14px] bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
+                  {saved}
                 </div>
               )}
-              {kind === "out" && (
-                <ReceiptScanButton
-                  autoStart={open && action === "scan"}
-                  onResult={(r) => {
-                    if (r.amount) setAmount(String(r.amount));
-                    if (r.merchant && !title) setTitle(r.merchant);
-                  }}
-                />
-              )}
-              <input
-                ref={inputRef as React.RefObject<HTMLInputElement>}
-                className="input-base h-12 text-lg font-semibold tabular-nums"
-                inputMode="numeric"
-                placeholder="Rp0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
-              />
-              <input
-                className="input-base"
-                placeholder="Catatan singkat (opsional)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <select
-                  className="input-base"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={busy}
+                  className="btn-accent min-h-[48px] flex-1 disabled:opacity-50"
                 >
-                  {CATEGORIES.map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-                <select
-                  className="input-base"
-                  value={who}
-                  onChange={(e) => setWho(e.target.value)}
-                >
-                  {people.map((p) => (
-                    <option key={p} value={p}>{nick(p)}</option>
-                  ))}
-                </select>
+                  {busy ? "Menyimpan…" : "Simpan"}
+                </button>
               </div>
             </motion.div>
-          ) : (
-            <motion.div
-              key={mode}
-              initial={reduced ? false : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduced ? undefined : { opacity: 0, y: -6 }}
-              transition={{ duration: reduced ? 0 : 0.16 }}
-              className="space-y-2"
-            >
-              <input
-                ref={inputRef as React.RefObject<HTMLInputElement>}
-                className="input-base"
-                placeholder={
-                  mode === "moment"
-                    ? "Judul moment"
-                    : mode === "task"
-                      ? "Tugas baru"
-                      : "Judul singkat"
-                }
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <textarea
-                className="min-h-[112px] w-full resize-none rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]/25"
-                placeholder={
-                  mode === "moment"
-                    ? "Tulis ceritanya…"
-                    : mode === "task"
-                      ? "Detail opsional…"
-                      : "Tulis cepat seperti Notion…"
-                }
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {saved && (
-          <div className="mt-3 rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
-            {saved}
-          </div>
-        )}
-
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={submit}
-            disabled={busy}
-            className="flex-1 rounded-full bg-accent py-3 text-[14px] font-semibold text-accent-fg transition-transform active:scale-[0.98] disabled:opacity-50"
-          >
-            {busy ? "Menyimpan…" : "Simpan"}
-          </button>
+          </motion.div>
         </div>
-      </motion.div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

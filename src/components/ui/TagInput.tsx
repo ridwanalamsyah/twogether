@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 
 /**
  * Lightweight tag input. Type a tag, press Enter or comma to add it.
@@ -12,7 +13,7 @@ import { useState } from "react";
 export function TagInput({
   value,
   onChange,
-  placeholder = "Tambah tag…",
+  placeholder = "Tambah tag...",
   suggestions = [],
 }: {
   value: string[];
@@ -53,34 +54,38 @@ export function TagInput({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-border bg-bg-elev2 p-2">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-bg-elev2 p-2 focus-within:border-accent">
         {value.map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => remove(t)}
-            className="flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-fg"
+            aria-label={`Hapus tag ${t}`}
+            className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-accent px-3.5 text-[12px] font-semibold text-accent-fg"
           >
-            #{t} <span className="text-[10px] opacity-70">×</span>
+            <span>#{t}</span>
+            <X size={12} aria-hidden className="opacity-80" />
           </button>
         ))}
         <input
+          type="text"
+          aria-label={placeholder}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKey}
           onBlur={() => draft && commit(draft)}
           placeholder={value.length === 0 ? placeholder : ""}
-          className="min-w-[80px] flex-1 bg-transparent text-sm outline-none"
+          className="min-h-[44px] min-w-[80px] flex-1 rounded-lg bg-transparent px-1 text-sm text-text-1"
         />
       </div>
       {filteredSuggestions.length > 0 && (
-        <div className="mt-1.5 flex flex-wrap gap-1">
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
           {filteredSuggestions.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => commit(s)}
-              className="rounded-full bg-bg-elev2 px-2 py-0.5 text-[10px] text-text-3 hover:bg-bg-elev3"
+              className="min-h-[44px] rounded-full bg-bg-elev2 px-3.5 text-[12px] text-text-3 hover:bg-bg-elev3"
             >
               + {s}
             </button>

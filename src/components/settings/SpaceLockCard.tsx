@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Lock } from "lucide-react";
 import { useSecurity } from "@/stores/security";
 import { useAuth } from "@/stores/auth";
 import { FEATURES } from "@/data/features";
+import { IconTile, spaceIcon } from "@/lib/icons";
 import { biometricAvailable, registerBiometric } from "@/lib/biometric";
 import { hapticTap } from "@/lib/haptic";
 
 const LOCKABLE = [
-  { href: "/tracker", emoji: "💳", title: "Uang" },
-  { href: "/kita", emoji: "💞", title: "Kita" },
+  { href: "/tracker", title: "Uang" },
+  { href: "/kita", title: "Kita" },
   ...FEATURES.filter((f) =>
     ["/siklus", "/catatan", "/moments", "/patungan", "/goals", "/nikah", "/uang"].includes(f.href),
-  ).map((f) => ({ href: f.href, emoji: f.emoji, title: f.title })),
+  ).map((f) => ({ href: f.href, title: f.title })),
 ];
 
 export function SpaceLockCard() {
@@ -42,11 +44,11 @@ export function SpaceLockCard() {
   return (
     <section className="surface p-4">
       <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-accent-soft text-[20px]">🔐</span>
+        <IconTile spec={{ Icon: Lock, tint: "var(--accent)" }} size={40} radius={14} />
         <div>
           <div className="text-[15px] font-bold text-text-1">Kunci per ruang</div>
           <div className="text-[12px] leading-snug text-text-3">
-            Ruang yang dikunci minta PIN tiap dibuka lagi — cocok kalau HP sering dipinjam.
+            Ruang yang dikunci minta PIN tiap dibuka lagi, cocok saat HP sering dipinjam.
           </div>
         </div>
       </div>
@@ -62,23 +64,25 @@ export function SpaceLockCard() {
               return (
                 <button
                   key={s.href}
+                  type="button"
+                  aria-pressed={on}
                   onClick={() => {
                     toggle(s.href);
                     hapticTap();
                   }}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold transition-colors ${
-                    on ? "bg-accent text-accent-fg" : "bg-bg-elev1 text-text-2"
+                  className={`flex min-h-[44px] items-center gap-2 rounded-[14px] px-3 py-2 text-left text-[13px] font-semibold transition-colors ${
+                    on ? "bg-text-1 text-bg-app" : "bg-bg-elev1 text-text-2"
                   }`}
                 >
-                  <span className="text-[16px]">{s.emoji}</span>
+                  <IconTile spec={spaceIcon(s.href)} size={26} radius={8} />
                   <span className="flex-1 truncate">{s.title}</span>
-                  <span>{on ? "🔒" : ""}</span>
+                  {on && <Lock size={14} aria-hidden className="shrink-0" />}
                 </button>
               );
             })}
           </div>
           {bioOk && (
-            <label className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-bg-elev1 px-3 py-2.5">
+            <label className="mt-3 flex min-h-[44px] items-center justify-between gap-3 rounded-xl bg-bg-elev1 px-3 py-2.5">
               <span>
                 <span className="block text-[14px] font-semibold text-text-1">Buka pakai Face ID / sidik jari</span>
                 <span className="block text-[12px] text-text-3">PIN tetap bisa dipakai</span>

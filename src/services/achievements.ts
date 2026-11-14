@@ -143,7 +143,7 @@ export const BADGES: BadgeDef[] = [
   {
     id: "pomodoro_50",
     title: "50 sesi pomodoro",
-    description: "Total 50 sesi pomodoro — fokus master",
+    description: "Total 50 sesi pomodoro, fokus master",
     category: "Belajar",
     check: (d) => Math.min(1, (d.entriesByKind.get("pomodoro")?.length ?? 0) / 50),
   },

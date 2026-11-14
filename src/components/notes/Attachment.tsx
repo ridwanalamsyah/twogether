@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Paperclip, X } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { getDB } from "@/lib/db";
 import { upsertItem } from "@/stores/data";
@@ -54,30 +55,56 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
   const a = useAttachment(fileId);
   const src = useMediaSrc(a?.data);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   if (a === undefined || (a?.data && src === undefined))
     return <div className="skeleton aspect-[4/3] w-full rounded-2xl" />;
   if (!a?.data || !src)
     return (
-      <div className="flex items-center justify-between rounded-2xl bg-bg-elev1 px-4 py-6 text-[13px] text-text-4">
+      <div className="flex items-center justify-between rounded-2xl bg-bg-elev1 px-4 py-4 text-[13px] text-text-4">
         Foto belum sampai di HP ini.
-        <button aria-label="Hapus lampiran" onClick={onRemove} className="text-text-4">✕</button>
+        <button
+          type="button"
+          aria-label="Hapus lampiran"
+          onClick={onRemove}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 hover:bg-bg-elev2"
+        >
+          <X size={16} aria-hidden />
+        </button>
       </div>
     );
   return (
     <div className="group relative">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={a.name}
-        onClick={() => setOpen(true)}
-        className="max-h-[480px] w-full cursor-zoom-in rounded-2xl bg-bg-elev1 object-contain"
-      />
       <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Buka pratinjau ${a.name || "foto"}`}
+        className="block w-full cursor-zoom-in overflow-hidden rounded-2xl bg-bg-elev1"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={a.name}
+          width={800}
+          height={600}
+          className="h-auto max-h-[480px] w-full object-contain"
+        />
+      </button>
+      <button
+        type="button"
         onClick={onRemove}
         aria-label="Hapus foto"
-        className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/50 text-[13px] text-white opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+        className="absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-black/60 text-white opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
       >
-        ✕
+        <X size={16} aria-hidden />
       </button>
       {open &&
         createPortal(
@@ -88,8 +115,22 @@ export function ImageView({ fileId, onRemove }: { fileId?: string; onRemove: () 
               onClick={() => setOpen(false)}
               className="absolute inset-0"
             />
+            <button
+              type="button"
+              aria-label="Tutup pratinjau"
+              onClick={() => setOpen(false)}
+              className="absolute right-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full bg-black/60 text-white"
+            >
+              <X size={20} aria-hidden />
+            </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt={a.name} className="pointer-events-none relative z-10 max-h-full max-w-full object-contain" />
+            <img
+              src={src}
+              alt={a.name}
+              width={1200}
+              height={900}
+              className="pointer-events-none relative z-10 h-auto max-h-full max-w-full object-contain"
+            />
           </div>,
           document.body,
         )}
@@ -103,23 +144,32 @@ export function FileView({ fileId, name, size, onRemove }: { fileId?: string; na
   const ext = (name ?? "").split(".").pop()?.toUpperCase() ?? "";
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-bg-elev1 px-3 py-2.5">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-bg-card text-[10px] font-extrabold text-text-2 shadow-card">
-        {ext.slice(0, 4) || "📎"}
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-bg-card text-[12px] font-extrabold text-text-2 shadow-card">
+        {ext.slice(0, 4) || <Paperclip size={16} aria-hidden />}
       </span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[14px] font-semibold text-text-1">{name || "File"}</div>
-        <div className="text-[11px] text-text-4">
+        <div className="text-[12px] text-text-4">
           {size ? formatBytes(size) : ""}
           {a === null ? " · belum sampai di HP ini" : ""}
         </div>
       </div>
       {src && (
-        <a href={src} download={name} className="rounded-full bg-bg-card px-3 py-1.5 text-[12px] font-semibold text-text-2 shadow-card">
+        <a
+          href={src}
+          download={name}
+          className="inline-flex min-h-[44px] items-center rounded-full bg-bg-card px-4 text-[12px] font-semibold text-text-2 shadow-card"
+        >
           Buka
         </a>
       )}
-      <button onClick={onRemove} aria-label="Hapus file" className="px-1 text-[13px] text-text-4">
-        ✕
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label="Hapus file"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 hover:bg-bg-elev2"
+      >
+        <X size={16} aria-hidden />
       </button>
     </div>
   );

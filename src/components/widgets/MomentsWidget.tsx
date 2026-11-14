@@ -17,7 +17,7 @@ export function MomentsWidget() {
       action={
         <Link
           href="/moments"
-          className="text-[11px] text-text-3 hover:text-text-1"
+          className="-my-2 inline-flex min-h-[44px] items-center text-[12px] text-text-3 hover:text-text-1"
         >
           Semua
         </Link>
@@ -35,10 +35,10 @@ export function MomentsWidget() {
                   {m.title}
                 </span>
                 {m.encrypted ? (
-                  <span className="ml-auto text-[10px] text-text-4">terkunci</span>
+                  <span className="ml-auto text-[12px] text-text-4">terkunci</span>
                 ) : null}
               </div>
-              <div className="mt-0.5 text-[10px] text-text-4">
+              <div className="mt-0.5 text-[12px] text-text-4">
                 {formatDateShort(m.date)}
               </div>
             </li>

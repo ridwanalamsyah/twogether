@@ -172,8 +172,9 @@ export default function JoinPage() {
             </h1>
             <p className="text-[13px] text-text-3">{error}</p>
             <button
+              type="button"
               onClick={() => router.replace("/home")}
-              className="mt-2 rounded-md bg-accent px-4 py-2 text-[13px] font-medium text-accent-fg active:opacity-80"
+              className="mt-2 min-h-[44px] rounded-md bg-accent px-4 py-2 text-[13px] font-medium text-accent-fg active:opacity-80"
             >
               Kembali
             </button>

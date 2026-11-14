@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { CalendarDays, ChevronLeft, ChevronRight, Moon } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Chips } from "@/components/ui/Sheet";
 import { useIbadahPrefs } from "@/stores/ibadah";
@@ -10,6 +12,7 @@ import { daysBetween, fromIsoDay, isoDay, addDays } from "@/lib/people";
 const WEEKDAYS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
 export default function HijriahPage() {
+  const reduceMotion = useReducedMotion();
   const offset = useIbadahPrefs((s) => s.hijriOffset);
   const setOffset = useIbadahPrefs((s) => s.setHijriOffset);
   const today = isoDay(new Date());
@@ -40,31 +43,44 @@ export default function HijriahPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
           className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-          style={{ ["--hero" as string]: "#0f7a5c" }}
+          style={{ ["--hero" as string]: "var(--tint-pine)" }}
         >
-          <span aria-hidden className="absolute -right-2 -top-4 text-[86px] opacity-20">🌙</span>
-          <div className="text-[13px] font-semibold text-white/85">Hari ini</div>
+          <div className="text-[13px] font-semibold text-white/90">Hari ini</div>
           <div className="text-[30px] font-extrabold leading-tight">{h.day} {HIJRI_MONTHS[h.month - 1]}</div>
-          <div className="text-[14px] text-white/85">
+          <div className="text-[14px] text-white/90">
             {h.year} H · {fromIsoDay(today).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
           </div>
         </div>
 
         <div className="surface p-4">
           <div className="mb-3 flex items-center justify-between">
-            <button onClick={() => shift(-1)} className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan sebelumnya">‹</button>
+            <button
+              type="button"
+              onClick={() => shift(-1)}
+              className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev1 text-text-2 transition-colors hover:bg-bg-elev2 active:scale-95"
+              aria-label="Bulan sebelumnya"
+            >
+              <ChevronLeft size={18} aria-hidden="true" />
+            </button>
             <div className="text-center">
               <div className="text-[15px] font-bold text-text-1">
                 {first.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
               </div>
-              <div className="text-[11px] text-text-3">
+              <div className="text-[12px] text-text-3">
                 {HIJRI_MONTHS[h1.month - 1]}
-                {h1.month !== h2.month ? ` – ${HIJRI_MONTHS[h2.month - 1]}` : ""} {h2.year}
+                {h1.month !== h2.month ? ` - ${HIJRI_MONTHS[h2.month - 1]}` : ""} {h2.year}
               </div>
             </div>
-            <button onClick={() => shift(1)} className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan berikutnya">›</button>
+            <button
+              type="button"
+              onClick={() => shift(1)}
+              className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev1 text-text-2 transition-colors hover:bg-bg-elev2 active:scale-95"
+              aria-label="Bulan berikutnya"
+            >
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-text-4">
+          <div className="grid grid-cols-7 gap-1 text-center text-[12px] font-semibold text-text-4">
             {WEEKDAYS.map((w) => (
               <div key={w}>{w}</div>
             ))}
@@ -83,39 +99,55 @@ export default function HijriahPage() {
                   } ${d === today ? "ring-2 ring-text-1" : ""}`}
                 >
                   <span className="text-[13px] font-semibold leading-none tabular-nums">{Number(d.slice(8))}</span>
-                  <span className={`mt-0.5 text-[10px] leading-none tabular-nums ${ev?.major ? "opacity-85" : "text-text-4"}`}>{hd.day}</span>
+                  <span className={`mt-0.5 text-[12px] leading-none tabular-nums ${ev?.major ? "opacity-90" : "text-text-3"}`}>{hd.day}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="relative grid grid-cols-2 rounded-[12px] bg-bg-elev2 p-1 text-[14px]">
-          <span
-            aria-hidden
-            className="absolute bottom-1 left-1 top-1 w-[calc(50%-4px)] rounded-[9px] bg-bg-card shadow-sm transition-transform duration-300 ease-ios"
-            style={{ transform: tab === "hari" ? "none" : "translateX(100%)" }}
-          />
-          {(["hari", "puasa"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
-              {t === "hari" ? "Hari besar" : "Puasa sunnah"}
-            </button>
-          ))}
+        <div role="tablist" aria-label="Kategori kalender Hijriah" className="relative grid grid-cols-2 rounded-[12px] bg-bg-elev2 p-1 text-[14px]">
+          {(["hari", "puasa"] as const).map((t) => {
+            const active = tab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(t)}
+                className={`relative min-h-[44px] rounded-[9px] py-2 font-semibold transition-colors ${active ? "text-text-1" : "text-text-3"}`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="hijriah-tab-pill"
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 32 }}
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-[9px] bg-bg-card shadow-sm"
+                  />
+                )}
+                <span className="relative z-10">{t === "hari" ? "Hari besar" : "Puasa sunnah"}</span>
+              </button>
+            );
+          })}
         </div>
 
         <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
           {(tab === "hari" ? major : fasts).map((e) => {
             const n = daysBetween(today, e.date);
+            const EventIcon = e.fast ? Moon : CalendarDays;
             return (
               <li key={e.date + e.title} className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-[20px]">{e.emoji}</span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent" aria-hidden="true">
+                  <EventIcon size={18} strokeWidth={2} />
+                </span>
                 <div className="min-w-0 flex-1">
                   <div className="text-[14px] font-bold text-text-1">{e.title}</div>
                   <div className="text-[12px] text-text-3">
                     {fromIsoDay(e.date).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })} · {e.hijri.label}
                   </div>
                 </div>
-                <span className="shrink-0 rounded-full bg-bg-elev2 px-2.5 py-1 text-[11px] font-semibold text-text-2">
+                <span className="shrink-0 rounded-full bg-bg-elev2 px-2.5 py-1 text-[12px] font-semibold text-text-2">
                   {n === 0 ? "Hari ini" : n === 1 ? "Besok" : `${n} hari`}
                 </span>
               </li>
@@ -130,14 +162,14 @@ export default function HijriahPage() {
           </p>
           <Chips
             options={[
-              { value: -1, label: "−1 hari" },
+              { value: -1, label: "-1 hari" },
               { value: 0, label: "Sesuai" },
               { value: 1, label: "+1 hari" },
             ]}
             value={offset}
             onChange={setOffset}
           />
-          <p className="mt-2 text-[11px] text-text-4">Besok: {toHijri(addDays(today, 1), offset).label}</p>
+          <p className="mt-2 text-[12px] text-text-3">Besok: {toHijri(addDays(today, 1), offset).label}</p>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { isoDay } from "@/lib/dates";
 
 export interface SparklinePoint {
@@ -35,11 +36,12 @@ export function Sparkline({
   points,
   bucketCount = 30,
   height = 60,
-  color = "var(--text-1, #111)",
+  color = "var(--text-1)",
   fillOpacity = 0.08,
   showZeroLine = false,
   formatTick,
 }: Props) {
+  const reduced = useReducedMotion();
   const { values, max, min, dates } = useMemo(() => {
     const dates = lastNDates(bucketCount);
     const pmap = new Map<string, number>();
@@ -58,7 +60,7 @@ export function Sparkline({
   if (values.every((v) => v === 0)) {
     return (
       <div
-        className="flex items-center justify-center text-[11px] text-text-4"
+        className="flex items-center justify-center text-[12px] text-text-4"
         style={{ height }}
       >
         Belum ada data
@@ -83,19 +85,36 @@ export function Sparkline({
   return (
     <div className="relative">
       <svg
+        role="img"
+        aria-label={`Grafik tren ${dates[0].slice(5)} sampai ${dates[lastIdx].slice(5)}`}
         viewBox={`0 0 ${w} ${h}`}
         preserveAspectRatio="none"
         className="block w-full"
         style={{ height }}
       >
-        <path d={areaPath} fill={color} fillOpacity={fillOpacity} />
-        <path d={linePath} fill="none" stroke={color} strokeWidth={1.5} />
+        <motion.path
+          d={areaPath}
+          fill={color}
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          fillOpacity={fillOpacity}
+        />
+        <motion.path
+          d={linePath}
+          fill="none"
+          stroke={color}
+          strokeWidth={1.5}
+          initial={reduced ? false : { pathLength: 0, opacity: 0.4 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        />
         <circle cx={lastIdx * stepX} cy={yOf(lastVal)} r={2.5} fill={color} />
         {showZeroLine && min < 0 && (
           <line x1={0} y1={yOf(0)} x2={w} y2={yOf(0)} stroke={color} strokeOpacity={0.2} strokeDasharray="2 2" />
         )}
       </svg>
-      <div className="mt-1 flex justify-between text-[10px] text-text-4">
+      <div className="mt-1 flex justify-between text-[12px] text-text-4">
         <span>{dates[0].slice(5)}</span>
         <span>
           {formatTick ? formatTick(lastVal) : `Hari ini ${lastVal}`}

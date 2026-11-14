@@ -139,7 +139,7 @@ export function isUnlocked(): boolean {
 
 export async function encryptString(plaintext: string): Promise<string> {
   if (!CURRENT_KEY) {
-    throw new Error("Encryption key locked — sign in again to unlock");
+    throw new Error("Encryption key locked: sign in again to unlock");
   }
   const iv = randomBytes(12);
   const ct = await crypto.subtle.encrypt(
@@ -156,7 +156,7 @@ export async function encryptString(plaintext: string): Promise<string> {
 
 export async function decryptString(packedB64: string): Promise<string> {
   if (!CURRENT_KEY) {
-    throw new Error("Encryption key locked — sign in again to unlock");
+    throw new Error("Encryption key locked: sign in again to unlock");
   }
   const packed = b64decode(packedB64);
   const iv = packed.slice(0, 12);

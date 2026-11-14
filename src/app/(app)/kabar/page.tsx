@@ -2,6 +2,7 @@
 
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useKabar } from "@/components/kabar/useKabar";
 import { Battery, StatusSheet } from "@/components/kabar/Kabar";
@@ -28,19 +29,20 @@ export default function KabarPage() {
           ].map((x) => (
             <button
               key={x.who}
+              type="button"
               onClick={x.onClick}
               disabled={!x.onClick}
-              className="surface p-4 text-left"
+              className="surface min-h-[116px] p-4 text-left"
             >
               <div className="text-[28px] leading-none">{x.s?.emoji ?? "💭"}</div>
               <div className="mt-2 text-[12px] font-semibold text-text-3">{x.who}</div>
               <div className="truncate text-[14px] font-bold text-text-1">{x.s?.text ?? "Belum ada status"}</div>
               {x.s && (
-                <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-4">
+                <div className="mt-1 flex items-center gap-1.5 text-[12px] text-text-3">
                   <Battery level={x.s.energy} /> {timeAgo(x.s.at)}
                 </div>
               )}
-              {x.onClick && <div className="mt-2 text-[12px] font-semibold text-accent">Ubah ›</div>}
+              {x.onClick && <div className="mt-2 text-[12px] font-semibold text-accent">Ubah</div>}
             </button>
           ))}
         </div>
@@ -51,10 +53,11 @@ export default function KabarPage() {
             {PINGS.map((p) => (
               <button
                 key={p.id}
+                type="button"
                 onClick={() => sendPing(p.id)}
-                className="rounded-2xl bg-bg-elev1 py-3 text-center active:scale-95"
+                className="min-h-[64px] rounded-2xl bg-bg-elev1 py-3 text-center active:scale-95"
               >
-                <div className="text-[22px]">{p.emoji}</div>
+                <div className="text-[22px]" aria-hidden>{p.emoji}</div>
                 <div className="text-[12px] font-semibold text-text-2">{p.label}</div>
               </button>
             ))}
@@ -68,14 +71,18 @@ export default function KabarPage() {
             }}
             className="flex gap-2"
           >
+            <label htmlFor="kabar-message-input" className="sr-only">
+              Pesan singkat untuk pasangan
+            </label>
             <input
+              id="kabar-message-input"
               className="input-base h-11 flex-1"
               maxLength={80}
               placeholder="Pesan singkat…"
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-            <button disabled={!text.trim()} className="rounded-full bg-accent px-4 text-[14px] font-bold text-accent-fg disabled:opacity-40">
+            <button type="submit" disabled={!text.trim()} className="btn-accent min-h-[44px] px-5 text-[14px] disabled:opacity-40">
               Kirim
             </button>
           </form>
@@ -89,7 +96,7 @@ export default function KabarPage() {
         </div>
         {pings.length === 0 ? (
           <div className="rounded-[20px] bg-bg-elev1 px-6 py-10 text-center text-[14px] leading-relaxed text-text-3">
-            Belum ada kabar. Kirim 💗 pertama!
+            Belum ada kabar. Kirim pesan pertama ke pasangan.
           </div>
         ) : (
           <ul className="space-y-2">
@@ -104,7 +111,7 @@ export default function KabarPage() {
                     }`}
                   >
                     {t.emoji} {t.text}
-                    <div className={`mt-0.5 text-[10px] ${mine ? "text-white/75" : "text-text-4"}`}>{timeAgo(p.createdAt)}</div>
+                    <div className={`mt-0.5 text-[12px] ${mine ? "opacity-80" : "text-text-4"}`}>{timeAgo(p.createdAt)}</div>
                   </div>
                 </li>
               );
@@ -112,7 +119,9 @@ export default function KabarPage() {
           </ul>
         )}
       </div>
-      {editing && <StatusSheet onClose={() => setEditing(false)} />}
+      <AnimatePresence>
+        {editing && <StatusSheet onClose={() => setEditing(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

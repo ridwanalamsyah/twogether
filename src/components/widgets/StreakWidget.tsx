@@ -43,7 +43,7 @@ export function StreakWidget() {
         </div>
         <div className="text-[12px] text-text-3">hari berturut</div>
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-text-3">
+      <p className="mt-2 text-[12px] leading-relaxed text-text-3">
         {streak === 0
           ? "Catat setoran atau kebiasaan untuk memulai."
           : streak < 7

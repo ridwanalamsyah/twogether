@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
+import { BookOpen, Download, Eraser, FileSpreadsheet, Target, Trash2, Upload } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import {
@@ -153,36 +155,36 @@ export default function PrivacyPage() {
             Disarankan sebulan sekali. Tema, ruang yang dipakai, dan pengaturan lain ikut tersimpan.
           </div>
           <ActionRow
-            emoji="⬇️"
+            Icon={Download}
             label="Unduh cadangan lengkap"
             sub="Semua catatan dalam satu file, bisa dipulihkan lagi nanti"
             onClick={handleExport}
             busy={busy === "export"}
           />
           <ActionRow
-            emoji="📄"
+            Icon={FileSpreadsheet}
             label="Unduh transaksi (spreadsheet)"
             sub="Bisa dibuka di Excel, Numbers, atau Google Sheets"
             onClick={handleCsvExport}
             busy={busy === "csv"}
           />
           <ActionRow
-            emoji="🎯"
+            Icon={Target}
             label="Unduh goals (spreadsheet)"
             sub="Termasuk total tabungan tiap goal"
             onClick={handleGoalsCsv}
             busy={busy === "csvGoals"}
           />
           <ActionRow
-            emoji="📖"
+            Icon={BookOpen}
             label="Unduh moments (spreadsheet)"
-            sub="Moment yang dikunci tidak ikut — pakai cadangan lengkap"
+            sub="Moment yang dikunci tidak ikut, pakai cadangan lengkap"
             onClick={handleMomentsCsv}
             busy={busy === "csvMoments"}
           />
           <label className="block">
             <ActionRow
-              emoji="⬆️"
+              Icon={Upload}
               label="Pulihkan dari cadangan"
               sub="Pilih file cadangan yang pernah kamu unduh"
               onClick={() => document.getElementById("_imp")?.click()}
@@ -201,7 +203,7 @@ export default function PrivacyPage() {
             />
           </label>
           <ActionRow
-            emoji="🧹"
+            Icon={Eraser}
             label="Hapus catatan dari HP ini"
             sub="Misalnya sebelum ganti HP. Data di akunmu tetap aman."
             onClick={handleWipe}
@@ -209,7 +211,7 @@ export default function PrivacyPage() {
             tone="warning"
           />
           <ActionRow
-            emoji="🗑️"
+            Icon={Trash2}
             label="Hapus akun"
             sub="Menghapus akun dan semua catatan untuk selamanya"
             onClick={handleDelete}
@@ -257,7 +259,7 @@ function Section({
 }) {
   return (
     <div className="surface p-4">
-      <div className="text-[11px] font-bold section-label text-text-3">
+      <div className="text-[12px] font-bold section-label text-text-3">
         {title}
       </div>
       {description && <p className="mt-1 text-xs text-text-3">{description}</p>}
@@ -267,14 +269,14 @@ function Section({
 }
 
 function ActionRow({
-  emoji,
+  Icon,
   label,
   sub,
   onClick,
   busy,
   tone = "neutral",
 }: {
-  emoji: string;
+  Icon: LucideIcon;
   label: string;
   sub: string;
   onClick: () => void;
@@ -283,11 +285,23 @@ function ActionRow({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={busy}
-      className="flex w-full items-center gap-3 rounded-md bg-bg-elev2 px-3 py-2.5 text-left transition-colors active:bg-bg-elev3 disabled:opacity-50"
+      className="flex min-h-[48px] w-full items-center gap-3 rounded-[14px] bg-bg-elev2 px-3 py-2.5 text-left transition-colors active:bg-bg-elev3 disabled:opacity-50"
     >
-      <span className="text-xl">{emoji}</span>
+      <span
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-bg-card ${
+          tone === "danger"
+            ? "text-[color:var(--negative)]"
+            : tone === "warning"
+              ? "text-[color:var(--warning)]"
+              : "text-text-2"
+        }`}
+        aria-hidden="true"
+      >
+        <Icon size={18} strokeWidth={2} />
+      </span>
       <div className="min-w-0 flex-1">
         <div
           className={`text-sm font-semibold ${
@@ -300,7 +314,7 @@ function ActionRow({
         >
           {busy ? "Memproses…" : label}
         </div>
-        <div className="text-[11px] text-text-3">{sub}</div>
+        <div className="text-[12px] text-text-3">{sub}</div>
       </div>
     </button>
   );

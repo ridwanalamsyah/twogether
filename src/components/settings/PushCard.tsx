@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Bell } from "lucide-react";
 import { disablePush, enablePush, pushState, sendTestPush, updatePushPrefs, type PushState } from "@/lib/push";
 import { hapticSuccess } from "@/lib/haptic";
 
@@ -67,7 +68,9 @@ export function PushCard() {
   return (
     <section className="surface p-4">
       <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-accent-soft text-[20px]">🔔</span>
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
+          <Bell size={18} strokeWidth={2} aria-hidden />
+        </span>
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-bold text-text-1">Notifikasi walau app ditutup</div>
           <div className="text-[12px] leading-snug text-text-3">
@@ -79,32 +82,42 @@ export function PushCard() {
       {state === null ? null : state === "on" ? (
         <div className="mt-3 space-y-2">
           <div className="rounded-xl bg-positive-bg px-3 py-2 text-[13px] font-semibold text-[color:var(--positive)]">
-            Aktif di perangkat ini ✓
+            Aktif di perangkat ini
           </div>
           <Toggle label="Pengingat adzan 5 waktu" sub="Pakai lokasi di halaman Shalat" on={adzan} onChange={toggleAdzan} />
-          <button onClick={test} disabled={busy} className="w-full rounded-xl bg-bg-elev1 py-2.5 text-[13px] font-semibold text-text-1 disabled:opacity-60">
+          <button
+            type="button"
+            onClick={test}
+            disabled={busy}
+            className="min-h-[44px] w-full rounded-xl bg-bg-elev1 py-2.5 text-[13px] font-semibold text-text-1 disabled:opacity-60"
+          >
             Kirim notifikasi tes
           </button>
           {tested && <p className="text-[12px] leading-snug text-text-3">{tested}</p>}
-          <button onClick={turnOff} disabled={busy} className="w-full py-2 text-[13px] font-semibold text-text-3">
+          <button
+            type="button"
+            onClick={turnOff}
+            disabled={busy}
+            className="min-h-[44px] w-full py-2 text-[13px] font-semibold text-text-3"
+          >
             Matikan di perangkat ini
           </button>
         </div>
       ) : state === "off" ? (
         <div className="mt-3 space-y-2">
           <Toggle label="Sekalian pengingat adzan" sub="Pakai lokasi di halaman Shalat" on={adzan} onChange={toggleAdzan} />
-          <button onClick={turnOn} disabled={busy} className="btn-accent w-full disabled:opacity-60">
+          <button type="button" onClick={turnOn} disabled={busy} className="btn-accent min-h-[44px] w-full disabled:opacity-60">
             {busy ? "Mengaktifkan…" : "Aktifkan notifikasi"}
           </button>
         </div>
       ) : (
         <p className="mt-3 rounded-xl bg-bg-elev1 px-3 py-2.5 text-[13px] leading-snug text-text-2">
           {state === "needs-install"
-            ? "Di iPhone/iPad: buka Twogether di Safari → Bagikan → Tambah ke Layar Utama, lalu buka dari ikon itu untuk mengaktifkan."
+            ? "Di iPhone/iPad: buka Twogether di Safari > Bagikan > Tambah ke Layar Utama, lalu buka dari ikon itu untuk mengaktifkan."
             : state === "denied"
               ? "Notifikasi diblokir. Nyalakan lagi di pengaturan HP/browser untuk Twogether."
               : state === "not-configured"
-                ? "Belum disiapkan di server (lihat README → Notifikasi push). Sementara ini kabar tetap muncul selama app terbuka."
+                ? "Belum disiapkan di server (lihat README Notifikasi push). Sementara ini kabar tetap muncul selama app terbuka."
                 : "Perangkat ini belum mendukung notifikasi web. Kabar tetap muncul selama app terbuka."}
         </p>
       )}

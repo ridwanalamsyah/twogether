@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CircleCheck } from "lucide-react";
+import { Check, ChevronRight, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useAuth } from "@/stores/auth";
@@ -11,7 +11,7 @@ import {
 } from "@/stores/data";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import { konfetti } from "@/lib/konfetti";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { isoDay } from "@/lib/dates";
 
 function todayISO(): string {
@@ -20,6 +20,7 @@ function todayISO(): string {
 
 export function HabitsQuickWidget() {
   const userId = useAuth((s) => s.userId);
+  const reduce = useReducedMotion();
   const habits = useHabits(userId) ?? [];
   const today = todayISO();
   const logs = useHabitLogsForDate(userId, today) ?? [];
@@ -39,16 +40,16 @@ export function HabitsQuickWidget() {
       <div className="surface flex items-center justify-between gap-3 p-4">
         <div>
           <div className="flex items-center gap-1.5">
-            <CircleCheck size={17} className="text-text-3" />
+            <CircleCheck size={17} className="text-text-3" aria-hidden />
             <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
           </div>
-          <div className="mt-0.5 text-[11px] text-text-3">
+          <div className="mt-0.5 text-[12px] text-text-3">
             Belum ada kebiasaan
           </div>
         </div>
         <Link
           href="/habits"
-          className="rounded-md bg-text-1 px-3 py-1.5 text-[11px] font-semibold text-bg-app"
+          className="inline-flex min-h-[44px] items-center rounded-full bg-text-1 px-4 text-[12px] font-semibold text-bg-app"
         >
           Atur
         </Link>
@@ -58,16 +59,20 @@ export function HabitsQuickWidget() {
 
   return (
     <div className="surface p-4">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <CircleCheck size={17} className="text-text-3" />
+          <CircleCheck size={17} className="text-text-3" aria-hidden />
           <h3 className="text-[13px] font-semibold text-text-1">Kebiasaan</h3>
-          <span className="text-[10px] font-medium text-text-3">
+          <span className="text-[12px] font-medium tabular-nums text-text-3">
             {done}/{total}
           </span>
         </div>
-        <Link href="/habits" className="text-[11px] text-text-3 active:opacity-60">
-          Lihat ›
+        <Link
+          href="/habits"
+          className="inline-flex min-h-[44px] items-center gap-0.5 px-1 text-[12px] font-medium text-text-3 active:opacity-60"
+        >
+          Lihat
+          <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
         </Link>
       </div>
       <div className="divide-y divide-[color:var(--hairline)]">
@@ -76,6 +81,8 @@ export function HabitsQuickWidget() {
           return (
             <button
               key={h.id}
+              type="button"
+              aria-pressed={isDone}
               onClick={async (e) => {
                 if (!userId) return;
                 hapticTap();
@@ -88,7 +95,7 @@ export function HabitsQuickWidget() {
                   konfetti({ count: 40, origin: { x: r.left + 24, y: r.top + r.height / 2 } });
                 }
               }}
-              className="flex w-full items-center gap-3 py-2 text-left active:opacity-70"
+              className="flex min-h-[44px] w-full items-center gap-3 py-2 text-left active:opacity-70"
             >
               <motion.span
                 className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors duration-200 ${
@@ -96,17 +103,17 @@ export function HabitsQuickWidget() {
                     ? "border-accent bg-accent text-accent-fg"
                     : "border-border-strong text-transparent"
                 }`}
-                animate={{ scale: isDone ? [1, 1.28, 0.94, 1] : 1 }}
+                animate={reduce ? undefined : { scale: isDone ? [1, 1.28, 0.94, 1] : 1 }}
                 transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                whileTap={{ scale: 0.85 }}
+                whileTap={reduce ? undefined : { scale: 0.85 }}
               >
                 <motion.span
                   className="grid place-items-center"
                   initial={false}
-                  animate={{ scale: isDone ? 1 : 0, rotate: isDone ? 0 : -45 }}
-                  transition={{ type: "spring", stiffness: 600, damping: 20 }}
+                  animate={reduce ? { scale: isDone ? 1 : 0 } : { scale: isDone ? 1 : 0, rotate: isDone ? 0 : -45 }}
+                  transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 600, damping: 20 }}
                 >
-                  <Check size={14} strokeWidth={3} />
+                  <Check size={14} strokeWidth={3} aria-hidden />
                 </motion.span>
               </motion.span>
               <span
@@ -123,11 +130,11 @@ export function HabitsQuickWidget() {
                     style={{ originX: 0 }}
                     initial={false}
                     animate={{ scaleX: isDone ? 1 : 0 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    transition={reduce ? { duration: 0.08 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </span>
               </span>
-              <span className="text-[9px] section-label text-text-4">
+              <span className="text-[12px] font-semibold uppercase tracking-[0.04em] text-text-4">
                 {h.bucket}
               </span>
             </button>
@@ -137,9 +144,10 @@ export function HabitsQuickWidget() {
       {total > 3 && (
         <Link
           href="/habits"
-          className="mt-2 block py-1 text-center text-[12px] font-medium text-text-3 active:opacity-60"
+          className="mt-1 flex min-h-[44px] items-center justify-center gap-0.5 text-[12px] font-medium text-text-3 active:opacity-60"
         >
-          Lihat {total - 3} lainnya ›
+          Lihat {total - 3} lainnya
+          <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
         </Link>
       )}
     </div>

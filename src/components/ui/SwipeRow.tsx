@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { hapticTap, hapticWarn } from "@/lib/haptic";
 
 const ACTION_W = 84;
@@ -19,13 +19,18 @@ export function SwipeRow({
   onDelete: () => void;
   label?: string;
 }) {
+  const reduce = useReducedMotion();
   const x = useMotionValue(0);
   const actionOpacity = useTransform(x, [-ACTION_W, -20, 0], [1, 0.4, 0]);
   const [open, setOpen] = useState(false);
   const removing = useRef(false);
 
   function settle(to: number) {
-    animate(x, to, { type: "spring", stiffness: 520, damping: 42 });
+    if (reduce) {
+      x.set(to);
+    } else {
+      animate(x, to, { type: "spring", stiffness: 520, damping: 42 });
+    }
     setOpen(to !== 0);
   }
 
@@ -40,7 +45,7 @@ export function SwipeRow({
           hapticWarn();
           onDelete();
         }}
-        className="absolute inset-y-0 right-0 flex items-center justify-center bg-[color:var(--negative)] text-[13px] font-semibold text-white"
+        className="absolute inset-y-0 right-0 flex items-center justify-center bg-[color:var(--negative)] text-[13px] font-semibold text-[color:var(--negative-fg)]"
         aria-label={label}
         tabIndex={open ? 0 : -1}
       >

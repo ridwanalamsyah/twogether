@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Lock } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useSecurity } from "@/stores/security";
 import { useAuth } from "@/stores/auth";
@@ -98,13 +99,11 @@ export default function SecurityPage() {
         <SpaceLockCard />
         <PrivacyCard />
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+          <div className="mb-2 text-[12px] font-bold section-label text-text-3">
             Pengingat
           </div>
           <p className="mb-2 text-xs text-text-3">
-            Pengingat deadline, jadwal kuliah, dan tagihan rutin muncul saat
-            app dibuka. Di iPhone, pasang Twogether ke Layar Utama dulu
-            (Safari → Bagikan → Tambah ke Layar Utama).
+            Pengingat muncul saat app dibuka. Di iPhone, pasang ke Layar Utama lewat Safari {">"} Bagikan {">"} Tambah ke Layar Utama.
           </p>
           {notif === "granted" ? (
             <div className="rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
@@ -112,86 +111,101 @@ export default function SecurityPage() {
             </div>
           ) : notif === "denied" ? (
             <div className="rounded-md bg-warning-bg px-3 py-2 text-xs font-semibold text-[color:var(--warning)]">
-              Notifikasi dimatikan. Nyalakan lagi lewat Pengaturan iPhone → Notifikasi.
+              Notifikasi dimatikan. Aktifkan di Pengaturan iPhone {">"} Notifikasi.
             </div>
           ) : (
-            <button onClick={enableNotif} className="btn-accent w-full text-sm">
+            <button type="button" onClick={enableNotif} className="btn-accent w-full text-sm">
               Aktifkan notifikasi
             </button>
           )}
 
           {notif === "granted" && (
             <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <div className="text-[11px] font-medium section-label text-text-4">
+              <div className="text-[12px] font-medium section-label text-text-4">
                 Pengingat harian
               </div>
               <div className="flex items-center gap-2">
+                <label className="flex min-h-[44px] flex-1 cursor-pointer items-center gap-2.5 text-[13px] text-text-1">
+                  <input
+                    type="checkbox"
+                    checked={morningOn}
+                    onChange={(e) => setMorningOn(e.target.checked)}
+                    className="h-5 w-5 accent-[color:var(--accent)]"
+                  />
+                  Pagi
+                </label>
+                <label htmlFor="notif-morning-time" className="sr-only">Jam pengingat pagi</label>
                 <input
-                  type="checkbox"
-                  checked={morningOn}
-                  onChange={(e) => setMorningOn(e.target.checked)}
-                />
-                <span className="flex-1 text-[12px]">Pagi</span>
-                <input
+                  id="notif-morning-time"
                   type="time"
                   value={morning}
                   onChange={(e) => setMorning(e.target.value)}
                   disabled={!morningOn}
-                  className="bg-transparent text-[13px] outline-none disabled:opacity-40"
+                  className="min-h-[44px] rounded-md bg-transparent px-2 text-[13px] disabled:opacity-40"
                 />
               </div>
               <div className="flex items-center gap-2">
+                <label className="flex min-h-[44px] flex-1 cursor-pointer items-center gap-2.5 text-[13px] text-text-1">
+                  <input
+                    type="checkbox"
+                    checked={eveningOn}
+                    onChange={(e) => setEveningOn(e.target.checked)}
+                    className="h-5 w-5 accent-[color:var(--accent)]"
+                  />
+                  Malam
+                </label>
+                <label htmlFor="notif-evening-time" className="sr-only">Jam pengingat malam</label>
                 <input
-                  type="checkbox"
-                  checked={eveningOn}
-                  onChange={(e) => setEveningOn(e.target.checked)}
-                />
-                <span className="flex-1 text-[12px]">Malam</span>
-                <input
+                  id="notif-evening-time"
                   type="time"
                   value={evening}
                   onChange={(e) => setEvening(e.target.value)}
                   disabled={!eveningOn}
-                  className="bg-transparent text-[13px] outline-none disabled:opacity-40"
+                  className="min-h-[44px] rounded-md bg-transparent px-2 text-[13px] disabled:opacity-40"
                 />
               </div>
               <button
+                type="button"
                 onClick={saveNotifTimes}
-                className="w-full rounded-md bg-accent py-1.5 text-xs font-medium text-accent-fg active:opacity-80"
+                className="min-h-[44px] w-full rounded-[14px] bg-accent py-2 text-xs font-medium text-accent-fg active:opacity-80"
               >
                 Simpan jadwal
               </button>
-              <p className="text-[10px] text-text-4">
-                Pengingat muncul saat app sedang dibuka.
+              <p className="text-[12px] text-text-4">
+                Pengingat muncul saat app dibuka.
               </p>
             </div>
           )}
         </section>
 
         <section className="surface p-4">
-          <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+          <div className="mb-2 text-[12px] font-bold section-label text-text-3">
             Kunci dengan PIN
           </div>
           {pinHash ? (
             <div className="space-y-2 text-sm">
-              <div className="rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
-                🔒 PIN aktif — app akan dikunci setiap dibuka.
+              <div className="flex items-center gap-2 rounded-md bg-positive-bg px-3 py-2 text-xs font-semibold text-[color:var(--positive)]">
+                <Lock size={14} strokeWidth={2.2} aria-hidden />
+                <span>PIN aktif, app dikunci setiap dibuka.</span>
               </div>
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={lock}
                   className="btn-ghost flex-1 text-sm"
                 >
                   Kunci sekarang
                 </button>
-                <button onClick={disablePin} className="btn-danger text-sm">
+                <button type="button" onClick={disablePin} className="btn-danger text-sm">
                   Matikan PIN
                 </button>
               </div>
             </div>
           ) : (
             <div className="space-y-2">
+              <label htmlFor="sec-pin-new" className="sr-only">PIN baru 4 sampai 8 digit</label>
               <input
+                id="sec-pin-new"
                 type="password"
                 inputMode="numeric"
                 pattern="\d*"
@@ -201,7 +215,9 @@ export default function SecurityPage() {
                 value={pin}
                 onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ""))}
               />
+              <label htmlFor="sec-pin-confirm" className="sr-only">Ulangi PIN baru</label>
               <input
+                id="sec-pin-confirm"
                 type="password"
                 inputMode="numeric"
                 pattern="\d*"
@@ -215,13 +231,14 @@ export default function SecurityPage() {
                 <div className="text-xs font-semibold text-text-2">{msg}</div>
               )}
               <button
+                type="button"
                 onClick={savePin}
                 className="btn-accent w-full text-sm"
                 disabled={pin.length < 4}
               >
                 Simpan PIN
               </button>
-              <p className="text-[11px] text-text-3">
+              <p className="text-[12px] text-text-3">
                 PIN hanya tersimpan di HP ini.
               </p>
             </div>
@@ -230,18 +247,20 @@ export default function SecurityPage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold section-label text-text-3">
+            <div className="text-[12px] font-bold section-label text-text-3">
               Mode gelap otomatis
             </div>
-            <label className="relative inline-flex cursor-pointer items-center">
+            <label className="relative inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-end">
               <input
                 type="checkbox"
                 className="peer sr-only"
+                aria-label="Aktifkan mode gelap otomatis"
                 checked={autoDark}
                 onChange={(e) => setAutoDark(e.target.checked)}
               />
-              <span className="block h-6 w-11 rounded-full bg-bg-elev3 transition-colors peer-checked:bg-accent" />
-              <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+              <span className="relative block h-6 w-11 rounded-full bg-bg-elev3 transition-colors peer-checked:bg-accent peer-checked:[&>span]:translate-x-5">
+                <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform" />
+              </span>
             </label>
           </div>
           <p className="mb-3 text-xs text-text-3">
@@ -249,7 +268,7 @@ export default function SecurityPage() {
           </p>
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+              <div className="mb-1 text-[12px] font-bold section-label text-text-3">
                 Dari jam
               </div>
               <select
@@ -268,7 +287,7 @@ export default function SecurityPage() {
               </select>
             </label>
             <label className="block">
-              <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+              <div className="mb-1 text-[12px] font-bold section-label text-text-3">
                 Sampai jam
               </div>
               <select
@@ -353,8 +372,9 @@ function PasswordSection() {
         </div>
         {!open && (
           <button
+            type="button"
             onClick={() => setOpen(true)}
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-1 active:scale-95"
+            className="min-h-[44px] rounded-full bg-bg-elev2 px-4 py-2 text-xs font-semibold text-text-1 active:scale-95"
           >
             Ganti
           </button>
@@ -377,6 +397,7 @@ function PasswordSection() {
           )}
           {!recovery && (
             <input
+              aria-label="Password sekarang"
               className="input-base"
               type={type}
               autoComplete="current-password"
@@ -387,6 +408,7 @@ function PasswordSection() {
             />
           )}
           <input
+            aria-label="Password baru"
             className="input-base"
             type={type}
             autoComplete="new-password"
@@ -397,6 +419,7 @@ function PasswordSection() {
             required
           />
           <input
+            aria-label="Ulangi password baru"
             className="input-base"
             type={type}
             autoComplete="new-password"

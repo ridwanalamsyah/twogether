@@ -14,7 +14,7 @@ const UPDATED = "18 Oktober 2026";
 export default function PrivacyPolicyPage() {
   return (
     <main className="mx-auto min-h-screen max-w-[640px] bg-bg-app px-5 pb-16 pt-[calc(var(--header-top-pad,24px)+8px)] text-text-1">
-      <Link href="/" className="text-[13px] font-semibold text-accent">
+      <Link href="/" className="inline-flex min-h-[44px] items-center text-[13px] font-semibold text-accent">
         ‹ Twogether
       </Link>
       <h1 className="mt-3 text-[28px] font-extrabold tracking-tight">Kebijakan Privasi</h1>

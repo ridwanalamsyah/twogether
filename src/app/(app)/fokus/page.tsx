@@ -77,7 +77,7 @@ export default function FokusPage() {
     setJustDone(true);
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
       void navigator.serviceWorker?.getRegistration().then((reg) =>
-        reg?.showNotification("⏰ Fokus selesai", { body: "Waktunya istirahat sebentar.", tag: "fokus", icon: "/icons/icon-192.png" }),
+        reg?.showNotification("Fokus selesai", { body: "Waktunya istirahat sebentar.", tag: "fokus", icon: "/icons/icon-192.png" }),
       );
     }
   }, [now, lastMine]);
@@ -138,7 +138,7 @@ export default function FokusPage() {
           <div className="surface flex items-center gap-3 p-4">
             <div className="relative">
               <IconTile spec={spaceIcon("/fokus")} size={40} radius={12} />
-              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
+              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[14px] font-bold text-text-1">{partnerName} lagi fokus</div>
@@ -147,7 +147,7 @@ export default function FokusPage() {
               </div>
             </div>
             {!myP && (
-              <button onClick={join} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
+              <button type="button" onClick={join} className="min-h-[44px] rounded-full bg-accent px-4 py-2 text-[13px] font-bold text-accent-fg">
                 Ikut
               </button>
             )}
@@ -156,7 +156,7 @@ export default function FokusPage() {
 
         <div className="surface flex flex-col items-center p-6">
           <div className="relative grid h-[210px] w-[210px] place-items-center">
-            <svg viewBox="0 0 210 210" className="absolute inset-0 -rotate-90">
+            <svg viewBox="0 0 210 210" className="absolute inset-0 -rotate-90" aria-hidden="true">
               <circle cx="105" cy="105" r={r} fill="none" stroke="var(--bg-elev2)" strokeWidth="12" />
               <circle
                 cx="105"
@@ -182,7 +182,7 @@ export default function FokusPage() {
           </div>
 
           {myP ? (
-            <button onClick={stop} className="mt-5 w-full rounded-full bg-bg-elev2 py-3 text-[15px] font-bold text-text-2">
+            <button type="button" onClick={stop} className="mt-5 min-h-[44px] w-full rounded-full bg-bg-elev2 py-3 text-[15px] font-bold text-text-2">
               Berhenti
             </button>
           ) : (
@@ -191,24 +191,28 @@ export default function FokusPage() {
                 {PRESETS.map((m) => (
                   <button
                     key={m}
+                    type="button"
                     onClick={() => setMinutes(m)}
-                    className={`rounded-full px-4 py-2 text-[13px] font-bold ${minutes === m ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
+                    aria-pressed={minutes === m}
+                    className={`min-h-[44px] rounded-full px-4 py-2 text-[13px] font-bold transition-colors ${minutes === m ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-2"}`}
                   >
                     {m} mnt
                   </button>
                 ))}
               </div>
+              <label htmlFor="fokus-task" className="sr-only">Rencana aktivitas fokus</label>
               <input
+                id="fokus-task"
                 className="input-base mt-3"
                 placeholder="Mau ngerjain apa? (opsional)"
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
               />
-              <button onClick={() => start(minutes)} className="btn-accent mt-3 w-full">
+              <button type="button" onClick={() => start(minutes)} className="btn-accent mt-3 w-full">
                 Mulai fokus
               </button>
               {partner && !partnerP && (
-                <p className="mt-2 text-center text-[12px] text-text-4">{partnerName} akan lihat kamu sedang fokus dan bisa ikut.</p>
+                <p className="mt-2 text-center text-[12px] text-text-4">{partnerName} bisa langsung ikut.</p>
               )}
             </>
           )}
@@ -236,7 +240,7 @@ export default function FokusPage() {
                     />
                   )}
                 </div>
-                <span className={`text-[10px] ${d === today ? "font-bold text-text-1" : "text-text-4"}`}>
+                <span className={`text-[12px] ${d === today ? "font-bold text-text-1" : "text-text-4"}`}>
                   {fromIsoDay(d).toLocaleDateString("id-ID", { weekday: "narrow" })}
                 </span>
               </div>

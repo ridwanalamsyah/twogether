@@ -19,6 +19,7 @@ import { usePrivacy } from "@/stores/privacy";
 import { recordVisit } from "@/lib/usage";
 import { WhatsNew } from "@/components/shell/WhatsNew";
 import { spaceIcon } from "@/lib/icons";
+import { MotionConfig } from "framer-motion";
 import { LockKeyhole } from "lucide-react";
 
 export default function AppLayout({
@@ -71,24 +72,26 @@ export default function AppLayout({
   if (!userId) return null;
 
   return (
-    <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app md:max-w-none md:pl-[var(--sidebar-w)]">
-      <Sidebar />
-      <main className="flex-1 pb-nav">
-        <div key={hideMoney ? "hidden" : "shown"} className="md:mx-auto md:max-w-[1080px]">
-          {children}
-        </div>
-      </main>
-      <BottomNav />
-      <CaptureHost />
-      <PingListener />
-      <Toaster />
-      <ReminderScheduler />
-      <PWAUpdateBanner />
-      <LockGate />
-      <UsageTracker />
-      <WhatsNew />
-      <OnboardingTour />
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="app-shell relative mx-auto flex max-w-[480px] flex-col bg-bg-app md:max-w-none md:pl-[var(--sidebar-w)]">
+        <Sidebar />
+        <main className="flex-1 pb-nav">
+          <div key={hideMoney ? "hidden" : "shown"} className="md:mx-auto md:max-w-[1080px]">
+            {children}
+          </div>
+        </main>
+        <BottomNav />
+        <CaptureHost />
+        <PingListener />
+        <Toaster />
+        <ReminderScheduler />
+        <PWAUpdateBanner />
+        <LockGate />
+        <UsageTracker />
+        <WhatsNew />
+        <OnboardingTour />
+      </div>
+    </MotionConfig>
   );
 }
 

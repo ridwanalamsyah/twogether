@@ -4,7 +4,7 @@ import { TrendCard } from "@/components/charts/TrendCard";
 import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -24,6 +24,14 @@ import {
   useItems,
 } from "@/stores/data";
 import { todayISO, formatDateShort } from "@/lib/utils";
+
+const MOOD_LEVELS: { n: number; label: string }[] = [
+  { n: 1, label: "Berat" },
+  { n: 2, label: "Kurang" },
+  { n: 3, label: "Biasa" },
+  { n: 4, label: "Baik" },
+  { n: 5, label: "Senang" },
+];
 
 export default function SehatPage() {
   return (
@@ -81,18 +89,22 @@ function WaterSection() {
             />
           ))}
         </div>
-        <div className="mt-3 flex gap-1.5">
+        <div className="mt-3 flex gap-2">
           <button
+            type="button"
             onClick={() => add(2)}
-            className="rounded-md border border-border px-2.5 py-1 text-[11px] text-text-2 active:opacity-50"
+            aria-label="Tambah 2 gelas air"
+            className="min-h-[44px] min-w-[44px] rounded-md border border-border px-3.5 py-2 text-[12px] font-medium text-text-2 transition-colors hover:bg-bg-elev1 active:scale-95"
           >
-            +2
+            +2 gelas
           </button>
           <button
+            type="button"
             onClick={() => add(3)}
-            className="rounded-md border border-border px-2.5 py-1 text-[11px] text-text-2 active:opacity-50"
+            aria-label="Tambah 3 gelas air"
+            className="min-h-[44px] min-w-[44px] rounded-md border border-border px-3.5 py-2 text-[12px] font-medium text-text-2 transition-colors hover:bg-bg-elev1 active:scale-95"
           >
-            +3
+            +3 gelas
           </button>
         </div>
       </div>
@@ -103,6 +115,7 @@ function WaterSection() {
 
 /* ───── Weight ───── */
 function WeightSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "weight") ?? [];
   const [val, setVal] = useState("");
@@ -136,13 +149,17 @@ function WeightSection() {
     >
       <div className="form-card">
         <div className="flex gap-2">
+          <label htmlFor={`${uid}-weight`} className="sr-only">
+            Berat badan (kg)
+          </label>
           <input
+            id={`${uid}-weight`}
             type="number"
             step="0.1"
             value={val}
             onChange={(e) => setVal(e.target.value)}
             placeholder="kg"
-            className="flex-1 bg-transparent text-[13px] outline-none"
+            className="flex-1 bg-transparent text-[13px]"
           />
           <AccentBtn onClick={add} disabled={!val}>
             Catat
@@ -176,6 +193,7 @@ function WeightSection() {
 
 /* ───── Sleep ───── */
 function SleepSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "sleep") ?? [];
   const [hours, setHours] = useState("");
@@ -208,18 +226,26 @@ function SleepSection() {
     >
       <div className="form-card">
         <div className="flex gap-2">
+          <label htmlFor={`${uid}-hours`} className="sr-only">
+            Durasi tidur (jam)
+          </label>
           <input
+            id={`${uid}-hours`}
             type="number"
             step="0.5"
             value={hours}
             onChange={(e) => setHours(e.target.value)}
             placeholder="jam"
-            className="flex-1 bg-transparent text-[13px] outline-none"
+            className="flex-1 bg-transparent text-[13px]"
           />
+          <label htmlFor={`${uid}-quality`} className="sr-only">
+            Kualitas tidur
+          </label>
           <select
+            id={`${uid}-quality`}
             value={quality}
             onChange={(e) => setQuality(Number(e.target.value))}
-            className="bg-transparent text-[13px] text-text-2 outline-none"
+            className="min-h-[44px] bg-transparent text-[13px] text-text-2"
           >
             <option value={1}>1 buruk</option>
             <option value={2}>2</option>
@@ -235,7 +261,7 @@ function SleepSection() {
       {entries.slice(0, 7).length > 0 && (
         <div className="mt-2 divide-y divide-border border-y border-border">
           {entries.slice(0, 7).map((e) => {
-            const q = JSON.parse(e.payload ?? "{}").quality ?? "—";
+            const q = JSON.parse(e.payload ?? "{}").quality ?? "-";
             return (
               <div
                 key={e.id}
@@ -262,6 +288,7 @@ function SleepSection() {
 
 /* ───── Exercise ───── */
 function ExerciseSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "exercise") ?? [];
   const [type, setType] = useState("");
@@ -286,19 +313,27 @@ function ExerciseSection() {
     >
       <div className="form-card">
         <div className="space-y-2">
+          <label htmlFor={`${uid}-type`} className="sr-only">
+            Jenis olahraga
+          </label>
           <input
+            id={`${uid}-type`}
             value={type}
             onChange={(e) => setType(e.target.value)}
-            placeholder="lari, gym, yoga…"
-            className="w-full bg-transparent text-[13px] outline-none"
+            placeholder="lari, gym, yoga..."
+            className="w-full bg-transparent text-[13px]"
           />
           <div className="flex gap-2">
+            <label htmlFor={`${uid}-mins`} className="sr-only">
+              Durasi olahraga (menit)
+            </label>
             <input
+              id={`${uid}-mins`}
               type="number"
               value={mins}
               onChange={(e) => setMins(e.target.value)}
               placeholder="menit"
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
             <AccentBtn onClick={add} disabled={!type || !mins}>
               Catat
@@ -309,10 +344,10 @@ function ExerciseSection() {
       {entries.slice(0, 5).length > 0 && (
         <div className="mt-2 divide-y divide-border border-y border-border">
           {entries.slice(0, 5).map((e) => (
-            <div key={e.id} className="flex items-center justify-between py-2.5">
-              <div>
+            <div key={e.id} className="flex items-center justify-between gap-2 py-2.5">
+              <div className="min-w-0 flex-1">
                 <div className="text-[13px]">{e.valueText}</div>
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-3">
                   {formatDateShort(e.date)}
                 </div>
               </div>
@@ -353,25 +388,33 @@ function MoodSection() {
       title="Mood"
       caption={
         todayMood
-          ? `Hari ini: ${moodEmoji(todayMood.valueNum ?? 3)}`
-          : "Pilih emoji"
+          ? `Hari ini: ${moodLabel(todayMood.valueNum ?? 3)} (${todayMood.valueNum}/5)`
+          : "Pilih skor mood"
       }
     >
       <div className="border-y border-border py-3">
-        <div className="flex justify-between">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              onClick={() => pick(n)}
-              className={`h-12 w-12 rounded-md text-2xl ${
-                todayMood?.valueNum === n
-                  ? "bg-accent-soft"
-                  : "bg-bg-elev1 active:opacity-60"
-              }`}
-            >
-              {moodEmoji(n)}
-            </button>
-          ))}
+        <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label="Pilih mood hari ini">
+          {MOOD_LEVELS.map(({ n, label }) => {
+            const active = todayMood?.valueNum === n;
+            return (
+              <button
+                key={n}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                aria-label={`${label} (${n} dari 5)`}
+                onClick={() => pick(n)}
+                className={`flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl border px-1 py-2 transition-colors active:scale-95 ${
+                  active
+                    ? "border-accent bg-accent-soft text-accent"
+                    : "border-border bg-bg-elev1 text-text-2"
+                }`}
+              >
+                <span className="text-[15px] font-bold tabular-nums leading-none">{n}</span>
+                <span className="text-[12px] font-medium leading-none">{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
       <TrendCard kind="mood" title="Mood" unit="" agg="avg" format={(v) => `${Math.round(v * 10) / 10} / 5`} />
@@ -379,8 +422,8 @@ function MoodSection() {
   );
 }
 
-function moodEmoji(n: number): string {
-  return ["😢", "😟", "😐", "🙂", "😄"][n - 1] ?? "😐";
+function moodLabel(n: number): string {
+  return MOOD_LEVELS[n - 1]?.label ?? "Biasa";
 }
 
 /* ───── Period (cycle) ───── */
@@ -391,7 +434,7 @@ function PeriodSection() {
     <Section title="Siklus">
       <Link
         href="/siklus"
-        className="pressable flex items-center gap-3 rounded-[20px] bg-bg-card p-4 shadow-card"
+        className="pressable flex min-h-[64px] items-center gap-3 rounded-[20px] bg-bg-card p-4 shadow-card"
       >
         <IconTile spec={spaceIcon("/siklus")} size={44} radius={14} />
         <span className="flex-1">
@@ -406,6 +449,7 @@ function PeriodSection() {
 
 /* ───── Body metrics ───── */
 function BodyMetricsSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "body") ?? [];
   const [waist, setWaist] = useState("");
@@ -437,30 +481,48 @@ function BodyMetricsSection() {
     >
       <div className="form-card">
         <div className="grid grid-cols-3 gap-2">
-          <input
-            type="number"
-            value={waist}
-            onChange={(e) => setWaist(e.target.value)}
-            placeholder="Pinggang cm"
-            className="bg-transparent text-[13px] outline-none"
-          />
-          <input
-            type="number"
-            value={chest}
-            onChange={(e) => setChest(e.target.value)}
-            placeholder="Dada cm"
-            className="bg-transparent text-[13px] outline-none"
-          />
-          <input
-            type="number"
-            value={hip}
-            onChange={(e) => setHip(e.target.value)}
-            placeholder="Pinggul cm"
-            className="bg-transparent text-[13px] outline-none"
-          />
+          <div>
+            <label htmlFor={`${uid}-waist`} className="sr-only">
+              Lingkar pinggang (cm)
+            </label>
+            <input
+              id={`${uid}-waist`}
+              type="number"
+              value={waist}
+              onChange={(e) => setWaist(e.target.value)}
+              placeholder="Pinggang cm"
+              className="w-full bg-transparent text-[13px]"
+            />
+          </div>
+          <div>
+            <label htmlFor={`${uid}-chest`} className="sr-only">
+              Lingkar dada (cm)
+            </label>
+            <input
+              id={`${uid}-chest`}
+              type="number"
+              value={chest}
+              onChange={(e) => setChest(e.target.value)}
+              placeholder="Dada cm"
+              className="w-full bg-transparent text-[13px]"
+            />
+          </div>
+          <div>
+            <label htmlFor={`${uid}-hip`} className="sr-only">
+              Lingkar pinggul (cm)
+            </label>
+            <input
+              id={`${uid}-hip`}
+              type="number"
+              value={hip}
+              onChange={(e) => setHip(e.target.value)}
+              placeholder="Pinggul cm"
+              className="w-full bg-transparent text-[13px]"
+            />
+          </div>
         </div>
         <div className="mt-2 flex justify-end">
-          <AccentBtn onClick={add}>Catat</AccentBtn>
+          <AccentBtn onClick={add} disabled={!waist && !chest && !hip}>Catat</AccentBtn>
         </div>
       </div>
       {entries.slice(0, 5).length > 0 && (
@@ -491,6 +553,7 @@ function BodyMetricsSection() {
 
 /* ───── Meds & supplements ───── */
 function MedsSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const items = useItems(userId, "med") ?? [];
   const [showAdd, setShowAdd] = useState(false);
@@ -515,29 +578,49 @@ function MedsSection() {
     <Section
       title="Obat & suplemen"
       caption={`${items.length} item`}
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form obat" : "Tambah obat atau suplemen"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          {showAdd ? "Tutup" : "Tambah"}
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="space-y-2">
+            <label htmlFor={`${uid}-name`} className="sr-only">
+              Nama obat atau suplemen
+            </label>
             <input
+              id={`${uid}-name`}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama obat"
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full bg-transparent text-[13px]"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <label htmlFor={`${uid}-dose`} className="sr-only">
+                Dosis
+              </label>
               <input
+                id={`${uid}-dose`}
                 value={dose}
                 onChange={(e) => setDose(e.target.value)}
                 placeholder="Dosis"
-                className="flex-1 bg-transparent text-[13px] outline-none"
+                className="min-w-[100px] flex-1 bg-transparent text-[13px]"
               />
+              <label htmlFor={`${uid}-time`} className="sr-only">
+                Jam minum obat
+              </label>
               <input
+                id={`${uid}-time`}
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="bg-transparent text-[13px] outline-none"
+                className="min-h-[44px] bg-transparent text-[13px]"
               />
               <AccentBtn onClick={save} disabled={!name}>
                 Simpan
@@ -553,11 +636,11 @@ function MedsSection() {
           {items.map((it) => {
             const p = JSON.parse(it.payload ?? "{}");
             return (
-              <div key={it.id} className="flex items-center gap-3 py-2.5">
-                <div className="flex-1">
+              <div key={it.id} className="flex items-center gap-2 py-2.5">
+                <div className="min-w-0 flex-1">
                   <div className="text-[13px]">{it.title}</div>
-                  <div className="text-[11px] text-text-4">
-                    {[p.dose, p.time].filter(Boolean).join(" · ") || "—"}
+                  <div className="text-[12px] text-text-3">
+                    {[p.dose, p.time].filter(Boolean).join(" · ") || "Tanpa catatan dosis"}
                   </div>
                 </div>
                 <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>

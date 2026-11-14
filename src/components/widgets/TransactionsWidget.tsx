@@ -20,7 +20,7 @@ export function TransactionsWidget() {
       action={
         <Link
           href="/tracker"
-          className="text-[11px] text-text-3 hover:text-text-1"
+          className="-my-2 inline-flex min-h-[44px] items-center text-[12px] text-text-3 hover:text-text-1"
         >
           Semua
         </Link>
@@ -39,7 +39,7 @@ export function TransactionsWidget() {
                 <div className="truncate text-[13px] text-text-1">
                   {t.note || t.category}
                 </div>
-                <div className="mt-0.5 text-[10px] text-text-4">
+                <div className="mt-0.5 text-[12px] text-text-4">
                   {nick(t.who)} · {formatDateShort(t.date)}
                 </div>
               </div>

@@ -81,7 +81,8 @@ export function QuickAddWidget() {
               key={k}
               type="button"
               onClick={() => setKind(k)}
-              className={`relative pb-1.5 font-medium transition-colors ${
+              aria-pressed={active}
+              className={`relative inline-flex min-h-[44px] items-center px-1 font-medium transition-colors ${
                 active ? "text-text-1" : "text-text-4"
               }`}
             >
@@ -100,8 +101,12 @@ export function QuickAddWidget() {
       </div>
 
       <div className="space-y-1.5">
+        <label htmlFor="qa-widget-amount" className="sr-only">
+          Nominal
+        </label>
         <input
-          className={`input-base text-lg font-semibold tabular-nums ${
+          id="qa-widget-amount"
+          className={`input-base min-h-[44px] text-lg font-semibold tabular-nums ${
             pulse ? "ring-2 ring-[color:var(--positive)]" : ""
           }`}
           inputMode="numeric"
@@ -113,8 +118,12 @@ export function QuickAddWidget() {
           }}
         />
         <div className="grid grid-cols-2 gap-1.5">
+          <label htmlFor="qa-widget-category" className="sr-only">
+            Kategori
+          </label>
           <select
-            className="input-base h-10 text-sm"
+            id="qa-widget-category"
+            className="input-base h-11 text-sm"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -124,8 +133,12 @@ export function QuickAddWidget() {
               </option>
             ))}
           </select>
+          <label htmlFor="qa-widget-who" className="sr-only">
+            Anggota
+          </label>
           <select
-            className="input-base h-10 text-sm"
+            id="qa-widget-who"
+            className="input-base h-11 text-sm"
             value={who}
             onChange={(e) => setWho(e.target.value)}
           >
@@ -140,7 +153,7 @@ export function QuickAddWidget() {
           type="button"
           onClick={submit}
           disabled={busy || !amount}
-          className="btn-accent w-full text-sm disabled:opacity-50"
+          className="btn-accent min-h-[44px] w-full text-sm disabled:opacity-50"
         >
           {busy ? "Menyimpan…" : "Simpan transaksi"}
         </button>

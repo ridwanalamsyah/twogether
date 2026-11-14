@@ -32,7 +32,7 @@ export function ShalatWidget() {
     <Link
       href="/shalat"
       className="hero-soft pressable block rounded-[22px] p-4 text-white shadow-float"
-      style={{ ["--hero" as string]: "#0f7a5c" }}
+      style={{ ["--hero" as string]: "var(--tint-pine)" }}
     >
       <div className="text-[12px] font-semibold text-white/85">{next.name} berikutnya</div>
       <div className="mt-0.5 flex items-baseline gap-2">
@@ -54,7 +54,7 @@ export function ShalatWidget() {
   );
 }
 
-/** Cycle phase — mine, or the partner's when they share it. */
+/** Cycle phase: mine, or the partner's when they share it. */
 export function SiklusWidget() {
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
@@ -114,7 +114,7 @@ export function PatunganWidget() {
           {net === 0 ? "Impas" : net > 0 ? `${other} perlu ganti ${formatRupiah(net)}` : `Kamu perlu ganti ${formatRupiah(-net)}`}
         </div>
       </div>
-      <span className="text-text-4">›</span>
+      <span className="text-text-4" aria-hidden>›</span>
     </Link>
   );
 }

@@ -75,17 +75,22 @@ function NoteList() {
         title="Catatan"
         actions={
           <button
+            type="button"
             onClick={() => create()}
-            className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg"
+            className="min-h-[44px] rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-accent-fg"
           >
             + Baru
           </button>
         }
       />
       <div className="px-5 pb-8 pt-3">
+        <label htmlFor="catatan-search" className="sr-only">
+          Cari di semua catatan
+        </label>
         <input
+          id="catatan-search"
           type="search"
-          className="input-base mb-4 h-10 text-[14px]"
+          className="input-base mb-4 h-11 text-[14px]"
           placeholder="Cari di semua catatan…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -94,15 +99,16 @@ function NoteList() {
         {roots.length === 0 && !q ? (
           <div className="space-y-3">
             <div className="rounded-[20px] bg-bg-elev1 px-6 py-8 text-center text-[14px] leading-relaxed text-text-3">
-              Tempat menulis apa saja berdua — rencana, ide, daftar, catatan.
+              Tempat menulis apa saja berdua: rencana, ide, daftar, catatan.
             </div>
             <div className="text-[13px] font-bold text-text-2">Mulai dari template</div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
               {NOTE_TEMPLATES.map((t) => (
                 <button
+                  type="button"
                   key={t.title}
                   onClick={() => create(t)}
-                  className="pressable flex items-center gap-3 rounded-[18px] bg-bg-card p-4 text-left shadow-card"
+                  className="pressable flex min-h-[44px] items-center gap-3 rounded-[18px] bg-bg-card p-4 text-left shadow-card"
                 >
                   <span className="text-[24px]">{t.emoji}</span>
                   <span className="text-[14px] font-semibold text-text-1">{t.title}</span>
@@ -118,8 +124,9 @@ function NoteList() {
               return (
                 <li key={n.id} className="slide-up">
                   <button
+                    type="button"
                     onClick={() => router.push(`/catatan?id=${n.id}`)}
-                    className="pressable flex h-full w-full gap-3 rounded-[20px] bg-bg-card p-4 text-left shadow-card"
+                    className="pressable flex h-full min-h-[44px] w-full gap-3 rounded-[20px] bg-bg-card p-4 text-left shadow-card"
                   >
                     <span className="text-[26px] leading-none">{p.emoji}</span>
                     <span className="min-w-0 flex-1">
@@ -129,7 +136,7 @@ function NoteList() {
                       <span className="mt-0.5 line-clamp-2 block text-[12px] leading-snug text-text-3">
                         {preview(p.blocks) || "Kosong"}
                       </span>
-                      <span className="mt-1.5 block text-[11px] text-text-4">
+                      <span className="mt-1.5 block text-[12px] text-text-4">
                         {n.who ? `${nick(n.who)} · ` : ""}
                         {new Date(n.updatedAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                         {kids > 0 ? ` · ${kids} sub-halaman` : ""}

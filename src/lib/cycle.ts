@@ -164,7 +164,7 @@ export const PHASE_COPY: Record<CyclePhase, { label: string; emoji: string; self
     label: "Perkiraan masa subur",
     emoji: "🌿",
     self: "Energi biasanya sedang bagus-bagusnya.",
-    partner: "Biasanya energinya lagi bagus — waktu pas untuk jalan berdua.",
+    partner: "Biasanya energinya lagi bagus, waktu pas untuk jalan berdua.",
   },
   menjelang: {
     label: "Menjelang haid",

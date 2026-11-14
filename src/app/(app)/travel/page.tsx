@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useId, useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
@@ -41,10 +42,11 @@ export default function TravelPage() {
         title="Travel"
         actions={
           <button
+            type="button"
             onClick={() => setShowAdd(true)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg"
+            className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-xs font-bold text-accent-fg"
           >
-            Trip
+            + Trip
           </button>
         }
       />
@@ -70,10 +72,12 @@ export default function TravelPage() {
         )}
       </div>
 
-      {showAdd && <TripSheet onClose={() => setShowAdd(false)} />}
-      {editing && (
-        <TripSheet trip={editing} onClose={() => setEditing(null)} />
-      )}
+      <AnimatePresence>
+        {showAdd && <TripSheet key="trip-add" onClose={() => setShowAdd(false)} />}
+        {editing && (
+          <TripSheet key={`trip-edit-${editing.id}`} trip={editing} onClose={() => setEditing(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -87,6 +91,7 @@ function TripCard({
   transactions: TransactionRecord[];
   onEdit: () => void;
 }) {
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const status = tripStatus(trip);
   const totalDays = daysBetween(trip.startDate, trip.endDate);
@@ -130,28 +135,28 @@ function TripCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className="truncate text-[15px] font-medium text-text-1">{trip.destination}</span>
-            <span className="text-[10px] section-label text-text-4">
+            <span className="section-label text-[12px] text-text-4">
               {statusLabel}
             </span>
           </div>
-          <div className="mt-0.5 text-[11px] text-text-4">
-            {formatDateShort(trip.startDate)} – {formatDateShort(trip.endDate)} · {totalDays}h
+          <div className="mt-0.5 text-[12px] text-text-4">
+            {formatDateShort(trip.startDate)} - {formatDateShort(trip.endDate)} · {totalDays}h
           </div>
         </div>
-        <button onClick={onEdit} className="text-[11px] text-text-3 active:opacity-50">
+        <button type="button" onClick={onEdit} className="min-h-[44px] px-2 text-[12px] font-semibold text-text-3 active:opacity-50">
           Ubah
         </button>
       </div>
 
       <div className="mt-3 grid grid-cols-3 gap-3 border-y border-border py-3">
         <div>
-          <div className="text-[10px] text-text-4">Terpakai</div>
+          <div className="text-[12px] text-text-4">Terpakai</div>
           <div className="text-[13px] font-medium tabular-nums">
             {formatRupiah(spent)}
           </div>
         </div>
         <div>
-          <div className="text-[10px] text-text-4">Sisa</div>
+          <div className="text-[12px] text-text-4">Sisa</div>
           <div
             className={`text-[13px] font-medium tabular-nums ${
               remaining < 0 ? "text-[color:var(--negative)]" : ""
@@ -161,7 +166,7 @@ function TripCard({
           </div>
         </div>
         <div>
-          <div className="text-[10px] text-text-4">Hari ke</div>
+          <div className="text-[12px] text-text-4">Hari ke</div>
           <div className="text-[13px] font-medium tabular-nums">
             {daysElapsed}/{totalDays}
           </div>
@@ -169,19 +174,21 @@ function TripCard({
       </div>
 
       <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
-        <div
-          className={`h-full ${
+        <motion.div
+          className={`h-full origin-left ${
             pct >= 100
               ? "bg-[color:var(--negative)]"
               : pct >= 80
-                ? "bg-[color:var(--warn)]"
+                ? "bg-[color:var(--warning)]"
                 : "bg-accent"
           }`}
-          style={{ width: `${pct}%` }}
+          initial={false}
+          animate={{ scaleX: Math.max(0, Math.min(1, pct / 100)) }}
+          transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 28 }}
         />
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[11px]">
+      <div className="mt-2 flex items-center justify-between text-[12px]">
         <span className="text-text-4">
           Per hari <span className="tabular-nums text-text-2">{formatRupiah(dailyBudget)}</span>
         </span>
@@ -196,13 +203,13 @@ function TripCard({
         )}
       </div>
 
-      <div className="mt-3 text-[11px] text-text-4">
+      <div className="mt-3 text-[12px] text-text-4">
         Tag <span className="font-mono text-text-2">#{trip.tag}</span> di transaksi otomatis kehitung.
       </div>
 
       {trip.packing && (
         <details className="mt-2 text-[12px]">
-          <summary className="cursor-pointer text-text-3">Packing list</summary>
+          <summary className="flex min-h-[44px] cursor-pointer items-center text-text-3">Packing list</summary>
           <pre className="mt-1 whitespace-pre-wrap font-sans text-[12px] text-text-2">
             {trip.packing}
           </pre>
@@ -212,7 +219,7 @@ function TripCard({
       <button
         type="button"
         onClick={() => userId && deleteTrip(userId, trip.id)}
-        className="mt-3 text-[11px] text-text-4 active:opacity-50"
+        className="mt-2 min-h-[44px] px-2 text-[12px] text-text-4 active:opacity-50"
       >
         Hapus trip
       </button>
@@ -229,6 +236,7 @@ function TripSheet({
   trip?: TripRecord;
   onClose: () => void;
 }) {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const [destination, setDestination] = useState(trip?.destination ?? "");
   const [emoji, setEmoji] = useState(trip?.emoji ?? "✈️");
@@ -258,14 +266,16 @@ function TripSheet({
 
   return (
     <Sheet title={trip ? "Edit trip" : "Trip baru"} onClose={onClose}>
-      <div className="space-y-2">
-        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+      <div className="space-y-2.5">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar" role="group" aria-label="Ikon trip">
           {EMOJIS.map((e) => (
             <button
               key={e}
               type="button"
+              aria-label={`Pilih ikon ${e}`}
+              aria-pressed={emoji === e}
               onClick={() => setEmoji(e)}
-              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-xl ${
+              className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md text-xl ${
                 emoji === e ? "bg-accent" : "bg-bg-elev2"
               }`}
             >
@@ -273,51 +283,69 @@ function TripSheet({
             </button>
           ))}
         </div>
-        <input
-          className="input-base"
-          placeholder="Destinasi (mis. Bali, Jepang)"
-          value={destination}
-          onChange={(e) => setDestination(e.target.value)}
-        />
+        <label htmlFor={`${uid}-dest`} className="block text-[12px] font-semibold text-text-3">
+          Destinasi
+          <input
+            id={`${uid}-dest`}
+            className="input-base mt-1 font-normal"
+            placeholder="mis. Bali, Jepang"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+          />
+        </label>
         <div className="grid grid-cols-2 gap-1.5">
-          <label className="text-[11px] text-text-3">
+          <label htmlFor={`${uid}-start`} className="text-[12px] font-semibold text-text-3">
             Berangkat
             <input
-              className="input-base mt-0.5 text-sm"
+              id={`${uid}-start`}
+              className="input-base mt-1 text-sm font-normal"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </label>
-          <label className="text-[11px] text-text-3">
+          <label htmlFor={`${uid}-end`} className="text-[12px] font-semibold text-text-3">
             Pulang
             <input
-              className="input-base mt-0.5 text-sm"
+              id={`${uid}-end`}
+              className="input-base mt-1 text-sm font-normal"
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </label>
         </div>
-        <input
-          className="input-base tabular-nums"
-          inputMode="numeric"
-          placeholder="Total budget (Rp)"
-          value={budget}
-          onChange={(e) => setBudget(e.target.value.replace(/[^\d.]/g, ""))}
-        />
-        <textarea
-          className="input-base min-h-[80px] py-2 leading-relaxed"
-          placeholder="Packing list (satu item per baris)"
-          value={packing}
-          onChange={(e) => setPacking(e.target.value)}
-        />
-        <input
-          className="input-base"
-          placeholder="Catatan (opsional)"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
+        <label htmlFor={`${uid}-budget`} className="block text-[12px] font-semibold text-text-3">
+          Total budget (Rp)
+          <input
+            id={`${uid}-budget`}
+            className="input-base mt-1 tabular-nums font-normal"
+            inputMode="numeric"
+            placeholder="mis. 5000000"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value.replace(/[^\d.]/g, ""))}
+          />
+        </label>
+        <label htmlFor={`${uid}-packing`} className="block text-[12px] font-semibold text-text-3">
+          Packing list
+          <textarea
+            id={`${uid}-packing`}
+            className="input-base mt-1 min-h-[80px] py-2 font-normal leading-relaxed"
+            placeholder="Satu item per baris"
+            value={packing}
+            onChange={(e) => setPacking(e.target.value)}
+          />
+        </label>
+        <label htmlFor={`${uid}-note`} className="block text-[12px] font-semibold text-text-3">
+          Catatan (opsional)
+          <input
+            id={`${uid}-note`}
+            className="input-base mt-1 font-normal"
+            placeholder="Penginapan atau catatan perjalanan"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </label>
         <button
           type="button"
           onClick={submit}

@@ -8,9 +8,10 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ButtonHTMLAttributes,
   type ReactNode,
 } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { hapticTap } from "@/lib/haptic";
 
 /* ───────────────────────── Section tabs ─────────────────────────
@@ -139,7 +140,7 @@ export function SectionTabs({
               role="tab"
               aria-selected={on}
               onClick={() => select(t.title)}
-              className={`relative z-0 shrink-0 overflow-hidden rounded-full px-4 py-2 text-[14px] font-medium transition-transform duration-150 active:scale-95 ${
+              className={`relative z-0 min-h-[44px] shrink-0 overflow-hidden rounded-full px-4 py-2 text-[14px] font-medium transition-transform duration-150 active:scale-95 ${
                 on
                   ? "text-bg-app"
                   : "bg-bg-card text-text-2 ring-1 ring-[color:var(--hairline)]"
@@ -165,7 +166,7 @@ export function SectionTabs({
       <div
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        className="min-h-[50vh]"
+        className="relative min-h-[50vh]"
       >
         {children}
       </div>
@@ -202,55 +203,77 @@ export function Section({
   const [open, setOpen] = useState(defaultOpen);
   const tabs = useContext(SectionTabsContext);
   const register = tabs?.register;
+  const reduced = useReducedMotion();
 
   useIsoLayoutEffect(() => {
     register?.({ title, caption });
   }, [register, title, caption]);
 
   if (tabs) {
-    if (tabs.active !== title) return null;
     return (
-      <section
-        className={`mt-4 ${tabs.dir === 1 ? "tab-in-right" : "tab-in-left"}`}
-      >
-        {(caption || action) && (
-          <div className="mb-3 flex min-h-[28px] items-center justify-between gap-3">
-            <div className="text-[13px] text-text-3">{caption}</div>
-            <div className="flex items-center gap-2">{action}</div>
-          </div>
+      <AnimatePresence mode="wait" initial={false}>
+        {tabs.active === title && (
+          <motion.section
+            key={title}
+            initial={reduced ? false : { opacity: 0, x: tabs.dir * 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduced ? undefined : { opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: reduced ? 0.04 : 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4"
+          >
+            {(caption || action) && (
+              <div className="mb-3 flex min-h-[28px] items-center justify-between gap-3">
+                <div className="text-[13px] text-text-3">{caption}</div>
+                <div className="flex items-center gap-2">{action}</div>
+              </div>
+            )}
+            {children}
+          </motion.section>
         )}
-        {children}
-      </section>
+      </AnimatePresence>
     );
   }
 
   return (
     <section className="mt-6 first:mt-4">
-      <div className="mb-2 flex items-end justify-between">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="text-left active:opacity-50"
+          aria-expanded={open}
+          className="min-h-[44px] py-1 text-left active:opacity-50"
         >
-          <div className="text-[11px] font-medium section-label text-text-4">
+          <div className="text-[12px] font-medium section-label text-text-3">
             {title}
           </div>
           {caption && (
-            <div className="text-[11px] text-text-4">{caption}</div>
+            <div className="text-[12px] text-text-4">{caption}</div>
           )}
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {action}
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="text-[12px] text-text-3 active:opacity-50"
+            aria-expanded={open}
+            className="min-h-[44px] px-2 text-[12px] font-medium text-text-3 active:opacity-50"
           >
             {open ? "Tutup" : "Buka"}
           </button>
         </div>
       </div>
-      {open && children}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? undefined : { opacity: 0, y: -4 }}
+            transition={{ duration: reduced ? 0.04 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -273,19 +296,17 @@ export function Empty({ children }: { children: ReactNode }) {
 
 export function AccentBtn({
   children,
-  onClick,
-  disabled,
-}: {
+  className = "",
+  type = "button",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
 }) {
   return (
     <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="grid h-10 min-w-10 shrink-0 place-items-center rounded-full bg-accent px-3 text-[14px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:bg-bg-elev3 disabled:text-text-4"
+      type={type}
+      {...props}
+      className={`grid h-11 min-w-11 shrink-0 place-items-center rounded-full bg-accent px-3.5 text-[14px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:bg-bg-elev3 disabled:text-text-4 ${className}`.trim()}
     >
       {children}
     </button>
@@ -294,16 +315,17 @@ export function AccentBtn({
 
 export function GhostBtn({
   children,
-  onClick,
-}: {
+  className = "",
+  type = "button",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  onClick?: () => void;
 }) {
   return (
     <button
-      type="button"
-      onClick={onClick}
-      className="text-[13px] font-medium text-text-3 active:opacity-50"
+      type={type}
+      {...props}
+      className={`inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center px-2 text-[13px] font-medium text-text-3 active:opacity-50 ${className}`.trim()}
     >
       {children}
     </button>

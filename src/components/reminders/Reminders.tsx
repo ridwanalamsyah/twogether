@@ -29,13 +29,13 @@ import {
 } from "@/lib/reminders";
 import { notificationText } from "@/stores/privacy";
 
-const REMINDER_ICON: Record<ReminderType, IconSpec> = {
-  tagihan: { Icon: Receipt, tint: "#ef4444" },
-  anniv: { Icon: Heart, tint: "#ec4899" },
-  catat: { Icon: PenLine, tint: "#f59e0b" },
-  tilawah: { Icon: BookOpen, tint: "#10b981" },
-  tantangan: { Icon: Flame, tint: "#f97316" },
-  kabar: { Icon: MessageCircleHeart, tint: "#f43f5e" },
+export const REMINDER_ICON: Record<ReminderType, IconSpec> = {
+  tagihan: { Icon: Receipt, tint: "var(--tint-red)" },
+  anniv: { Icon: Heart, tint: "var(--tint-pink)" },
+  catat: { Icon: PenLine, tint: "var(--tint-amber)" },
+  tilawah: { Icon: BookOpen, tint: "var(--tint-emerald)" },
+  tantangan: { Icon: Flame, tint: "var(--tint-orange)" },
+  kabar: { Icon: MessageCircleHeart, tint: "var(--tint-rose)" },
 };
 
 function useReminderData(): ReminderData | null {
@@ -86,7 +86,7 @@ export function RemindersWidget() {
   return (
     <div className="surface p-4">
       <div className="mb-2.5 flex items-center gap-2 text-[15px] font-semibold text-text-1">
-        <Bell size={16} className="text-accent" /> Pengingat
+        <Bell size={16} className="text-accent" aria-hidden /> Pengingat
       </div>
       <ul className="space-y-1.5">
         <AnimatePresence initial={false}>
@@ -96,21 +96,23 @@ export function RemindersWidget() {
               layout
               initial={reduced ? false : { opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reduced ? undefined : { opacity: 0, height: 0, marginTop: 0 }}
-              transition={{ duration: reduced ? 0 : 0.18 }}
-              className="flex items-center gap-2 rounded-2xl bg-bg-elev1 pr-1.5"
+              exit={reduced ? undefined : { opacity: 0, y: -4 }}
+              transition={{ duration: reduced ? 0.04 : 0.18 }}
+              className="flex items-center gap-1.5 rounded-2xl bg-bg-elev1 pr-1"
             >
-              <Link href={r.href} className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5 py-2">
+              <Link href={r.href} className="flex min-h-[44px] min-w-0 flex-1 items-center gap-2.5 px-2.5 py-2">
                 <IconTile spec={REMINDER_ICON[r.type]} size={34} radius={10} />
-                <span className="truncate text-[14px] font-medium text-text-1">{r.text}</span>
+                <span className="line-clamp-2 text-[14px] font-medium leading-snug text-text-1">{r.text}</span>
               </Link>
               <button
                 type="button"
                 onClick={() => dismiss(r.id, today)}
                 aria-label="Sembunyikan untuk hari ini"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-3 transition-transform active:scale-90"
               >
-                <X size={15} />
+                <span className="grid h-8 w-8 place-items-center rounded-full hover:bg-bg-elev2">
+                  <X size={15} aria-hidden />
+                </span>
               </button>
             </motion.li>
           ))}
@@ -148,7 +150,7 @@ export function ReminderScheduler() {
           await LocalNotifications.schedule({
             notifications: future.map((r) => ({
               id: notificationId(r.id),
-              ...notificationText(`${r.emoji} Twogether`, r.text),
+              ...notificationText("Twogether", r.text),
               schedule: { at: r.at, allowWhileIdle: true },
               extra: { twogether: true, href: r.href },
             })),

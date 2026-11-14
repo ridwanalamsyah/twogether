@@ -140,7 +140,7 @@ export default function WrappedPage() {
                   day: "numeric",
                   month: "short",
                 })
-              : "—"}
+              : "Belum ada"}
           </Big>
           <Sub>{stats.topCount} catatan dalam sehari</Sub>
         </Card>
@@ -153,7 +153,7 @@ export default function WrappedPage() {
           </div>
           {stats.topCats.length > 0 && (
             <div className="mt-3 space-y-1">
-              <div className="text-[11px] section-label text-text-3">
+              <div className="text-[12px] section-label text-text-3">
                 Top 3 kategori boros
               </div>
               {stats.topCats.map(([cat, amt], i) => (
@@ -183,10 +183,10 @@ export default function WrappedPage() {
         <Card spec={{ Icon: Droplets, tint: "var(--accent)" }} title="Sehat">
           <div className="grid grid-cols-3 gap-2">
             <Stat label="Air" value={`${stats.waterCups} gelas`} tone="default" />
-            <Stat label="Olahraga" value={`${stats.exerciseSessions}×`} tone="default" />
+            <Stat label="Olahraga" value={`${stats.exerciseSessions}x`} tone="default" />
             <Stat
               label="Mood rata2"
-              value={stats.avgMood ? `${stats.avgMood}/5` : "—"}
+              value={stats.avgMood ? `${stats.avgMood}/5` : "-"}
               tone="default"
             />
           </div>
@@ -197,7 +197,7 @@ export default function WrappedPage() {
           <Sub>kenangan tertulis tahun ini</Sub>
         </Card>
 
-        <p className="pt-4 text-center text-[11px] text-text-3">
+        <p className="pt-4 text-center text-[12px] text-text-3">
           Twogether · Wrapped {YEAR}
         </p>
       </div>
@@ -256,7 +256,7 @@ function Stat({
         : "bg-bg-elev1 text-text-1";
   return (
     <div className={`rounded-lg p-2 text-center ${toneClass}`}>
-      <div className="text-[11px] font-semibold opacity-90">
+      <div className="text-[12px] font-semibold opacity-90">
         {label}
       </div>
       <div className="mt-0.5 tabular-nums text-[12px] font-bold">{value}</div>
@@ -305,7 +305,7 @@ function ShareCard({ activeDays, moments }: { activeDays: number; moments: numbe
     <div className="surface flex items-center gap-4 p-4">
       {preview ? (
         // eslint-disable-next-line @next/next/no-img-element -- local canvas output
-        <img src={preview.url} alt="Gambar Wrapped" className="h-32 w-[72px] shrink-0 rounded-xl object-cover shadow-card" />
+        <img src={preview.url} alt="Gambar Wrapped" width={72} height={128} className="h-32 w-[72px] shrink-0 rounded-xl object-cover shadow-card" />
       ) : (
         <div className="skeleton h-32 w-[72px] shrink-0 rounded-xl" />
       )}
@@ -313,11 +313,12 @@ function ShareCard({ activeDays, moments }: { activeDays: number; moments: numbe
         <div className="text-[15px] font-bold text-text-1">Bagikan tahun kalian</div>
         <div className="mt-0.5 text-[12px] text-text-3">Gambar ukuran story, tanpa angka uang.</div>
         <button
+          type="button"
           onClick={share}
           disabled={!preview || busy}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg active:scale-95 disabled:opacity-50"
+          className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg active:scale-95 disabled:opacity-50"
         >
-          <Share2 size={15} />
+          <Share2 size={15} aria-hidden="true" />
           Bagikan
         </button>
       </div>

@@ -105,8 +105,13 @@ export function PWAInstaller() {
               <b className="text-text-2">Tambah ke Layar Utama</b>. Data lebih aman dan notifikasi bisa jalan.
             </div>
           </div>
-          <button onClick={dismissIosHint} aria-label="Tutup" className="-mr-1 -mt-1 p-1 text-text-4">
-            <X size={16} />
+          <button
+            type="button"
+            onClick={dismissIosHint}
+            aria-label="Tutup"
+            className="-mr-1 -mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4"
+          >
+            <X size={16} aria-hidden />
           </button>
         </div>
       </div>
@@ -117,18 +122,19 @@ export function PWAInstaller() {
 
   return (
     <div className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 mx-auto flex max-w-[456px] items-center gap-2 rounded-lg border border-border bg-bg-elev2 px-3 py-2 shadow-lg">
-      <Smartphone size={18} className="shrink-0 text-text-2" />
+      <Smartphone size={18} aria-hidden className="shrink-0 text-text-2" />
       <div className="min-w-0 flex-1">
         <div className="text-[12px] font-semibold text-text-1">
           Install Twogether
         </div>
-        <div className="truncate text-[10px] text-text-3">
+        <div className="truncate text-[12px] text-text-3">
           Buka seperti app native dari Home Screen.
         </div>
       </div>
       <button
+        type="button"
         onClick={install}
-        className="rounded-md bg-text-1 px-3 py-1.5 text-[11px] font-semibold text-bg-app active:scale-95"
+        className="min-h-[44px] shrink-0 rounded-xl bg-text-1 px-4 text-[12px] font-semibold text-bg-app active:scale-95"
       >
         Install
       </button>

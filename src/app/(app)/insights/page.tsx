@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -16,6 +17,7 @@ export default function InsightsPage() {
   const deposits = useDeposits(userId) ?? [];
   const members = useWorkspace((s) => s.members);
   const sharedLabel = useWorkspace((s) => s.sharedLabel);
+  const reduce = useReducedMotion();
 
   /* ───── Month totals ───── */
   const monthStart = useMemo(() => {
@@ -163,12 +165,12 @@ export default function InsightsPage() {
   const insights = useMemo(() => {
     const out: string[] = [];
     if (thisMonth.length === 0) {
-      out.push("Bulan ini belum ada transaksi — yuk mulai catat!");
+      out.push("Bulan ini belum ada transaksi, yuk mulai catat.");
       return out;
     }
     for (const a of anomalies) {
       out.push(
-        `⚠️ Pengeluaran "${a.category}" bulan ini ${a.ratio.toFixed(1)}× lipat dari rata-rata 3 bulan terakhir (${formatRupiah(a.current)} vs ${formatRupiah(Math.round(a.avg))}).`,
+        `Lonjakan "${a.category}" bulan ini ${a.ratio.toFixed(1)}× dari rata-rata 3 bulan (${formatRupiah(a.current)} vs ${formatRupiah(Math.round(a.avg))}).`,
       );
     }
     if (monthOut > 0) {
@@ -190,7 +192,7 @@ export default function InsightsPage() {
     if (top) {
       const share = Math.round((top[1] / Math.max(1, monthOut)) * 100);
       out.push(
-        `${share}% pengeluaran buat kategori "${top[0]}" (${formatRupiah(top[1])}). Coba review apa ini bisa di-cut.`,
+        `${share}% pengeluaran ada di kategori "${top[0]}" (${formatRupiah(top[1])}).`,
       );
     }
     // Goal pacing
@@ -199,7 +201,7 @@ export default function InsightsPage() {
       const saved = sum(gd);
       const pct = Math.round((saved / Math.max(1, g.target)) * 100);
       if (pct >= 100) {
-        out.push(`🎉 Goal "${g.name}" sudah tercapai!`);
+        out.push(`Goal "${g.name}" sudah tercapai.`);
       } else if (g.deadline) {
         const daysLeft = Math.max(
           0,
@@ -211,7 +213,7 @@ export default function InsightsPage() {
           const remain = g.target - saved;
           const perWeek = Math.ceil(remain / Math.max(1, daysLeft / 7));
           out.push(
-            `Goal "${g.name}": butuh ${formatRupiah(perWeek)}/minggu biar tercapai sebelum ${new Date(
+            `Goal "${g.name}": butuh ${formatRupiah(perWeek)}/minggu agar tercapai sebelum ${new Date(
               g.deadline,
             ).toLocaleDateString("id-ID")}.`,
           );
@@ -232,13 +234,13 @@ export default function InsightsPage() {
         </section>
 
         <section className="mt-5">
-          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+          <div className="mb-2 text-[12px] font-medium section-label text-text-4">
             Insights
           </div>
           <ul className="space-y-1.5 text-[13px] text-text-2">
             {insights.map((i, idx) => (
               <li key={idx} className="flex gap-2">
-                <span className="text-text-4">—</span>
+                <span aria-hidden className="text-text-4">•</span>
                 <span>{i}</span>
               </li>
             ))}
@@ -247,7 +249,7 @@ export default function InsightsPage() {
 
         {perMember.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Per anggota
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -275,7 +277,7 @@ export default function InsightsPage() {
 
         {splitBill && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Split bill
             </div>
             <div className="border-y border-border py-3">
@@ -286,7 +288,7 @@ export default function InsightsPage() {
               <div className="mt-1 text-[15px] font-medium tabular-nums text-text-1">
                 {formatRupiah(splitBill.amount)}
               </div>
-              <p className="mt-1 text-[11px] text-text-4">
+              <p className="mt-1 text-[12px] text-text-4">
                 Estimasi split 50/50 untuk kategori “Bersama”.
               </p>
             </div>
@@ -294,7 +296,7 @@ export default function InsightsPage() {
         )}
 
         <section className="mt-6">
-          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+          <div className="mb-2 text-[12px] font-medium section-label text-text-4">
             Heatmap (12 minggu)
           </div>
           <div className="grid grid-flow-col grid-rows-7 gap-0.5">
@@ -316,7 +318,7 @@ export default function InsightsPage() {
               );
             })}
           </div>
-          <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-text-3">
+          <div className="mt-2 flex items-center justify-end gap-1 text-[12px] text-text-3">
             <span>Sedikit</span>
             <span className="h-2 w-2 rounded-sm bg-bg-elev2" />
             <span
@@ -339,7 +341,7 @@ export default function InsightsPage() {
 
         {goalBreakdown.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Kontribusi goal
             </div>
             <div className="space-y-3">
@@ -355,13 +357,15 @@ export default function InsightsPage() {
                       <span className="tabular-nums text-text-3">{pct}%</span>
                     </div>
                     <div className="mt-1 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
-                      <div
-                        className="h-full rounded-full bg-accent transition-[width] duration-300"
-                        style={{ width: `${pct}%` }}
+                      <motion.div
+                        className="h-full w-full origin-left rounded-full bg-accent"
+                        initial={reduce ? false : { scaleX: 0 }}
+                        animate={{ scaleX: pct / 100 }}
+                        transition={{ duration: reduce ? 0.04 : 0.45, ease: [0.22, 1, 0.36, 1] }}
                       />
                     </div>
                     {byMember.length > 0 && (
-                      <div className="mt-1 flex gap-2 text-[10px] text-text-4">
+                      <div className="mt-1 flex gap-2 text-[12px] text-text-4">
                         {byMember.map((b) => (
                           <span key={b.name}>
                             {b.name}: {formatRupiahShort(b.amt)}
@@ -393,7 +397,7 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="text-[11px] text-text-4">{label}</div>
+      <div className="text-[12px] text-text-4">{label}</div>
       <div
         className={`mt-1 text-[20px] font-semibold tracking-tight tabular-nums ${
           tone === "positive" ? "text-[color:var(--positive)]" : "text-text-1"

@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, FileSpreadsheet } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useMemo, useRef, useState } from "react";
@@ -98,56 +98,59 @@ export default function ImporPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {done != null ? (
           <div className="surface p-6 text-center">
-            <IconTile spec={{ Icon: CircleCheck, tint: "#22c55e" }} size={64} radius={22} className="mx-auto" />
+            <IconTile spec={{ Icon: CircleCheck, tint: "var(--tint-green)" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">{done} transaksi masuk</div>
-            <button onClick={() => router.push("/tracker")} className="btn-accent mt-4 w-full">Lihat di Uang</button>
+            <button type="button" onClick={() => router.push("/tracker")} className="btn-accent mt-4 w-full min-h-[44px]">Lihat di Uang</button>
           </div>
         ) : !rows ? (
           <div className="surface p-5">
             <div className="text-[15px] font-bold text-text-1">Masukkan mutasi rekening / e-wallet</div>
             <ol className="mt-2 list-decimal space-y-1 pl-5 text-[13px] text-text-2">
-              <li>Unduh mutasi dalam format <b>CSV</b> dari internet/mobile banking (mis. KlikBCA → Mutasi Rekening → Unduh).</li>
+              <li>Unduh mutasi dalam format <b>CSV</b> dari internet/mobile banking (mis. KlikBCA &gt; Mutasi Rekening &gt; Unduh).</li>
               <li>Pilih filenya di sini, cek, lalu impor.</li>
             </ol>
-            <button onClick={() => fileRef.current?.click()} className="btn-accent mt-4 w-full">Pilih file CSV</button>
-            <p className="mt-2 text-[12px] text-text-4">File dibaca di HP ini saja, tidak diunggah ke mana pun.</p>
+            <button type="button" onClick={() => fileRef.current?.click()} className="btn-accent mt-4 w-full min-h-[44px]">Pilih file CSV</button>
+            <p className="mt-2 text-[12px] text-text-3">File dibaca di HP ini saja, tidak diunggah ke mana pun.</p>
           </div>
         ) : (
           <>
             <div className="surface space-y-3 p-4">
-              <div className="flex items-center justify-between">
-                <span className="truncate text-[14px] font-bold text-text-1">📄 {fileName}</span>
-                <button onClick={() => fileRef.current?.click()} className="text-[12px] font-semibold text-accent">Ganti</button>
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex min-w-0 items-center gap-2 truncate text-[14px] font-bold text-text-1">
+                  <FileSpreadsheet size={16} className="shrink-0 text-text-3" aria-hidden="true" />
+                  <span className="truncate">{fileName}</span>
+                </span>
+                <button type="button" onClick={() => fileRef.current?.click()} className="min-h-[44px] px-2 text-[12px] font-semibold text-accent">Ganti</button>
               </div>
               {wallets.length > 0 && (
                 <label className="block">
                   <span className="mb-1 block text-[12px] font-semibold text-text-3">Masuk ke dompet</span>
-                  <select className="input-base" value={walletId ?? ""} onChange={(e) => setWalletId(e.target.value || null)}>
+                  <select className="input-base min-h-[44px]" value={walletId ?? ""} onChange={(e) => setWalletId(e.target.value || null)}>
                     <option value="">Tanpa dompet</option>
                     {wallets.map((w) => (
-                      <option key={w.id} value={w.id}>{w.emoji} {w.name}</option>
+                      <option key={w.id} value={w.id}>{w.name}</option>
                     ))}
                   </select>
                 </label>
               )}
               <label className="block">
                 <span className="mb-1 block text-[12px] font-semibold text-text-3">Atas nama</span>
-                <select className="input-base" value={who} onChange={(e) => setWho(e.target.value)}>
+                <select className="input-base min-h-[44px]" value={who} onChange={(e) => setWho(e.target.value)}>
                   {all.map((p) => <option key={p} value={p}>{nick(p)}</option>)}
                 </select>
               </label>
               <details>
-                <summary className="cursor-pointer text-[13px] font-semibold text-text-2">Atur kolom (kalau hasilnya salah)</summary>
+                <summary className="min-h-[44px] flex items-center cursor-pointer text-[13px] font-semibold text-text-2">Atur kolom (kalau hasilnya salah)</summary>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   {FIELDS.map((f) => (
                     <label key={f.key} className="block">
-                      <span className="mb-1 block text-[11px] font-semibold text-text-3">{f.label}</span>
+                      <span className="mb-1 block text-[12px] font-semibold text-text-3">{f.label}</span>
                       <select
-                        className="input-base h-10 text-[13px]"
+                        className="input-base min-h-[44px] text-[13px]"
                         value={map?.[f.key] ?? -1}
                         onChange={(e) => map && setMap({ ...map, [f.key]: Number(e.target.value) })}
                       >
-                        <option value={-1}>—</option>
+                        <option value={-1}>- Belum dipilih -</option>
                         {colOptions.map((c) => <option key={c.i} value={c.i}>{c.label}</option>)}
                       </select>
                     </label>
@@ -167,32 +170,35 @@ export default function ImporPage() {
             ) : (
               <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
                 {parsed.slice(0, 300).map((r, i) => (
-                  <li key={i} className={`flex items-center gap-3 border-b border-border px-4 py-2.5 last:border-0 ${r.dup ? "opacity-50" : ""}`}>
-                    <input
-                      type="checkbox"
-                      disabled={r.dup}
-                      checked={!r.dup && !skip.has(i)}
-                      onChange={() => {
-                        const next = new Set(skip);
-                        if (next.has(i)) next.delete(i);
-                        else next.add(i);
-                        setSkip(next);
-                      }}
-                      className="h-4 w-4 accent-[color:var(--accent)]"
-                    />
+                  <li key={i} className={`flex items-center gap-2 border-b border-border px-2 py-1.5 last:border-0 ${r.dup ? "opacity-50" : ""}`}>
+                    <label className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center">
+                      <input
+                        type="checkbox"
+                        disabled={r.dup}
+                        checked={!r.dup && !skip.has(i)}
+                        aria-label={`Pilih baris ${i + 1}: ${r.note || "tanpa keterangan"}`}
+                        onChange={() => {
+                          const next = new Set(skip);
+                          if (next.has(i)) next.delete(i);
+                          else next.add(i);
+                          setSkip(next);
+                        }}
+                        className="h-5 w-5 accent-[color:var(--accent)]"
+                      />
+                    </label>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] text-text-1">{r.note || "(tanpa keterangan)"}</div>
-                      <div className="text-[11px] text-text-4">{r.date} · {r.category}{r.dup ? " · sudah ada" : ""}</div>
+                      <div className="text-[12px] text-text-3">{r.date} · {r.category}{r.dup ? " · sudah ada" : ""}</div>
                     </div>
-                    <span className={`tabular-nums text-[13px] font-semibold ${r.kind === "in" ? "text-[color:var(--positive)]" : "text-text-1"}`}>
-                      {r.kind === "in" ? "+" : "−"}{formatRupiah(r.amount)}
+                    <span className={`pr-2 tabular-nums text-[13px] font-semibold ${r.kind === "in" ? "text-[color:var(--positive)]" : "text-text-1"}`}>
+                      {r.kind === "in" ? "+" : "-"}{formatRupiah(r.amount)}
                     </span>
                   </li>
                 ))}
               </ul>
             )}
-            <button onClick={doImport} disabled={busy || toImport.length === 0} className="btn-accent w-full disabled:opacity-50">
-              {busy ? "Mengimpor…" : `Impor ${toImport.length} transaksi`}
+            <button type="button" onClick={doImport} disabled={busy || toImport.length === 0} className="btn-accent min-h-[44px] w-full disabled:opacity-50">
+              {busy ? "Mengimpor..." : `Impor ${toImport.length} transaksi`}
             </button>
           </>
         )}

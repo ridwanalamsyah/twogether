@@ -76,6 +76,7 @@ export default function ProfilePage() {
       <div className="space-y-4 px-4 pb-8">
         <div className="surface flex flex-col items-center gap-3 p-6 theme-transition">
           <button
+            type="button"
             onClick={() => fileRef.current?.click()}
             className="relative h-24 w-24 overflow-hidden rounded-full bg-accent active:scale-95"
             aria-label="Ganti foto"
@@ -94,7 +95,7 @@ export default function ProfilePage() {
                 {(name || "B")[0]?.toUpperCase()}
               </span>
             )}
-            <span className="absolute inset-x-0 bottom-0 bg-black/45 pb-2 pt-1 text-center text-[10px] font-bold text-white">
+            <span className="absolute inset-x-0 bottom-0 bg-black/75 pb-2 pt-1 text-center text-[12px] font-bold text-white">
               Ubah
             </span>
           </button>
@@ -142,8 +143,8 @@ export default function ProfilePage() {
               />
             </Field>
           )}
-          <p className="-mt-1 text-[11px] text-text-4">
-            Panggilan dipakai di Beranda, kartu uang, dan kabar. Muncul juga di HP pasanganmu.
+          <p className="-mt-1 text-[12px] text-text-4">
+            Panggilan dipakai di Beranda, kartu uang, dan kabar.
           </p>
           <Field label="Email">
             <input className="input-base" value={auth.email ?? ""} disabled />
@@ -157,11 +158,12 @@ export default function ProfilePage() {
             />
           </Field>
           <button
+            type="button"
             onClick={save}
             disabled={saving}
             className="btn-accent w-full text-sm disabled:opacity-50"
           >
-            {saving ? "Menyimpan…" : saved ? "Tersimpan ✓" : "Simpan"}
+            {saving ? "Menyimpan…" : saved ? "Tersimpan" : "Simpan"}
           </button>
         </div>
       </div>
@@ -178,7 +180,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+      <div className="mb-1 text-[12px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}

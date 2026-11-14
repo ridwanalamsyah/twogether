@@ -85,7 +85,7 @@ export default function BelanjaPage() {
       <AppHeader title="Belanja bareng" />
       <div className="px-5 pb-10 pt-3">
         <div className="mb-2 flex items-center gap-2 text-[12px] text-text-3">
-          <span className={`h-2 w-2 rounded-full ${hasRemoteSync() ? "animate-pulse bg-[color:var(--positive)]" : "bg-text-5"}`} />
+          <span className={`h-2 w-2 rounded-full ${hasRemoteSync() ? "bg-[color:var(--positive)]" : "bg-text-5"}`} aria-hidden="true" />
           {hasRemoteSync()
             ? `Langsung muncul di HP ${partner ? nick(partner) : "pasanganmu"}`
             : "Tersimpan di HP ini"}
@@ -98,7 +98,9 @@ export default function BelanjaPage() {
           }}
           className="flex gap-2"
         >
+          <label htmlFor="belanja-input" className="sr-only">Tambah barang belanja</label>
           <input
+            id="belanja-input"
             ref={input}
             className="input-base h-12 flex-1 text-[16px]"
             placeholder="Tambah barang… (mis. 2 telur)"
@@ -121,8 +123,9 @@ export default function BelanjaPage() {
             {usual.map((u) => (
               <button
                 key={u}
+                type="button"
                 onClick={() => add(u)}
-                className="shrink-0 rounded-full bg-bg-card px-3 py-1.5 text-[13px] text-text-2 shadow-card active:scale-95"
+                className="min-h-[44px] shrink-0 rounded-full bg-bg-card px-3.5 py-2 text-[13px] text-text-2 shadow-card active:scale-95"
               >
                 + {u}
               </button>
@@ -149,10 +152,10 @@ export default function BelanjaPage() {
         {done.length > 0 && (
           <>
             <div className="mt-6 mb-2 flex items-center justify-between">
-              <button onClick={() => setShowDone((v) => !v)} className="text-[14px] font-bold text-text-2">
+              <button type="button" onClick={() => setShowDone((v) => !v)} className="min-h-[44px] px-1 text-[14px] font-bold text-text-2">
                 Sudah di keranjang ({done.length}) {showDone ? "▾" : "▸"}
               </button>
-              <button onClick={clearDone} className="text-[12px] font-semibold text-text-3">
+              <button type="button" onClick={clearDone} className="min-h-[44px] px-2 text-[12px] font-semibold text-text-3">
                 Bersihkan
               </button>
             </div>

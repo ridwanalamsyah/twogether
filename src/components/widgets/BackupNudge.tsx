@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { HardDriveDownload, X } from "lucide-react";
 import { lastBackupAt } from "@/services/privacy";
 
@@ -33,8 +34,8 @@ function backupDueDays(): number | null {
 /** Gentle monthly reminder on Beranda to save a backup file. */
 export function BackupNudge() {
   const [days, setDays] = useState<number | null>(null);
+  const reduce = useReducedMotion();
   useEffect(() => setDays(backupDueDays()), []);
-  if (days === null) return null;
 
   function snooze() {
     try {
@@ -46,17 +47,32 @@ export function BackupNudge() {
   }
 
   return (
-    <div className="pop-in mx-5 mt-3 flex items-center gap-3 rounded-2xl bg-bg-elev1 px-4 py-3 md:mx-8">
-      <HardDriveDownload size={18} className="shrink-0 text-text-3" />
-      <Link href="/settings/privacy" className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-text-1">Simpan cadangan data</div>
-        <div className="text-[12px] text-text-3">
-          {lastBackupAt() ? `Terakhir ${days} hari lalu` : "Belum pernah"} · tap untuk backup
-        </div>
-      </Link>
-      <button onClick={snooze} aria-label="Ingatkan minggu depan" className="p-1 text-text-4">
-        <X size={16} />
-      </button>
-    </div>
+    <AnimatePresence>
+      {days !== null && (
+        <motion.div
+          initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.18 }}
+          className="mx-5 mt-3 flex items-center gap-3 rounded-2xl bg-bg-elev1 py-2 pl-4 pr-2 md:mx-8"
+        >
+          <HardDriveDownload size={18} className="shrink-0 text-text-3" aria-hidden />
+          <Link href="/settings/privacy" className="flex min-h-[44px] min-w-0 flex-1 flex-col justify-center py-1">
+            <div className="text-[13px] font-semibold text-text-1">Simpan cadangan data</div>
+            <div className="text-[12px] text-text-3">
+              {lastBackupAt() ? `Terakhir ${days} hari lalu` : "Belum pernah"} · tap untuk backup
+            </div>
+          </Link>
+          <button
+            type="button"
+            onClick={snooze}
+            aria-label="Ingatkan minggu depan"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 active:opacity-60"
+          >
+            <X size={16} aria-hidden />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

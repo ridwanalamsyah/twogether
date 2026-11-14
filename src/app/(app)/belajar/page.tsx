@@ -1,7 +1,9 @@
 "use client";
 
 import { TrendCard } from "@/components/charts/TrendCard";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { X } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -46,6 +48,8 @@ export default function BelajarPage() {
 
 /* ───── Reading log ───── */
 function ReadingSection() {
+  const uid = useId();
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const items = useItems(userId, "book") ?? [];
   const [showAdd, setShowAdd] = useState(false);
@@ -90,30 +94,50 @@ function ReadingSection() {
       title="Reading"
       caption={`${items.filter((b) => b.status === "reading").length} sedang dibaca · ${items.filter((b) => b.status === "done").length} selesai`}
       defaultOpen
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form buku" : "Tambah buku"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          {showAdd ? "Tutup" : "Tambah"}
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="space-y-2">
+            <label htmlFor={`${uid}-title`} className="sr-only">
+              Judul buku
+            </label>
             <input
+              id={`${uid}-title`}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Judul buku"
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full bg-transparent text-[13px]"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <label htmlFor={`${uid}-author`} className="sr-only">
+                Penulis buku
+              </label>
               <input
+                id={`${uid}-author`}
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Penulis"
-                className="flex-1 bg-transparent text-[13px] outline-none"
+                className="min-w-[100px] flex-1 bg-transparent text-[13px]"
               />
+              <label htmlFor={`${uid}-pages`} className="sr-only">
+                Total halaman
+              </label>
               <input
+                id={`${uid}-pages`}
                 type="number"
                 value={pages}
                 onChange={(e) => setPages(e.target.value)}
                 placeholder="Total hal"
-                className="w-24 bg-transparent text-[13px] outline-none"
+                className="w-24 bg-transparent text-[13px]"
               />
               <AccentBtn onClick={save} disabled={!title}>
                 Simpan
@@ -130,38 +154,45 @@ function ReadingSection() {
             const p = JSON.parse(it.payload ?? "{}");
             const total = p.pages ?? 0;
             const prog = p.progress ?? 0;
-            const pct = total ? Math.round((prog / total) * 100) : 0;
+            const ratio = total ? Math.min(1, prog / total) : 0;
+            const pct = Math.round(ratio * 100);
             return (
               <div key={it.id} className="py-2.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
                     <div className="text-[13px]">{it.title}</div>
-                    <div className="text-[11px] text-text-4">
-                      {p.author || "—"} · {prog}/{total || "?"} hal
+                    <div className="text-[12px] text-text-3">
+                      {p.author || "Penulis belum diisi"} · {prog}/{total || "?"} hal
                       {pct ? ` · ${pct}%` : ""}
                     </div>
                   </div>
                   <button
+                    type="button"
+                    aria-label={`Kurangi 10 halaman untuk ${it.title}`}
                     onClick={() => progress(it.id, -10)}
-                    className="rounded-md border border-border px-2 py-0.5 text-[11px] text-text-3"
+                    className="min-h-[44px] min-w-[44px] rounded-md border border-border px-2.5 py-1 text-[12px] font-medium text-text-2 hover:bg-bg-elev1 active:scale-95"
                   >
                     -10
                   </button>
                   <button
+                    type="button"
+                    aria-label={`Tambah 10 halaman untuk ${it.title}`}
                     onClick={() => progress(it.id, 10)}
-                    className="rounded-md border border-border px-2 py-0.5 text-[11px] text-text-3"
+                    className="min-h-[44px] min-w-[44px] rounded-md border border-border px-2.5 py-1 text-[12px] font-medium text-text-2 hover:bg-bg-elev1 active:scale-95"
                   >
                     +10
                   </button>
-                  <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
-                    ×
+                  <GhostBtn aria-label={`Hapus ${it.title}`} onClick={() => userId && deleteItem(userId, it.id)}>
+                    <X size={16} aria-hidden="true" />
                   </GhostBtn>
                 </div>
                 {total > 0 && (
-                  <div className="mt-1.5 h-1 overflow-hidden rounded bg-bg-elev2">
-                    <div
-                      className="h-full bg-accent"
-                      style={{ width: `${pct}%` }}
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bg-elev2">
+                    <motion.div
+                      initial={reduceMotion ? false : { scaleX: 0 }}
+                      animate={{ scaleX: ratio }}
+                      transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="h-full w-full origin-left rounded-full bg-accent"
                     />
                   </div>
                 )}
@@ -176,6 +207,8 @@ function ReadingSection() {
 
 /* ───── Course tracker ───── */
 function CourseSection() {
+  const uid = useId();
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const items = useItems(userId, "course") ?? [];
   const [showAdd, setShowAdd] = useState(false);
@@ -218,30 +251,50 @@ function CourseSection() {
     <Section
       title="Kursus"
       caption={`${items.length} kursus`}
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form kursus" : "Tambah kursus"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          {showAdd ? "Tutup" : "Tambah"}
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="space-y-2">
+            <label htmlFor={`${uid}-title`} className="sr-only">
+              Judul kursus
+            </label>
             <input
+              id={`${uid}-title`}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Judul kursus"
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full bg-transparent text-[13px]"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <label htmlFor={`${uid}-provider`} className="sr-only">
+                Platform kursus
+              </label>
               <input
+                id={`${uid}-provider`}
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
-                placeholder="Coursera, Udemy…"
-                className="flex-1 bg-transparent text-[13px] outline-none"
+                placeholder="Coursera, Udemy..."
+                className="min-w-[100px] flex-1 bg-transparent text-[13px]"
               />
+              <label htmlFor={`${uid}-modules`} className="sr-only">
+                Jumlah modul
+              </label>
               <input
+                id={`${uid}-modules`}
                 type="number"
                 value={modules}
                 onChange={(e) => setModules(e.target.value)}
                 placeholder="modul"
-                className="w-20 bg-transparent text-[13px] outline-none"
+                className="w-20 bg-transparent text-[13px]"
               />
               <AccentBtn onClick={save} disabled={!title}>
                 Simpan
@@ -258,29 +311,36 @@ function CourseSection() {
             const p = JSON.parse(it.payload ?? "{}");
             const total = p.modules ?? 0;
             const c = p.completed ?? 0;
-            const pct = total ? Math.round((c / total) * 100) : 0;
+            const ratio = total ? Math.min(1, c / total) : 0;
             return (
               <div key={it.id} className="py-2.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
                     <div className="text-[13px]">{it.title}</div>
-                    <div className="text-[11px] text-text-4">
-                      {p.provider || "—"} · {c}/{total || "?"} modul
+                    <div className="text-[12px] text-text-3">
+                      {p.provider || "Penyedia belum diisi"} · {c}/{total || "?"} modul
                     </div>
                   </div>
                   <button
+                    type="button"
+                    aria-label={`Tambah 1 modul untuk ${it.title}`}
                     onClick={() => bump(it.id, 1)}
-                    className="rounded-md border border-border px-2 py-0.5 text-[11px] text-text-3"
+                    className="min-h-[44px] min-w-[44px] rounded-md border border-border px-3 py-1 text-[12px] font-medium text-text-2 hover:bg-bg-elev1 active:scale-95"
                   >
                     +1
                   </button>
-                  <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
-                    ×
+                  <GhostBtn aria-label={`Hapus ${it.title}`} onClick={() => userId && deleteItem(userId, it.id)}>
+                    <X size={16} aria-hidden="true" />
                   </GhostBtn>
                 </div>
                 {total > 0 && (
-                  <div className="mt-1.5 h-1 overflow-hidden rounded bg-bg-elev2">
-                    <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bg-elev2">
+                    <motion.div
+                      initial={reduceMotion ? false : { scaleX: 0 }}
+                      animate={{ scaleX: ratio }}
+                      transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="h-full w-full origin-left rounded-full bg-accent"
+                    />
                   </div>
                 )}
               </div>
@@ -294,6 +354,7 @@ function CourseSection() {
 
 /* ───── Journal ───── */
 function JournalSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "journal") ?? [];
   const [text, setText] = useState("");
@@ -311,12 +372,16 @@ function JournalSection() {
   return (
     <Section title="Jurnal" caption={`${entries.length} catatan`}>
       <div className="form-card">
+        <label htmlFor={`${uid}-journal`} className="sr-only">
+          Catatan jurnal hari ini
+        </label>
         <textarea
+          id={`${uid}-journal`}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Tulis bebas hari ini…"
+          placeholder="Tulis bebas hari ini..."
           rows={3}
-          className="w-full resize-none bg-transparent text-[13px] outline-none"
+          className="w-full resize-none bg-transparent text-[13px]"
         />
         <div className="mt-1 flex justify-end">
           <AccentBtn onClick={add} disabled={!text.trim()}>
@@ -332,7 +397,7 @@ function JournalSection() {
                 {e.valueText}
               </div>
               <div className="mt-0.5 flex items-center justify-between">
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-3">
                   {formatDateShort(e.date)}
                 </div>
                 <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -349,6 +414,7 @@ function JournalSection() {
 
 /* ───── Pomodoro timer ───── */
 function PomodoroSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const meName = useWorkspace((s) => s.members.find((m) => m.isMe)?.name);
   const entries = useEntries(userId, "pomodoro") ?? [];
@@ -406,11 +472,15 @@ function PomodoroSection() {
             {String((remaining || duration * 60) % 60).padStart(2, "0")}
           </div>
           <div className="mt-2 flex items-center justify-center gap-2">
+            <label htmlFor={`${uid}-dur`} className="sr-only">
+              Durasi pomodoro
+            </label>
             <select
+              id={`${uid}-dur`}
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
               disabled={running}
-              className="bg-transparent text-[13px] text-text-2 outline-none"
+              className="min-h-[44px] bg-transparent text-[13px] text-text-2"
             >
               <option value={15}>15 mnt</option>
               <option value={25}>25 mnt</option>
@@ -419,8 +489,9 @@ function PomodoroSection() {
             </select>
             {running ? (
               <button
+                type="button"
                 onClick={stop}
-                className="rounded-md border border-border px-3 py-1 text-[12px]"
+                className="min-h-[44px] rounded-md border border-border px-4 py-1 text-[13px] font-medium hover:bg-bg-elev1"
               >
                 Stop
               </button>
@@ -437,6 +508,8 @@ function PomodoroSection() {
 
 /* ───── Time tracking ───── */
 function TimeSection() {
+  const uid = useId();
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const entries = useEntries(userId, "time") ?? [];
   const [cat, setCat] = useState("kerja");
@@ -469,11 +542,15 @@ function TimeSection() {
       caption={`Hari ini total ${total} menit`}
     >
       <div className="form-card">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <label htmlFor={`${uid}-cat`} className="sr-only">
+            Kategori aktivitas
+          </label>
           <select
+            id={`${uid}-cat`}
             value={cat}
             onChange={(e) => setCat(e.target.value)}
-            className="bg-transparent text-[13px] text-text-2 outline-none"
+            className="min-h-[44px] bg-transparent text-[13px] text-text-2"
           >
             <option value="kerja">Kerja</option>
             <option value="skripsi">Skripsi</option>
@@ -483,12 +560,16 @@ function TimeSection() {
             <option value="istirahat">Istirahat</option>
             <option value="lain">Lain</option>
           </select>
+          <label htmlFor={`${uid}-mins`} className="sr-only">
+            Durasi aktivitas (menit)
+          </label>
           <input
+            id={`${uid}-mins`}
             type="number"
             value={mins}
             onChange={(e) => setMins(e.target.value)}
             placeholder="menit"
-            className="flex-1 bg-transparent text-[13px] outline-none"
+            className="min-w-[80px] flex-1 bg-transparent text-[13px]"
           />
           <AccentBtn onClick={add} disabled={!mins}>
             Catat
@@ -498,15 +579,20 @@ function TimeSection() {
       {Object.keys(totals).length > 0 && (
         <div className="mt-2 divide-y divide-border border-y border-border">
           {Object.entries(totals).map(([k, v]) => {
-            const pct = total ? (v / total) * 100 : 0;
+            const ratio = total ? Math.min(1, v / total) : 0;
             return (
               <div key={k} className="py-2">
                 <div className="flex items-center justify-between text-[12px]">
                   <span className="text-text-2 capitalize">{k}</span>
                   <span className="tabular-nums text-text-3">{v} mnt</span>
                 </div>
-                <div className="mt-1 h-1 overflow-hidden rounded bg-bg-elev2">
-                  <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-bg-elev2">
+                  <motion.div
+                    initial={reduceMotion ? false : { scaleX: 0 }}
+                    animate={{ scaleX: ratio }}
+                    transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full w-full origin-left rounded-full bg-accent"
+                  />
                 </div>
               </div>
             );

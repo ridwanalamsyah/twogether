@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   DndContext,
   KeyboardSensor,
@@ -71,16 +72,18 @@ export function DashboardGrid({ editing }: DashboardGridProps) {
 
   const hot = useHotWidgets();
   const enabled = layout.filter((w) => w.enabled);
-  // Cards that matter right now float up (under the pinned note) while not
-  // arranging; the saved order is untouched.
-  const visible =
-    editing || hot.size === 0
-      ? enabled
-      : [
-          ...enabled.filter((w) => w.kind === "pinned-message"),
-          ...enabled.filter((w) => hot.has(w.kind)),
-          ...enabled.filter((w) => w.kind !== "pinned-message" && !hot.has(w.kind)),
-        ];
+  // Focal card "Sudah bersama" stays anchored first; active cards float right
+  // under the pinned note without modifying the user's saved order.
+  const isAnchor = (kind: WidgetConfig["kind"]) =>
+    kind === "hari-kita" || kind === "pinned-message";
+  const visible = editing
+    ? enabled
+    : [
+        ...enabled.filter((w) => w.kind === "hari-kita"),
+        ...enabled.filter((w) => w.kind === "pinned-message"),
+        ...enabled.filter((w) => !isAnchor(w.kind) && hot.has(w.kind)),
+        ...enabled.filter((w) => !isAnchor(w.kind) && !hot.has(w.kind)),
+      ];
   const wide = useMediaQuery("(min-width: 1024px)");
 
   function onDragEnd(e: DragEndEvent) {
@@ -148,6 +151,7 @@ function SortableWidget({
   const meta = WIDGET_REGISTRY[widget.kind];
   const Component = meta.Component;
   const toggle = useDashboard((s) => s.toggle);
+  const reduce = useReducedMotion();
   const sortable = useSortable({ id: widget.id, disabled: !editing });
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     sortable;
@@ -173,20 +177,34 @@ function SortableWidget({
     >
       {/* While arranging, the whole card is the handle and its own buttons
           are paused, so a drag never turns into an accidental tap. */}
-      <div
-        className={cn(
-          editing && "pointer-events-none select-none",
-          editing && !isDragging && "edit-jiggle",
-          !editing && "widget-in",
-        )}
-        style={{
-          animationDelay: editing
-            ? `${(index % 3) * -0.11}s`
-            : `${Math.min(index, 6) * 24}ms`,
-        }}
-      >
-        <Component />
-      </div>
+      {editing ? (
+        <div
+          className={cn(
+            "pointer-events-none select-none",
+            !isDragging && "edit-jiggle",
+          )}
+          style={{ animationDelay: `${(index % 3) * -0.11}s` }}
+        >
+          <Component />
+        </div>
+      ) : (
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.05 }}
+          transition={
+            reduce
+              ? { duration: 0.04 }
+              : {
+                  duration: 0.3,
+                  delay: Math.min(index, 4) * 0.035,
+                  ease: [0.22, 1, 0.36, 1],
+                }
+          }
+        >
+          <Component />
+        </motion.div>
+      )}
       {editing && (
         <>
           <div
@@ -200,9 +218,11 @@ function SortableWidget({
             onTouchStart={(e) => e.stopPropagation()}
             onClick={() => toggle(widget.id)}
             aria-label={`Sembunyikan ${meta.label}`}
-            className="pop-in absolute -left-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-text-1 text-[16px] font-bold leading-none text-bg-app shadow-float"
+            className="pop-in absolute -left-3.5 -top-3.5 z-10 grid h-11 w-11 place-items-center"
           >
-            −
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-text-1 text-[16px] font-bold leading-none text-bg-app shadow-float">
+              −
+            </span>
           </button>
         </>
       )}
@@ -227,6 +247,7 @@ function MasonryWidgets({ widgets }: { widgets: WidgetConfig[] }) {
   const [heights, setHeights] = useState<Record<string, number>>({});
   const observer = useRef<ResizeObserver | null>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     observer.current = new ResizeObserver((entries) => {
@@ -271,12 +292,29 @@ function MasonryWidgets({ widgets }: { widgets: WidgetConfig[] }) {
     <div className="grid grid-cols-2 items-start gap-4 px-8 pb-6 pt-4">
       {cols.map((col, ci) => (
         <div key={ci} className="flex flex-col gap-4">
-          {col.map((w) => {
+          {col.map((w, wi) => {
             const Component = WIDGET_REGISTRY[w.kind].Component;
             return (
-              <div key={w.id} data-wid={w.id} ref={ref(w.id)} className="empty:hidden">
+              <motion.div
+                key={w.id}
+                data-wid={w.id}
+                ref={ref(w.id)}
+                className="empty:hidden"
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.05 }}
+                transition={
+                  reduce
+                    ? { duration: 0.04 }
+                    : {
+                        duration: 0.32,
+                        delay: Math.min(wi, 4) * 0.045,
+                        ease: [0.22, 1, 0.36, 1],
+                      }
+                }
+              >
                 <Component />
-              </div>
+              </motion.div>
             );
           })}
         </div>

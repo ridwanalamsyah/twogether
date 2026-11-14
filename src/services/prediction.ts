@@ -135,9 +135,9 @@ interface SummaryArgs {
 }
 
 function buildSummary(a: SummaryArgs): string {
-  if (a.remaining === 0) return `Target ${a.goalName} sudah tercapai 🎉`;
+  if (a.remaining === 0) return `Target ${a.goalName} sudah tercapai`;
   if (a.effectiveRate <= 0) {
-    return `Belum ada setoran konsisten. Mulai setoran rutin untuk mencapai ${a.goalName}.`;
+    return `Belum ada setoran rutin untuk ${a.goalName}.`;
   }
   const months = a.weeksLeft / 4.345;
   const human =
@@ -149,13 +149,13 @@ function buildSummary(a: SummaryArgs): string {
 
   const direction =
     a.trend > a.effectiveRate * 0.05
-      ? " (tren naik 📈)"
+      ? " (tren naik)"
       : a.trend < -a.effectiveRate * 0.05
-        ? " (tren turun 📉)"
+        ? " (tren turun)"
         : "";
 
-  const dateSuffix = a.etaDate ? ` — sekitar ${a.etaDate}` : "";
-  return `Estimasi tercapai dalam ${human}${direction} jika konsisten seperti sekarang${dateSuffix}.`;
+  const dateSuffix = a.etaDate ? `, sekitar ${a.etaDate}` : "";
+  return `Estimasi tercapai dalam ${human}${direction} bila setoran konsisten${dateSuffix}.`;
 }
 
 interface WeeklyBucket {

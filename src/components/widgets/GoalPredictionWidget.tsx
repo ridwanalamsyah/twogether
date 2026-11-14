@@ -51,7 +51,7 @@ export function GoalPredictionWidget() {
       action={
         <Link
           href={`/goals?focus=${goal.id}`}
-          className="text-[11px] text-text-3 hover:text-text-1"
+          className="-my-2 inline-flex min-h-[44px] items-center text-[12px] text-text-3 hover:text-text-1"
         >
           Simulasi
         </Link>
@@ -62,7 +62,7 @@ export function GoalPredictionWidget() {
           <span className="truncate text-[15px] font-medium text-text-1">
             {goal.name}
           </span>
-          <span className={`flex-shrink-0 text-[10px] section-label ${tone}`}>
+          <span className={`flex-shrink-0 text-[12px] section-label ${tone}`}>
             {pred.confidence}
           </span>
         </div>
@@ -89,7 +89,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
       <div className="text-[12px] font-semibold tabular-nums text-text-1">{value}</div>
-      <div className="mt-0.5 text-[10px] text-text-4">{label}</div>
+      <div className="mt-0.5 text-[12px] text-text-4">{label}</div>
     </div>
   );
 }

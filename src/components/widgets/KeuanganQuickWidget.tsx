@@ -70,7 +70,7 @@ export function KeuanganQuickWidget() {
         </div>
         <Link
           href="/uang"
-          className="inline-flex items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
+          className="inline-flex min-h-[44px] items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
         >
           Lihat
           <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
@@ -79,7 +79,7 @@ export function KeuanganQuickWidget() {
 
       <div className="mb-3 grid grid-cols-3 divide-x divide-[color:var(--hairline)] rounded-2xl bg-bg-elev1/60 py-2.5">
         <div className="px-2 text-center">
-          <div className="text-[11px] font-semibold text-[color:var(--positive)]">
+          <div className="text-[12px] font-semibold text-[color:var(--positive)]">
             Masuk
           </div>
           <div className="tabular-nums text-[13px] font-bold text-[color:var(--positive)]">
@@ -87,7 +87,7 @@ export function KeuanganQuickWidget() {
           </div>
         </div>
         <div className="px-2 text-center">
-          <div className="text-[11px] font-semibold text-[color:var(--negative)]">
+          <div className="text-[12px] font-semibold text-[color:var(--negative)]">
             Keluar
           </div>
           <div className="tabular-nums text-[13px] font-bold text-[color:var(--negative)]">
@@ -95,7 +95,7 @@ export function KeuanganQuickWidget() {
           </div>
         </div>
         <div className="px-2 text-center">
-          <div className="text-[11px] font-semibold text-text-3">
+          <div className="text-[12px] font-semibold text-text-3">
             Bersih
           </div>
           <div className="tabular-nums text-[13px] font-bold text-text-1">
@@ -120,7 +120,7 @@ export function KeuanganQuickWidget() {
                 hapticTap();
                 setMode("in");
               }}
-              className="rounded-xl border border-[color:var(--positive)]/25 bg-positive-bg py-2.5 text-[13px] font-semibold text-[color:var(--positive)] transition-transform active:scale-95"
+              className="min-h-[44px] rounded-[14px] border border-[color:var(--positive)]/25 bg-positive-bg py-2.5 text-[13px] font-semibold text-[color:var(--positive)] transition-transform active:scale-95"
             >
               + Pemasukan
             </button>
@@ -130,7 +130,7 @@ export function KeuanganQuickWidget() {
                 hapticTap();
                 setMode("out");
               }}
-              className="rounded-xl border border-[color:var(--negative)]/25 bg-negative-bg py-2.5 text-[13px] font-semibold text-[color:var(--negative)] transition-transform active:scale-95"
+              className="min-h-[44px] rounded-[14px] border border-[color:var(--negative)]/25 bg-negative-bg py-2.5 text-[13px] font-semibold text-[color:var(--negative)] transition-transform active:scale-95"
             >
               − Pengeluaran
             </button>
@@ -154,7 +154,7 @@ export function KeuanganQuickWidget() {
                   setMode(null);
                   setCategory("");
                 }}
-                className="text-[12px] font-medium text-text-3 hover:text-text-1"
+                className="inline-flex min-h-[44px] items-center rounded-lg px-2 text-[12px] font-medium text-text-3 hover:text-text-1"
               >
                 Batal
               </button>
@@ -166,11 +166,12 @@ export function KeuanganQuickWidget() {
                   <button
                     key={c}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => {
                       hapticTap();
                       setCategory(c);
                     }}
-                    className={`rounded-lg border px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                    className={`min-h-[44px] rounded-[14px] border px-3 py-1.5 text-[12px] font-medium transition-colors ${
                       active
                         ? "border-transparent bg-text-1 text-bg-app"
                         : "border-border bg-bg-card text-text-2"
@@ -182,7 +183,9 @@ export function KeuanganQuickWidget() {
               })}
             </div>
             <div className="flex gap-2">
+              <label htmlFor="kq-amount" className="sr-only">Nominal</label>
               <input
+                id="kq-amount"
                 type="number"
                 inputMode="decimal"
                 placeholder="Rp0"
@@ -199,7 +202,7 @@ export function KeuanganQuickWidget() {
                 type="button"
                 onClick={save}
                 disabled={!category || !amount}
-                className="rounded-xl bg-accent px-4 text-[13px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:opacity-40"
+                className="min-h-[48px] rounded-[14px] bg-accent px-4 text-[13px] font-semibold text-accent-fg transition-transform active:scale-95 disabled:opacity-40"
               >
                 Simpan
               </button>

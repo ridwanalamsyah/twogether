@@ -510,7 +510,7 @@ export const useAuth = create<AuthState>()(
             });
             if (signinErr) {
               throw new Error(
-                "Akun dibuat! Kami kirim email konfirmasi — klik link di email, lalu login di sini.",
+                "Akun dibuat! Kami kirim email konfirmasi, klik link di email lalu login di sini.",
               );
             }
           }
@@ -555,7 +555,7 @@ export const useAuth = create<AuthState>()(
         const db = getDB();
         const existing = await db.users.where("email").equals(email).first();
         if (existing && !existing.deletedAt) {
-          throw new Error("Email sudah terdaftar — coba login");
+          throw new Error("Email sudah terdaftar, coba login.");
         }
         const salt = generateSalt();
         const hash = await hashPassword(password, salt);
@@ -574,7 +574,6 @@ export const useAuth = create<AuthState>()(
         } as UserRecord & { passwordHash: string };
         await db.users.put(user);
         await unlockKey(password, salt);
-        set({ userId: id, email, name, ready: true });
         useWorkspace.getState().setWorkspace({
           workspaceId: `ws_${id}`,
           workspaceName: `Workspace ${name}`,
@@ -587,6 +586,7 @@ export const useAuth = create<AuthState>()(
             console.warn("[auth] seed failed:", err);
           }
         }
+        set({ userId: id, email, name, ready: true });
       },
 
       signIn: async (email, password) => {
@@ -819,9 +819,9 @@ async function signInLocal(
   const user = (await db.users.where("email").equals(email).first()) as
     | (UserRecord & { passwordHash?: string })
     | undefined;
-  if (!user || user.deletedAt) throw new Error("Akun tidak ditemukan — coba daftar dulu");
+  if (!user || user.deletedAt) throw new Error("Akun tidak ditemukan, coba daftar dulu.");
   if (!user.encSalt || !user.passwordHash) {
-    throw new Error("Akun ini login lewat server — cek koneksi internet");
+    throw new Error("Akun ini login lewat server, cek koneksi internet.");
   }
   const hash = await hashPassword(password, user.encSalt);
   if (hash !== user.passwordHash) throw new Error("Password salah");
@@ -839,16 +839,16 @@ function translateAuthError(msg: string): string {
   if (m.startsWith("timeout") || m.includes("failed to fetch") || m.includes("network"))
     return "Tidak bisa terhubung ke server. Cek internet kamu lalu coba lagi.";
   if (m.includes("email not confirmed"))
-    return "Email belum dikonfirmasi — buka link di inbox kamu dulu.";
+    return "Email belum dikonfirmasi, buka link di inbox kamu dulu.";
   if (m.includes("should be different") || m.includes("same password"))
     return "Password baru harus beda dari yang lama";
   if (m.includes("weak") || (m.includes("password") && m.includes("characters")))
-    return "Password terlalu lemah — pakai minimal 6 karakter";
+    return "Password terlalu lemah, pakai minimal 6 karakter.";
   if (m.includes("rate limit") || m.includes("too many"))
     return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
   if (m.includes("invalid login")) return "Email atau password salah";
   if (m.includes("already registered") || m.includes("user already"))
-    return "Email sudah terdaftar — coba login";
+    return "Email sudah terdaftar, coba login.";
   if (m.includes("password") && m.includes("6"))
     return "Password minimal 6 karakter";
   if (m.includes("email") && m.includes("invalid"))

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence } from "framer-motion";
 import { Receipt } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useState } from "react";
@@ -100,7 +101,7 @@ export default function TagihanPage() {
       <AppHeader
         title="Tagihan"
         actions={
-          <button onClick={() => setEditing("new")} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
+          <button type="button" onClick={() => setEditing("new")} className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[13px] font-bold text-accent-fg">
             + Tagihan
           </button>
         }
@@ -110,23 +111,23 @@ export default function TagihanPage() {
           <div className="surface p-3.5">
             <div className="text-[12px] font-semibold text-text-3">Belum dibayar</div>
             <div className="mt-0.5 text-[18px] font-extrabold tabular-nums text-text-1">{formatRupiahShort(unpaidSum)}</div>
-            <div className={`text-[11px] ${late ? "font-semibold text-[color:var(--negative)]" : "text-text-4"}`}>
+            <div className={`text-[12px] ${late ? "font-semibold text-[color:var(--negative)]" : "text-text-4"}`}>
               {late ? `${late} telat` : `${unpaid.length} tagihan`}
             </div>
           </div>
           <div className="surface p-3.5">
             <div className="text-[12px] font-semibold text-text-3">Per bulan</div>
             <div className="mt-0.5 text-[18px] font-extrabold tabular-nums text-text-1">{formatRupiahShort(perMonth)}</div>
-            <div className="text-[11px] text-text-4">{active.length} rutin</div>
+            <div className="text-[12px] text-text-4">{active.length} rutin</div>
           </div>
         </div>
 
         {states.length === 0 ? (
           <div className="surface p-6 text-center">
-            <IconTile spec={{ Icon: Receipt, tint: "#ef4444" }} size={64} radius={22} className="mx-auto" />
+            <IconTile spec={{ Icon: Receipt, tint: "var(--tint-red)" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">Tagihan rutin di satu tempat</div>
             <p className="mt-1 text-[13px] text-text-3">
-              Listrik, kos, cicilan, langganan. Tinggal ketuk &ldquo;Bayar&rdquo; — langsung tercatat sebagai pengeluaran.
+              Listrik, kos, cicilan, langganan. Tinggal ketuk &ldquo;Bayar&rdquo;, langsung tercatat sebagai pengeluaran.
             </p>
             <button type="button" onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tambah tagihan</button>
           </div>
@@ -139,7 +140,7 @@ export default function TagihanPage() {
                 <li key={s.bill.id} className="border-b border-border last:border-0">
                   <SwipeRow onDelete={() => userId && deleteItem(userId, s.bill.id)}>
                     <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
-                      <button type="button" onClick={() => setEditing(s.bill)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      <button type="button" onClick={() => setEditing(s.bill)} className="flex min-h-[44px] min-w-0 flex-1 items-center gap-3 text-left">
                         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-bg-elev1 text-[22px]">{s.p.emoji}</span>
                         <span className="min-w-0">
                           <span className={`block truncate text-[15px] font-semibold ${done ? "text-text-3" : "text-text-1"}`}>{s.bill.title}</span>
@@ -156,9 +157,9 @@ export default function TagihanPage() {
                       <div className="flex shrink-0 flex-col items-end gap-1">
                         <span className="text-[13px] font-semibold tabular-nums text-text-1">{formatRupiahShort(s.bill.amount ?? 0)}</span>
                         {s.finished ? null : s.paid ? (
-                          <button type="button" onClick={() => undo(s)} className="text-[11px] font-semibold text-text-4">Batalkan</button>
+                          <button type="button" onClick={() => undo(s)} className="min-h-[44px] px-2 text-[12px] font-semibold text-text-4">Batalkan</button>
                         ) : (
-                          <button type="button" onClick={() => pay(s)} disabled={busy} className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-accent-fg active:scale-95 disabled:opacity-50">
+                          <button type="button" onClick={() => pay(s)} disabled={busy} className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[12px] font-bold text-accent-fg active:scale-95 disabled:opacity-50">
                             Bayar
                           </button>
                         )}
@@ -177,9 +178,11 @@ export default function TagihanPage() {
         )}
       </div>
 
-      {editing && userId && (
-        <BillSheet userId={userId} me={me} bill={editing === "new" ? null : editing} onClose={() => setEditing(null)} />
-      )}
+      <AnimatePresence>
+        {editing && userId && (
+          <BillSheet key={editing === "new" ? "bill-new" : editing.id} userId={userId} me={me} bill={editing === "new" ? null : editing} onClose={() => setEditing(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -220,11 +223,12 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
               <button
                 key={x.title}
                 type="button"
+                aria-pressed={title === x.title}
                 onClick={() => {
                   setTitle(x.title);
                   setP({ ...p, emoji: x.emoji, type: x.type, category: x.category });
                 }}
-                className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${title === x.title ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
+                className={`min-h-[44px] rounded-full px-3 py-2 text-[12px] font-semibold ${title === x.title ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
               >
                 {x.emoji} {x.title}
               </button>
@@ -254,7 +258,7 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
             inputMode="numeric"
             value={p.day || ""}
             onChange={(e) => set({ day: Math.min(31, Number(e.target.value.replace(/\D/g, "")) || 0) })}
-            placeholder="1–31"
+            placeholder="1-31"
           />
         </Field>
         {p.type === "cicilan" && (
@@ -272,7 +276,7 @@ function BillSheet({ userId, me, bill, onClose }: { userId: string; me: string; 
       <FieldGroup label="Ikon">
         <div className="flex flex-wrap gap-1.5">
           {EMOJIS.map((e) => (
-            <button key={e} onClick={() => set({ emoji: e })} className={`grid h-10 w-10 place-items-center rounded-xl text-[20px] ${p.emoji === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev2"}`}>
+            <button key={e} type="button" aria-label={`Pilih ikon ${e}`} aria-pressed={p.emoji === e} onClick={() => set({ emoji: e })} className={`grid h-11 w-11 place-items-center rounded-xl text-[20px] ${p.emoji === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev2"}`}>
               {e}
             </button>
           ))}

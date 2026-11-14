@@ -18,6 +18,7 @@ import {
   Compass,
   CreditCard,
   Download,
+  Droplet,
   Droplets,
   Flame,
   Flower2,
@@ -45,14 +46,12 @@ import {
   ShoppingBag,
   ShoppingCart,
   Shirt,
-  Sparkles,
   Sprout,
   Sun,
   Target,
   Trophy,
   Utensils,
   Wallet,
-  Zap,
 } from "lucide-react";
 
 /**
@@ -67,78 +66,78 @@ export interface IconSpec {
 }
 
 const CATEGORY: Record<string, IconSpec> = {
-  Makan: { Icon: Utensils, tint: "#f97316" },
-  Jajan: { Icon: Coffee, tint: "#d97706" },
-  Bensin: { Icon: Fuel, tint: "#0ea5e9" },
-  Transport: { Icon: Car, tint: "#0ea5e9" },
-  Laundry: { Icon: Shirt, tint: "#8b5cf6" },
-  Skincare: { Icon: Sparkles, tint: "#ec4899" },
-  Kuliah: { Icon: GraduationCap, tint: "#6366f1" },
-  Usaha: { Icon: Briefcase, tint: "#eab308" },
-  Gaji: { Icon: Banknote, tint: "#22c55e" },
-  Ortu: { Icon: HeartHandshake, tint: "#f43f5e" },
-  Tabungan: { Icon: PiggyBank, tint: "#10b981" },
-  Rumah: { Icon: House, tint: "#14b8a6" },
-  Belanja: { Icon: ShoppingBag, tint: "#a855f7" },
-  Langganan: { Icon: Repeat, tint: "#3b82f6" },
-  Subscription: { Icon: Repeat, tint: "#3b82f6" },
-  Cicilan: { Icon: CreditCard, tint: "#ef4444" },
-  Hadiah: { Icon: Gift, tint: "#f43f5e" },
-  Liburan: { Icon: Plane, tint: "#06b6d4" },
-  Kesehatan: { Icon: Activity, tint: "#ef4444" },
-  Sedekah: { Icon: HandHeart, tint: "#10b981" },
-  Lainnya: { Icon: CircleDashed, tint: "#94a3b8" },
+  Makan: { Icon: Utensils, tint: "var(--tint-orange)" },
+  Jajan: { Icon: Coffee, tint: "var(--tint-ochre)" },
+  Bensin: { Icon: Fuel, tint: "var(--tint-sky)" },
+  Transport: { Icon: Car, tint: "var(--tint-sky)" },
+  Laundry: { Icon: Shirt, tint: "var(--tint-violet)" },
+  Skincare: { Icon: Droplet, tint: "var(--tint-pink)" },
+  Kuliah: { Icon: GraduationCap, tint: "var(--tint-indigo)" },
+  Usaha: { Icon: Briefcase, tint: "var(--tint-yellow)" },
+  Gaji: { Icon: Banknote, tint: "var(--tint-green)" },
+  Ortu: { Icon: HeartHandshake, tint: "var(--tint-rose)" },
+  Tabungan: { Icon: PiggyBank, tint: "var(--tint-emerald)" },
+  Rumah: { Icon: House, tint: "var(--tint-teal)" },
+  Belanja: { Icon: ShoppingBag, tint: "var(--tint-purple)" },
+  Langganan: { Icon: Repeat, tint: "var(--tint-blue)" },
+  Subscription: { Icon: Repeat, tint: "var(--tint-blue)" },
+  Cicilan: { Icon: CreditCard, tint: "var(--tint-red)" },
+  Hadiah: { Icon: Gift, tint: "var(--tint-rose)" },
+  Liburan: { Icon: Plane, tint: "var(--tint-cyan)" },
+  Kesehatan: { Icon: Activity, tint: "var(--tint-red)" },
+  Sedekah: { Icon: HandHeart, tint: "var(--tint-emerald)" },
+  Lainnya: { Icon: CircleDashed, tint: "var(--tint-slate)" },
 };
 
 export function categoryIcon(category: string, kind?: "in" | "out"): IconSpec {
   if (CATEGORY[category]) return CATEGORY[category];
-  if (kind === "in") return { Icon: Banknote, tint: "#22c55e" };
+  if (kind === "in") return { Icon: Banknote, tint: "var(--tint-green)" };
   return CATEGORY.Lainnya;
 }
 
 const SPACE: Record<string, IconSpec> = {
-  "/goals": { Icon: Target, tint: "#22c55e" },
-  "/moments": { Icon: Mail, tint: "#f43f5e" },
-  "/kita": { Icon: Heart, tint: "#ec4899" },
-  "/habits": { Icon: Sprout, tint: "#84cc16" },
-  "/calendar": { Icon: CalendarDays, tint: "#6366f1" },
-  "/catatan": { Icon: NotebookPen, tint: "#64748b" },
-  "/shalat": { Icon: Moon, tint: "#10b981" },
-  "/siklus": { Icon: Flower2, tint: "#f43f5e" },
-  "/patungan": { Icon: HandCoins, tint: "#f59e0b" },
-  "/belanja": { Icon: ShoppingCart, tint: "#22c55e" },
-  "/nikah": { Icon: Gem, tint: "#b76e79" },
-  "/kabar": { Icon: MessageCircleHeart, tint: "#f43f5e" },
-  "/tantangan": { Icon: Flame, tint: "#f97316" },
-  "/target": { Icon: Trophy, tint: "#8b5cf6" },
-  "/fokus": { Icon: Headphones, tint: "#0ea5e9" },
-  "/tagihan": { Icon: Receipt, tint: "#ef4444" },
-  "/aset": { Icon: ChartLine, tint: "#0f766e" },
-  "/dompet": { Icon: Wallet, tint: "#f59e0b" },
-  "/laporan": { Icon: ChartColumn, tint: "#3b82f6" },
-  "/impor": { Icon: Download, tint: "#64748b" },
-  "/hijriah": { Icon: Moon, tint: "#0f7a5c" },
-  "/ramadhan": { Icon: Sun, tint: "#d9b24c" },
-  "/tilawah": { Icon: BookOpen, tint: "#10b981" },
-  "/zakat": { Icon: Calculator, tint: "#a16207" },
-  "/jadwal": { Icon: GraduationCap, tint: "#8b5cf6" },
-  "/skripsi": { Icon: ListChecks, tint: "#a855f7" },
-  "/uang": { Icon: Landmark, tint: "#f59e0b" },
-  "/sehat": { Icon: Droplets, tint: "#0ea5e9" },
-  "/rumah": { Icon: House, tint: "#f97316" },
-  "/list": { Icon: Archive, tint: "#eab308" },
-  "/travel": { Icon: Plane, tint: "#06b6d4" },
-  "/belajar": { Icon: BookOpen, tint: "#d97706" },
-  "/reflection": { Icon: NotebookPen, tint: "#14b8a6" },
-  "/pencapaian": { Icon: Trophy, tint: "#facc15" },
-  "/insights": { Icon: Compass, tint: "#10b981" },
-  "/digest": { Icon: Newspaper, tint: "#64748b" },
-  "/wrapped": { Icon: Clapperboard, tint: "#e11d48" },
-  "/tracker": { Icon: Wallet, tint: "#f59e0b" },
+  "/goals": { Icon: Target, tint: "var(--tint-green)" },
+  "/moments": { Icon: Mail, tint: "var(--tint-rose)" },
+  "/kita": { Icon: Heart, tint: "var(--tint-pink)" },
+  "/habits": { Icon: Sprout, tint: "var(--tint-lime)" },
+  "/calendar": { Icon: CalendarDays, tint: "var(--tint-indigo)" },
+  "/catatan": { Icon: NotebookPen, tint: "var(--tint-stone)" },
+  "/shalat": { Icon: Moon, tint: "var(--tint-emerald)" },
+  "/siklus": { Icon: Flower2, tint: "var(--tint-rose)" },
+  "/patungan": { Icon: HandCoins, tint: "var(--tint-amber)" },
+  "/belanja": { Icon: ShoppingCart, tint: "var(--tint-green)" },
+  "/nikah": { Icon: Gem, tint: "var(--tint-mauve)" },
+  "/kabar": { Icon: MessageCircleHeart, tint: "var(--tint-rose)" },
+  "/tantangan": { Icon: Flame, tint: "var(--tint-orange)" },
+  "/target": { Icon: Trophy, tint: "var(--tint-violet)" },
+  "/fokus": { Icon: Headphones, tint: "var(--tint-sky)" },
+  "/tagihan": { Icon: Receipt, tint: "var(--tint-red)" },
+  "/aset": { Icon: ChartLine, tint: "var(--tint-forest)" },
+  "/dompet": { Icon: Wallet, tint: "var(--tint-amber)" },
+  "/laporan": { Icon: ChartColumn, tint: "var(--tint-blue)" },
+  "/impor": { Icon: Download, tint: "var(--tint-stone)" },
+  "/hijriah": { Icon: Moon, tint: "var(--tint-pine)" },
+  "/ramadhan": { Icon: Sun, tint: "var(--tint-gold)" },
+  "/tilawah": { Icon: BookOpen, tint: "var(--tint-emerald)" },
+  "/zakat": { Icon: Calculator, tint: "var(--tint-bronze)" },
+  "/jadwal": { Icon: GraduationCap, tint: "var(--tint-violet)" },
+  "/skripsi": { Icon: ListChecks, tint: "var(--tint-purple)" },
+  "/uang": { Icon: Landmark, tint: "var(--tint-amber)" },
+  "/sehat": { Icon: Droplets, tint: "var(--tint-sky)" },
+  "/rumah": { Icon: House, tint: "var(--tint-orange)" },
+  "/list": { Icon: Archive, tint: "var(--tint-yellow)" },
+  "/travel": { Icon: Plane, tint: "var(--tint-cyan)" },
+  "/belajar": { Icon: BookOpen, tint: "var(--tint-ochre)" },
+  "/reflection": { Icon: NotebookPen, tint: "var(--tint-teal)" },
+  "/pencapaian": { Icon: Trophy, tint: "var(--tint-sun)" },
+  "/insights": { Icon: Compass, tint: "var(--tint-emerald)" },
+  "/digest": { Icon: Newspaper, tint: "var(--tint-stone)" },
+  "/wrapped": { Icon: Clapperboard, tint: "var(--tint-crimson)" },
+  "/tracker": { Icon: Wallet, tint: "var(--tint-amber)" },
 };
 
 export function spaceIcon(href: string): IconSpec {
-  return SPACE[href] ?? { Icon: Zap, tint: "#94a3b8" };
+  return SPACE[href] ?? { Icon: Compass, tint: "var(--tint-slate)" };
 }
 
 /** Apple-style tinted squircle tile with tactile touch feedback. */
@@ -163,7 +162,7 @@ export function IconTile({
         height: size,
         borderRadius: r,
         backgroundColor: `color-mix(in srgb, ${tint} 13%, var(--bg-card, transparent))`,
-        color: tint,
+        color: `color-mix(in srgb, ${tint} 60%, var(--text-1))`,
         border: `1px solid color-mix(in srgb, ${tint} 22%, transparent)`,
         boxShadow: `0 2px 8px -2px color-mix(in srgb, ${tint} 18%, transparent)`,
       }}
@@ -175,14 +174,14 @@ export function IconTile({
 }
 
 const BUNDLE: Record<string, IconSpec> = {
-  ibadah: { Icon: Moon, tint: "#0f7a5c" },
-  uang: { Icon: Wallet, tint: "#f59e0b" },
-  berdua: { Icon: Heart, tint: "#ec4899" },
-  kuliah: { Icon: GraduationCap, tint: "#8b5cf6" },
-  nikah: { Icon: Gem, tint: "#b76e79" },
-  sehat: { Icon: Droplets, tint: "#0ea5e9" },
+  ibadah: { Icon: Moon, tint: "var(--tint-pine)" },
+  uang: { Icon: Wallet, tint: "var(--tint-amber)" },
+  berdua: { Icon: Heart, tint: "var(--tint-pink)" },
+  kuliah: { Icon: GraduationCap, tint: "var(--tint-violet)" },
+  nikah: { Icon: Gem, tint: "var(--tint-mauve)" },
+  sehat: { Icon: Droplets, tint: "var(--tint-sky)" },
 };
 
 export function bundleIcon(id: string): IconSpec {
-  return BUNDLE[id] ?? { Icon: Zap, tint: "#94a3b8" };
+  return BUNDLE[id] ?? { Icon: Compass, tint: "var(--tint-slate)" };
 }

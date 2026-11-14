@@ -26,7 +26,7 @@ export function PencapaianWidget() {
     <WidgetShell
       title="Pencapaian"
       action={
-        <Link href="/pencapaian" className="text-[11px] text-text-3">
+        <Link href="/pencapaian" className="-my-2 inline-flex min-h-[44px] items-center text-[12px] text-text-3 hover:text-text-1">
           Lihat
         </Link>
       }
@@ -38,11 +38,11 @@ export function PencapaianWidget() {
         <div className="text-[12px] text-text-3">/ {total} badge</div>
       </div>
       {lastBadge ? (
-        <p className="mt-2 truncate text-[11px] text-text-2">
+        <p className="mt-2 truncate text-[12px] text-text-2">
           Terakhir: {lastBadge.title}
         </p>
       ) : (
-        <p className="mt-2 text-[11px] text-text-3">
+        <p className="mt-2 text-[12px] text-text-3">
           Mulai mencatat untuk dapat lencana pertama.
         </p>
       )}

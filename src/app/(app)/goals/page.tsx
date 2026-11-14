@@ -4,6 +4,7 @@ import { TrendCard } from "@/components/charts/TrendCard";
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
@@ -54,6 +55,7 @@ export default function GoalsPage() {
   const [showDeposit, setShowDeposit] = useState<GoalRecord | null>(null);
   const [editing, setEditing] = useState<GoalRecord | null>(null);
   const [panel, setPanel] = useState<"predict" | "sim" | "auto">("predict");
+  const reduce = useReducedMotion();
 
   const focus = useMemo(
     () => (goals ?? []).find((g) => g.id === focusId) ?? (goals ?? [])[0],
@@ -70,8 +72,9 @@ export default function GoalsPage() {
         title="Goals"
         actions={
           <button
+            type="button"
             onClick={() => setShowAdd(true)}
-            className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg"
+            className="min-h-[44px] rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg"
           >
             + Goal
           </button>
@@ -80,20 +83,24 @@ export default function GoalsPage() {
 
       <div className="space-y-3 px-5 pt-4 pb-6">
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-          {(goals ?? []).map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => setFocusId(g.id)}
-              className={`flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-transform duration-150 active:scale-95 ${
-                focus?.id === g.id
-                  ? "bg-text-1 text-bg-app shadow-sm"
-                  : "bg-bg-elev2 text-text-3"
-              }`}
-            >
-              {g.name}
-            </button>
-          ))}
+          {(goals ?? []).map((g) => {
+            const active = focus?.id === g.id;
+            return (
+              <button
+                key={g.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setFocusId(g.id)}
+                className={`min-h-[44px] flex-shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-transform duration-150 active:scale-95 ${
+                  active
+                    ? "bg-text-1 text-bg-app shadow-sm"
+                    : "bg-bg-elev2 text-text-3"
+                }`}
+              >
+                {g.name}
+              </button>
+            );
+          })}
         </div>
 
         {focus && focusPrediction && (
@@ -112,40 +119,58 @@ export default function GoalsPage() {
               }}
             />
             {/* One analysis panel at a time instead of three stacked cards. */}
-            <div className="relative grid grid-cols-3 rounded-[10px] bg-bg-elev2 p-0.5 text-[12px]">
-              <span
-                aria-hidden
-                className="absolute bottom-0.5 left-0.5 top-0.5 w-[calc((100%-4px)/3)] rounded-[8px] bg-bg-app shadow-sm transition-transform duration-300 ease-ios"
-                style={{
-                  transform: `translateX(${["predict", "sim", "auto"].indexOf(panel) * 100}%)`,
-                }}
-              />
+            <div role="tablist" aria-label="Analisis goal" className="relative grid grid-cols-3 rounded-[12px] bg-bg-elev2 p-0.5 text-[12px]">
               {(
                 [
                   ["predict", "Prediksi"],
                   ["sim", "Simulasi"],
                   ["auto", "Otomatis"],
                 ] as const
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setPanel(id)}
-                  className={`relative py-1.5 font-medium transition-colors ${
-                    panel === id ? "text-text-1" : "text-text-3"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+              ).map(([id, label]) => {
+                const selected = panel === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setPanel(id)}
+                    className={`relative z-0 min-h-[44px] py-2 font-medium transition-colors ${
+                      selected ? "text-text-1" : "text-text-3"
+                    }`}
+                  >
+                    {selected && (
+                      <motion.span
+                        layoutId="goals-panel-pill"
+                        aria-hidden="true"
+                        className="absolute inset-0 -z-10 rounded-[10px] bg-bg-app shadow-sm"
+                        transition={
+                          reduce
+                            ? { duration: 0 }
+                            : { type: "spring", stiffness: 500, damping: 36 }
+                        }
+                      />
+                    )}
+                    {label}
+                  </button>
+                );
+              })}
             </div>
-            <div key={panel + focus.id} className="tab-in-right">
-              {panel === "predict" && <PredictionPanel goal={focus} />}
-              {panel === "sim" && (
-                <GoalSimulator goal={focus} deposits={deposits ?? []} />
-              )}
-              {panel === "auto" && <RecurringGoalsPanel goal={focus} />}
-            </div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={panel + focus.id}
+                initial={reduce ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : { opacity: 0 }}
+                transition={{ duration: reduce ? 0.04 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {panel === "predict" && <PredictionPanel goal={focus} />}
+                {panel === "sim" && (
+                  <GoalSimulator goal={focus} deposits={deposits ?? []} />
+                )}
+                {panel === "auto" && <RecurringGoalsPanel goal={focus} />}
+              </motion.div>
+            </AnimatePresence>
           </>
         )}
 
@@ -153,7 +178,7 @@ export default function GoalsPage() {
           <EmptyState
             emoji="🎯"
             title="Belum ada goal"
-            body="Tambahkan target, misalnya laptop baru, dana nikah, atau traveling, dan kami bantu hitung kapan tercapainya."
+            body="Catat target tabunganmu di sini untuk melihat estimasi waktu tercapai."
             cta="Bikin goal pertama"
             onCta={() => setShowAdd(true)}
           />
@@ -163,19 +188,26 @@ export default function GoalsPage() {
         )}
       </div>
 
-      {showAdd && <GoalSheet onClose={() => setShowAdd(false)} />}
-      {editing && (
-        <GoalSheet goal={editing} onClose={() => setEditing(null)} />
-      )}
-      {showDeposit && (
-        <DepositSheet
-          goal={showDeposit}
-          savedSoFar={(deposits ?? [])
-            .filter((d) => d.goalId === showDeposit.id)
-            .reduce((s, d) => s + d.amount, 0)}
-          onClose={() => setShowDeposit(null)}
-        />
-      )}
+      <AnimatePresence>
+        {showAdd && <GoalSheet key="add-goal" onClose={() => setShowAdd(false)} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {editing && (
+          <GoalSheet key={`edit-goal-${editing.id}`} goal={editing} onClose={() => setEditing(null)} />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showDeposit && (
+          <DepositSheet
+            key={`deposit-${showDeposit.id}`}
+            goal={showDeposit}
+            savedSoFar={(deposits ?? [])
+              .filter((d) => d.goalId === showDeposit.id)
+              .reduce((s, d) => s + d.amount, 0)}
+            onClose={() => setShowDeposit(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -195,6 +227,7 @@ function GoalCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const reduce = useReducedMotion();
   const pct = clamp((saved / goal.target) * 100, 0, 100);
   const goalDeposits = useMemo(
     () => deposits.filter((d) => d.goalId === goal.id),
@@ -219,53 +252,56 @@ function GoalCard({
             )}
           </div>
         </div>
-        <div className="flex gap-3 text-[11px]">
-          <button type="button" onClick={onEdit} className="text-text-3 hover:text-text-1">
+        <div className="flex gap-1 text-[12px]">
+          <button type="button" onClick={onEdit} className="min-h-[44px] px-2.5 text-text-3 hover:text-text-1">
             Ubah
           </button>
-          <button type="button" onClick={onDelete} className="text-text-4 hover:text-[color:var(--negative)]">
+          <button type="button" onClick={onDelete} className="min-h-[44px] px-2.5 text-text-4 hover:text-[color:var(--negative)]">
             Hapus
           </button>
         </div>
       </div>
       <div className="mt-3 flex items-center gap-3">
-        <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-bg-elev2">
-          <div
-            className="h-full rounded-full bg-accent transition-[width] duration-300"
-            style={{ width: `${pct}%` }}
+        <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-bg-elev2">
+          <motion.div
+            className="h-full w-full origin-left rounded-full bg-accent"
+            initial={reduce ? false : { scaleX: 0 }}
+            animate={{ scaleX: pct / 100 }}
+            transition={{ duration: reduce ? 0.04 : 0.45, ease: [0.22, 1, 0.36, 1] }}
           />
         </div>
-        <span className="text-[11px] tabular-nums text-text-3">{Math.round(pct)}%</span>
+        <span className="text-[12px] tabular-nums text-text-3">{Math.round(pct)}%</span>
       </div>
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-[10px] font-medium tabular-nums">
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-[12px] font-medium tabular-nums">
           {(goal.milestones ?? [25, 50, 75, 100]).map((m, i, arr) => {
             const reached = pct >= m;
             return (
               <span key={m} className="flex items-center gap-1.5">
-                <span className={reached ? "text-text-1" : "text-text-5"}>
+                <span className={reached ? "text-text-1" : "text-text-4"}>
                   {m}%
                 </span>
-                {i < arr.length - 1 && <span className="text-text-5">·</span>}
+                {i < arr.length - 1 && <span className="text-text-4">·</span>}
               </span>
             );
           })}
         </div>
         <button
+          type="button"
           onClick={onAddDeposit}
-          className="rounded-md bg-text-1 px-2.5 py-1 text-[11px] font-medium text-bg-app"
+          className="min-h-[44px] rounded-[12px] bg-text-1 px-4 py-2 text-[12px] font-medium text-bg-app"
         >
           Setor
         </button>
       </div>
       {byMember.length >= 2 && (
         <div className="mt-3 border-t border-border pt-3">
-          <div className="mb-1.5 text-[10px] font-medium section-label text-text-4">
+          <div className="mb-1.5 text-[12px] font-medium section-label text-text-4">
             Kontribusi
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {byMember.map(([name, amount]) => {
-              const share = (amount / saved) * 100;
+              const share = saved > 0 ? clamp((amount / saved) * 100, 0, 100) : 0;
               return (
                 <div key={name}>
                   <div className="flex items-center justify-between text-xs">
@@ -274,10 +310,12 @@ function GoalCard({
                       {formatRupiah(amount)} · {Math.round(share)}%
                     </span>
                   </div>
-                  <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-bg-elev3">
-                    <div
-                      className="h-full bg-accent"
-                      style={{ width: `${share}%` }}
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-bg-elev3">
+                    <motion.div
+                      className="h-full w-full origin-left bg-accent"
+                      initial={reduce ? false : { scaleX: 0 }}
+                      animate={{ scaleX: share / 100 }}
+                      transition={{ duration: reduce ? 0.04 : 0.4, ease: [0.22, 1, 0.36, 1] }}
                     />
                   </div>
                 </div>
@@ -300,19 +338,20 @@ function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold section-label text-text-3">
+        <div className="text-[12px] font-bold section-label text-text-3">
           Auto-deposit
         </div>
         <button
+          type="button"
           onClick={() => setShowAdd(true)}
-          className="text-xs font-semibold text-accent hover:underline"
+          className="min-h-[44px] px-2 text-xs font-semibold text-accent hover:underline"
         >
           + Tambah
         </button>
       </div>
       {recurring.length === 0 ? (
         <p className="text-xs text-text-3">
-          Belum ada auto-deposit. Cocok kalau mau tabung jumlah sama tiap bulan tanpa lupa.
+          Belum ada jadwal rutin bulanan.
         </p>
       ) : (
         <div className="space-y-1.5">
@@ -325,15 +364,16 @@ function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
                 <div className="font-semibold">
                   {formatRupiah(r.amount)} · {nick(r.who)}
                 </div>
-                <div className="text-[10px] text-text-3">
+                <div className="text-[12px] text-text-3">
                   Tiap tanggal {r.dayOfMonth} · berikutnya {r.nextDue}
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() =>
                   userId && deleteRecurringGoal(userId, r.id)
                 }
-                className="text-[11px] text-[color:var(--negative)] hover:underline"
+                className="min-h-[44px] px-2 text-[12px] text-[color:var(--negative)] hover:underline"
               >
                 Hapus
               </button>
@@ -341,12 +381,15 @@ function RecurringGoalsPanel({ goal }: { goal: GoalRecord }) {
           ))}
         </div>
       )}
-      {showAdd && (
-        <RecurringGoalSheet
-          goalId={goal.id}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showAdd && (
+          <RecurringGoalSheet
+            key="add-recurring-goal"
+            goalId={goal.id}
+            onClose={() => setShowAdd(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -406,7 +449,7 @@ function RecurringGoalSheet({
               ))}
             </select>
           </Field>
-          <Field label="Tanggal (1–28)">
+          <Field label="Tanggal (1-28)">
             <input
               className="input-base tabular-nums"
               inputMode="numeric"
@@ -418,6 +461,7 @@ function RecurringGoalSheet({
           </Field>
         </div>
         <button
+          type="button"
           onClick={submit}
           disabled={!amount}
           className="btn-accent w-full text-sm disabled:opacity-50"
@@ -437,11 +481,11 @@ function PredictionPanel({ goal }: { goal: GoalRecord }) {
   return (
     <div className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold section-label text-text-3">
+        <div className="text-[12px] font-bold section-label text-text-3">
           Prediksi (data historis)
         </div>
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+          className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold uppercase ${
             pred.confidence === "tinggi"
               ? "bg-positive-bg text-[color:var(--positive)]"
               : pred.confidence === "sedang"
@@ -475,7 +519,7 @@ function PredStat({ value, label }: { value: string; label: string }) {
   return (
     <div className="px-1 text-center">
       <div className="num text-[15px] font-semibold text-text-1">{value}</div>
-      <div className="mt-0.5 text-[11px] text-text-3">{label}</div>
+      <div className="mt-0.5 text-[12px] text-text-3">{label}</div>
     </div>
   );
 }
@@ -544,13 +588,15 @@ function GoalSheet({
           <div className="grid grid-cols-4 gap-2">
             {CATEGORY_OPTIONS.map((c) => {
               const Icon = c.Icon;
+              const selected = category === c.id;
               return (
                 <button
                   key={c.id}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => setCategory(c.id)}
-                  className={`flex flex-col items-center rounded-md border p-2 text-xs font-semibold transition-colors ${
-                    category === c.id
+                  className={`flex min-h-[44px] flex-col items-center rounded-[12px] border p-2 text-xs font-semibold transition-colors ${
+                    selected
                       ? "border-text-1 bg-bg-elev1 text-text-1 ring-1 ring-text-1"
                       : "border-border bg-bg-elev1 text-text-2 hover:bg-bg-elev2"
                   }`}
@@ -588,7 +634,7 @@ function GoalSheet({
         </button>
         {(!name.trim() || !(parseFloat(target) > 0)) && (
           <p className="text-center text-[12px] text-text-3">
-            Isi nama goal & target {">"} 0 untuk melanjutkan
+            Isi nama goal & target {">"} 0
           </p>
         )}
       </div>
@@ -686,7 +732,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11px] font-bold section-label text-text-3">
+      <span className="mb-1 block text-[12px] font-bold section-label text-text-3">
         {label}
       </span>
       {children}

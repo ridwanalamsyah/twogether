@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { WifiOff } from "lucide-react";
+import { hasRemoteSync } from "@/lib/supabase";
 import { sync, type SyncSnapshot } from "@/services/sync";
+
+const HAS_REMOTE = hasRemoteSync();
 
 /**
  * Inline status banner rendered inside AppHeader when offline so it never
@@ -15,22 +18,24 @@ export function OfflineBanner() {
 
   useEffect(() => sync.subscribe(setSnap), []);
 
+  if (!HAS_REMOTE) return null;
+
   return (
     <AnimatePresence initial={false}>
       {snap.connection !== "online" && (
         <motion.div
           role="status"
           aria-live="polite"
-          initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0, marginTop: 0 }}
-          animate={reduce ? { opacity: 1 } : { opacity: 1, height: "auto", marginTop: 8 }}
-          exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0, marginTop: 0 }}
-          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="overflow-hidden"
+          initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          transition={{ duration: reduce ? 0.08 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-2"
         >
           <div className="flex items-center gap-2 rounded-xl border border-[color:var(--warning)]/25 bg-warning-bg px-3 py-1.5 text-[12px] text-[color:var(--warning)]">
             <WifiOff size={14} strokeWidth={2.2} className="shrink-0" aria-hidden />
-            <span className="flex-1 font-medium leading-snug">
-              Offline. Catatanmu aman di HP dan otomatis sinkron nanti.
+            <span className="truncate font-medium leading-snug">
+              Offline, catatan tetap tersimpan
             </span>
           </div>
         </motion.div>

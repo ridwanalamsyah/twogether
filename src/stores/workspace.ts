@@ -48,14 +48,14 @@ interface WorkspaceState {
 }
 
 const PALETTE = [
-  "#2563eb",
-  "#7c3aed",
-  "#16a34a",
-  "#ea580c",
-  "#db2777",
-  "#0891b2",
-  "#65a30d",
-  "#dc2626",
+  "var(--tint-cobalt)",
+  "var(--tint-iris)",
+  "var(--tint-forest)",
+  "var(--tint-pine)",
+  "var(--tint-crimson)",
+  "var(--tint-bronze)",
+  "var(--tint-stone)",
+  "var(--tint-cobalt)",
 ];
 
 function pickColor(seed: string): string {
@@ -107,7 +107,7 @@ export const useWorkspace = create<WorkspaceState>()(
       colorFor: (who) => {
         const m = get().members.find((x) => x.name === who);
         if (m?.color) return m.color;
-        if (who === get().sharedLabel) return "#6b6b6e";
+        if (who === get().sharedLabel) return "var(--text-4)";
         return pickColor(who);
       },
 

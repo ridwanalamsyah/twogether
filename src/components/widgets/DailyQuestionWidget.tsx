@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Flame, Lock, MessageCircleQuestion } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useAuth } from "@/stores/auth";
 import { upsertEntry, useEntries } from "@/stores/data";
 import { usePeople } from "@/lib/people";
@@ -29,6 +29,9 @@ export function DailyQuestionWidget() {
   const q = questionFor(today);
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const reduce = useReducedMotion();
 
   const answerOf = (who: string | null, day = today) => {
     if (!who) return null;
@@ -68,76 +71,142 @@ export function DailyQuestionWidget() {
     hapticSuccess();
     setDraft("");
     setEditing(false);
+    setComposerOpen(false);
   }
 
-  const writing = !mine || editing;
+  function openComposer() {
+    hapticTap();
+    setComposerOpen(true);
+    window.setTimeout(() => inputRef.current?.focus(), 60);
+  }
+
+  const showForm = editing || (!mine && composerOpen);
 
   return (
     <div className="surface p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-[12px] font-semibold text-text-3">
-          <MessageCircleQuestion size={15} />
+          <MessageCircleQuestion size={15} aria-hidden />
           Pertanyaan hari ini
         </div>
         {streak > 1 && (
           <div className="flex items-center gap-1 text-[12px] font-semibold text-text-2">
-            <Flame size={14} className="text-accent" />
-            {streak} hari berturut-turut
+            <Flame size={14} className="text-accent" aria-hidden />
+            {streak} hari beruntun
           </div>
         )}
       </div>
       <p className="mt-2 text-[17px] font-bold leading-snug text-text-1">{q.text}</p>
 
-      {writing ? (
-        <div className="mt-3">
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Jawabanmu…"
-            rows={2}
-            maxLength={500}
-            className="input-base w-full resize-none text-[14px]"
-          />
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="text-[12px] text-text-4">
-              {theirs ? `${partnerName} sudah menjawab. Jawab dulu untuk melihat.` : "Jawaban pasangan terlihat setelah kamu menjawab."}
+      <AnimatePresence mode="wait" initial={false}>
+        {showForm ? (
+          <motion.div
+            key="composer"
+            initial={reduce ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, y: -4 }}
+            transition={{ duration: reduce ? 0.04 : 0.18 }}
+            className="mt-3"
+          >
+            <label htmlFor="daily-q-input" className="sr-only">
+              Jawaban pertanyaan hari ini
+            </label>
+            <textarea
+              id="daily-q-input"
+              ref={inputRef}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Tulis jawabanmu…"
+              rows={2}
+              maxLength={500}
+              className="input-base w-full resize-none text-[14px]"
+            />
+            <div className="mt-2.5 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false);
+                  setComposerOpen(false);
+                }}
+                className="min-h-[44px] rounded-[14px] px-3 text-[13px] font-medium text-text-3 active:opacity-60"
+              >
+                Tutup
+              </button>
+              <button
+                type="button"
+                onClick={save}
+                disabled={!draft.trim()}
+                className="btn-accent min-h-[44px] shrink-0 px-5 py-2 text-[13px] disabled:opacity-40"
+              >
+                Kirim
+              </button>
+            </div>
+          </motion.div>
+        ) : !mine ? (
+          <motion.div
+            key="prompt"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? undefined : { opacity: 0 }}
+            transition={{ duration: reduce ? 0.04 : 0.15 }}
+            className="mt-3 flex items-center justify-between gap-3"
+          >
+            <span className="truncate text-[12px] text-text-3">
+              {theirs
+                ? `${partnerName} sudah jawab`
+                : partner
+                  ? "Terlihat setelah kalian menjawab"
+                  : "Catat jawabanmu hari ini"}
             </span>
             <button
-              onClick={save}
-              disabled={!draft.trim()}
-              className="shrink-0 rounded-full bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg active:scale-95 disabled:opacity-40"
+              type="button"
+              onClick={openComposer}
+              className="btn-accent min-h-[44px] shrink-0 px-5 py-2 text-[13px]"
             >
-              Kirim
+              Jawab
             </button>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-3 space-y-2">
-          <Answer who="Kamu" text={mine!.text} onEdit={() => (setDraft(mine!.text), setEditing(true))} />
-          <AnimatePresence mode="wait">
-            {theirs ? (
-              <motion.div
-                key="theirs"
-                initial={{ opacity: 0, filter: "blur(8px)", y: 6 }}
-                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Answer who={partnerName} text={theirs.text} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="waiting"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center gap-2 rounded-xl bg-bg-elev1 px-3 py-2.5 text-[13px] text-text-3"
-              >
-                <Lock size={14} />
-                {partner ? `Menunggu jawaban ${partnerName}` : "Ajak pasanganmu supaya bisa saling jawab"}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="answers"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-3 space-y-2"
+          >
+            <Answer
+              who="Kamu"
+              text={mine.text}
+              onEdit={() => {
+                setDraft(mine.text);
+                setEditing(true);
+                window.setTimeout(() => inputRef.current?.focus(), 60);
+              }}
+            />
+            <AnimatePresence mode="wait">
+              {theirs ? (
+                <motion.div
+                  key="theirs"
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, filter: "blur(8px)", y: 6 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                  transition={reduce ? { duration: 0.08 } : { duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Answer who={partnerName} text={theirs.text} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="waiting"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2 rounded-xl bg-bg-elev1 px-3 py-2.5 text-[13px] text-text-3"
+                >
+                  <Lock size={14} aria-hidden />
+                  {partner ? `Menunggu jawaban ${partnerName}` : "Ajak pasangan untuk saling jawab"}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -145,10 +214,14 @@ export function DailyQuestionWidget() {
 function Answer({ who, text, onEdit }: { who: string; text: string; onEdit?: () => void }) {
   return (
     <div className="rounded-xl bg-bg-elev1 px-3 py-2.5">
-      <div className="flex items-center justify-between text-[11px] font-semibold text-text-4">
-        {who}
+      <div className="flex items-center justify-between text-[12px] font-semibold text-text-3">
+        <span>{who}</span>
         {onEdit && (
-          <button onClick={onEdit} className="font-medium text-text-3 active:opacity-60">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="min-h-[44px] -my-2 px-2 font-medium text-text-3 active:opacity-60"
+          >
             Ubah
           </button>
         )}

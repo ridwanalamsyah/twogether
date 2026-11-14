@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Flame } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
-import { AccentBtn, Empty, ListBox, Section } from "@/components/tracker/Section";
+import { Empty } from "@/components/tracker/Section";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
 import { useEntries, useItems, upsertItem } from "@/stores/data";
@@ -22,6 +24,7 @@ type Tab = "streak" | "badge" | "feed";
 
 export default function PencapaianPage() {
   const [tab, setTab] = useState<Tab>("streak");
+  const reduce = useReducedMotion();
   return (
     <div className="animate-in pb-12">
       <AppHeader
@@ -29,27 +32,43 @@ export default function PencapaianPage() {
         subtitle="Lencana & hari beruntun"
       />
       <div className="px-5">
-        {/* Tabs (underline style) */}
-        <div className="mb-2 flex gap-6 border-b border-border text-[13px]">
+        {/* Tabs (underline style with layoutId glide) */}
+        <div role="tablist" aria-label="Kategori pencapaian" className="mb-2 flex gap-6 border-b border-border text-[13px]">
           {(
             [
               ["streak", "Beruntun"],
               ["badge", "Lencana"],
               ["feed", "Aktivitas"],
             ] as const
-          ).map(([k, label]) => (
-            <button
-              key={k}
-              onClick={() => setTab(k)}
-              className={`-mb-px border-b-2 py-3 ${
-                tab === k
-                  ? "border-text-1 text-text-1"
-                  : "border-transparent text-text-3"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          ).map(([k, label]) => {
+            const active = tab === k;
+            return (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(k)}
+                className={`relative min-h-[44px] py-3 font-medium transition-colors ${
+                  active ? "text-text-1" : "text-text-3"
+                }`}
+              >
+                {label}
+                {active && (
+                  <motion.span
+                    layoutId="pencapaian-tab-line"
+                    aria-hidden="true"
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-text-1"
+                    transition={
+                      reduce
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 520, damping: 38 }
+                    }
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {tab === "streak" && <StreakTab />}
@@ -191,7 +210,7 @@ function StreakTab() {
         >
           <div>
             <div className="text-[14px]">{r.label}</div>
-            <div className="text-[11px] text-text-3">
+            <div className="text-[12px] text-text-3">
               Total {r.total}× · best streak {r.best} hari
             </div>
           </div>
@@ -199,7 +218,7 @@ function StreakTab() {
             <div className="text-[24px] font-light tabular-nums">
               {r.current}
             </div>
-            <div className="text-[10px] text-text-3">hari beruntun</div>
+            <div className="text-[12px] text-text-3">hari beruntun</div>
           </div>
         </div>
       ))}
@@ -264,7 +283,7 @@ function BadgeTab() {
         const list = BADGES.filter((b) => b.category === cat);
         return (
           <div key={cat}>
-            <div className="mb-2 text-[10px] section-label text-text-3">
+            <div className="mb-2 text-[12px] section-label text-text-3">
               {cat}
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -290,6 +309,8 @@ function BadgeCard({
   progress: number;
   got: boolean;
 }) {
+  const reduce = useReducedMotion();
+  const pct = Math.min(100, Math.round(progress * 100));
   return (
     <div
       className={`rounded-md border p-3 ${
@@ -301,17 +322,19 @@ function BadgeCard({
       >
         {b.title}
       </div>
-      <div className="mt-1 text-[10px] leading-tight text-text-3">
+      <div className="mt-1 text-[12px] leading-tight text-text-3">
         {b.description}
       </div>
-      <div className="mt-2 h-[3px] w-full bg-border">
-        <div
-          className="h-full bg-text-1 transition-[width] duration-300"
-          style={{ width: `${Math.min(100, Math.round(progress * 100))}%` }}
+      <div className="mt-2 h-[3px] w-full overflow-hidden rounded-full bg-border">
+        <motion.div
+          className="h-full w-full origin-left bg-text-1"
+          initial={reduce ? false : { scaleX: 0 }}
+          animate={{ scaleX: pct / 100 }}
+          transition={{ duration: reduce ? 0.04 : 0.4, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <div className="mt-1 text-[10px] text-text-3">
-        {got ? "Tercapai" : `${Math.round(progress * 100)}%`}
+      <div className="mt-1 text-[12px] text-text-3">
+        {got ? "Tercapai" : `${pct}%`}
       </div>
     </div>
   );
@@ -361,7 +384,7 @@ function FeedTab() {
   if (sorted.length === 0) {
     return (
       <Empty>
-        Aktivitas akan muncul saat kamu/partner selesai pomodoro, unlock badge, capai goal, dll.
+        Aktivitas akan muncul saat kamu atau pasangan selesai fokus atau capai target.
       </Empty>
     );
   }
@@ -370,7 +393,7 @@ function FeedTab() {
     if (!userId || !me) return;
     await upsertItem(userId, {
       kind: "kudos-given",
-      title: "🔥",
+      title: "Mantap",
       date: todayISO(),
       who: me.name,
       payload: JSON.stringify({ feedId, at: Date.now() }),
@@ -381,7 +404,7 @@ function FeedTab() {
       Notification.permission === "granted"
     ) {
       try {
-        new Notification("Mantap! 🔥", {
+        new Notification("Mantap!", {
           body: `${me.name} kasih semangat`,
         });
       } catch {}
@@ -391,10 +414,6 @@ function FeedTab() {
   return (
     <div className="mt-3 space-y-2">
       {sorted.slice(0, 50).map((f) => {
-        let p: { type?: string; badgeTitle?: string } = {};
-        try {
-          p = JSON.parse(f.payload ?? "{}") as typeof p;
-        } catch {}
         const count = kudosCountFor.get(f.id) ?? 0;
         const given = myGiven.has(f.id);
         const author = f.who ?? me?.name ?? "Kamu";
@@ -409,21 +428,24 @@ function FeedTab() {
                 <span className="text-text-3">·</span>{" "}
                 <span className="text-text-2">{f.title}</span>
               </div>
-              <div className="mt-1 text-[10px] text-text-3">
+              <div className="mt-1 text-[12px] text-text-3">
                 {f.date ?? ""}
                 {count > 0 && <> · {count} mantap</>}
               </div>
             </div>
             <button
+              type="button"
               onClick={() => sendKudos(f.id)}
               disabled={given}
-              className={`shrink-0 rounded-md border px-3 py-1 text-[12px] ${
+              aria-pressed={given}
+              className={`inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-[12px] border px-3.5 py-2 text-[12px] font-medium ${
                 given
                   ? "border-border text-text-3"
                   : "border-text-1 text-text-1 active:opacity-50"
               }`}
             >
-              {given ? "Mantap! 🔥" : "Mantap! 🔥"}
+              <Flame size={14} aria-hidden="true" />
+              <span>{given ? "Terkirim" : "Mantap"}</span>
             </button>
           </div>
         );

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { RefreshCw, Sparkles } from "lucide-react";
+import { ArrowUpCircle, RefreshCw } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 
 let reloadRequested = false;
@@ -83,7 +83,7 @@ export function PWAUpdateBanner() {
           transition={{ type: "spring", stiffness: 420, damping: 32 }}
           className="fixed bottom-[calc(var(--nav-h)+12px)] left-3 right-3 z-40 mx-auto flex max-w-[456px] items-center gap-2.5 rounded-2xl border border-border bg-bg-card px-3 py-2.5 shadow-float"
         >
-          <IconTile spec={{ Icon: Sparkles, tint: "var(--accent)" }} size={34} radius={10} />
+          <IconTile spec={{ Icon: ArrowUpCircle, tint: "var(--accent)" }} size={34} radius={10} />
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-semibold text-text-1">
               Versi baru tersedia
@@ -95,9 +95,9 @@ export function PWAUpdateBanner() {
           <button
             type="button"
             onClick={reload}
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] font-semibold text-accent-fg transition-transform active:scale-95"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-accent-fg transition-transform active:scale-95"
           >
-            <RefreshCw size={13} strokeWidth={2.2} />
+            <RefreshCw size={13} strokeWidth={2.2} aria-hidden="true" />
             Reload
           </button>
         </motion.div>

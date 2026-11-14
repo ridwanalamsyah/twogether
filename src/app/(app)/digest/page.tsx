@@ -114,8 +114,8 @@ export default function DigestPage() {
       .slice(0, 3);
   }, [goals, deposits, members]);
 
-  const moodEmoji = ["😞", "😕", "😐", "🙂", "🤩"];
-  const dateRangeText = `${range.lastWeekStart.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} – ${range.lastWeekEnd.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}`;
+  const moodLabel = ["Berat", "Kurang", "Netral", "Baik", "Luar biasa"];
+  const dateRangeText = `${range.lastWeekStart.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} - ${range.lastWeekEnd.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}`;
 
   return (
     <div className="animate-in">
@@ -136,17 +136,17 @@ export default function DigestPage() {
               tone={stats.net >= 0 ? "positive" : "negative"}
             />
           </div>
-          <div className="mt-2 text-[11px] text-text-4">
+          <div className="mt-2 text-[12px] text-text-3">
             {stats.txCount} transaksi · mood{" "}
             {stats.reflectionCount > 0
-              ? `${moodEmoji[Math.round(stats.avgMood) - 1] ?? "·"} ${stats.avgMood.toFixed(1)}/5`
+              ? `${moodLabel[Math.round(stats.avgMood) - 1] ?? "Netral"} (${stats.avgMood.toFixed(1)}/5)`
               : "belum ada"}
           </div>
         </section>
 
         {stats.topCat.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Top pengeluaran
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -158,7 +158,7 @@ export default function DigestPage() {
                   <li key={cat} className="flex justify-between py-2 text-[13px]">
                     <span className="text-text-1">
                       {cat}{" "}
-                      <span className="text-[11px] text-text-4">{share}%</span>
+                      <span className="text-[12px] text-text-3">{share}%</span>
                     </span>
                     <span className="tabular-nums text-text-2">
                       {formatRupiahShort(amt)}
@@ -172,7 +172,7 @@ export default function DigestPage() {
 
         {members.length >= 2 && stats.byMember.size > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Per anggota
             </div>
             <ul className="divide-y divide-border border-y border-border">
@@ -190,14 +190,14 @@ export default function DigestPage() {
 
         {targets.length > 0 && (
           <section className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               Target minggu ini
             </div>
             <ul className="divide-y divide-border border-y border-border">
               {targets.map(({ goal, remaining, weeksLeft, perPersonPerWeek }) => (
                 <li key={goal.id} className="py-2.5">
                   <div className="text-[13px] font-medium text-text-1">{goal.name}</div>
-                  <div className="mt-0.5 text-[11px] text-text-4">
+                  <div className="mt-0.5 text-[12px] text-text-3">
                     Sisa {formatRupiahShort(remaining)} · {weeksLeft} minggu
                   </div>
                   <div className="mt-0.5 text-[12px] text-text-2">
@@ -209,7 +209,7 @@ export default function DigestPage() {
           </section>
         )}
 
-        <p className="mt-6 text-[11px] text-text-4">
+        <p className="mt-6 text-[12px] text-text-3">
           Tip: buka digest tiap Senin pagi sebagai check-in mingguan.
         </p>
       </div>
@@ -234,7 +234,7 @@ function Stat({
         : "text-text-1";
   return (
     <div>
-      <div className="text-[11px] text-text-4">{label}</div>
+      <div className="text-[12px] text-text-3">{label}</div>
       <div
         className={`mt-1 text-[18px] font-semibold tabular-nums tracking-tight ${color}`}
       >

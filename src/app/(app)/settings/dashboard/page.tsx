@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/stores/auth";
 import { useDashboard, type WidgetSize } from "@/stores/dashboard";
 import { WIDGET_REGISTRY } from "@/components/widgets/registry";
+import { IconTile } from "@/lib/icons";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   DndContext,
@@ -90,37 +91,44 @@ export default function CustomizeDashboardPage() {
                 const meta = WIDGET_REGISTRY[w.kind];
                 return (
                   <SortableRow key={w.id} id={w.id}>
-                    <div className="flex items-center gap-3">
-                      <DragHandle />
-                      <span className="text-2xl">{meta.emoji}</span>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold text-text-1">
-                          {meta.label}
-                        </div>
-                        <div className="truncate text-[11px] text-text-3">
-                          {meta.description}
+                    <div className="flex flex-wrap items-center gap-2.5 sm:flex-nowrap sm:gap-3">
+                      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                        <DragHandle />
+                        <IconTile spec={meta.icon} size={38} radius={11} />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold text-text-1">
+                            {meta.label}
+                          </div>
+                          <div className="truncate text-[12px] text-text-3">
+                            {meta.description}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-1">
-                        {(["sm", "md", "lg"] as WidgetSize[]).map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => resize(w.id, s)}
-                            className={`h-7 w-7 rounded-md text-[11px] font-bold transition-colors ${
-                              w.size === s
-                                ? "bg-accent text-accent-fg"
-                                : "bg-bg-elev2 text-text-3"
-                            }`}
-                          >
-                            {SIZE_LABELS[s]}
-                          </button>
-                        ))}
+                      <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                        <div className="flex gap-1">
+                          {(["sm", "md", "lg"] as WidgetSize[]).map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              aria-label={`Ukuran ${SIZE_LABELS[s]} untuk ${meta.label}`}
+                              aria-pressed={w.size === s}
+                              onClick={() => resize(w.id, s)}
+                              className={`h-11 w-11 rounded-[12px] text-[12px] font-bold transition-colors ${
+                                w.size === s
+                                  ? "bg-text-1 text-bg-app"
+                                  : "bg-bg-elev2 text-text-3"
+                              }`}
+                            >
+                              {SIZE_LABELS[s]}
+                            </button>
+                          ))}
+                        </div>
+                        <Toggle
+                          on={w.enabled}
+                          onClick={() => toggle(w.id)}
+                          label={meta.label}
+                        />
                       </div>
-                      <Toggle
-                        on={w.enabled}
-                        onClick={() => toggle(w.id)}
-                        label={meta.label}
-                      />
                     </div>
                   </SortableRow>
                 );
@@ -130,8 +138,9 @@ export default function CustomizeDashboardPage() {
         </DndContext>
 
         <button
+          type="button"
           onClick={reset}
-          className="btn-ghost mt-5 w-full text-sm"
+          className="btn-ghost mt-5 min-h-[44px] w-full text-sm"
         >
           Kembalikan susunan awal
         </button>
@@ -154,7 +163,7 @@ function SortableRow({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`surface px-3.5 py-3 ${isDragging ? "is-dragging" : ""}`}
+      className={`surface px-3.5 py-2.5 ${isDragging ? "is-dragging" : ""}`}
       {...attributes}
       {...listeners}
     >
@@ -169,6 +178,7 @@ function DragHandle() {
       viewBox="0 0 16 16"
       className="h-4 w-4 flex-shrink-0 text-text-4"
       fill="currentColor"
+      aria-hidden
     >
       <circle cx="5" cy="4" r="1.3" />
       <circle cx="11" cy="4" r="1.3" />
@@ -183,19 +193,24 @@ function DragHandle() {
 function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       aria-label={label}
       role="switch"
       aria-checked={on}
-      className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
-        on ? "bg-accent" : "bg-bg-elev3"
-      }`}
+      className="inline-flex h-11 w-12 flex-shrink-0 items-center justify-center rounded-full"
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          on ? "translate-x-5" : "translate-x-0.5"
+        className={`relative h-6 w-11 rounded-full transition-colors ${
+          on ? "bg-accent" : "bg-bg-elev3"
         }`}
-      />
+      >
+        <span
+          className={`absolute left-0 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            on ? "translate-x-5" : "translate-x-0.5"
+          }`}
+        />
+      </span>
     </button>
   );
 }

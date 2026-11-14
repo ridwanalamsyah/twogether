@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { NotebookPen } from "lucide-react";
+import { NotebookPen, UserRound } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
@@ -34,6 +35,7 @@ export default function SkripsiPage() {
   const [editBimbingan, setEditBimbingan] =
     useState<SkripsiBimbinganRecord | null>(null);
   const [showAddBimbingan, setShowAddBimbingan] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     if (!userId) return;
@@ -59,38 +61,55 @@ export default function SkripsiPage() {
           <span className="tabular-nums text-[28px] font-semibold tracking-tight text-text-1">
             {overall}%
           </span>
-          <span className="text-[11px] text-text-3">
+          <span className="text-[12px] text-text-3">
             {(chapters ?? []).length} BAB · {(bimbingan ?? []).length} bimbingan
           </span>
         </div>
-        <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
-          <div
-            className="h-full rounded-full bg-accent transition-[width] duration-300"
-            style={{ width: `${overall}%` }}
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-elev2">
+          <motion.div
+            className="h-full w-full origin-left rounded-full bg-accent"
+            initial={reduce ? false : { scaleX: 0 }}
+            animate={{ scaleX: overall / 100 }}
+            transition={{ duration: reduce ? 0.04 : 0.45, ease: [0.22, 1, 0.36, 1] }}
           />
         </div>
 
-        <div className="mt-5 flex gap-5 border-b border-border text-xs">
+        <div role="tablist" aria-label="Bagian skripsi" className="mt-5 flex gap-5 border-b border-border text-xs">
           {(
             [
               { id: "bab", label: "BAB" },
               { id: "bimbingan", label: "Bimbingan" },
               { id: "meta", label: "Info" },
             ] as { id: Tab; label: string }[]
-          ).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`-mb-px border-b pb-2 font-medium transition-colors ${
-                tab === t.id
-                  ? "border-text-1 text-text-1"
-                  : "border-transparent text-text-4"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+          ).map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(t.id)}
+                className={`relative min-h-[44px] py-2 font-medium transition-colors ${
+                  active ? "text-text-1" : "text-text-4"
+                }`}
+              >
+                {t.label}
+                {active && (
+                  <motion.span
+                    layoutId="skripsi-tab-line"
+                    aria-hidden="true"
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-text-1"
+                    transition={
+                      reduce
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 520, damping: 38 }
+                    }
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
         <div className="mt-3 space-y-3">
 
@@ -102,11 +121,11 @@ export default function SkripsiPage() {
                 key={c.id}
                 type="button"
                 onClick={() => setEditChapter(c)}
-                className="surface block w-full p-3 text-left theme-transition active:scale-[0.99]"
+                className="surface block min-h-[44px] w-full p-3 text-left theme-transition active:scale-[0.99]"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="text-[11px] font-bold section-label text-text-3">
+                    <div className="text-[12px] font-bold section-label text-text-3">
                       BAB {c.number}
                     </div>
                     <div className="truncate font-semibold text-text-1">
@@ -123,16 +142,18 @@ export default function SkripsiPage() {
                   </div>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-elev3">
-                  <div
-                    className="h-full rounded-full bg-accent transition-[width] duration-300"
-                    style={{ width: `${c.progress}%` }}
+                  <motion.div
+                    className="h-full w-full origin-left rounded-full bg-accent"
+                    initial={reduce ? false : { scaleX: 0 }}
+                    animate={{ scaleX: c.progress / 100 }}
+                    transition={{ duration: reduce ? 0.04 : 0.4, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </div>
-                <div className="mt-1.5 flex items-center justify-between text-[11px]">
+                <div className="mt-1.5 flex items-center justify-between text-[12px]">
                   <span className="text-text-2">{c.status}</span>
                   {c.note && (
                     <span className="inline-flex min-w-0 items-center gap-1 truncate text-text-3">
-                      <NotebookPen size={11} className="shrink-0" aria-hidden />
+                      <NotebookPen size={12} className="shrink-0" aria-hidden="true" />
                       {c.note}
                     </span>
                   )}
@@ -145,6 +166,7 @@ export default function SkripsiPage() {
         {tab === "bimbingan" && (
           <div className="space-y-2">
             <button
+              type="button"
               onClick={() => setShowAddBimbingan(true)}
               className="btn-soft w-full text-sm"
             >
@@ -154,24 +176,26 @@ export default function SkripsiPage() {
               <EmptyState
                 emoji="📝"
                 title="Belum ada bimbingan tercatat"
-                body="Catat jadwal & arahan dosen di sini supaya nggak lupa revisi yang dimaksud."
+                body="Catat jadwal & arahan dosen agar revisi rapi."
               />
             ) : (
               (bimbingan ?? []).map((b) => (
                 <button
+                  type="button"
                   key={b.id}
                   onClick={() => setEditBimbingan(b)}
-                  className="surface block w-full p-3 text-left theme-transition"
+                  className="surface block min-h-[44px] w-full p-3 text-left theme-transition"
                 >
                   <div className="flex items-baseline justify-between">
                     <div className="font-semibold text-text-1">{b.topic}</div>
-                    <div className="text-[11px] text-text-3">
+                    <div className="text-[12px] text-text-3">
                       {formatDateShort(b.date)}
                     </div>
                   </div>
                   {b.dosen && (
-                    <div className="mt-0.5 text-xs text-text-2">
-                      👨‍🏫 {b.dosen}
+                    <div className="mt-0.5 flex items-center gap-1.5 text-xs text-text-2">
+                      <UserRound size={12} aria-hidden="true" />
+                      <span>{b.dosen}</span>
                     </div>
                   )}
                   {b.notes && (
@@ -180,7 +204,7 @@ export default function SkripsiPage() {
                     </div>
                   )}
                   {b.todo && (
-                    <div className="mt-1 rounded bg-accent-soft px-2 py-1 text-[11px] font-semibold text-accent">
+                    <div className="mt-1 rounded bg-accent-soft px-2 py-1 text-[12px] font-semibold text-accent">
                       TODO: {b.todo}
                     </div>
                   )}
@@ -194,21 +218,27 @@ export default function SkripsiPage() {
         </div>
       </div>
 
-      {editChapter && (
-        <ChapterSheet
-          chapter={editChapter}
-          onClose={() => setEditChapter(null)}
-        />
-      )}
-      {(showAddBimbingan || editBimbingan) && (
-        <BimbinganSheet
-          record={editBimbingan}
-          onClose={() => {
-            setShowAddBimbingan(false);
-            setEditBimbingan(null);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {editChapter && (
+          <ChapterSheet
+            key={`chap-${editChapter.id}`}
+            chapter={editChapter}
+            onClose={() => setEditChapter(null)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {(showAddBimbingan || editBimbingan) && (
+          <BimbinganSheet
+            key={editBimbingan ? `bimb-${editBimbingan.id}` : "bimb-new"}
+            record={editBimbingan}
+            onClose={() => {
+              setShowAddBimbingan(false);
+              setEditBimbingan(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -259,7 +289,7 @@ function SkripsiMetaForm() {
           onChange={(e) => setTarget(e.target.value)}
         />
       </Field>
-      <button onClick={save} className="btn-accent w-full text-sm">
+      <button type="button" onClick={save} className="btn-accent w-full text-sm">
         Simpan
       </button>
     </div>
@@ -325,7 +355,7 @@ function ChapterSheet({
             step={5}
             value={progress}
             onChange={(e) => setProgress(parseInt(e.target.value))}
-            className="w-full"
+            className="min-h-[44px] w-full accent-[color:var(--accent)]"
           />
         </Field>
         <Field label="Status">
@@ -348,10 +378,10 @@ function ChapterSheet({
           />
         </Field>
         <div className="flex gap-2">
-          <button onClick={save} className="btn-accent flex-1 text-sm">
+          <button type="button" onClick={save} className="btn-accent flex-1 text-sm">
             Simpan
           </button>
-          <button onClick={del} className="btn-danger text-sm">
+          <button type="button" onClick={del} className="btn-danger text-sm">
             Hapus
           </button>
         </div>
@@ -436,11 +466,11 @@ function BimbinganSheet({
           />
         </Field>
         <div className="flex gap-2">
-          <button onClick={save} className="btn-accent flex-1 text-sm">
+          <button type="button" onClick={save} className="btn-accent flex-1 text-sm">
             Simpan
           </button>
           {record && (
-            <button onClick={del} className="btn-danger text-sm">
+            <button type="button" onClick={del} className="btn-danger text-sm">
               Hapus
             </button>
           )}
@@ -459,7 +489,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+      <div className="mb-1 text-[12px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}

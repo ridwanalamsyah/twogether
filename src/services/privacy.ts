@@ -295,7 +295,7 @@ export async function exportMomentsCsv(userId: string): Promise<string> {
   }[]) {
     // Skip body for E2E-encrypted moments; the export should never leak
     // ciphertext into a CSV (looks like garbage anyway).
-    const body = r.encrypted ? "[ENCRYPTED — gunakan JSON export]" : r.body;
+    const body = r.encrypted ? "[ENCRYPTED, gunakan JSON export]" : r.body;
     out.push(
       [
         r.date,

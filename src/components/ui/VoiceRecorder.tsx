@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Mic } from "lucide-react";
 
 /**
  * MediaRecorder-based voice capture. Saves the recording as a base64 data URL
@@ -71,7 +72,7 @@ export function VoiceRecorder({
     } catch (e) {
       setError(
         (e as Error).message?.includes("denied")
-          ? "Akses mic ditolak. Aktifkan di Settings → Safari."
+          ? "Akses mic ditolak. Aktifkan di Settings -> Safari."
           : "Tidak bisa membuka mic.",
       );
     }
@@ -94,12 +95,13 @@ export function VoiceRecorder({
   return (
     <div>
       {value ? (
-        <div className="flex items-center gap-2 rounded-md bg-bg-elev2 p-2">
+        <div className="flex items-center gap-2 rounded-[14px] bg-bg-elev2 p-2">
           <audio controls src={value} className="h-9 flex-1" />
           <button
             type="button"
             onClick={clear}
-            className="rounded-full bg-bg-elev3 px-2.5 py-1 text-[10px] font-semibold text-[color:var(--negative)]"
+            aria-label="Hapus rekaman suara"
+            className="min-h-[44px] rounded-full bg-bg-elev3 px-3.5 py-2 text-[12px] font-semibold text-[color:var(--negative)]"
           >
             Hapus
           </button>
@@ -108,22 +110,22 @@ export function VoiceRecorder({
         <button
           type="button"
           onClick={stop}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-[color:var(--negative)] px-3 py-2 text-sm font-semibold text-white"
+          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[14px] bg-[color:var(--negative)] px-3 py-2 text-sm font-semibold text-[color:var(--negative-fg)]"
         >
-          <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+          <span className="h-2 w-2 rounded-full bg-current" aria-hidden="true" />
           Stop · {String(seconds).padStart(2, "0")}s
         </button>
       ) : (
         <button
           type="button"
           onClick={start}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-bg-elev2 px-3 py-2 text-sm font-semibold text-text-2"
+          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[14px] bg-bg-elev2 px-3 py-2 text-sm font-semibold text-text-2"
         >
-          🎤 Rekam suara
+          <Mic size={16} strokeWidth={2} aria-hidden="true" /> Rekam suara
         </button>
       )}
       {error && (
-        <div className="mt-1 text-[11px] text-[color:var(--negative)]">{error}</div>
+        <div className="mt-1 text-[12px] text-[color:var(--negative)]">{error}</div>
       )}
     </div>
   );

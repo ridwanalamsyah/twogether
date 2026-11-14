@@ -1,6 +1,7 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sheet } from "@/components/ui/Sheet";
@@ -8,7 +9,7 @@ import { WHATS_NEW, markWhatsNewSeen, whatsNewSeen } from "@/lib/whatsNew";
 import { PushCard } from "@/components/settings/PushCard";
 import { pushState } from "@/lib/push";
 
-/** The list itself; also used from Pengaturan → Yang baru. */
+/** The list itself; also used from Pengaturan -> Yang baru. */
 export function WhatsNewSheet({ onClose }: { onClose: () => void }) {
   // Offer notifications right here when the server is ready but this phone
   // hasn't switched them on yet.
@@ -21,15 +22,17 @@ export function WhatsNewSheet({ onClose }: { onClose: () => void }) {
       title="Yang baru"
       onClose={onClose}
       footer={
-        <button onClick={onClose} className="btn-accent w-full">
+        <button type="button" onClick={onClose} className="btn-accent w-full">
           Oke, mengerti
         </button>
       }
     >
       <ul className="space-y-3 pb-2">
         {WHATS_NEW.items.map((t) => (
-          <li key={t} className="flex gap-3 text-[14px] leading-snug text-text-1">
-            <Sparkles size={16} className="mt-0.5 shrink-0 text-accent" />
+          <li key={t} className="flex items-start gap-3 text-[14px] leading-snug text-text-1">
+            <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent-soft text-accent">
+              <Check size={12} strokeWidth={2.6} aria-hidden />
+            </span>
             <span>{t}</span>
           </li>
         ))}
@@ -59,13 +62,17 @@ export function WhatsNew() {
     const t = setTimeout(() => setOpen(true), 1200);
     return () => clearTimeout(t);
   }, [pathname]);
-  if (!open) return null;
   return (
-    <WhatsNewSheet
-      onClose={() => {
-        markWhatsNewSeen();
-        setOpen(false);
-      }}
-    />
+    <AnimatePresence>
+      {open && (
+        <WhatsNewSheet
+          key="whats-new"
+          onClose={() => {
+            markWhatsNewSeen();
+            setOpen(false);
+          }}
+        />
+      )}
+    </AnimatePresence>
   );
 }

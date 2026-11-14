@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { Check, X } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import {
   AccentBtn,
@@ -47,6 +48,7 @@ export default function UangPage() {
 
 /* ───── Hutang / Piutang ───── */
 function DebtSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const items = useItems(userId, "debt") ?? [];
   const [t, setT] = useState("");
@@ -94,8 +96,8 @@ function DebtSection() {
   const byPerson = open.reduce<Record<string, { owe: number; lent: number }>>(
     (acc, it) => {
       const dir = JSON.parse(it.payload ?? "{}").direction as "owe" | "lent";
-      acc[it.who ?? "—"] ??= { owe: 0, lent: 0 };
-      acc[it.who ?? "—"][dir] += it.amount ?? 0;
+      acc[it.who ?? "Lainnya"] ??= { owe: 0, lent: 0 };
+      acc[it.who ?? "Lainnya"][dir] += it.amount ?? 0;
       return acc;
     },
     {},
@@ -111,8 +113,10 @@ function DebtSection() {
         <div className="space-y-2">
           <div className="flex gap-2">
             <button
+              type="button"
+              aria-pressed={direction === "owe"}
               onClick={() => setDirection("owe")}
-              className={`flex-1 rounded-md border py-1 text-[12px] ${
+              className={`min-h-[44px] flex-1 rounded-md border px-2 py-2 text-[12px] font-medium transition-colors ${
                 direction === "owe"
                   ? "border-accent bg-accent-soft text-accent"
                   : "border-border text-text-3"
@@ -121,8 +125,10 @@ function DebtSection() {
               Saya hutang
             </button>
             <button
+              type="button"
+              aria-pressed={direction === "lent"}
               onClick={() => setDirection("lent")}
-              className={`flex-1 rounded-md border py-1 text-[12px] ${
+              className={`min-h-[44px] flex-1 rounded-md border px-2 py-2 text-[12px] font-medium transition-colors ${
                 direction === "lent"
                   ? "border-accent bg-accent-soft text-accent"
                   : "border-border text-text-3"
@@ -132,29 +138,41 @@ function DebtSection() {
             </button>
           </div>
           <div className="flex gap-2">
+            <label htmlFor={`${uid}-who`} className="sr-only">
+              {direction === "owe" ? "Hutang ke siapa" : "Pinjamin ke siapa"}
+            </label>
             <input
+              id={`${uid}-who`}
               value={who}
               onChange={(e) => setWho(e.target.value)}
               placeholder={direction === "owe" ? "Hutang ke siapa" : "Pinjamin ke siapa"}
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
+            <label htmlFor={`${uid}-amount`} className="sr-only">
+              Jumlah rupiah
+            </label>
             <input
+              id={`${uid}-amount`}
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Rp"
-              className="w-28 bg-transparent text-[13px] outline-none"
+              className="w-28 bg-transparent text-[13px]"
             />
           </div>
           <div className="flex gap-2">
+            <label htmlFor={`${uid}-note`} className="sr-only">
+              Catatan
+            </label>
             <input
+              id={`${uid}-note`}
               value={t}
               onChange={(e) => setT(e.target.value)}
               placeholder="Catatan (opsional)"
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
-            <AccentBtn onClick={save} disabled={!who || !amount}>
-              +
+            <AccentBtn onClick={save} disabled={!who || !amount} aria-label="Tambah catatan hutang">
+              Tambah
             </AccentBtn>
           </div>
         </div>
@@ -162,7 +180,7 @@ function DebtSection() {
 
       {Object.keys(byPerson).length > 0 && (
         <div className="mt-2 border-y border-border py-2">
-          <div className="mb-1 text-[11px] section-label text-text-4">
+          <div className="mb-1 text-[12px] section-label text-text-4">
             Per orang
           </div>
           {Object.entries(byPerson).map(([name, sums]) => {
@@ -202,22 +220,32 @@ function DebtSection() {
             const p = JSON.parse(it.payload ?? "{}");
             const settled = it.status === "settled";
             return (
-              <div key={it.id} className="flex items-center gap-3 py-2.5">
+              <div key={it.id} className="flex items-center gap-2 py-2">
                 <button
+                  type="button"
+                  aria-pressed={settled}
+                  aria-label={`${settled ? "Buka lagi" : "Tandai lunas"} ${it.title}`}
                   onClick={() => settle(it.id)}
-                  className={`h-5 w-5 rounded border ${
-                    settled ? "border-accent bg-accent" : "border-border"
-                  }`}
-                />
-                <div className="flex-1">
-                  <div
-                    className={`text-[13px] ${
-                      settled ? "text-text-4 line-through" : ""
+                  className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-bg-elev1"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`grid h-5 w-5 place-items-center rounded border ${
+                      settled ? "border-accent bg-accent text-accent-fg" : "border-border"
                     }`}
                   >
-                    {p.direction === "owe" ? "→" : "←"} {it.who} · {it.title}
+                    {settled && <Check size={14} strokeWidth={2.5} />}
+                  </span>
+                </button>
+                <div className="min-w-0 flex-1">
+                  <div
+                    className={`text-[13px] ${
+                      settled ? "text-text-3 line-through" : ""
+                    }`}
+                  >
+                    {p.direction === "owe" ? "Hutang:" : "Piutang:"} {it.who} · {it.title}
                   </div>
-                  <div className="text-[11px] text-text-4">
+                  <div className="text-[12px] text-text-3">
                     {it.date && `dari ${formatDateShort(it.date)}`}
                     {settled && it.due && ` · lunas ${formatDateShort(it.due)}`}
                   </div>
@@ -226,11 +254,12 @@ function DebtSection() {
                   {formatRupiah(it.amount ?? 0)}
                 </span>
                 <GhostBtn
+                  aria-label={`Hapus ${it.title}`}
                   onClick={() => {
                     if (userId && confirm("Hapus catatan hutang ini?")) void deleteItem(userId, it.id);
                   }}
                 >
-                  ×
+                  <X size={16} aria-hidden="true" />
                 </GhostBtn>
               </div>
             );
@@ -243,6 +272,7 @@ function DebtSection() {
 
 /* ───── Subscription manager ───── */
 function SubscriptionSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const items = useItems(userId, "subscription") ?? [];
   const [t, setT] = useState("");
@@ -324,43 +354,59 @@ function SubscriptionSection() {
     >
       <div className="form-card">
         <div className="space-y-2">
+          <label htmlFor={`${uid}-title`} className="sr-only">
+            Nama layanan langganan
+          </label>
           <input
+            id={`${uid}-title`}
             value={t}
             onChange={(e) => setT(e.target.value)}
-            placeholder="Netflix, Spotify, gym…"
-            className="w-full bg-transparent text-[13px] outline-none"
+            placeholder="Netflix, Spotify, gym..."
+            className="w-full bg-transparent text-[13px]"
           />
           <div className="flex gap-2">
+            <label htmlFor={`${uid}-price`} className="sr-only">
+              Harga langganan
+            </label>
             <input
+              id={`${uid}-price`}
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Harga"
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
+            <label htmlFor={`${uid}-period`} className="sr-only">
+              Periode tagihan
+            </label>
             <select
+              id={`${uid}-period`}
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="bg-transparent text-[13px] text-text-2 outline-none"
+              className="min-h-[44px] bg-transparent text-[13px] text-text-2"
             >
               <option value="weekly">/minggu</option>
               <option value="monthly">/bulan</option>
               <option value="yearly">/tahun</option>
             </select>
+            <label htmlFor={`${uid}-day`} className="sr-only">
+              Tanggal tagihan (1-31)
+            </label>
             <input
+              id={`${uid}-day`}
               type="number"
               min="1"
               max="31"
               value={day}
               onChange={(e) => setDay(e.target.value)}
               placeholder="Tgl"
-              className="w-14 bg-transparent text-[13px] outline-none"
+              className="w-14 bg-transparent text-[13px]"
             />
-            <AccentBtn onClick={save} disabled={!t || !amount || !dayOk}>
-              +
+            <AccentBtn onClick={save} disabled={!t || !amount || !dayOk} aria-label="Tambah langganan">
+              Tambah
             </AccentBtn>
           </div>
-          <div className="text-[10px] text-text-4">
+          <div className="text-[12px] text-text-3">
             Tgl = tanggal tagihan tiap periode
           </div>
         </div>
@@ -371,10 +417,10 @@ function SubscriptionSection() {
       ) : (
         <ListBox>
           {sorted.map(({ it, p, days }) => (
-            <div key={it.id} className="flex items-center gap-3 py-2.5">
-              <div className="flex-1">
+            <div key={it.id} className="flex items-center gap-2 py-2.5">
+              <div className="min-w-0 flex-1">
                 <div className="text-[13px]">{it.title}</div>
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-3">
                   {formatRupiah(it.amount ?? 0)}
                   {p.period === "yearly"
                     ? "/thn"
@@ -386,22 +432,24 @@ function SubscriptionSection() {
                 </div>
               </div>
               {days <= 3 && (
-                <span className="text-[10px] section-label text-[color:var(--warning)]">
+                <span className="text-[12px] section-label text-[color:var(--warning)]">
                   H-{days}
                 </span>
               )}
               <button
+                type="button"
                 onClick={() => pay(it.id)}
-                className="rounded-md border border-border px-2 py-0.5 text-[11px] text-text-3"
+                className="min-h-[44px] rounded-md border border-border px-3 py-1 text-[12px] font-medium text-text-2 hover:bg-bg-elev1"
               >
                 Bayar
               </button>
               <GhostBtn
+                aria-label={`Hapus ${it.title}`}
                 onClick={() => {
                   if (userId && confirm("Hapus langganan ini?")) void deleteItem(userId, it.id);
                 }}
               >
-                ×
+                <X size={16} aria-hidden="true" />
               </GhostBtn>
             </div>
           ))}
@@ -413,6 +461,7 @@ function SubscriptionSection() {
 
 /* ───── Pay day mode ───── */
 function PaydaySection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const goals = useGoals(userId) ?? [];
   const [salary, setSalary] = useState("");
@@ -469,63 +518,71 @@ function PaydaySection() {
       title="Pay day mode"
       caption="Auto-distribusi gaji ke goal & budget"
     >
-      <div className="space-y-2 border-y border-border py-2.5">
-        <div className="flex gap-2">
+      <div className="space-y-3 border-y border-border py-3">
+        <div>
+          <label htmlFor={`${uid}-salary`} className="mb-1 block text-[12px] text-text-3">
+            Gaji bulan ini
+          </label>
           <input
+            id={`${uid}-salary`}
             type="number"
             value={salary}
             onChange={(e) => setSalary(e.target.value)}
-            placeholder="Gaji bulan ini"
-            className="flex-1 bg-transparent text-[13px] outline-none"
+            placeholder="Nominal gaji"
+            className="w-full min-h-[44px] bg-transparent text-[13px]"
           />
         </div>
 
-        <div className="text-[11px] section-label text-text-4">
+        <div className="text-[12px] section-label text-text-4">
           Aturan distribusi (%)
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <div className="text-[10px] text-text-4">Kebutuhan</div>
+            <label htmlFor={`${uid}-need`} className="block text-[12px] text-text-3">Kebutuhan</label>
             <input
+              id={`${uid}-need`}
               type="number"
               value={needPct}
               onChange={(e) => setNeedPct(e.target.value)}
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full min-h-[44px] bg-transparent text-[13px]"
             />
           </div>
           <div>
-            <div className="text-[10px] text-text-4">Tabungan</div>
+            <label htmlFor={`${uid}-save`} className="block text-[12px] text-text-3">Tabungan</label>
             <input
+              id={`${uid}-save`}
               type="number"
               value={savePct}
               onChange={(e) => setSavePct(e.target.value)}
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full min-h-[44px] bg-transparent text-[13px]"
             />
           </div>
           <div>
-            <div className="text-[10px] text-text-4">Bebas</div>
+            <label htmlFor={`${uid}-want`} className="block text-[12px] text-text-3">Bebas</label>
             <input
+              id={`${uid}-want`}
               type="number"
               value={wantPct}
               onChange={(e) => setWantPct(e.target.value)}
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full min-h-[44px] bg-transparent text-[13px]"
             />
           </div>
         </div>
         {total !== 100 && (
-          <div className="text-[10px] text-[color:var(--warning)]">
-            Total {total}% — sebaiknya 100%
+          <div className="text-[12px] text-[color:var(--warning)]">
+            Total {total}%, sebaiknya 100%
           </div>
         )}
 
         <div>
-          <div className="text-[10px] text-text-4">Tabungan masuk ke goal</div>
+          <label htmlFor={`${uid}-goal`} className="block text-[12px] text-text-3">Tabungan masuk ke goal</label>
           <select
+            id={`${uid}-goal`}
             value={splitGoalId}
             onChange={(e) => setSplitGoalId(e.target.value)}
-            className="w-full bg-transparent text-[13px] text-text-2 outline-none"
+            className="w-full min-h-[44px] bg-transparent text-[13px] text-text-2"
           >
-            <option value="">— pilih goal —</option>
+            <option value="">- Pilih goal -</option>
             {goals.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.name}
@@ -536,7 +593,7 @@ function PaydaySection() {
 
         {salaryN > 0 && (
           <div className="rounded-md border border-border p-2">
-            <div className="text-[11px] section-label text-text-4">
+            <div className="text-[12px] section-label text-text-4">
               Preview
             </div>
             <div className="mt-1 space-y-0.5 text-[12px]">
@@ -552,7 +609,7 @@ function PaydaySection() {
         </AccentBtn>
 
         {done && (
-          <div className="rounded-md bg-positive-bg px-3 py-1.5 text-[11px] text-[color:var(--positive)]">
+          <div role="status" className="rounded-md bg-positive-bg px-3 py-2 text-[12px] text-[color:var(--positive)]">
             {done}
           </div>
         )}
@@ -572,6 +629,7 @@ function Row({ label, v }: { label: string; v: number }) {
 
 /* ───── Monthly closing ritual ───── */
 function ClosingSection() {
+  const uid = useId();
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId) ?? [];
   const goals = useGoals(userId) ?? [];
@@ -663,7 +721,7 @@ function ClosingSection() {
       title="Closing bulanan"
       caption={`Ringkasan ${monthName}`}
     >
-      <div className="space-y-2 border-y border-border py-2.5">
+      <div className="space-y-3 border-y border-border py-3">
         <div className="grid grid-cols-3 gap-2">
           <Stat label="Masuk" v={stats.income} pos />
           <Stat label="Keluar" v={stats.expense} neg />
@@ -672,7 +730,7 @@ function ClosingSection() {
 
         {stats.topCat.length > 0 && (
           <div>
-            <div className="mt-1 text-[10px] section-label text-text-4">
+            <div className="mt-1 text-[12px] section-label text-text-4">
               Top 3 kategori
             </div>
             {stats.topCat.map(([cat, v]) => (
@@ -686,7 +744,7 @@ function ClosingSection() {
 
         {stats.overBudgets.length > 0 && (
           <div className="rounded-md border border-[color:var(--warning)] p-2">
-            <div className="text-[11px] text-[color:var(--warning)]">
+            <div className="text-[12px] text-[color:var(--warning)]">
               Budget over: {stats.overBudgets.map((b) => b.category).join(", ")}
             </div>
           </div>
@@ -694,15 +752,16 @@ function ClosingSection() {
 
         {stats.surplus > 0 && (
           <div>
-            <div className="text-[10px] text-text-4">
+            <label htmlFor={`${uid}-close-goal`} className="block text-[12px] text-text-3">
               Transfer surplus ke goal
-            </div>
+            </label>
             <select
+              id={`${uid}-close-goal`}
               value={transferGoalId}
               onChange={(e) => setTransferGoalId(e.target.value)}
-              className="w-full bg-transparent text-[13px] text-text-2 outline-none"
+              className="w-full min-h-[44px] bg-transparent text-[13px] text-text-2"
             >
-              <option value="">— pilih goal —</option>
+              <option value="">- Pilih goal -</option>
               {goals.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
@@ -712,20 +771,26 @@ function ClosingSection() {
           </div>
         )}
 
-        <textarea
-          value={reflection}
-          onChange={(e) => setReflection(e.target.value)}
-          placeholder="Catatan refleksi bulan ini…"
-          rows={2}
-          className="w-full resize-none bg-transparent text-[13px] outline-none"
-        />
+        <div>
+          <label htmlFor={`${uid}-reflection`} className="sr-only">
+            Catatan refleksi bulan ini
+          </label>
+          <textarea
+            id={`${uid}-reflection`}
+            value={reflection}
+            onChange={(e) => setReflection(e.target.value)}
+            placeholder="Catatan refleksi bulan ini..."
+            rows={2}
+            className="w-full resize-none bg-transparent text-[13px]"
+          />
+        </div>
 
         <AccentBtn onClick={close} disabled={stats.monthTx.length === 0 || closed || busy}>
           {closed ? "Buku bulan ini sudah ditutup" : "Tutup buku bulan ini"}
         </AccentBtn>
 
         {done && (
-          <div className="rounded-md bg-positive-bg px-3 py-1.5 text-[11px] text-[color:var(--positive)]">
+          <div role="status" className="rounded-md bg-positive-bg px-3 py-2 text-[12px] text-[color:var(--positive)]">
             {done}
           </div>
         )}
@@ -747,7 +812,7 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="text-[10px] section-label text-text-4">
+      <div className="text-[12px] section-label text-text-4">
         {label}
       </div>
       <div

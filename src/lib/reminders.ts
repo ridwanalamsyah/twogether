@@ -10,20 +10,19 @@ import { billState } from "@/lib/bills";
  */
 export type ReminderType = "catat" | "tagihan" | "anniv" | "tilawah" | "tantangan" | "kabar";
 
-export const REMINDER_TYPES: { id: ReminderType; emoji: string; label: string; hint: string; hour: number; minute: number }[] = [
-  { id: "tagihan", emoji: "🧾", label: "Tagihan jatuh tempo", hint: "Sehari sebelum dan di hari jatuh tempo, jam 08.00", hour: 8, minute: 0 },
-  { id: "anniv", emoji: "💞", label: "Tanggal penting", hint: "Anniversary & ulang tahun: H-1 dan hari H, jam 08.00", hour: 8, minute: 0 },
-  { id: "catat", emoji: "✍️", label: "Catat pengeluaran", hint: "Jam 20.00 kalau hari itu belum ada catatan", hour: 20, minute: 0 },
-  { id: "tilawah", emoji: "📖", label: "Target tilawah", hint: "Jam 19.00 kalau bacaan hari itu masih kurang", hour: 19, minute: 0 },
-  { id: "tantangan", emoji: "🔥", label: "Tantangan berdua", hint: "Jam 20.30 kalau belum dicentang", hour: 20, minute: 30 },
-  { id: "kabar", emoji: "💌", label: "Kabar untuk pasangan", hint: "Jam 21.00 kalau hari itu belum kirim kabar", hour: 21, minute: 0 },
+export const REMINDER_TYPES: { id: ReminderType; label: string; hint: string; hour: number; minute: number }[] = [
+  { id: "tagihan", label: "Tagihan jatuh tempo", hint: "Sehari sebelum dan hari H, jam 08.00", hour: 8, minute: 0 },
+  { id: "anniv", label: "Tanggal penting", hint: "H-1 dan hari H, jam 08.00", hour: 8, minute: 0 },
+  { id: "catat", label: "Catat pengeluaran", hint: "Jam 20.00 jika hari ini belum ada catatan", hour: 20, minute: 0 },
+  { id: "tilawah", label: "Target tilawah", hint: "Jam 19.00 jika bacaan hari ini kurang", hour: 19, minute: 0 },
+  { id: "tantangan", label: "Tantangan berdua", hint: "Jam 20.30 jika belum dicentang", hour: 20, minute: 30 },
+  { id: "kabar", label: "Kabar untuk pasangan", hint: "Jam 21.00 jika belum kirim kabar", hour: 21, minute: 0 },
 ];
 
 export interface Reminder {
   /** Stable per occurrence, e.g. "tagihan:<billId>:2026-10". */
   id: string;
   type: ReminderType;
-  emoji: string;
   text: string;
   href: string;
   /** When to notify. */
@@ -69,7 +68,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
       if (s.paid || s.finished) continue;
       const name = b.title;
       if (s.daysLeft < 0) {
-        out.push({ id: `tagihan:${b.id}:${s.month}:late`, type: "tagihan", emoji: "🧾", text: `${name} telat ${-s.daysLeft} hari`, href: "/tagihan", at: now, current: true });
+        out.push({ id: `tagihan:${b.id}:${s.month}:late`, type: "tagihan", text: `${name} telat ${-s.daysLeft} hari`, href: "/tagihan", at: now, current: true });
         continue;
       }
       for (const [d, text] of [
@@ -78,7 +77,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
       ] as const) {
         if (d < today || d > horizon) continue;
         const when = at(d, "tagihan");
-        out.push({ id: `tagihan:${b.id}:${d}`, type: "tagihan", emoji: "🧾", text, href: "/tagihan", at: when, current: d === today });
+        out.push({ id: `tagihan:${b.id}:${d}`, type: "tagihan", text, href: "/tagihan", at: when, current: d === today });
       }
     }
   }
@@ -90,13 +89,13 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
         const d = addDays(today, i);
         if (d.slice(5) !== a.date.slice(5)) continue;
         const years = Number(d.slice(0, 4)) - Number(a.date.slice(0, 4));
-        const label = years > 0 ? `${a.title} yang ke-${years}` : a.title;
+        const label = years > 0 ? `${a.title} ke-${years}` : a.title;
         for (const [when, text, isToday] of [
-          [addDays(d, -1), `Besok ${label} 💞`, addDays(d, -1) === today],
-          [d, `Hari ini ${label} 🎉`, d === today],
+          [addDays(d, -1), `Besok ${label}`, addDays(d, -1) === today],
+          [d, `Hari ini ${label}`, d === today],
         ] as const) {
           if (when < today) continue;
-          out.push({ id: `anniv:${a.id}:${when}`, type: "anniv", emoji: "💞", text, href: "/kita", at: at(when, "anniv"), current: isToday });
+          out.push({ id: `anniv:${a.id}:${when}`, type: "anniv", text, href: "/kita", at: at(when, "anniv"), current: isToday });
         }
       }
     }
@@ -109,8 +108,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
       out.push({
         id: `catat:${d}`,
         type: "catat",
-        emoji: "✍️",
-        text: "Belum catat pengeluaran hari ini",
+        text: "Belum catat pengeluaran",
         href: "/tracker",
         at: at(d, "catat"),
         current: i === 0 && now.getHours() >= 19,
@@ -130,8 +128,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
         out.push({
           id: `tilawah:${today}`,
           type: "tilawah",
-          emoji: "📖",
-          text: `Tilawah hari ini kurang ${perDay - mineToday} halaman`,
+          text: `Tilawah hari ini kurang ${perDay - mineToday} hlm`,
           href: "/tilawah",
           at: at(today, "tilawah"),
           current: now.getHours() >= 18,
@@ -139,7 +136,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
       }
       for (let i = 1; i < days && addDays(today, i) <= k.date; i += 1) {
         const d = addDays(today, i);
-        out.push({ id: `tilawah:${d}`, type: "tilawah", emoji: "📖", text: `Jangan lupa tilawah ${perDay} halaman hari ini`, href: "/tilawah", at: at(d, "tilawah"), current: false });
+        out.push({ id: `tilawah:${d}`, type: "tilawah", text: `Tilawah target ${perDay} halaman`, href: "/tilawah", at: at(d, "tilawah"), current: false });
       }
     }
   }
@@ -155,8 +152,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
         out.push({
           id: `tantangan:${c.id}:${d}`,
           type: "tantangan",
-          emoji: "🔥",
-          text: `Belum centang "${c.title}" hari ini`,
+          text: `Belum centang "${c.title}"`,
           href: "/tantangan",
           at: at(d, "tantangan"),
           current: i === 0 && now.getHours() >= 18,
@@ -172,8 +168,7 @@ export function upcoming(data: ReminderData, enabled: Record<ReminderType, boole
       out.push({
         id: `kabar:${d}`,
         type: "kabar",
-        emoji: "💌",
-        text: `Belum kirim kabar ke ${data.partner} hari ini`,
+        text: `Belum kirim kabar ke ${data.partner}`,
         href: "/home",
         at: at(d, "kabar"),
         current: i === 0 && now.getHours() >= 20,

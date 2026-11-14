@@ -105,9 +105,9 @@ export default function SplashPage() {
           </svg>
         </div>
         <div>
-          <div className="text-[28px] font-bold tracking-tight text-text-1">
+          <h1 className="text-[28px] font-bold tracking-tight text-text-1">
             Twogether
-          </div>
+          </h1>
           <div className="mt-1 text-sm text-text-3">Untuk kalian berdua</div>
         </div>
         <div className="mt-6 h-0.5 w-12 overflow-hidden rounded-full bg-bg-elev2">
@@ -141,7 +141,7 @@ function FallbackTap({ target }: { target: string }) {
     <button
       type="button"
       onClick={() => router.replace(target)}
-      className="mt-4 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-fg"
+      className="mt-4 min-h-[44px] rounded-full bg-accent px-5 py-2.5 text-xs font-semibold text-accent-fg"
     >
       Lanjutkan
     </button>

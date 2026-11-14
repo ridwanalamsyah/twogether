@@ -14,10 +14,10 @@ export function PrivacyCard() {
 
   return (
     <section className="surface space-y-2 p-4">
-      <div className="mb-1 text-[11px] font-bold section-label text-text-3">Privasi di HP ini</div>
+      <div className="mb-1 text-[12px] font-bold section-label text-text-3">Privasi di HP ini</div>
       <Toggle
         label="Sembunyikan nominal"
-        sub="Semua jumlah uang tampil Rp ••• — juga bisa lewat ikon mata di Uang kita."
+        sub="Semua jumlah uang tampil Rp •••, juga bisa lewat ikon mata di Uang."
         on={hideMoney}
         onChange={setHideMoney}
       />
@@ -29,12 +29,12 @@ export function PrivacyCard() {
       />
       <Toggle
         label="Kirim laporan error"
-        sub="Kalau app error, kirim pesan error-nya tanpa nama, email, atau isi catatan. Membantu memperbaiki bug."
+        sub="Kalau app error, kirim pesan error-nya tanpa nama, email, atau isi catatan."
         on={reports}
         onChange={setReports}
       />
-      <Link href="/privasi" className="block pt-1 text-[12px] font-medium text-text-3 underline-offset-2 active:opacity-60">
-        Kebijakan privasi ›
+      <Link href="/privasi" className="inline-flex min-h-[44px] items-center pt-1 text-[12px] font-medium text-text-3 underline-offset-2 active:opacity-60">
+        Kebijakan privasi
       </Link>
     </section>
   );

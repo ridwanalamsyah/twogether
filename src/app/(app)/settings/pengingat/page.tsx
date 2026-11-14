@@ -3,9 +3,10 @@
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useReminderPrefs } from "@/stores/reminders";
 import { REMINDER_TYPES } from "@/lib/reminders";
-import { useReminders } from "@/components/reminders/Reminders";
+import { REMINDER_ICON, useReminders } from "@/components/reminders/Reminders";
 import { isNative } from "@/lib/native";
 import { hapticTap } from "@/lib/haptic";
+import { IconTile } from "@/lib/icons";
 
 export default function PengingatPage() {
   const enabled = useReminderPrefs((s) => s.enabled);
@@ -21,22 +22,23 @@ export default function PengingatPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         <p className="text-[13px] leading-relaxed text-text-3">
           {native
-            ? "Pengingat dikirim sebagai notifikasi di HP ini, walau Twogether sedang ditutup."
-            : "Pengingat muncul sebagai kartu di Beranda. Di app iPhone, pengingat juga datang sebagai notifikasi walau app ditutup."}
+            ? "Pengingat dikirim ke notifikasi HP saat Twogether ditutup."
+            : "Pengingat tampil di Beranda, dan terkirim sebagai notifikasi di iPhone."}
         </p>
         <ul className="overflow-hidden rounded-[20px] bg-bg-card shadow-card">
           {REMINDER_TYPES.map((t) => (
             <li key={t.id} className="border-b border-border last:border-0">
               <button
+                type="button"
                 onClick={() => {
                   toggle(t.id);
                   hapticTap();
                 }}
                 role="switch"
                 aria-checked={enabled[t.id]}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left"
+                className="flex min-h-[56px] w-full items-center gap-3 px-4 py-3 text-left"
               >
-                <span className="text-[22px]">{t.emoji}</span>
+                <IconTile spec={REMINDER_ICON[t.id]} size={36} radius={10} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[15px] font-semibold text-text-1">{t.label}</span>
                   <span className="block text-[12px] text-text-4">{t.hint}</span>
@@ -54,7 +56,7 @@ export default function PengingatPage() {
             <ul className="space-y-1.5">
               {next.map((r) => (
                 <li key={r.id} className="flex items-center gap-3 rounded-2xl bg-bg-elev1 px-3 py-2.5 text-[13px]">
-                  <span>{r.emoji}</span>
+                  <IconTile spec={REMINDER_ICON[r.type]} size={28} radius={8} />
                   <span className="min-w-0 flex-1 truncate text-text-1">{r.text}</span>
                   <span className="shrink-0 text-text-4">
                     {r.at.toLocaleDateString("id-ID", { weekday: "short", day: "numeric" })}{" "}

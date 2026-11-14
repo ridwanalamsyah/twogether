@@ -2,6 +2,8 @@
 
 import { useNick } from "@/lib/nick";
 import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useTransactions } from "@/stores/data";
@@ -30,6 +32,7 @@ function summarize(txs: TransactionRecord[]) {
 }
 
 export default function LaporanPage() {
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const txs = useTransactions(userId) ?? [];
   const { wallets } = useWallets();
@@ -86,17 +89,25 @@ export default function LaporanPage() {
       <AppHeader title="Laporan" />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div className="flex items-center justify-between">
-          <button onClick={() => setMonth(shiftMonth(month, -1))} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Bulan sebelumnya">‹</button>
+          <button
+            type="button"
+            onClick={() => setMonth(shiftMonth(month, -1))}
+            className="grid h-11 w-11 place-items-center rounded-full bg-bg-card text-text-2 shadow-card transition-colors hover:bg-bg-elev1 active:scale-95"
+            aria-label="Bulan sebelumnya"
+          >
+            <ChevronLeft size={18} aria-hidden="true" />
+          </button>
           <div className="text-[17px] font-extrabold text-text-1">
             {first.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
           </div>
           <button
+            type="button"
             onClick={() => setMonth(shiftMonth(month, 1))}
             disabled={month >= monthKey(new Date())}
-            className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card disabled:opacity-40"
+            className="grid h-11 w-11 place-items-center rounded-full bg-bg-card text-text-2 shadow-card transition-colors hover:bg-bg-elev1 active:scale-95 disabled:opacity-40"
             aria-label="Bulan berikutnya"
           >
-            ›
+            <ChevronRight size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -107,9 +118,13 @@ export default function LaporanPage() {
         ) : (
           <>
             <div className="grid grid-cols-2 gap-2.5">
-              <Tile label="Pengeluaran" value={formatRupiah(s.out)} sub={outChange == null ? "—" : `${outChange > 0 ? "▲" : "▼"} ${Math.abs(outChange)}% dari bulan lalu`} />
+              <Tile
+                label="Pengeluaran"
+                value={formatRupiah(s.out)}
+                sub={outChange == null ? "Belum ada pembanding" : `${outChange > 0 ? "Naik" : "Turun"} ${Math.abs(outChange)}% dari bulan lalu`}
+              />
               <Tile label="Pemasukan" value={formatRupiah(s.inc)} sub={`Bulan lalu ${formatRupiahShort(p.inc)}`} />
-              <Tile label="Sisa" value={formatRupiah(s.net)} sub={saveRate == null ? "—" : `${saveRate}% dari pemasukan`} negative={s.net < 0} />
+              <Tile label="Sisa" value={formatRupiah(s.net)} sub={saveRate == null ? "Belum ada pemasukan" : `${saveRate}% dari pemasukan`} negative={s.net < 0} />
               <Tile label="Rata-rata / hari" value={formatRupiahShort(Math.round(s.out / dim))} sub={`${cur.filter((t) => t.kind === "out").length} transaksi keluar`} />
             </div>
 
@@ -121,22 +136,31 @@ export default function LaporanPage() {
                 </span>
               </div>
               <div className="flex h-32 items-end gap-[2px] border-b border-border" onMouseLeave={() => setHover(null)}>
-                {daily.map((x) => (
-                  <button
-                    key={x.d}
-                    onMouseEnter={() => setHover(x.d)}
-                    onClick={() => setHover(hover === x.d ? null : x.d)}
-                    className="group flex h-full flex-1 items-end"
-                    aria-label={`${x.d}: ${formatRupiah(x.v)}`}
-                  >
-                    <span
-                      className={`w-full rounded-t-[4px] transition-opacity ${hover && hover !== x.d ? "opacity-40" : ""}`}
-                      style={{ height: `${x.v ? Math.max(4, (x.v / maxDay) * 100) : 0}%`, background: "var(--accent)" }}
-                    />
-                  </button>
-                ))}
+                {daily.map((x) => {
+                  const pct = x.v ? Math.max(0.05, x.v / maxDay) : 0;
+                  return (
+                    <button
+                      type="button"
+                      key={x.d}
+                      onMouseEnter={() => setHover(x.d)}
+                      onFocus={() => setHover(x.d)}
+                      onClick={() => setHover(hover === x.d ? null : x.d)}
+                      className="group flex h-full flex-1 items-end"
+                      aria-pressed={hover === x.d}
+                      aria-label={`${x.d}: ${formatRupiah(x.v)}`}
+                    >
+                      <motion.span
+                        initial={reduceMotion ? false : { scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={reduceMotion ? { duration: 0 } : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                        className={`w-full origin-bottom rounded-t-[4px] transition-opacity ${hover && hover !== x.d ? "opacity-40" : ""}`}
+                        style={{ height: `${pct * 100}%`, background: "var(--accent)" }}
+                      />
+                    </button>
+                  );
+                })}
               </div>
-              <div className="mt-1 flex justify-between text-[10px] text-text-4">
+              <div className="mt-1 flex justify-between text-[12px] text-text-3">
                 <span>1</span>
                 <span>{Math.ceil(dim / 2)}</span>
                 <span>{dim}</span>
@@ -149,6 +173,7 @@ export default function LaporanPage() {
                 {byCat.map(([cat, v]) => {
                   const before = prevByCat.get(cat) ?? 0;
                   const diff = before > 0 ? Math.round(((v - before) / before) * 100) : null;
+                  const ratio = v / maxCat;
                   return (
                     <div key={cat}>
                       <div className="mb-1 flex items-baseline justify-between text-[13px]">
@@ -158,12 +183,18 @@ export default function LaporanPage() {
                           {" · "}
                           {Math.round((v / Math.max(1, s.out)) * 100)}%
                           {diff != null && Math.abs(diff) >= 10 && (
-                            <span className="ml-1">{diff > 0 ? `▲${diff}%` : `▼${-diff}%`}</span>
+                            <span className="ml-1">{diff > 0 ? `+${diff}%` : `-${-diff}%`}</span>
                           )}
                         </span>
                       </div>
                       <div className="h-2.5 overflow-hidden rounded-full bg-bg-elev2">
-                        <div className="h-full rounded-full" style={{ width: `${(v / maxCat) * 100}%`, background: "var(--accent)" }} />
+                        <motion.div
+                          initial={reduceMotion ? false : { scaleX: 0 }}
+                          animate={{ scaleX: ratio }}
+                          transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                          className="h-full w-full origin-left rounded-full"
+                          style={{ background: "var(--accent)" }}
+                        />
                       </div>
                     </div>
                   );
@@ -174,15 +205,24 @@ export default function LaporanPage() {
             {byWho.length > 1 && (
               <section className="surface p-4">
                 <h2 className="mb-3 text-[15px] font-bold text-text-1">Siapa yang keluar uang</h2>
-                {byWho.map(([who, v]) => (
-                  <div key={who} className="mb-2 flex items-center gap-3 text-[13px]">
-                    <span className="w-24 truncate font-semibold text-text-1">{nick(who)}</span>
-                    <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-bg-elev2">
-                      <div className="h-full rounded-full" style={{ width: `${(v / Math.max(1, s.out)) * 100}%`, background: "var(--accent)" }} />
+                {byWho.map(([who, v]) => {
+                  const ratio = v / Math.max(1, s.out);
+                  return (
+                    <div key={who} className="mb-2 flex items-center gap-3 text-[13px]">
+                      <span className="w-24 truncate font-semibold text-text-1">{nick(who)}</span>
+                      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-bg-elev2">
+                        <motion.div
+                          initial={reduceMotion ? false : { scaleX: 0 }}
+                          animate={{ scaleX: ratio }}
+                          transition={reduceMotion ? { duration: 0 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                          className="h-full w-full origin-left rounded-full"
+                          style={{ background: "var(--accent)" }}
+                        />
+                      </div>
+                      <span className="w-20 text-right tabular-nums text-text-2">{formatRupiahShort(v)}</span>
                     </div>
-                    <span className="w-20 text-right tabular-nums text-text-2">{formatRupiahShort(v)}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </section>
             )}
 
@@ -193,7 +233,7 @@ export default function LaporanPage() {
                   const w = wallets.find((x) => x.id === wid);
                   return (
                     <div key={wid || "none"} className="mb-2 flex items-center justify-between text-[13px]">
-                      <span className="text-text-2">{w ? `${w.emoji} ${w.name}` : "Tanpa dompet"}</span>
+                      <span className="text-text-2">{w ? w.name : "Tanpa dompet"}</span>
                       <span className="tabular-nums font-semibold text-text-1">{formatRupiah(v)}</span>
                     </div>
                   );
@@ -207,7 +247,7 @@ export default function LaporanPage() {
                 <div key={t.id} className="flex items-center justify-between border-b border-border py-2.5 text-[13px] last:border-0">
                   <span className="min-w-0 flex-1 truncate text-text-1">
                     {t.note || t.category}
-                    <span className="ml-1.5 text-[11px] text-text-4">
+                    <span className="ml-1.5 text-[12px] text-text-3">
                       {fromIsoDay(t.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · {nick(t.who)}
                     </span>
                   </span>
@@ -227,7 +267,7 @@ function Tile({ label, value, sub, negative }: { label: string; value: string; s
     <div className="surface p-3.5">
       <div className="text-[12px] font-semibold text-text-3">{label}</div>
       <div className={`mt-0.5 tabular-nums text-[18px] font-extrabold tracking-tight ${negative ? "text-[color:var(--negative)]" : "text-text-1"}`}>{value}</div>
-      <div className="mt-0.5 text-[11px] text-text-4">{sub}</div>
+      <div className="mt-0.5 text-[12px] text-text-3">{sub}</div>
     </div>
   );
 }

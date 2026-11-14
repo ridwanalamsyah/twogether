@@ -64,8 +64,8 @@ export function MonthEndWidget() {
         Bulan lalu sisa {formatRupiahShort(surplus)}
       </div>
       {goals.length === 0 ? (
-        <Link href="/goals" className="mt-2 block text-[13px] font-semibold text-accent">
-          Buat tujuan tabungan dulu, lalu sisihkan sisanya →
+        <Link href="/goals" className="mt-2 inline-flex min-h-[44px] items-center text-[13px] font-semibold text-accent">
+          Buat tujuan tabungan dulu, lalu sisihkan sisanya
         </Link>
       ) : (
         <>
@@ -74,30 +74,47 @@ export function MonthEndWidget() {
             {goals.map((g) => (
               <button
                 key={g.id}
+                type="button"
                 onClick={() => setGoalId(g.id)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold ${target === g.id ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
+                aria-pressed={target === g.id}
+                className={`min-h-[44px] shrink-0 rounded-full px-3.5 text-[12px] font-semibold transition-colors ${target === g.id ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-2"}`}
               >
-                {g.emoji ?? "🎯"} {g.name}
+                {g.emoji ? `${g.emoji} ` : ""}{g.name}
               </button>
             ))}
           </div>
           <div className="mt-2 flex gap-1.5">
-            {[0.5, 1].map((f) => (
-              <button
-                key={f}
-                onClick={() => setAmount(Math.round((surplus * f) / 1000) * 1000)}
-                className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${value === Math.round((surplus * f) / 1000) * 1000 || (f === 1 && value === surplus) ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-2"}`}
-              >
-                {f === 1 ? "Semua" : "Setengah"}
-              </button>
-            ))}
+            {[0.5, 1].map((f) => {
+              const chosen = value === Math.round((surplus * f) / 1000) * 1000 || (f === 1 && value === surplus);
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setAmount(Math.round((surplus * f) / 1000) * 1000)}
+                  aria-pressed={chosen}
+                  className={`min-h-[44px] rounded-full px-3.5 text-[12px] font-semibold transition-colors ${chosen ? "bg-text-1 text-bg-app" : "bg-bg-elev2 text-text-2"}`}
+                >
+                  {f === 1 ? "Semua" : "Setengah"}
+                </button>
+              );
+            })}
             <span className="ml-auto self-center text-[14px] font-bold tabular-nums text-text-1">{formatRupiah(value)}</span>
           </div>
           <div className="mt-3 flex gap-2">
-            <button onClick={() => close(false)} disabled={busy} className="rounded-full bg-bg-elev2 px-4 py-2.5 text-[13px] font-semibold text-text-2">
+            <button
+              type="button"
+              onClick={() => close(false)}
+              disabled={busy}
+              className="min-h-[44px] rounded-[14px] bg-bg-elev2 px-4 text-[13px] font-semibold text-text-2"
+            >
               Nanti saja
             </button>
-            <button onClick={() => close(true)} disabled={busy || !target} className="btn-accent flex-1 disabled:opacity-50">
+            <button
+              type="button"
+              onClick={() => close(true)}
+              disabled={busy || !target}
+              className="btn-accent min-h-[44px] flex-1 disabled:opacity-50"
+            >
               Tabung
             </button>
           </div>

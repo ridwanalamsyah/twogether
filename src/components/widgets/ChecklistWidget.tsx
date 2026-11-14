@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { X } from "lucide-react";
 import { useAuth } from "@/stores/auth";
 import {
   useChecklists,
@@ -12,6 +14,7 @@ import { todayISO } from "@/lib/utils";
 
 export function ChecklistWidget() {
   const userId = useAuth((s) => s.userId);
+  const reduce = useReducedMotion();
   const items = useChecklists(userId);
   const [draft, setDraft] = useState("");
 
@@ -55,53 +58,73 @@ export function ChecklistWidget() {
       }
     >
       <div className="space-y-0.5">
-        {todays.map((i) => (
-          <div key={i.id} className="group flex items-center gap-2.5 py-1">
-            <button
-              onClick={() => toggle(i.id, i.done)}
-              className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-sm border transition-colors ${
-                i.done
-                  ? "border-accent bg-accent text-accent-fg"
-                  : "border-border-strong"
-              }`}
-              aria-label={i.done ? "Tandai belum" : "Tandai selesai"}
+        <AnimatePresence initial={false}>
+          {todays.map((i) => (
+            <motion.div
+              key={i.id}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+              transition={{ duration: 0.16 }}
+              className="group flex min-h-[44px] items-center gap-1"
             >
-              {i.done ? (
-                <svg viewBox="0 0 12 12" className="h-2.5 w-2.5">
-                  <path
-                    d="M2 6l3 3 5-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ) : null}
-            </button>
-            <span
-              className={`flex-1 truncate text-[13px] ${
-                i.done ? "text-text-4 line-through" : "text-text-1"
-              }`}
-            >
-              {i.title}
-            </span>
-            <button
-              onClick={() => userId && deleteChecklist(userId, i.id)}
-              className="text-text-5 opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:text-[color:var(--negative)]"
-              aria-label="Hapus"
-            >
-              ×
-            </button>
-          </div>
-        ))}
+              <button
+                type="button"
+                onClick={() => toggle(i.id, i.done)}
+                aria-label={i.done ? `Tandai ${i.title} belum selesai` : `Tandai ${i.title} selesai`}
+                aria-pressed={Boolean(i.done)}
+                className="-ml-2.5 grid h-11 w-11 shrink-0 place-items-center rounded-full"
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
+                    i.done
+                      ? "border-accent bg-accent text-accent-fg"
+                      : "border-border-strong"
+                  }`}
+                >
+                  {i.done ? (
+                    <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+                      <path
+                        d="M2 6l3 3 5-6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : null}
+                </span>
+              </button>
+              <span
+                className={`flex-1 truncate text-[13px] ${
+                  i.done ? "text-text-4 line-through" : "text-text-1"
+                }`}
+              >
+                {i.title}
+              </span>
+              <button
+                type="button"
+                onClick={() => userId && deleteChecklist(userId, i.id)}
+                className="-mr-2.5 grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 hover:text-[color:var(--negative)]"
+                aria-label={`Hapus ${i.title}`}
+              >
+                <X size={15} strokeWidth={2.2} aria-hidden />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {todays.length === 0 && (
           <p className="py-1 text-[12px] text-text-4">Belum ada tugas.</p>
         )}
       </div>
 
+      <label htmlFor="checklist-quick-add" className="sr-only">
+        Tambah tugas
+      </label>
       <input
-        className="mt-2 w-full border-b border-border bg-transparent py-1.5 text-[13px] text-text-1 outline-none placeholder:text-text-4"
+        id="checklist-quick-add"
+        className="mt-1 min-h-[44px] w-full rounded-lg border-b border-border bg-transparent px-1 py-2 text-[13px] text-text-1 placeholder:text-text-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[color:var(--accent)]"
         placeholder="Tambah tugas…"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

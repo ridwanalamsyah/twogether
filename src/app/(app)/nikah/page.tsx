@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Section, SectionTabs, ListBox, Empty, AccentBtn } from "@/components/tracker/Section";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
@@ -8,7 +9,7 @@ import { SwipeRow } from "@/components/ui/SwipeRow";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertItem, useItems } from "@/stores/data";
 import { parsePayload, daysBetween, isoDay, fromIsoDay } from "@/lib/people";
-import { formatRupiah, formatRupiahShort, formatMoneyInput } from "@/lib/utils";
+import { formatRupiahShort, formatMoneyInput } from "@/lib/utils";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 import type { ItemRecord } from "@/lib/db";
 
@@ -61,7 +62,7 @@ const TASK_TEMPLATE: [string, string][] = [
 
 const PRANIKAH_TEMPLATE: [string, string][] = [
   ["Berkas KUA", "Daftar online di simkah.kemenag.go.id"],
-  ["Berkas KUA", "Surat pengantar nikah dari kelurahan/desa (N1–N4)"],
+  ["Berkas KUA", "Surat pengantar nikah dari kelurahan/desa (N1-N4)"],
   ["Berkas KUA", "Fotokopi KTP & KK kedua calon"],
   ["Berkas KUA", "Fotokopi akta kelahiran / ijazah terakhir"],
   ["Berkas KUA", "Pas foto 2×3 & 4×6 latar biru"],
@@ -97,6 +98,7 @@ export default function NikahPage() {
   const talks = useItems(userId, "wed-talk") ?? [];
   const meta = parsePayload<Meta>(metaItem?.payload, { budget: 0, venue: "" });
   const [editMeta, setEditMeta] = useState(false);
+  const reduce = useReducedMotion();
 
   const planned = budgets.reduce((s, b) => s + (b.amount ?? 0), 0);
   const spent = budgets.reduce((s, b) => s + parsePayload<BudgetPayload>(b.payload, { spent: 0, vendor: "" }).spent, 0);
@@ -104,6 +106,7 @@ export default function NikahPage() {
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const guestCount = guests.reduce((s, g) => s + parsePayload<GuestPayload>(g.payload, { side: "bersama", count: 1, rsvp: "belum" }).count, 0);
   const daysLeft = metaItem?.date ? daysBetween(isoDay(new Date()), metaItem.date) : null;
+  const budgetPct = totalBudget > 0 ? Math.min(100, (spent / totalBudget) * 100) : 0;
 
   return (
     <div>
@@ -111,11 +114,11 @@ export default function NikahPage() {
       <div className="px-5 pb-8 pt-3">
         {/* Countdown hero */}
         <button
+          type="button"
           onClick={() => setEditMeta(true)}
           className="hero-soft pressable relative block w-full overflow-hidden rounded-[24px] p-5 text-left text-white shadow-float"
-          style={{ ["--hero" as string]: "#b76e79" }}
+          style={{ ["--hero" as string]: "var(--tint-mauve)" }}
         >
-          <span aria-hidden className="absolute -right-2 -top-3 text-[80px] opacity-20">💍</span>
           <div className="text-[13px] font-semibold text-white/85">
             {metaItem?.date
               ? fromIsoDay(metaItem.date).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
@@ -147,10 +150,12 @@ export default function NikahPage() {
               </span>
             </div>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-elev2">
-              <div
-                className="h-full rounded-full transition-[width] duration-300"
+              <motion.div
+                className="h-full w-full origin-left rounded-full"
+                initial={reduce ? false : { scaleX: 0 }}
+                animate={{ scaleX: budgetPct / 100 }}
+                transition={{ duration: reduce ? 0.04 : 0.45, ease: [0.22, 1, 0.36, 1] }}
                 style={{
-                  width: `${Math.min(100, (spent / totalBudget) * 100)}%`,
                   background: spent > totalBudget ? "var(--negative)" : "var(--accent)",
                 }}
               />
@@ -167,18 +172,20 @@ export default function NikahPage() {
         </SectionTabs>
       </div>
 
-      {editMeta && userId && (
-        <MetaSheet userId={userId} item={metaItem} meta={meta} onClose={() => setEditMeta(false)} />
-      )}
+      <AnimatePresence>
+        {editMeta && userId && (
+          <MetaSheet key="nikah-meta" userId={userId} item={metaItem} meta={meta} onClose={() => setEditMeta(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white/20 py-2 backdrop-blur">
+    <div className="rounded-2xl bg-white/20 py-2">
       <div className="text-[16px] font-extrabold tabular-nums">{value}</div>
-      <div className="text-[11px] text-white/85">{label}</div>
+      <div className="text-[12px] text-white/85">{label}</div>
     </div>
   );
 }
@@ -235,6 +242,7 @@ function MetaSheet({
 
 function BudgetSection({ userId, items, totalBudget }: { userId: string; items: ItemRecord[]; totalBudget: number }) {
   const [edit, setEdit] = useState<ItemRecord | "new" | null>(null);
+  const reduce = useReducedMotion();
   async function seed() {
     for (const [title, pct] of BUDGET_TEMPLATE) {
       await upsertItem(userId, {
@@ -250,7 +258,11 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
     <Section
       title="Anggaran"
       caption={`${items.length} pos`}
-      action={<AccentBtn onClick={() => setEdit("new")}>+ Pos</AccentBtn>}
+      action={
+        <AccentBtn aria-label="Tambah pos anggaran" onClick={() => setEdit("new")}>
+          + Pos
+        </AccentBtn>
+      }
     >
       {items.length === 0 ? (
         <div className="space-y-3">
@@ -264,8 +276,9 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
           {items.map((b) => {
             const p = parsePayload<BudgetPayload>(b.payload, { spent: 0, vendor: "" });
             const over = (b.amount ?? 0) > 0 && p.spent > (b.amount ?? 0);
+            const pct = (b.amount ?? 0) > 0 ? Math.min(100, (p.spent / (b.amount ?? 1)) * 100) : 0;
             return (
-              <button type="button" key={b.id} onClick={() => setEdit(b)} className="block w-full py-3 text-left">
+              <button type="button" key={b.id} onClick={() => setEdit(b)} className="block min-h-[44px] w-full py-3 text-left">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-[14px] font-semibold text-text-1">{b.title}</span>
                   <span className={`text-[12px] tabular-nums ${over ? "text-[color:var(--negative)]" : "text-text-3"}`}>
@@ -274,11 +287,13 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
                 </div>
                 {p.vendor && <div className="text-[12px] text-text-4">{p.vendor}</div>}
                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bg-elev2">
-                  <div
-                    className="h-full rounded-full"
+                  <motion.div
+                    className="h-full w-full origin-left rounded-full"
+                    initial={reduce ? false : { scaleX: 0 }}
+                    animate={{ scaleX: pct / 100 }}
+                    transition={{ duration: reduce ? 0.04 : 0.4, ease: [0.22, 1, 0.36, 1] }}
                     style={{
-                      width: `${(b.amount ?? 0) > 0 ? Math.min(100, (p.spent / (b.amount ?? 1)) * 100) : 0}%`,
-                      background: over ? "var(--negative)" : "#b76e79",
+                      background: over ? "var(--negative)" : "var(--tint-mauve)",
                     }}
                   />
                 </div>
@@ -287,9 +302,11 @@ function BudgetSection({ userId, items, totalBudget }: { userId: string; items: 
           })}
         </ListBox>
       )}
-      {edit && (
-        <BudgetSheet userId={userId} item={edit === "new" ? undefined : edit} onClose={() => setEdit(null)} />
-      )}
+      <AnimatePresence>
+        {edit && (
+          <BudgetSheet key={edit === "new" ? "new-budget" : edit.id} userId={userId} item={edit === "new" ? undefined : edit} onClose={() => setEdit(null)} />
+        )}
+      </AnimatePresence>
     </Section>
   );
 }
@@ -383,19 +400,23 @@ function TaskSection({ userId, items }: { userId: string; items: ItemRecord[] })
   return (
     <Section title="Persiapan" caption={`${items.filter((t) => t.status === "done").length} dari ${items.length} selesai`}>
       <div className="mb-3 flex gap-2">
+        <label htmlFor="nikah-task-input" className="sr-only">Tambah persiapan</label>
         <input
+          id="nikah-task-input"
           className="input-base h-11 flex-1"
           placeholder="Tambah persiapan…"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
         />
-        <AccentBtn onClick={add} disabled={!title.trim()}>+</AccentBtn>
+        <AccentBtn onClick={add} disabled={!title.trim()} aria-label="Tambah persiapan">
+          +
+        </AccentBtn>
       </div>
       {items.length === 0 ? (
         <div className="space-y-3">
           <Empty>Belum ada daftar persiapan.</Empty>
-          <button onClick={seed} className="btn-accent w-full">Pakai daftar persiapan standar</button>
+          <button type="button" onClick={seed} className="btn-accent w-full">Pakai daftar persiapan standar</button>
         </div>
       ) : (
         groups.map(([g, list]) => (
@@ -404,8 +425,8 @@ function TaskSection({ userId, items }: { userId: string; items: ItemRecord[] })
             <ListBox>
               {list.map((t) => (
                 <SwipeRow key={t.id} onDelete={() => deleteItem(userId, t.id)}>
-                  <button onClick={() => toggle(t)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
+                  <button type="button" onClick={() => toggle(t)} className="flex min-h-[44px] w-full items-center gap-3 bg-bg-card py-3 text-left">
+                    <span aria-hidden="true" className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                     <span className={`text-[14px] ${t.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{t.title}</span>
                   </button>
                 </SwipeRow>
@@ -436,9 +457,13 @@ function SeserahanSection({ userId, items }: { userId: string; items: ItemRecord
   return (
     <Section title="Seserahan" caption={`${items.filter((i) => i.status === "done").length}/${items.length} siap · ${formatRupiahShort(total)}`}>
       <div className="mb-3 flex gap-2">
-        <input className="input-base h-11 flex-1" placeholder="Alat sholat, sepatu…" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <input className="input-base h-11 w-28" inputMode="numeric" placeholder="Harga" value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))} />
-        <AccentBtn onClick={add} disabled={!title.trim()}>+</AccentBtn>
+        <label htmlFor="nikah-seserahan-name" className="sr-only">Nama barang seserahan</label>
+        <input id="nikah-seserahan-name" className="input-base h-11 flex-1" placeholder="Alat sholat, sepatu…" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <label htmlFor="nikah-seserahan-price" className="sr-only">Perkiraan harga</label>
+        <input id="nikah-seserahan-price" className="input-base h-11 w-28" inputMode="numeric" placeholder="Harga" value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ""))} />
+        <AccentBtn onClick={add} disabled={!title.trim()} aria-label="Tambah barang seserahan">
+          +
+        </AccentBtn>
       </div>
       {items.length === 0 ? (
         <Empty>Daftar seserahan masih kosong.</Empty>
@@ -447,10 +472,11 @@ function SeserahanSection({ userId, items }: { userId: string; items: ItemRecord
           {items.map((i) => (
             <SwipeRow key={i.id} onDelete={() => deleteItem(userId, i.id)}>
               <button
+                type="button"
                 onClick={() => upsertItem(userId, { ...i, status: i.status === "done" ? "todo" : "done" })}
-                className="flex w-full items-center gap-3 bg-bg-card py-3 text-left"
+                className="flex min-h-[44px] w-full items-center gap-3 bg-bg-card py-3 text-left"
               >
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${i.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
+                <span aria-hidden="true" className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${i.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                 <span className={`flex-1 text-[14px] ${i.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{i.title}</span>
                 {(i.amount ?? 0) > 0 && <span className="text-[12px] tabular-nums text-text-3">{formatRupiahShort(i.amount ?? 0)}</span>}
               </button>
@@ -490,9 +516,12 @@ function GuestSection({ userId, items }: { userId: string; items: ItemRecord[] }
   return (
     <Section title="Tamu" caption={`${total} orang · ${yes} pasti datang`}>
       <div className="mb-2 flex gap-2">
-        <input className="input-base h-11 flex-1" placeholder="Nama / keluarga" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} />
+        <label htmlFor="nikah-guest-name" className="sr-only">Nama tamu atau keluarga</label>
+        <input id="nikah-guest-name" className="input-base h-11 flex-1" placeholder="Nama / keluarga" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add()} />
         <input className="input-base h-11 w-16 text-center" inputMode="numeric" value={count} onChange={(e) => setCount(Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1))} aria-label="Jumlah orang" />
-        <AccentBtn onClick={add} disabled={!name.trim()}>+</AccentBtn>
+        <AccentBtn onClick={add} disabled={!name.trim()} aria-label="Tambah tamu">
+          +
+        </AccentBtn>
       </div>
       <div className="mb-3">
         <Chips
@@ -513,7 +542,7 @@ function GuestSection({ userId, items }: { userId: string; items: ItemRecord[] }
             const p = parse(g);
             return (
               <SwipeRow key={g.id} onDelete={() => deleteItem(userId, g.id)}>
-                <div className="flex items-center gap-3 bg-bg-card py-3">
+                <div className="flex items-center gap-3 bg-bg-card py-2">
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[14px] text-text-1">{g.title}</div>
                     <div className="text-[12px] text-text-4">
@@ -521,8 +550,9 @@ function GuestSection({ userId, items }: { userId: string; items: ItemRecord[] }
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => cycleRsvp(g)}
-                    className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
+                    className={`min-h-[44px] rounded-full px-3.5 py-2 text-[12px] font-semibold ${
                       p.rsvp === "ya"
                         ? "bg-positive-bg text-[color:var(--positive)]"
                         : p.rsvp === "tidak"
@@ -567,7 +597,7 @@ function PranikahSection({ userId, items, talks }: { userId: string; items: Item
       {items.length === 0 ? (
         <div className="mb-5 space-y-3">
           <Empty>Daftar berkas KUA, cek kesehatan, dan bekal sebelum akad.</Empty>
-          <button onClick={seed} className="btn-accent w-full">Pakai daftar pranikah</button>
+          <button type="button" onClick={seed} className="btn-accent w-full">Pakai daftar pranikah</button>
         </div>
       ) : (
         groups.map((g) => {
@@ -579,8 +609,8 @@ function PranikahSection({ userId, items, talks }: { userId: string; items: Item
               <ListBox>
                 {list.map((t) => (
                   <SwipeRow key={t.id} onDelete={() => deleteItem(userId, t.id)}>
-                    <button onClick={() => toggle(t)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
+                    <button type="button" onClick={() => toggle(t)} className="flex min-h-[44px] w-full items-center gap-3 bg-bg-card py-3 text-left">
+                      <span aria-hidden="true" className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                       <span className={`text-[14px] ${t.status === "done" ? "text-text-4 line-through" : "text-text-1"}`}>{t.title}</span>
                     </button>
                   </SwipeRow>
@@ -590,19 +620,19 @@ function PranikahSection({ userId, items, talks }: { userId: string; items: Item
           );
         })
       )}
-      <p className="-mt-1 mb-5 text-[11px] leading-snug text-text-4">
-        Syarat bisa berbeda tiap daerah — pastikan lagi ke KUA kecamatan kalian.
+      <p className="-mt-1 mb-5 text-[12px] leading-snug text-text-4">
+        Syarat bisa berbeda tiap daerah, pastikan lagi ke KUA kecamatan kalian.
       </p>
 
       <div className="mb-1 text-[15px] font-extrabold text-text-1">Obrolan sebelum akad</div>
-      <p className="mb-3 text-[12px] text-text-3">Bahas pelan-pelan, satu topik per kencan. Centang kalau sudah sepakat.</p>
+      <p className="mb-3 text-[12px] text-text-3">Bahas perlahan satu per satu, centang bila sepakat.</p>
       {TALKS.map((t) => (
         <div key={t.topic} className="mb-4">
           <div className="mb-1.5 text-[12px] font-bold text-text-3">{t.topic}</div>
           <ListBox>
             {t.q.map((q) => (
-              <button key={q} onClick={() => toggleTalk(q)} className="flex w-full items-center gap-3 bg-bg-card py-3 text-left">
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${discussed.has(q) ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
+              <button type="button" key={q} onClick={() => toggleTalk(q)} className="flex min-h-[44px] w-full items-center gap-3 bg-bg-card py-3 text-left">
+                <span aria-hidden="true" className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${discussed.has(q) ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"}`}>✓</span>
                 <span className={`text-[14px] ${discussed.has(q) ? "text-text-3" : "text-text-1"}`}>{q}</span>
               </button>
             ))}

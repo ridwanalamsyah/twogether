@@ -102,25 +102,35 @@ function AnniversarySection() {
       title="Tanggal penting"
       caption={`${items.length} tanggal`}
       defaultOpen
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form tanggal penting" : "Tambah tanggal penting"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          +
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="space-y-2">
             <input
+              aria-label="Judul tanggal penting"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Misal: Anniversary, Ultah Mama"
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full bg-transparent text-[13px]"
             />
             <div className="flex gap-2">
               <input
+                aria-label="Tanggal"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="flex-1 bg-transparent text-[13px] outline-none"
+                className="flex-1 bg-transparent text-[13px]"
               />
-              <label className="flex items-center gap-1.5 text-[12px] text-text-2">
+              <label className="flex min-h-[44px] items-center gap-1.5 text-[12px] text-text-2">
                 <input
                   type="checkbox"
                   checked={recurring}
@@ -148,7 +158,7 @@ function AnniversarySection() {
               </div>
               <div className="flex-1">
                 <div className="text-[13px]">{it.title}</div>
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-4">
                   {formatDateShort(it.when)}
                 </div>
               </div>
@@ -201,22 +211,32 @@ function DateNightSection() {
     <Section
       title="Date night"
       caption={`${todo.length} ide · ${done2.length} sudah`}
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form date night" : "Tambah ide date night"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          +
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="space-y-2">
             <input
+              aria-label="Tempat atau aktivitas date"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Tempat / aktivitas"
-              className="w-full bg-transparent text-[13px] outline-none"
+              className="w-full bg-transparent text-[13px]"
             />
             <div className="flex gap-2">
               <select
+                aria-label="Jenis date"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="bg-transparent text-[13px] text-text-2 outline-none"
+                className="min-h-[44px] bg-transparent text-[13px] text-text-2"
               >
                 <option value="makan">Makan</option>
                 <option value="aktivitas">Aktivitas</option>
@@ -238,16 +258,29 @@ function DateNightSection() {
             const p = JSON.parse(it.payload ?? "{}");
             const isDone = it.status === "done";
             return (
-              <div key={it.id} className="flex items-center gap-3 py-2.5">
+              <div key={it.id} className="flex items-center gap-1 py-1.5">
                 <button
+                  type="button"
+                  aria-label={`Tandai ${it.title}`}
+                  aria-pressed={isDone}
                   onClick={() => done(it.id)}
-                  className={`h-5 w-5 rounded border ${
-                    isDone
-                      ? "border-accent bg-accent"
-                      : "border-border bg-bg-app"
-                  }`}
-                />
-                <div className="flex-1">
+                  className="-ml-2 grid h-11 w-11 shrink-0 place-items-center"
+                >
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded border ${
+                      isDone
+                        ? "border-accent bg-accent text-accent-fg"
+                        : "border-border bg-bg-app"
+                    }`}
+                  >
+                    {isDone && (
+                      <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+                        <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+                <div className="min-w-0 flex-1">
                   <div
                     className={`text-[13px] ${
                       isDone ? "text-text-4 line-through" : ""
@@ -255,12 +288,12 @@ function DateNightSection() {
                   >
                     {it.title}
                   </div>
-                  <div className="text-[11px] text-text-4">
+                  <div className="text-[12px] text-text-4">
                     {p.type}
                     {it.date ? ` · ${formatDateShort(it.date)}` : ""}
                   </div>
                 </div>
-                <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
+                <GhostBtn aria-label={`Hapus ${it.title}`} onClick={() => userId && deleteItem(userId, it.id)}>
                   ×
                 </GhostBtn>
               </div>
@@ -296,11 +329,12 @@ function AppreciationSection() {
       <div className="form-card">
         <div className="space-y-2">
           <textarea
+            aria-label="Catatan apresiasi"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Hari ini saya menghargai…"
             rows={2}
-            className="w-full resize-none bg-transparent text-[13px] outline-none"
+            className="w-full resize-none bg-transparent text-[13px]"
           />
           <div className="flex justify-end">
             <AccentBtn onClick={add} disabled={!text.trim()}>
@@ -315,7 +349,7 @@ function AppreciationSection() {
             <div key={e.id} className="py-2.5">
               <div className="text-[13px] text-text-1">{e.valueText}</div>
               <div className="mt-0.5 flex items-center justify-between">
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-4">
                   {formatDateShort(e.date)}
                 </div>
                 <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -357,17 +391,19 @@ function ArgumentSection() {
       <div className="form-card">
         <div className="space-y-2">
           <input
+            aria-label="Topik perdebatan"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Topik perdebatan"
-            className="w-full bg-transparent text-[13px] outline-none"
+            className="w-full bg-transparent text-[13px]"
           />
           <textarea
+            aria-label="Pelajaran atau resolusi"
             value={resolution}
             onChange={(e) => setResolution(e.target.value)}
             placeholder="Pelajaran / resolusi"
             rows={2}
-            className="w-full resize-none bg-transparent text-[12px] outline-none"
+            className="w-full resize-none bg-transparent text-[12px]"
           />
           <div className="flex justify-end">
             <AccentBtn onClick={add} disabled={!topic.trim()}>
@@ -384,12 +420,12 @@ function ArgumentSection() {
               <div key={e.id} className="py-2.5">
                 <div className="text-[13px] text-text-1">{e.valueText}</div>
                 {p.resolution && (
-                  <div className="mt-0.5 text-[11px] text-text-3">
-                    → {p.resolution}
+                  <div className="mt-0.5 text-[12px] text-text-3">
+                    {p.resolution}
                   </div>
                 )}
                 <div className="mt-0.5 flex items-center justify-between">
-                  <div className="text-[11px] text-text-4">
+                  <div className="text-[12px] text-text-4">
                     {formatDateShort(e.date)}
                   </div>
                   <GhostBtn onClick={() => userId && deleteEntry(userId, e.id)}>
@@ -439,16 +475,25 @@ function BucketListSection() {
     <Section
       title="Bucket list"
       caption={`${done.length} / ${items.length} selesai`}
-      action={<AccentBtn onClick={() => setShowAdd(!showAdd)}>+</AccentBtn>}
+      action={
+        <AccentBtn
+          aria-expanded={showAdd}
+          aria-label={showAdd ? "Tutup form bucket list" : "Tambah bucket list"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          +
+        </AccentBtn>
+      }
     >
       {showAdd && (
         <div className="form-card">
           <div className="flex gap-2">
             <input
+              aria-label="Ide bucket list"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Misal: ke Jepang bareng"
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
             <AccentBtn onClick={save} disabled={!title}>
               Simpan
@@ -463,16 +508,29 @@ function BucketListSection() {
           {items.map((it) => {
             const isDone = it.status === "done";
             return (
-              <div key={it.id} className="flex items-center gap-3 py-2.5">
+              <div key={it.id} className="flex items-center gap-1 py-1.5">
                 <button
+                  type="button"
+                  aria-label={`Tandai ${it.title}`}
+                  aria-pressed={isDone}
                   onClick={() => toggle(it.id)}
-                  className={`h-5 w-5 rounded border ${
-                    isDone
-                      ? "border-accent bg-accent"
-                      : "border-border bg-bg-app"
-                  }`}
-                />
-                <div className="flex-1">
+                  className="-ml-2 grid h-11 w-11 shrink-0 place-items-center"
+                >
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded border ${
+                      isDone
+                        ? "border-accent bg-accent text-accent-fg"
+                        : "border-border bg-bg-app"
+                    }`}
+                  >
+                    {isDone && (
+                      <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+                        <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+                <div className="min-w-0 flex-1">
                   <div
                     className={`text-[13px] ${
                       isDone ? "text-text-4 line-through" : ""
@@ -481,12 +539,12 @@ function BucketListSection() {
                     {it.title}
                   </div>
                   {isDone && it.date && (
-                    <div className="text-[11px] text-text-4">
+                    <div className="text-[12px] text-text-4">
                       {formatDateShort(it.date)}
                     </div>
                   )}
                 </div>
-                <GhostBtn onClick={() => userId && deleteItem(userId, it.id)}>
+                <GhostBtn aria-label={`Hapus ${it.title}`} onClick={() => userId && deleteItem(userId, it.id)}>
                   ×
                 </GhostBtn>
               </div>
@@ -530,17 +588,19 @@ function SurpriseSection() {
       <div className="form-card">
         <div className="space-y-2">
           <input
+            aria-label="Dari siapa"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
             placeholder="Dari siapa"
-            className="w-full bg-transparent text-[13px] outline-none"
+            className="w-full bg-transparent text-[13px]"
           />
           <div className="flex gap-2">
             <input
+              aria-label="Apa surprise-nya"
               value={what}
               onChange={(e) => setWhat(e.target.value)}
               placeholder="Apa surprise-nya"
-              className="flex-1 bg-transparent text-[13px] outline-none"
+              className="flex-1 bg-transparent text-[13px]"
             />
             <AccentBtn onClick={add} disabled={!from || !what}>
               Catat
@@ -554,7 +614,7 @@ function SurpriseSection() {
             <div key={e.id} className="flex items-center justify-between py-2.5">
               <div>
                 <div className="text-[13px]">{e.valueText}</div>
-                <div className="text-[11px] text-text-4">
+                <div className="text-[12px] text-text-4">
                   dari {nick(e.who)} · {formatDateShort(e.date)}
                 </div>
               </div>
@@ -606,11 +666,11 @@ function QotdSection() {
         <div className="mt-3 divide-y divide-border border-y border-border">
           {days.map(([key, d]) => (
             <div key={key} className="py-2.5">
-              <div className="text-[11px] text-text-4">{formatDateShort(key.slice(0, 10))}</div>
+              <div className="text-[12px] text-text-4">{formatDateShort(key.slice(0, 10))}</div>
               <div className="text-[13px] font-medium text-text-2">{d.question}</div>
               {d.rows.map((r, i) => (
                 <div key={i} className="mt-1 text-[13px] text-text-1">
-                  {r.who && <span className="mr-1.5 text-[11px] font-semibold text-text-4">{r.who}</span>}
+                  {r.who && <span className="mr-1.5 text-[12px] font-semibold text-text-4">{r.who}</span>}
                   {r.text}
                 </div>
               ))}

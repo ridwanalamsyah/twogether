@@ -80,8 +80,8 @@ export default function JelajahPage() {
             <button
               type="button"
               onClick={() => setEditing((v) => !v)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                editing ? "bg-accent text-accent-fg" : "text-text-2"
+              className={`min-h-[44px] rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+                editing ? "bg-accent text-accent-fg" : "text-text-2 hover:bg-bg-elev2"
               }`}
             >
               {editing ? "Selesai" : "Susun"}
@@ -92,17 +92,18 @@ export default function JelajahPage() {
 
       <div className="px-5 pt-4 pb-8">
         {!editing && (
-          <label className="mb-5 flex items-center gap-2 rounded-full bg-bg-elev1 px-3.5 py-2.5 transition-shadow focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40">
-            <Search size={16} className="shrink-0 text-text-4" />
+          <label className="mb-5 flex min-h-[44px] items-center gap-2 rounded-full bg-bg-elev1 px-3.5 py-1.5 transition-shadow focus-within:ring-2 focus-within:ring-[color:var(--accent)]">
+            <Search size={16} className="shrink-0 text-text-4" aria-hidden />
             <input
+              aria-label="Cari ruang"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cari ruang…"
-              className="min-w-0 flex-1 bg-transparent text-[15px] text-text-1 placeholder:text-text-4 focus:outline-none"
+              className="min-h-[44px] min-w-0 flex-1 rounded-full bg-transparent text-[15px] text-text-1 placeholder:text-text-4"
             />
             {query && (
-              <button type="button" onClick={() => setQuery("")} aria-label="Hapus pencarian" className="text-text-4">
-                <X size={16} />
+              <button type="button" onClick={() => setQuery("")} aria-label="Hapus pencarian" className="-mr-1.5 grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 hover:text-text-1">
+                <X size={16} aria-hidden />
               </button>
             )}
           </label>
@@ -188,23 +189,19 @@ export default function JelajahPage() {
               type="button"
               aria-expanded={showMore}
               onClick={() => setShowMore((v) => !v)}
-              className="flex w-full items-center justify-between py-2 text-left active:opacity-60"
+              className="flex min-h-[44px] w-full items-center justify-between py-2 text-left active:opacity-60"
             >
               <span>
                 <span className="block text-[14px] font-semibold text-text-1">
                   Tambah ruang
                 </span>
                 <span className="block text-[12px] text-text-3">
-                  {others.length} ruang lain siap dipakai kapan saja
-                  {others.some((f) => f.isNew) && (
-                    <span className="ml-1.5 rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-accent-fg">
-                      {others.filter((f) => f.isNew).length} baru
-                    </span>
-                  )}
+                  {others.length} ruang siap dipakai
                 </span>
               </span>
               <ChevronRight
                 size={18}
+                aria-hidden
                 className={`text-text-3 transition-transform duration-200 ease-ios ${
                   showMore ? "rotate-90" : ""
                 }`}
@@ -242,7 +239,7 @@ export default function JelajahPage() {
                                   if (userId) void revealFor(userId, missing.map((f) => f.href));
                                 }}
                                 disabled={!missing.length}
-                                className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 transition-transform active:scale-95 disabled:bg-transparent disabled:text-text-4"
+                                className="min-h-[44px] shrink-0 rounded-[14px] bg-bg-elev1 px-3.5 py-2 text-[12px] font-semibold text-text-1 transition-transform active:scale-95 disabled:bg-transparent disabled:text-text-4"
                               >
                                 {missing.length ? `Tambah ${missing.length}` : "Dipakai"}
                               </button>
@@ -258,13 +255,8 @@ export default function JelajahPage() {
                       <li key={f.href} className="flex items-center gap-3 px-4 py-3">
                         <IconTile spec={spaceIcon(f.href)} size={36} radius={10} />
                         <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-1.5 text-[14px] text-text-1">
+                          <span className="block text-[14px] font-medium text-text-1">
                             {f.title}
-                            {f.isNew && (
-                              <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-accent-fg">
-                                Baru
-                              </span>
-                            )}
                           </span>
                           <span className="block truncate text-[12px] text-text-4">
                             {f.subtitle}
@@ -277,7 +269,7 @@ export default function JelajahPage() {
                             toggle(f.href);
                             if (userId) void revealFor(userId, [f.href]);
                           }}
-                          className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 transition-transform active:scale-95"
+                          className="min-h-[44px] shrink-0 rounded-[14px] bg-bg-elev1 px-3.5 py-2 text-[12px] font-semibold text-text-1 transition-transform active:scale-95"
                         >
                           Tambah
                         </button>
@@ -301,17 +293,16 @@ function TidyCard({ spaces, onHide, onLater }: { spaces: Feature[]; onHide: () =
   const names = spaces.map((f) => SHORT[f.href] ?? f.title);
   return (
     <div className="surface mb-5 p-4">
-      <div className="text-[14px] font-semibold text-text-1">Biar Jelajah lebih fokus</div>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-text-3">
-        {spaces.length} ruang tidak dibuka sebulan terakhir: {names.slice(0, 4).join(", ")}
-        {names.length > 4 ? `, dan ${names.length - 4} lainnya` : ""}. Sembunyikan dulu? Datanya tetap aman dan
-        bisa ditambah lagi kapan saja.
+      <div className="text-[14px] font-semibold text-text-1">Ruang jarang dibuka</div>
+      <p className="mt-1 text-[13px] leading-relaxed text-text-3">
+        {names.slice(0, 3).join(", ")}
+        {names.length > 3 ? ` +${names.length - 3} lainnya` : ""} bisa disembunyikan dulu, data tetap aman.
       </p>
-      <div className="mt-3 flex gap-2">
-        <button onClick={onHide} className="rounded-full bg-accent px-3.5 py-1.5 text-[12px] font-semibold text-accent-fg active:scale-95">
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={onHide} className="min-h-[44px] rounded-[14px] bg-accent px-4 py-2 text-[13px] font-semibold text-accent-fg active:scale-95">
           Sembunyikan {spaces.length}
         </button>
-        <button onClick={onLater} className="rounded-full bg-bg-elev1 px-3.5 py-1.5 text-[12px] font-semibold text-text-2 active:scale-95">
+        <button type="button" onClick={onLater} className="min-h-[44px] rounded-[14px] bg-bg-elev1 px-4 py-2 text-[13px] font-semibold text-text-2 active:scale-95">
           Nanti saja
         </button>
       </div>
@@ -398,7 +389,7 @@ function SpaceIcon({ feature: f, index }: { feature: Feature; index: number }) {
         <motion.span whileTap={reduced ? undefined : { scale: 0.88 }} transition={{ type: "spring", stiffness: 600, damping: 25 }}>
           <IconTile spec={spaceIcon(f.href)} size={52} radius={16} />
         </motion.span>
-        <span className="w-full truncate px-0.5 text-center text-[11px] font-medium leading-tight text-text-2">
+        <span className="w-full truncate px-0.5 text-center text-[12px] font-medium leading-tight text-text-2">
           {SHORT[f.href] ?? f.title}
         </span>
       </Link>
@@ -451,8 +442,9 @@ function SearchResults({
                   <span className="block truncate text-[12px] text-text-4">{f.subtitle}</span>
                 </span>
                 <button
+                  type="button"
                   onClick={() => onAdd(f)}
-                  className="shrink-0 rounded-full bg-bg-elev1 px-3 py-1.5 text-[12px] font-semibold text-text-1 active:scale-95"
+                  className="min-h-[44px] shrink-0 rounded-[14px] bg-bg-elev1 px-3.5 py-2 text-[12px] font-semibold text-text-1 active:scale-95"
                 >
                   Tambah
                 </button>
@@ -492,13 +484,16 @@ function SpaceCard({
     >
       {editing && (
         <button
+          type="button"
           aria-label={`Sembunyikan ${f.title}`}
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           onClick={onHide}
-          className="pop-in grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color:var(--negative)] text-white"
+          className="-my-2 -ml-2 grid h-11 w-11 shrink-0 place-items-center"
         >
-          <Minus size={14} strokeWidth={3} />
+          <span className="pop-in grid h-6 w-6 place-items-center rounded-full bg-[color:var(--negative)] text-[color:var(--negative-fg)]">
+            <Minus size={14} strokeWidth={3} aria-hidden />
+          </span>
         </button>
       )}
       <Link
@@ -512,9 +507,9 @@ function SpaceCard({
           <span className="block truncate text-[12px] text-text-3">{f.subtitle}</span>
         </span>
         {editing ? (
-          <GripVertical size={18} className="shrink-0 text-text-4" />
+          <GripVertical size={18} className="shrink-0 text-text-4" aria-hidden />
         ) : (
-          <ChevronRight size={18} className="shrink-0 text-text-5" />
+          <ChevronRight size={18} className="shrink-0 text-text-5" aria-hidden />
         )}
       </Link>
     </li>

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
+import { ChevronRight } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/stores/auth";
 import {
   ensureDefaultSkripsiChapters,
@@ -14,6 +16,7 @@ import { formatDateShort } from "@/lib/utils";
 
 export function SkripsiWidget() {
   const userId = useAuth((s) => s.userId);
+  const reduce = useReducedMotion();
   const chapters = useSkripsiChapters(userId);
   const bimbingan = useSkripsiBimbingan(userId);
   const meta = useSkripsiMeta(userId);
@@ -39,8 +42,9 @@ export function SkripsiWidget() {
     <WidgetShell
       title="Skripsi"
       action={
-        <Link href="/skripsi" className="text-[11px] text-text-3 hover:text-text-1">
-          Lihat ›
+        <Link href="/skripsi" className="-my-2 inline-flex min-h-[44px] items-center gap-0.5 text-[12px] text-text-3 hover:text-text-1">
+          Lihat
+          <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
         </Link>
       }
     >
@@ -49,13 +53,16 @@ export function SkripsiWidget() {
           {overall}%
         </span>
         {meta?.judul && (
-          <span className="ml-2 truncate text-[11px] text-text-3">{meta.judul}</span>
+          <span className="ml-2 truncate text-[12px] text-text-3">{meta.judul}</span>
         )}
       </div>
       <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
-        <div
-          className="h-full rounded-full bg-accent transition-[width] duration-500"
-          style={{ width: `${overall}%` }}
+        <motion.div
+          className="h-full w-full rounded-full bg-accent"
+          style={{ originX: 0 }}
+          initial={reduce ? false : { scaleX: 0 }}
+          animate={{ scaleX: overall / 100 }}
+          transition={reduce ? { duration: 0.1 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
 
@@ -63,10 +70,10 @@ export function SkripsiWidget() {
         {(chapters ?? []).slice(0, 3).map((c) => (
           <li key={c.id} className="flex items-center justify-between gap-2 text-[12px]">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="text-[10px] font-semibold tracking-wide text-text-4">BAB {c.number}</span>
+              <span className="text-[12px] font-semibold tracking-wide text-text-4">BAB {c.number}</span>
               <span className="truncate text-text-2">{c.title}</span>
             </div>
-            <span className="text-[11px] font-medium tabular-nums text-text-3">
+            <span className="text-[12px] font-medium tabular-nums text-text-3">
               {c.progress}%
             </span>
           </li>
@@ -74,7 +81,7 @@ export function SkripsiWidget() {
       </ul>
 
       {nextBimbingan && (
-        <div className="mt-3 border-t border-border pt-2 text-[11px]">
+        <div className="mt-3 border-t border-border pt-2 text-[12px]">
           <span className="text-text-3">{formatDateShort(nextBimbingan.date)}</span>
           <span className="ml-1.5 text-text-1">{nextBimbingan.topic || "Bimbingan"}</span>
         </div>

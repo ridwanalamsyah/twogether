@@ -4,13 +4,13 @@
  */
 
 const PALETTE = [
-  "#f43f5e",
-  "#f59e0b",
-  "#10b981",
-  "#3b82f6",
-  "#8b5cf6",
-  "#ec4899",
-  "#fde047",
+  "var(--tint-rose)",
+  "var(--tint-amber)",
+  "var(--tint-emerald)",
+  "var(--tint-blue)",
+  "var(--tint-violet)",
+  "var(--tint-pink)",
+  "var(--tint-sun)",
 ];
 
 export function konfetti(opts?: {

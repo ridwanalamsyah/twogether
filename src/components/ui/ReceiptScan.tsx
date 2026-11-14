@@ -45,16 +45,16 @@ export function ReceiptScanButton({
         type="button"
         disabled={state === "busy"}
         onClick={() => input.current?.click()}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-bg-elev2 py-3 text-[14px] font-semibold text-text-1 active:scale-[0.99] disabled:opacity-70"
+        className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[14px] bg-bg-elev2 py-3 text-[14px] font-semibold text-text-1 active:scale-[0.99] disabled:opacity-70"
       >
         {state === "busy" ? (
           <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
             Membaca struk… {pct > 0 ? `${pct}%` : ""}
           </>
         ) : (
           <>
-            <Camera size={17} /> Foto struk
+            <Camera size={17} aria-hidden /> Foto struk
           </>
         )}
       </button>

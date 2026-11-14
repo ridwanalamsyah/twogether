@@ -35,8 +35,9 @@ export function WalletPicker({ value, onChange }: { value: string | null; onChan
             onChange(value === w.id ? null : w.id);
             hapticTap();
           }}
-          className={`flex shrink-0 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-[13px] font-semibold ${
-            value === w.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-2 shadow-card"
+          aria-pressed={value === w.id}
+          className={`flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold transition-colors ${
+            value === w.id ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2 shadow-card"
           }`}
         >
           <WalletBadge name={w.name} size={24} />
@@ -54,19 +55,23 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
   return (
     <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
       <button
+        type="button"
         onClick={() => onSelect(null)}
-        className={`shrink-0 rounded-[18px] px-4 py-3 text-left ${selected === null ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"}`}
+        aria-pressed={selected === null}
+        className={`min-h-[44px] shrink-0 rounded-[18px] px-4 py-3 text-left transition-colors ${selected === null ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"}`}
       >
-        <div className={`text-[11px] font-semibold ${selected === null ? "opacity-70" : "text-text-3"}`}>Semua dompet</div>
-        <div className="num text-[16px] font-semibold">{wallets.length ? formatRupiahShort(total) : "—"}</div>
+        <div className={`text-[12px] font-semibold ${selected === null ? "opacity-75" : "text-text-3"}`}>Semua dompet</div>
+        <div className="num text-[16px] font-semibold">{wallets.length ? formatRupiahShort(total) : "-"}</div>
       </button>
       {wallets.map((w) => (
         <button
           key={w.id}
+          type="button"
           onClick={() => onSelect(selected === w.id ? null : w.id)}
-          className={`shrink-0 rounded-[18px] px-4 py-3 text-left ${selected === w.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-1 shadow-card"}`}
+          aria-pressed={selected === w.id}
+          className={`min-h-[44px] shrink-0 rounded-[18px] px-4 py-3 text-left transition-colors ${selected === w.id ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"}`}
         >
-          <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${selected === w.id ? "opacity-85" : "text-text-3"}`}>
+          <div className={`flex items-center gap-1.5 text-[12px] font-semibold ${selected === w.id ? "opacity-85" : "text-text-3"}`}>
             <WalletBadge name={w.name} size={16} /> {w.name}
           </div>
           <div className="num text-[16px] font-semibold">{formatRupiahShort(balances[w.id] ?? 0)}</div>
@@ -74,7 +79,7 @@ export function WalletStrip({ selected, onSelect }: { selected: string | null; o
       ))}
       <Link
         href="/dompet"
-        className="grid shrink-0 place-items-center rounded-[18px] bg-bg-elev2 px-4 text-[13px] font-semibold text-text-3"
+        className="grid min-h-[44px] shrink-0 place-items-center rounded-[18px] bg-bg-elev2 px-4 text-[13px] font-semibold text-text-3"
       >
         {wallets.length ? "Atur" : "+ Dompet"}
       </Link>
@@ -109,6 +114,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
         <div className="flex gap-2">
           {wallet && userId && (
             <button
+              type="button"
               onClick={async () => {
                 if (!confirm("Hapus dompet ini? Transaksinya tetap ada.")) return;
                 await deleteItem(userId, wallet.id);
@@ -120,7 +126,7 @@ export function WalletSheet({ wallet, onClose }: { wallet?: Wallet; onClose: () 
               Hapus
             </button>
           )}
-          <button onClick={save} disabled={!name.trim()} className="btn-accent flex-1 disabled:opacity-50">
+          <button type="button" onClick={save} disabled={!name.trim()} className="btn-accent flex-1 disabled:opacity-50">
             Simpan
           </button>
         </div>

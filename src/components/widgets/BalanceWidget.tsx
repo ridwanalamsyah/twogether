@@ -2,7 +2,7 @@
 
 import { useNick } from "@/lib/nick";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CountUp } from "@/components/ui/CountUp";
 import { useAuth } from "@/stores/auth";
 import { useWorkspace } from "@/stores/workspace";
@@ -29,13 +29,6 @@ interface Stat {
   hint?: string;
   tone?: "positive" | "negative" | "neutral";
 }
-
-const TINTS = [
-  { emoji: "👛", bg: "color-mix(in srgb, var(--positive) 12%, transparent)" },
-  { emoji: "💳", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
-  { emoji: "🧾", bg: "color-mix(in srgb, var(--warning) 14%, transparent)" },
-  { emoji: "💸", bg: "color-mix(in srgb, var(--info) 12%, transparent)" },
-];
 
 const ICONS = [
   "👛", "💳", "💵", "💰", "🏦", "🪙", "💸", "🧾", "🐷", "🛍️",
@@ -136,17 +129,19 @@ export function BalanceWidget() {
   // Icon choices are synced so both phones show the same faces.
   const picks = useItems(userId, "tile-icon");
   const [picking, setPicking] = useState<Stat | null>(null);
-  const iconOf = (s: Stat, i: number) =>
-    picks?.find((p) => p.title === s.key)?.status || TINTS[i % TINTS.length].emoji;
   const custom = (s: Stat) => picks?.find((p) => p.title === s.key)?.status;
   const DEFAULT_SPECS = [
-    { Icon: Wallet, tint: "#22c55e" },
-    { Icon: CreditCard, tint: "#3b82f6" },
-    { Icon: HandCoins, tint: "#f59e0b" },
-    { Icon: PiggyBank, tint: "#a855f7" },
+    { Icon: Wallet, tint: "var(--tint-green)" },
+    { Icon: CreditCard, tint: "var(--tint-blue)" },
+    { Icon: HandCoins, tint: "var(--tint-amber)" },
+    { Icon: PiggyBank, tint: "var(--tint-purple)" },
   ];
   const specOf = (s: Stat, i: number) =>
-    s.key === "tabungan" ? { Icon: PiggyBank, tint: "#a855f7" } : s.key === "bulan" ? { Icon: Receipt, tint: "#f43f5e" } : DEFAULT_SPECS[i % DEFAULT_SPECS.length];
+    s.key === "tabungan"
+      ? { Icon: PiggyBank, tint: "var(--tint-purple)" }
+      : s.key === "bulan"
+        ? { Icon: Receipt, tint: "var(--tint-rose)" }
+        : DEFAULT_SPECS[i % DEFAULT_SPECS.length];
   async function choose(emoji: string) {
     if (!userId || !picking) return;
     const existing = picks?.find((p) => p.title === picking.key);
@@ -159,15 +154,17 @@ export function BalanceWidget() {
     <WidgetShell title="Uang kita" action={<HideMoneyToggle />}>
       <div className="divide-y divide-[color:var(--hairline)]">
         {stats.map((s, i) => (
-          <div key={s.label} className="flex items-center gap-3 py-2.5">
+          <div key={s.label} className="flex items-center gap-2 py-2">
             <button
               type="button"
               onClick={() => setPicking(s)}
               aria-label={`Ganti ikon ${s.label}`}
-              className="rounded-full transition-transform active:scale-90"
+              className="grid h-11 w-11 -ml-1.5 shrink-0 place-items-center rounded-full transition-transform active:scale-90"
             >
               {custom(s) ? (
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-[16px] leading-none">{custom(s)}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-[16px] leading-none">
+                  {custom(s)}
+                </span>
               ) : (
                 <IconTile spec={specOf(s, i)} size={32} radius={999} />
               )}
@@ -182,24 +179,27 @@ export function BalanceWidget() {
         ))}
       </div>
       <PatunganRow />
-      {picking && (
-        <Sheet title={`Ikon ${picking.label}`} onClose={() => setPicking(null)}>
-          <div className="grid grid-cols-8 gap-1.5">
-            {ICONS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => choose(e)}
-                className={`grid aspect-square place-items-center rounded-xl text-[22px] transition-transform active:scale-90 ${
-                  iconOf(picking, stats.indexOf(picking)) === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev1"
-                }`}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-        </Sheet>
-      )}
+      <AnimatePresence>
+        {picking && (
+          <Sheet key={picking.key} title={`Ikon ${picking.label}`} onClose={() => setPicking(null)}>
+            <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-8">
+              {ICONS.map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  onClick={() => choose(e)}
+                  aria-pressed={custom(picking) === e}
+                  className={`grid min-h-[44px] aspect-square place-items-center rounded-xl text-[22px] transition-transform active:scale-90 ${
+                    custom(picking) === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev1"
+                  }`}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+          </Sheet>
+        )}
+      </AnimatePresence>
     </WidgetShell>
   );
 }
@@ -233,7 +233,7 @@ function AnimatedAmount({
     prev.current = amount;
   }, [amount]);
 
-  const cls = `num relative -mr-1.5 rounded-lg px-2 py-0.5 text-[15px] font-semibold tabular-nums select-none transition-colors ${
+  const cls = `num relative -mr-1.5 inline-flex min-h-[44px] items-center rounded-lg px-2 text-[15px] font-semibold tabular-nums select-none transition-colors ${
     negative ? "text-[color:var(--negative)]" : "text-text-1"
   } ${isBlurred ? "bg-bg-elev1/50" : ""}`;
 
@@ -298,9 +298,9 @@ function HideMoneyToggle() {
       }}
       aria-label={hidden ? "Tampilkan nominal" : "Sembunyikan nominal"}
       aria-pressed={hidden}
-      className="-mr-1 grid h-7 w-7 place-items-center rounded-full text-text-3 transition-transform active:scale-90"
+      className="-mr-2 -my-1.5 grid h-11 w-11 place-items-center rounded-full text-text-3 transition-transform active:scale-90"
     >
-      {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+      {hidden ? <EyeOff size={16} aria-hidden /> : <Eye size={16} aria-hidden />}
     </button>
   );
 }
@@ -319,9 +319,9 @@ function PatunganRow() {
   return (
     <Link
       href="/patungan"
-      className="mt-1 flex items-center gap-3 border-t border-[color:var(--hairline)] pt-2.5 active:opacity-70"
+      className="mt-1 flex min-h-[44px] items-center gap-3 border-t border-[color:var(--hairline)] pt-2.5 active:opacity-70"
     >
-      <IconTile spec={{ Icon: HandCoins, tint: "#f59e0b" }} size={32} radius={999} />
+      <IconTile spec={{ Icon: HandCoins, tint: "var(--tint-amber)" }} size={32} radius={999} />
       <div className="min-w-0 flex-1 truncate text-[14px] text-text-2">{text}</div>
       <div className="num text-[15px] font-semibold text-text-1">{formatRupiahShort(Math.abs(net))}</div>
     </Link>

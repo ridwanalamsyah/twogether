@@ -50,40 +50,54 @@ export function TantanganWidget() {
 
   return (
     <div className="surface p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <Link href="/tantangan" className="flex items-center gap-2 text-[15px] font-semibold text-text-1"><Flame size={16} className="text-text-3" /> Tantangan hari ini</Link>
-        <Link href="/tantangan" className="text-[12px] text-text-3">Lihat ›</Link>
+      <div className="mb-1 flex items-center justify-between">
+        <Link href="/tantangan" className="flex min-h-[44px] items-center gap-2 text-[15px] font-semibold text-text-1">
+          <Flame size={16} className="text-text-3" aria-hidden /> Tantangan hari ini
+        </Link>
+        <Link href="/tantangan" className="inline-flex min-h-[44px] items-center px-1 text-[12px] text-text-3">
+          Lihat ›
+        </Link>
       </div>
       {active.length === 0 ? (
-        <Link href="/tantangan" className="block py-1 text-[13px] text-text-3">
-          Belum ada tantangan berjalan. Mulai satu bareng {partner ? nick(partner) : "pasangan"} →
+        <Link href="/tantangan" className="flex min-h-[44px] items-center py-2 text-[13px] text-text-3">
+          Belum ada tantangan berjalan. Mulai satu bareng {partner ? nick(partner) : "pasangan"}.
         </Link>
       ) : (
         <div className="divide-y divide-[color:var(--hairline)]">
           {active.slice(0, 3).map((c) => {
-            const p = parsePayload(c.payload, { emoji: "🔥" });
+            const p = parsePayload(c.payload, { emoji: "" });
             const done = !!logOf(c.id, me);
             const theirs = partner ? !!logOf(c.id, partner) : null;
             const day = daysBetween(c.date ?? today, today) + 1;
             const total = daysBetween(c.date ?? today, c.due ?? today) + 1;
             return (
-              <div key={c.id} className="flex items-center gap-3 py-2.5">
-                <span className="text-[20px]">{p.emoji}</span>
+              <div key={c.id} className="flex items-center gap-3 py-2">
+                {p.emoji ? (
+                  <span className="grid h-8 w-8 shrink-0 place-items-center text-[20px]">{p.emoji}</span>
+                ) : (
+                  <IconTile spec={spaceIcon("/tantangan")} size={32} radius={10} />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14px] font-semibold text-text-1">{c.title}</div>
-                  <div className="text-[11px] text-text-4">
+                  <div className="text-[12px] text-text-4">
                     Hari {day}/{total}
                     {theirs != null && ` · ${nick(partner)} ${theirs ? "sudah" : "belum"}`}
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => toggle(c.id)}
-                  aria-label={done ? "Batalkan" : "Aku sudah"}
-                  className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-[15px] font-bold transition-colors ${
-                    done ? "bg-accent text-accent-fg" : "border-2 border-border-strong text-transparent"
-                  }`}
+                  aria-label={done ? `Batalkan ${c.title}` : `Selesaikan ${c.title}`}
+                  aria-pressed={done}
+                  className="-mr-1.5 grid h-11 w-11 shrink-0 place-items-center rounded-full"
                 >
-                  <Check size={18} strokeWidth={3} />
+                  <span
+                    className={`grid h-9 w-9 place-items-center rounded-full text-[15px] font-bold transition-colors ${
+                      done ? "bg-accent text-accent-fg" : "border-2 border-border-strong text-transparent"
+                    }`}
+                  >
+                    <Check size={18} strokeWidth={3} aria-hidden />
+                  </span>
                 </button>
               </div>
             );
@@ -130,7 +144,7 @@ export function FokusWidget() {
       <div className="relative">
         <IconTile spec={spaceIcon("/fokus")} size={44} radius={14} />
         {(mine || theirs) && (
-          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 animate-pulse rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
+          <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-[color:var(--positive)] ring-2 ring-bg-card" />
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -143,13 +157,13 @@ export function FokusWidget() {
         </div>
         <div className="truncate text-[12px] text-text-3">
           {theirs && !mine
-            ? `${theirs.valueText ? `${theirs.valueText} · ` : ""}sisa ${left(theirs)} mnt — ketuk untuk ikut`
+            ? `${theirs.valueText ? `${theirs.valueText} · ` : ""}sisa ${left(theirs)} mnt, ketuk untuk ikut`
             : todayMins
               ? `Hari ini ${todayMins} menit`
               : "Mulai 25 menit, saling nemenin"}
         </div>
       </div>
-      <span className="text-text-4">›</span>
+      <span className="text-text-4" aria-hidden>›</span>
     </Link>
   );
 }
@@ -172,7 +186,7 @@ export function RamadhanWidget() {
     <Link
       href="/ramadhan"
       className="hero-soft pressable block rounded-[22px] p-4 text-white shadow-float"
-      style={{ ["--hero" as string]: "#7a4f9e" }}
+      style={{ ["--hero" as string]: "var(--tint-iris)" }}
     >
       {inRamadhan ? (
         <>

@@ -1,6 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   Dumbbell,
@@ -52,6 +54,7 @@ function quarterOf(d: Date) {
 }
 
 export default function TargetPage() {
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
   const { nick } = useNick();
@@ -94,7 +97,7 @@ export default function TargetPage() {
         title="Target tahunan"
         actions={
           tab === "target" ? (
-            <button type="button" onClick={() => setEditing("new")} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
+            <button type="button" onClick={() => setEditing("new")} className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[13px] font-bold text-accent-fg">
               + Baru
             </button>
           ) : undefined
@@ -102,47 +105,64 @@ export default function TargetPage() {
       />
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div className="flex items-center justify-between">
-          <button type="button" onClick={() => setYear(year - 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun sebelumnya">
-            <ChevronLeft size={16} aria-hidden />
+          <button type="button" onClick={() => setYear(year - 1)} className="grid h-11 w-11 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun sebelumnya">
+            <ChevronLeft size={16} aria-hidden="true" />
           </button>
           <div className="tabular-nums text-[17px] font-extrabold text-text-1">{year}</div>
-          <button type="button" onClick={() => setYear(year + 1)} className="grid h-9 w-9 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun berikutnya">
-            <ChevronRight size={16} aria-hidden />
+          <button type="button" onClick={() => setYear(year + 1)} className="grid h-11 w-11 place-items-center rounded-full bg-bg-card text-text-2 shadow-card" aria-label="Tahun berikutnya">
+            <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
 
-        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "#8b5cf6" }}>
+        <div className="hero-soft rounded-[24px] p-5 text-white shadow-float" style={{ ["--hero" as string]: "var(--tint-iris)" }}>
           <div className="text-[13px] font-semibold text-white/85">
             {targets.length ? `${doneCount} dari ${targets.length} target tercapai` : "Belum ada target"}
           </div>
           <div className="mt-1 tabular-nums text-[34px] font-extrabold leading-tight">{Math.round(overall * 100)}%</div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/25">
-            <div className="h-full rounded-full bg-white" style={{ width: `${overall * 100}%` }} />
+            <motion.div
+              className="h-full origin-left rounded-full bg-white"
+              initial={false}
+              animate={{ scaleX: Math.max(0, Math.min(1, overall)) }}
+              transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 28 }}
+            />
           </div>
           {year === now.getFullYear() && (
             <div className="mt-2 text-[12px] text-white/85">Tahun sudah berjalan {Math.round(yearPct * 100)}%</div>
           )}
         </div>
 
-        <div className="relative grid grid-cols-2 rounded-[12px] bg-bg-elev2 p-1 text-[13px]">
-          <span
-            aria-hidden
-            className="absolute bottom-1 left-1 top-1 w-[calc((100%-8px)/2)] rounded-[9px] bg-bg-card shadow-sm transition-transform duration-300 ease-ios"
-            style={{ transform: `translateX(${tab === "target" ? 0 : 100}%)` }}
-          />
-          {(["target", "review"] as const).map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
-              {t === "target" ? "Target" : "Review kuartal"}
-            </button>
-          ))}
+        <div role="tablist" aria-label="Tampilan target" className="grid grid-cols-2 rounded-[12px] bg-bg-elev2 p-1 text-[13px]">
+          {(["target", "review"] as const).map((t) => {
+            const active = tab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(t)}
+                className={`relative min-h-[44px] py-2 font-semibold transition-colors ${active ? "text-text-1" : "text-text-3"}`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="target-tab-pill"
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 rounded-[9px] bg-bg-card shadow-sm"
+                  />
+                )}
+                <span className="relative z-10">{t === "target" ? "Target" : "Review kuartal"}</span>
+              </button>
+            );
+          })}
         </div>
 
         {tab === "target" ? (
           targets.length === 0 ? (
             <div className="surface p-6 text-center">
-              <IconTile spec={{ Icon: Trophy, tint: "#8b5cf6" }} size={64} radius={22} className="mx-auto" />
+              <IconTile spec={{ Icon: Trophy, tint: "var(--tint-iris)" }} size={64} radius={22} className="mx-auto" />
               <div className="mt-2 text-[17px] font-extrabold text-text-1">Mau jadi apa kita tahun ini?</div>
-              <p className="mt-1 text-[13px] text-text-3">Tulis 3–6 target saja. Yang angka bisa dicicil, yang lain tinggal dicentang.</p>
+              <p className="mt-1 text-[13px] text-text-3">Tulis 3-6 target saja. Yang angka bisa dicicil, yang lain tinggal dicentang.</p>
               <button type="button" onClick={() => setEditing("new")} className="btn-accent mt-4 w-full">Tulis target</button>
             </div>
           ) : (
@@ -161,15 +181,20 @@ export default function TargetPage() {
                       return (
                         <li key={t.id} className="border-b border-border last:border-0">
                           <SwipeRow onDelete={() => userId && deleteItem(userId, t.id)}>
-                            <div className="flex items-center gap-3 bg-bg-card px-4 py-3">
+                            <div className="flex items-center gap-2 bg-bg-card px-3 py-2">
                               {p.goal ? (
-                                <button type="button" onClick={() => setLogging(t)} className="min-w-0 flex-1 text-left">
+                                <button type="button" onClick={() => setLogging(t)} className="min-h-[44px] min-w-0 flex-1 py-1 text-left">
                                   <div className={`truncate text-[14px] font-semibold ${pct >= 1 ? "text-text-3 line-through" : "text-text-1"}`}>{t.title}</div>
                                   <div className="mt-1.5 flex items-center gap-2">
                                     <div className="h-2 flex-1 overflow-hidden rounded-full bg-bg-elev2">
-                                      <div className="h-full rounded-full bg-accent" style={{ width: `${pct * 100}%` }} />
+                                      <motion.div
+                                        className="h-full origin-left rounded-full bg-accent"
+                                        initial={false}
+                                        animate={{ scaleX: Math.max(0, Math.min(1, pct)) }}
+                                        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 28 }}
+                                      />
                                     </div>
-                                    <span className="shrink-0 tabular-nums text-[11px] text-text-3">
+                                    <span className="shrink-0 tabular-nums text-[12px] text-text-3">
                                       {progressOf(t).toLocaleString("id-ID")}/{p.goal.toLocaleString("id-ID")} {p.unit}
                                     </span>
                                   </div>
@@ -179,17 +204,20 @@ export default function TargetPage() {
                                   <button
                                     type="button"
                                     onClick={() => toggleDone(t)}
-                                    aria-label={t.status === "done" ? "Tandai belum" : "Tandai tercapai"}
-                                    className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 text-[12px] ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border"}`}
+                                    aria-pressed={t.status === "done"}
+                                    aria-label={t.status === "done" ? `Tandai ${t.title} belum selesai` : `Tandai ${t.title} tercapai`}
+                                    className="-ml-1 grid h-11 w-11 shrink-0 place-items-center"
                                   >
-                                    {t.status === "done" ? "✓" : ""}
+                                    <span className={`grid h-6 w-6 place-items-center rounded-full border-2 ${t.status === "done" ? "border-accent bg-accent text-accent-fg" : "border-border"}`}>
+                                      {t.status === "done" && <Check size={14} aria-hidden="true" />}
+                                    </span>
                                   </button>
-                                  <button type="button" onClick={() => setEditing(t)} className={`min-w-0 flex-1 truncate text-left text-[14px] font-semibold ${t.status === "done" ? "text-text-3 line-through" : "text-text-1"}`}>
+                                  <button type="button" onClick={() => setEditing(t)} className={`min-h-[44px] min-w-0 flex-1 truncate text-left text-[14px] font-semibold ${t.status === "done" ? "text-text-3 line-through" : "text-text-1"}`}>
                                     {t.title}
                                   </button>
                                 </>
                               )}
-                              <span className="shrink-0 text-[11px] text-text-4">{t.who === "berdua" ? "Berdua" : t.who === me ? "Kamu" : nick(t.who)}</span>
+                              <span className="shrink-0 pr-1 text-[12px] text-text-4">{t.who === "berdua" ? "Berdua" : t.who === me ? "Kamu" : nick(t.who)}</span>
                             </div>
                           </SwipeRow>
                         </li>
@@ -213,13 +241,13 @@ export default function TargetPage() {
                     <div>
                       <div className="text-[15px] font-extrabold text-text-1">Kuartal {q}</div>
                       <div className="text-[12px] text-text-3">
-                        {new Date(year, (q - 1) * 3, 1).toLocaleDateString("id-ID", { month: "short" })}–
+                        {new Date(year, (q - 1) * 3, 1).toLocaleDateString("id-ID", { month: "short" })} -{" "}
                         {new Date(year, q * 3 - 1, 1).toLocaleDateString("id-ID", { month: "short" })}
                         {q === curQ && year === now.getFullYear() ? " · sekarang" : ""}
                       </div>
                     </div>
                     {!locked && (
-                      <button onClick={() => setReviewing(key)} className={`rounded-full px-3.5 py-1.5 text-[13px] font-bold ${mine ? "bg-bg-elev2 text-text-2" : "bg-accent text-accent-fg"}`}>
+                      <button type="button" onClick={() => setReviewing(key)} className={`min-h-[44px] rounded-full px-3.5 py-2 text-[13px] font-bold ${mine ? "bg-bg-elev2 text-text-2" : "bg-accent text-accent-fg"}`}>
                         {mine ? "Ubah" : "Isi review"}
                       </button>
                     )}
@@ -237,42 +265,47 @@ export default function TargetPage() {
         )}
       </div>
 
-      {editing && userId && (
-        <TargetSheet
-          userId={userId}
-          year={year}
-          me={me}
-          partner={partner}
-          target={editing === "new" ? null : editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
-      {logging && userId && (
-        <LogSheet
-          userId={userId}
-          me={me}
-          target={logging}
-          current={progressOf(logging)}
-          logs={logs.filter((l) => parsePayload(l.payload, { targetId: "" }).targetId === logging.id)}
-          onEdit={() => {
-            setEditing(logging);
-            setLogging(null);
-          }}
-          onClose={() => setLogging(null)}
-        />
-      )}
-      {reviewing && userId && (
-        <ReviewSheet
-          userId={userId}
-          me={me}
-          q={reviewing}
-          targets={targets}
-          existing={reviews.find(
-            (r) => (r.who || me) === me && parsePayload<ReviewPayload>(r.payload, { q: "", ratings: {}, good: "", hard: "", next: "" }).q === reviewing,
-          )}
-          onClose={() => setReviewing(null)}
-        />
-      )}
+      <AnimatePresence>
+        {editing && userId && (
+          <TargetSheet
+            key={editing === "new" ? "target-new" : `target-${editing.id}`}
+            userId={userId}
+            year={year}
+            me={me}
+            partner={partner}
+            target={editing === "new" ? null : editing}
+            onClose={() => setEditing(null)}
+          />
+        )}
+        {logging && userId && (
+          <LogSheet
+            key={`log-${logging.id}`}
+            userId={userId}
+            me={me}
+            target={logging}
+            current={progressOf(logging)}
+            logs={logs.filter((l) => parsePayload(l.payload, { targetId: "" }).targetId === logging.id)}
+            onEdit={() => {
+              setEditing(logging);
+              setLogging(null);
+            }}
+            onClose={() => setLogging(null)}
+          />
+        )}
+        {reviewing && userId && (
+          <ReviewSheet
+            key={`review-${reviewing}`}
+            userId={userId}
+            me={me}
+            q={reviewing}
+            targets={targets}
+            existing={reviews.find(
+              (r) => (r.who || me) === me && parsePayload<ReviewPayload>(r.payload, { q: "", ratings: {}, good: "", hard: "", next: "" }).q === reviewing,
+            )}
+            onClose={() => setReviewing(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -346,7 +379,7 @@ function TargetSheet({
     <Sheet
       title={target ? "Ubah target" : "Target baru"}
       onClose={onClose}
-      footer={<button onClick={save} disabled={!title.trim()} className="btn-accent w-full disabled:opacity-50">Simpan</button>}
+      footer={<button type="button" onClick={save} disabled={!title.trim()} className="btn-accent w-full disabled:opacity-50">Simpan</button>}
     >
       <Field label="Targetnya">
         <input className="input-base" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="mis. Khatam Al-Qur'an 2×" autoFocus />
@@ -445,7 +478,7 @@ function LogSheet({
             ))}
         </div>
       )}
-      <button type="button" onClick={onEdit} className="text-[13px] font-semibold text-accent">Ubah target</button>
+      <button type="button" onClick={onEdit} className="min-h-[44px] px-1 text-[13px] font-semibold text-accent">Ubah target</button>
     </Sheet>
   );
 }
@@ -485,19 +518,22 @@ function ReviewSheet({
   }
 
   return (
-    <Sheet title={`Review kuartal ${qn}`} onClose={onClose} footer={<button onClick={save} className="btn-accent w-full">Simpan</button>}>
+    <Sheet title={`Review kuartal ${qn}`} onClose={onClose} footer={<button type="button" onClick={save} className="btn-accent w-full">Simpan</button>}>
       {targets.length > 0 && (
         <div className="mb-3">
           <div className="mb-1.5 text-[12px] font-semibold text-text-3">Gimana tiap target?</div>
           {targets.map((t) => (
             <div key={t.id} className="flex items-center justify-between gap-2 py-1.5">
               <span className="min-w-0 flex-1 truncate text-[13px] text-text-1">{t.title}</span>
-              <div className="flex gap-0.5">
+              <div className="flex gap-1" role="group" aria-label={`Nilai ${t.title}`}>
                 {[1, 2, 3, 4, 5].map((v) => (
                   <button
                     key={v}
+                    type="button"
+                    aria-label={`Nilai ${v} dari 5`}
+                    aria-pressed={ratings[t.id] === v}
                     onClick={() => setRatings({ ...ratings, [t.id]: v })}
-                    className={`grid h-8 w-8 place-items-center rounded-full text-[16px] ${ratings[t.id] === v ? "bg-accent/10 ring-2 ring-accent" : "opacity-50"}`}
+                    className={`grid h-11 w-11 place-items-center rounded-full text-[16px] ${ratings[t.id] === v ? "bg-accent/10 ring-2 ring-accent" : "opacity-60"}`}
                   >
                     {RATING[v]}
                   </button>

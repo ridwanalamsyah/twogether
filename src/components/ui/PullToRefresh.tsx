@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { Heart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
@@ -38,6 +38,7 @@ export function PullToRefresh({
   disabled?: boolean;
   children: React.ReactNode;
 }) {
+  const reduce = useReducedMotion();
   const y = useMotionValue(0);
   const fill = useTransform(y, [12, TRIGGER], [0, 1]);
   const iconOpacity = useTransform(y, [0, 24], [0, 1]);
@@ -79,12 +80,14 @@ export function PullToRefresh({
       if (startY === null) return;
       startY = null;
       if (!armed) {
-        animate(y, 0, { type: "spring", stiffness: 420, damping: 34 });
+        if (reduce) y.set(0);
+        else animate(y, 0, { type: "spring", stiffness: 420, damping: 34 });
         return;
       }
       busyRef.current = true;
       setBusy(true);
-      animate(y, HOLD, { type: "spring", stiffness: 420, damping: 34 });
+      if (reduce) y.set(HOLD);
+      else animate(y, HOLD, { type: "spring", stiffness: 420, damping: 34 });
       const minWait = new Promise((r) => setTimeout(r, 800));
       try {
         await Promise.all([onRefresh(), minWait]);
@@ -94,7 +97,8 @@ export function PullToRefresh({
       hapticSuccess();
       busyRef.current = false;
       setBusy(false);
-      animate(y, 0, { type: "spring", stiffness: 380, damping: 30 });
+      if (reduce) y.set(0);
+      else animate(y, 0, { type: "spring", stiffness: 380, damping: 30 });
     }
 
     window.addEventListener("touchstart", onStart, { passive: true });
@@ -107,7 +111,7 @@ export function PullToRefresh({
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onEnd);
     };
-  }, [onRefresh, disabled, y]);
+  }, [onRefresh, disabled, y, reduce]);
 
   return (
     <div className="relative">
@@ -118,9 +122,9 @@ export function PullToRefresh({
       >
         <motion.span
           className="relative grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-accent shadow-card"
-          style={{ rotate: iconRotate }}
-          animate={busy ? { scale: [1, 1.18, 1, 1.1, 1] } : { scale: 1 }}
-          transition={busy ? { duration: 1, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+          style={reduce ? undefined : { rotate: iconRotate }}
+          animate={reduce ? { scale: 1 } : busy ? { scale: [1, 1.18, 1, 1.1, 1] } : { scale: 1 }}
+          transition={reduce ? { duration: 0.08 } : busy ? { duration: 1, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
         >
           <Heart size={20} strokeWidth={2.2} className="absolute" />
           <motion.span className="absolute grid place-items-center" style={{ scale: fill, opacity: fill }}>

@@ -1,17 +1,29 @@
 "use client";
 
 import { useMemo } from "react";
+import { Activity, Droplets, Moon, Timer, TrendingDown, TrendingUp } from "lucide-react";
 import { useAuth } from "@/stores/auth";
 import { useEntries } from "@/stores/data";
 
+type InsightIcon = "water" | "sleep" | "trendDown" | "trendUp" | "exercise" | "focus";
+
 interface InsightLine {
-  emoji: string;
+  icon: InsightIcon;
   text: string;
 }
 
+const ICON_MAP = {
+  water: Droplets,
+  sleep: Moon,
+  trendDown: TrendingDown,
+  trendUp: TrendingUp,
+  exercise: Activity,
+  focus: Timer,
+} as const;
+
 /**
  * Generates 3-5 simple, fact-based observations from the user's tracker
- * entries (water/mood/sleep/exercise/weight). Heuristic-only — no LLM.
+ * entries (water/mood/sleep/exercise/weight). Heuristic-only (no LLM).
  */
 export function TrackerInsights() {
   const userId = useAuth((s) => s.userId);
@@ -38,13 +50,13 @@ export function TrackerInsights() {
       const avg = total / 7;
       if (avg < 4) {
         out.push({
-          emoji: "💧",
-          text: `Rata-rata air minum minggu ini ${avg.toFixed(1)} gelas/hari — kurang dari target 8.`,
+          icon: "water",
+          text: `Rata-rata air minum minggu ini ${avg.toFixed(1)} gelas/hari, kurang dari target 8.`,
         });
       } else if (avg >= 7) {
         out.push({
-          emoji: "💧",
-          text: `Air minum konsisten — rata-rata ${avg.toFixed(1)} gelas/hari minggu ini.`,
+          icon: "water",
+          text: `Air minum konsisten, rata-rata ${avg.toFixed(1)} gelas/hari minggu ini.`,
         });
       }
     }
@@ -57,13 +69,13 @@ export function TrackerInsights() {
       const lowDays = sleep7.filter((s) => (s.valueNum ?? 0) < 6).length;
       if (avg < 6.5) {
         out.push({
-          emoji: "😴",
+          icon: "sleep",
           text: `Rata-rata tidur ${avg.toFixed(1)} jam, ${lowDays} hari kurang dari 6 jam.`,
         });
       } else {
         out.push({
-          emoji: "😴",
-          text: `Tidur stabil — rata-rata ${avg.toFixed(1)} jam minggu ini.`,
+          icon: "sleep",
+          text: `Tidur stabil, rata-rata ${avg.toFixed(1)} jam minggu ini.`,
         });
       }
     }
@@ -89,7 +101,7 @@ export function TrackerInsights() {
       }
       if (lowDay >= 0 && lowAvg < 3) {
         out.push({
-          emoji: "📉",
+          icon: "trendDown",
           text: `Mood paling rendah hari ${dayNames[lowDay]} (rata-rata ${lowAvg.toFixed(1)}/5).`,
         });
       }
@@ -103,7 +115,7 @@ export function TrackerInsights() {
       const diff = last - first;
       if (Math.abs(diff) >= 0.3) {
         out.push({
-          emoji: diff > 0 ? "📈" : "📉",
+          icon: diff > 0 ? "trendUp" : "trendDown",
           text: `Berat ${diff > 0 ? "naik" : "turun"} ${Math.abs(diff).toFixed(1)} kg sejak pencatatan pertama.`,
         });
       }
@@ -114,13 +126,13 @@ export function TrackerInsights() {
     if (ex7.length > 0) {
       const total = ex7.reduce((a, b) => a + (b.valueNum ?? 0), 0);
       out.push({
-        emoji: "🏃",
-        text: `${ex7.length}× olahraga, total ${total} menit minggu ini.`,
+        icon: "exercise",
+        text: `${ex7.length}x olahraga, total ${total} menit minggu ini.`,
       });
     } else if (exercise.length > 0) {
       out.push({
-        emoji: "🏃",
-        text: "Belum olahraga minggu ini — yuk mulai lagi.",
+        icon: "exercise",
+        text: "Belum olahraga minggu ini. Mulai sesi singkat hari ini.",
       });
     }
 
@@ -129,8 +141,8 @@ export function TrackerInsights() {
     if (pom7.length >= 3) {
       const total = pom7.reduce((a, b) => a + (b.valueNum ?? 0), 0);
       out.push({
-        emoji: "🍅",
-        text: `${pom7.length} sesi pomodoro (~${total} menit fokus) minggu ini.`,
+        icon: "focus",
+        text: `${pom7.length} sesi pomodoro (sekitar ${total} menit fokus) minggu ini.`,
       });
     }
 
@@ -140,17 +152,20 @@ export function TrackerInsights() {
   if (insights.length === 0) return null;
 
   return (
-    <section className="surface px-4 py-3 mt-3">
-      <div className="mb-2 text-[11px] font-bold section-label text-text-3">
+    <section className="surface mt-3 px-4 py-3">
+      <div className="mb-2 text-[12px] font-bold section-label text-text-3">
         Pola kebiasaan
       </div>
       <ul className="space-y-2">
-        {insights.map((i, idx) => (
-          <li key={idx} className="flex items-start gap-2 text-[12px] text-text-2">
-            <span className="text-base leading-none">{i.emoji}</span>
-            <span className="flex-1">{i.text}</span>
-          </li>
-        ))}
+        {insights.map((item, idx) => {
+          const Icon = ICON_MAP[item.icon];
+          return (
+            <li key={idx} className="flex items-start gap-2.5 text-[12px] text-text-2">
+              <Icon size={16} strokeWidth={1.9} aria-hidden className="mt-0.5 shrink-0 text-text-3" />
+              <span className="flex-1 leading-relaxed">{item.text}</span>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

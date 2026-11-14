@@ -10,7 +10,7 @@ export function Skeleton({
 }) {
   return (
     <div
-      className={`${rounded} animate-pulse bg-bg-elev2 ${className}`}
+      className={`skeleton ${rounded} ${className}`}
       aria-hidden
     />
   );

@@ -157,9 +157,9 @@ export function LockScreen({
         <button
           type="button"
           onClick={onCancel}
-          className="mt-8 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[14px] font-semibold text-text-3 transition-transform active:scale-95"
+          className="mt-8 inline-flex min-h-[44px] items-center gap-1 rounded-full px-4 py-2 text-[14px] font-semibold text-text-3 transition-transform active:scale-95"
         >
-          <ChevronLeft size={16} strokeWidth={2.2} />
+          <ChevronLeft size={16} strokeWidth={2.2} aria-hidden="true" />
           Kembali
         </button>
       )}

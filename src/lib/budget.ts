@@ -49,13 +49,13 @@ export async function budgetAlert(
   const after = spent / budget.limit;
   if (before < 1 && after >= 1) {
     return {
-      text: `⚠️ ${tx.category} lewat batas bulan ini: ${formatRupiahShort(spent)} dari ${formatRupiahShort(budget.limit)}`,
+      text: `${tx.category} melewati batas bulan ini: ${formatRupiahShort(spent)} dari ${formatRupiahShort(budget.limit)}`,
       tone: "danger",
     };
   }
   if (before < WARN_AT && after >= WARN_AT) {
     return {
-      text: `${tx.category} sudah ${Math.round(after * 100)}% dari batas bulan ini — sisa ${formatRupiahShort(budget.limit - spent)}`,
+      text: `${tx.category} sudah ${Math.round(after * 100)}% dari batas bulan ini, sisa ${formatRupiahShort(budget.limit - spent)}`,
       tone: "warn",
     };
   }

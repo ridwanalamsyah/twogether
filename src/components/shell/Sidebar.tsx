@@ -3,7 +3,7 @@
 import { IconTile, spaceIcon } from "@/lib/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ITEMS, isActive } from "@/components/shell/BottomNav";
@@ -48,25 +48,25 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => openCapture()}
-        className="mb-4 flex items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-[14px] font-semibold text-accent-fg transition-transform active:scale-[0.98]"
+        className="mb-4 flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-accent py-2.5 text-[14px] font-semibold text-accent-fg transition-transform active:scale-[0.98]"
       >
-        <Plus size={16} strokeWidth={2.4} /> Catat cepat
+        <Plus size={16} strokeWidth={2.4} aria-hidden="true" /> Catat cepat
       </button>
 
-      <nav className="space-y-0.5">
+      <nav aria-label="Navigasi utama desktop" className="space-y-0.5">
         {ITEMS.map((item) => (
           <SideLink
             key={item.href}
             href={item.href}
             active={isActive(pathname, item)}
-            icon={<span className="block h-[20px] w-[20px] [&>svg]:h-full [&>svg]:w-full">{item.icon}</span>}
+            icon={<span className="block h-[20px] w-[20px] [&>svg]:h-full [&>svg]:w-full" aria-hidden="true">{item.icon}</span>}
             label={item.label}
           />
         ))}
       </nav>
 
       <div className="mb-1.5 mt-6 px-3 text-[12px] font-semibold text-text-4">Ruang kalian</div>
-      <nav className="no-scrollbar -mx-1 flex-1 space-y-0.5 overflow-y-auto px-1">
+      <nav aria-label="Ruang kalian" className="no-scrollbar -mx-1 flex-1 space-y-0.5 overflow-y-auto px-1">
         {spaces.map((f) => (
           <SideLink
             key={f.href}
@@ -80,9 +80,9 @@ export function Sidebar() {
         ))}
         <Link
           href="/fitur"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-text-3 hover:bg-bg-elev1"
+          className="flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-text-3 hover:bg-bg-elev1"
         >
-          <span className="grid h-6 w-6 place-items-center rounded-lg border border-dashed border-border-strong">
+          <span className="grid h-6 w-6 place-items-center rounded-lg border border-dashed border-border-strong" aria-hidden="true">
             <Plus size={14} strokeWidth={2} />
           </span>
           Tambah ruang
@@ -92,7 +92,7 @@ export function Sidebar() {
       <Link
         href="/settings"
         className={cn(
-          "mt-3 flex items-center gap-3 rounded-2xl px-3 py-2.5 hover:bg-bg-elev1",
+          "mt-3 flex min-h-[44px] items-center gap-3 rounded-2xl px-3 py-2.5 hover:bg-bg-elev1",
           pathname?.startsWith("/settings") && "bg-bg-elev1",
         )}
       >
@@ -122,12 +122,13 @@ function SideLink({
   icon: React.ReactNode;
   label: string;
 }) {
+  const reduce = useReducedMotion();
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition-colors",
+        "relative flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition-colors",
         active ? "font-semibold text-text-1" : "text-text-2 hover:bg-bg-elev1",
       )}
     >
@@ -135,7 +136,7 @@ function SideLink({
         <motion.span
           layoutId="sidebar-active"
           className="absolute inset-0 rounded-xl bg-bg-elev2"
-          transition={{ type: "spring", stiffness: 520, damping: 40 }}
+          transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 520, damping: 40 }}
         />
       )}
       <span className="relative flex shrink-0 items-center">{icon}</span>

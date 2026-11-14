@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Receipt } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
@@ -32,8 +33,9 @@ export default function PatunganPage() {
         title="Patungan"
         actions={
           <button
+            type="button"
             onClick={() => setAdding(true)}
-            className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg"
+            className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[12px] font-semibold text-accent-fg"
           >
             + Catat
           </button>
@@ -42,7 +44,7 @@ export default function PatunganPage() {
       <div className="space-y-4 px-5 pb-8 pt-3">
         <div
           className="hero-soft rounded-[24px] p-5 text-white shadow-float"
-          style={{ ["--hero" as string]: "#f59e0b" }}
+          style={{ ["--hero" as string]: "var(--tint-amber)" }}
         >
           <div className="text-[13px] font-semibold text-white/85">Saldo kalian</div>
           {net === 0 ? (
@@ -61,7 +63,7 @@ export default function PatunganPage() {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--warning)] transition-transform active:scale-[0.98]"
+              className="min-h-[44px] flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--warning)] transition-transform active:scale-[0.98]"
             >
               + Catat patungan
             </button>
@@ -69,7 +71,7 @@ export default function PatunganPage() {
               <button
                 type="button"
                 onClick={() => setSettling(true)}
-                className="rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold transition-transform active:scale-[0.98]"
+                className="min-h-[44px] rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold transition-transform active:scale-[0.98]"
               >
                 Lunasi
               </button>
@@ -96,11 +98,11 @@ export default function PatunganPage() {
                       <span
                         className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-colors ${
                           isSettle
-                            ? "border-emerald-500/25 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                            : "border-amber-500/25 bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                            ? "border-[color:var(--positive)]/25 bg-[color:var(--positive-bg)] text-[color:var(--positive)]"
+                            : "border-[color:var(--warning)]/25 bg-[color:var(--warning-bg)] text-[color:var(--warning)]"
                         }`}
                       >
-                        {isSettle ? <Check size={16} strokeWidth={2.5} /> : <Receipt size={16} strokeWidth={2.2} />}
+                        {isSettle ? <Check size={16} strokeWidth={2.5} aria-hidden="true" /> : <Receipt size={16} strokeWidth={2.2} aria-hidden="true" />}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[14px] font-semibold text-text-1">
@@ -132,18 +134,21 @@ export default function PatunganPage() {
         )}
       </div>
 
-      {adding && userId && (
-        <AddSplitSheet userId={userId} me={me} other={other} onClose={() => setAdding(false)} />
-      )}
-      {settling && userId && (
-        <SettleSheet
-          userId={userId}
-          me={me}
-          other={other}
-          net={net}
-          onClose={() => setSettling(false)}
-        />
-      )}
+      <AnimatePresence>
+        {adding && userId && (
+          <AddSplitSheet key="patungan-add" userId={userId} me={me} other={other} onClose={() => setAdding(false)} />
+        )}
+        {settling && userId && (
+          <SettleSheet
+            key="patungan-settle"
+            userId={userId}
+            me={me}
+            other={other}
+            net={net}
+            onClose={() => setSettling(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -266,12 +271,12 @@ function AddSplitSheet({
           {payer === me ? "kamu" : payer}.
         </div>
       )}
-      <label className="flex items-center gap-2 text-[13px] text-text-2">
+      <label className="flex min-h-[44px] items-center gap-2.5 text-[13px] text-text-2">
         <input
           type="checkbox"
           checked={alsoExpense}
           onChange={(e) => setAlsoExpense(e.target.checked)}
-          className="h-4 w-4 accent-[color:var(--accent)]"
+          className="h-5 w-5 shrink-0 accent-[color:var(--accent)]"
         />
         Catat juga sebagai pengeluaran di Uang
       </label>
@@ -311,15 +316,16 @@ function SettleSheet({
       title="Lunasi"
       onClose={onClose}
       footer={
-        <button onClick={save} disabled={num <= 0} className="btn-accent w-full disabled:opacity-50">
+        <button type="button" onClick={save} disabled={num <= 0} className="btn-accent w-full disabled:opacity-50">
           Tandai lunas
         </button>
       }
     >
-      <p className="mb-3 text-[14px] text-text-2">
+      <label htmlFor="patungan-settle-amount" className="mb-3 block text-[14px] text-text-2">
         {debtor === me ? "Kamu" : debtor} membayar ke {debtor === me ? other : "kamu"}:
-      </p>
+      </label>
       <input
+        id="patungan-settle-amount"
         className="input-base text-[20px] font-bold"
         inputMode="numeric"
         value={formatMoneyInput(num)}

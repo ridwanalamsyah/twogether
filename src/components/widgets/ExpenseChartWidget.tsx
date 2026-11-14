@@ -92,7 +92,7 @@ export function ExpenseChartWidget() {
                 />
               </div>
               <span
-                className={`text-[11px] font-medium ${
+                className={`text-[12px] font-medium ${
                   isSelected || (isToday && !selectedIso) ? "font-semibold text-text-1" : "text-text-4"
                 }`}
               >

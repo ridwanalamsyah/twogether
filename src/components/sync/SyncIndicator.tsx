@@ -43,7 +43,7 @@ export function SyncIndicator({ className }: { className?: string }) {
   const dotColor = offline
     ? "bg-[color:var(--warning)]"
     : dirty
-      ? "bg-[color:var(--info)] animate-pulse"
+      ? "bg-[color:var(--info)]"
       : "bg-[color:var(--positive)]";
 
   return (

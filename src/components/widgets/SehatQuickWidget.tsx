@@ -94,13 +94,13 @@ export function SehatQuickWidget() {
 
   return (
     <div className="surface p-4">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Droplets size={16} className="text-[color:var(--info)]" />
+          <Droplets size={16} className="text-[color:var(--info)]" aria-hidden />
           <h3 className="text-[14px] font-semibold text-text-1">Sehat</h3>
         </div>
-        <Link href="/sehat" className="flex items-center gap-0.5 text-[12px] font-medium text-text-3 active:opacity-60">
-          Lihat <ChevronRight size={14} />
+        <Link href="/sehat" className="inline-flex min-h-[44px] items-center gap-0.5 px-1 text-[12px] font-medium text-text-3 active:opacity-60">
+          Lihat <ChevronRight size={14} aria-hidden />
         </Link>
       </div>
 
@@ -109,14 +109,15 @@ export function SehatQuickWidget() {
           <span className="text-[12px] font-medium text-text-3">Air minum hari ini</span>
           <span className="text-[13px] font-bold tabular-nums text-text-1">
             {waterToday}
-            <span className="text-[11px] font-normal text-text-3">/8 gelas</span>
+            <span className="text-[12px] font-normal text-text-3">/8 gelas</span>
           </span>
         </div>
         <div className="mb-2.5 h-2 overflow-hidden rounded-full bg-bg-elev2">
           <motion.div
-            className="h-full rounded-full bg-[color:var(--info)]"
+            className="h-full w-full rounded-full bg-[color:var(--info)]"
+            style={{ originX: 0 }}
             initial={false}
-            animate={{ width: `${Math.min(100, (waterToday / 8) * 100)}%` }}
+            animate={{ scaleX: Math.min(1, waterToday / 8) }}
             transition={{ duration: reduced ? 0 : 0.24, ease: "easeOut" }}
           />
         </div>
@@ -125,14 +126,14 @@ export function SehatQuickWidget() {
             type="button"
             onClick={() => logWater(-1)}
             disabled={waterToday === 0}
-            className="flex-1 rounded-lg border border-border bg-bg-app py-1.5 text-[12px] font-medium text-text-2 transition-transform active:scale-95 disabled:opacity-40"
+            className="min-h-[44px] flex-1 rounded-[14px] border border-border bg-bg-app px-3 text-[12px] font-medium text-text-2 transition-transform active:scale-95 disabled:opacity-40"
           >
             − gelas
           </button>
           <button
             type="button"
             onClick={() => logWater(1)}
-            className="flex-[2] rounded-lg bg-accent py-1.5 text-[12px] font-semibold text-accent-fg transition-transform active:scale-95"
+            className="min-h-[44px] flex-[2] rounded-[14px] bg-accent px-3 text-[12px] font-semibold text-accent-fg transition-transform active:scale-95"
           >
             + 1 gelas
           </button>
@@ -148,13 +149,13 @@ export function SehatQuickWidget() {
               type="button"
               onClick={() => logMood(m.value, m.emoji)}
               aria-pressed={active}
-              className={`flex flex-col items-center gap-0.5 rounded-xl py-2 transition-transform active:scale-90 ${
+              className={`flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-[14px] py-1.5 transition-transform active:scale-90 ${
                 active ? "bg-bg-elev2 ring-1 ring-text-1" : "bg-bg-elev1"
               }`}
               aria-label={m.label}
             >
               <span className="text-lg">{m.emoji}</span>
-              <span className={`text-[11px] font-medium ${active ? "text-text-1" : "text-text-3"}`}>
+              <span className={`text-[12px] font-medium ${active ? "text-text-1" : "text-text-3"}`}>
                 {m.label}
               </span>
             </button>
@@ -162,31 +163,31 @@ export function SehatQuickWidget() {
         })}
       </div>
 
-      <div className="mt-2.5 grid grid-cols-2 divide-x divide-[color:var(--hairline)] border-t border-[color:var(--hairline)] pt-2.5">
+      <div className="mt-2.5 grid grid-cols-2 divide-x divide-[color:var(--hairline)] border-t border-[color:var(--hairline)] pt-2">
         <button
           type="button"
           onClick={() => setShowWeight((v) => !v)}
           aria-expanded={showWeight}
-          className="flex items-center justify-between pr-3 transition-transform active:scale-95"
+          className="flex min-h-[44px] items-center justify-between pr-3 transition-transform active:scale-95"
         >
-          <Scale size={16} className="text-text-3" />
+          <Scale size={16} className="text-text-3" aria-hidden />
           <div className="text-right">
             <div className="text-[13px] font-semibold tabular-nums text-text-1">
               {lastWeight?.valueNum != null ? `${Math.round(lastWeight.valueNum * 10) / 10} kg` : "Catat"}
             </div>
-            <div className="text-[11px] text-text-3">berat</div>
+            <div className="text-[12px] text-text-3">berat</div>
           </div>
         </button>
         <Link
           href="/sehat"
-          className="flex items-center justify-between pl-3 transition-transform active:scale-95"
+          className="flex min-h-[44px] items-center justify-between pl-3 transition-transform active:scale-95"
         >
-          <Moon size={16} className="text-text-3" />
+          <Moon size={16} className="text-text-3" aria-hidden />
           <div className="text-right">
             <div className="text-[13px] font-semibold tabular-nums text-text-1">
               {lastSleep?.valueNum != null ? `${Math.round(lastSleep.valueNum * 10) / 10}j` : "0j"}
             </div>
-            <div className="text-[11px] text-text-3">tidur</div>
+            <div className="text-[12px] text-text-3">tidur</div>
           </div>
         </Link>
       </div>
@@ -194,14 +195,17 @@ export function SehatQuickWidget() {
       <AnimatePresence initial={false}>
         {showWeight && (
           <motion.div
-            initial={reduced ? false : { opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={reduced ? undefined : { opacity: 0, height: 0 }}
+            initial={reduced ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
             transition={{ duration: reduced ? 0 : 0.18 }}
-            className="overflow-hidden"
           >
             <div className="mt-2.5 flex gap-1.5 pt-0.5">
+              <label htmlFor="sehat-quick-weight" className="sr-only">
+                Berat badan dalam kg
+              </label>
               <input
+                id="sehat-quick-weight"
                 type="number"
                 inputMode="decimal"
                 placeholder="kg"
@@ -215,7 +219,7 @@ export function SehatQuickWidget() {
                 type="button"
                 onClick={saveWeight}
                 disabled={!weightInput}
-                className="btn-accent rounded-lg px-3.5 text-[12px] disabled:opacity-50"
+                className="btn-accent min-h-[44px] px-4 text-[12px] disabled:opacity-50"
               >
                 Simpan
               </button>

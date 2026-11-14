@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useId, useMemo, useState } from "react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { useDeposits } from "@/stores/data";
@@ -35,6 +36,8 @@ const DEFAULTS: ZakatInput = {
 };
 
 export default function ZakatPage() {
+  const uid = useId();
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const deposits = useDeposits(userId) ?? [];
   const saved = deposits.reduce((s, d) => s + d.amount, 0);
@@ -69,7 +72,7 @@ export default function ZakatPage() {
       return v.hargaEmas <= 0
         ? { amount: null, note: "Isi harga emas per gram dulu untuk menghitung nisab." }
         : wajibMal
-          ? { amount: Math.round(harta * RATE), note: `Harta ${formatRupiah(harta)} sudah mencapai nisab ${formatRupiah(nisab)} — wajib 2,5% bila sudah tersimpan 1 tahun.` }
+          ? { amount: Math.round(harta * RATE), note: `Harta ${formatRupiah(harta)} sudah mencapai nisab ${formatRupiah(nisab)}, wajib 2,5% bila sudah tersimpan 1 tahun.` }
           : { amount: 0, note: `Belum wajib: harta ${formatRupiah(Math.max(0, harta))} di bawah nisab ${formatRupiah(nisab)}.` };
     return v.hargaEmas <= 0
       ? { amount: null, note: "Isi harga emas per gram dulu untuk menghitung nisab." }
@@ -90,7 +93,7 @@ export default function ZakatPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
           className="hero-soft rounded-[24px] p-5 text-white shadow-float"
-          style={{ ["--hero" as string]: "#0f7a5c" }}
+          style={{ ["--hero" as string]: "var(--tint-pine)" }}
         >
           <div className="text-[13px] font-semibold text-white/85">
             Zakat {tab === "fitrah" ? "fitrah" : tab === "mal" ? "mal (harta)" : "penghasilan / bulan"}
@@ -101,56 +104,68 @@ export default function ZakatPage() {
           <div className="mt-1 text-[13px] leading-snug text-white/85">{result.note}</div>
         </div>
 
-        <div className="relative grid grid-cols-3 rounded-[12px] bg-bg-elev2 p-1 text-[13px]">
-          <span
-            aria-hidden
-            className="absolute bottom-1 left-1 top-1 w-[calc((100%-8px)/3)] rounded-[9px] bg-bg-card shadow-sm transition-transform duration-300 ease-ios"
-            style={{ transform: `translateX(${["fitrah", "mal", "penghasilan"].indexOf(tab) * 100}%)` }}
-          />
-          {(["fitrah", "mal", "penghasilan"] as const).map((t) => (
-            <button type="button" key={t} onClick={() => setTab(t)} className={`relative py-2 font-semibold ${tab === t ? "text-text-1" : "text-text-3"}`}>
-              {t === "fitrah" ? "Fitrah" : t === "mal" ? "Harta" : "Penghasilan"}
-            </button>
-          ))}
+        <div role="tablist" aria-label="Jenis zakat" className="grid grid-cols-3 rounded-[12px] bg-bg-elev2 p-1 text-[13px]">
+          {(["fitrah", "mal", "penghasilan"] as const).map((t) => {
+            const active = tab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(t)}
+                className={`relative min-h-[44px] py-2 font-semibold transition-colors ${active ? "text-text-1" : "text-text-3"}`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="zakat-tab-pill"
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 rounded-[9px] bg-bg-card shadow-sm"
+                  />
+                )}
+                <span className="relative z-10">{t === "fitrah" ? "Fitrah" : t === "mal" ? "Harta" : "Penghasilan"}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="surface space-y-3 p-4">
           {tab === "fitrah" ? (
             <>
               <Row label="Jumlah jiwa">
-                <div className="flex items-center gap-3">
-                  <button type="button" aria-label="Kurangi jumlah jiwa" onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">−</button>
+                <div className="flex items-center gap-3" role="group" aria-label="Jumlah jiwa">
+                  <button type="button" aria-label="Kurangi jumlah jiwa" onClick={() => setV({ ...v, jiwa: Math.max(1, v.jiwa - 1) })} className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">-</button>
                   <span className="w-8 text-center text-[20px] font-extrabold tabular-nums">{v.jiwa}</span>
-                  <button type="button" aria-label="Tambah jumlah jiwa" onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-10 w-10 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
+                  <button type="button" aria-label="Tambah jumlah jiwa" onClick={() => setV({ ...v, jiwa: v.jiwa + 1 })} className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev2 text-[18px] font-bold">+</button>
                 </div>
               </Row>
-              <Row label="Per jiwa (sesuai ketetapan daerahmu)">
-                <input className="input-base tabular-nums" inputMode="numeric" {...num("fitrahPerJiwa")} />
+              <Row label="Per jiwa (sesuai ketetapan daerahmu)" htmlFor={`${uid}-fitrah`}>
+                <input id={`${uid}-fitrah`} className="input-base tabular-nums" inputMode="numeric" {...num("fitrahPerJiwa")} />
               </Row>
             </>
           ) : (
             <>
-              <Row label="Harga emas per gram (cek harga hari ini)">
-                <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hargaEmas")} />
+              <Row label="Harga emas per gram (cek harga hari ini)" htmlFor={`${uid}-harga-emas`}>
+                <input id={`${uid}-harga-emas`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hargaEmas")} />
               </Row>
               {tab === "mal" ? (
                 <>
-                  <Row label="Tabungan & deposito">
-                    <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("tabungan")} />
+                  <Row label="Tabungan & deposito" htmlFor={`${uid}-tabungan`}>
+                    <input id={`${uid}-tabungan`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("tabungan")} />
                     {saved > 0 && v.tabungan === 0 && (
-                      <button type="button" onClick={() => setV({ ...v, tabungan: saved })} className="mt-1 text-[12px] font-semibold text-accent">
+                      <button type="button" onClick={() => setV({ ...v, tabungan: saved })} className="mt-1 inline-flex min-h-[44px] items-center text-[12px] font-semibold text-accent">
                         Pakai total Goals: {formatRupiah(saved)}
                       </button>
                     )}
                   </Row>
-                  <Row label="Emas / perak (nilai rupiah)"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("emas")} /></Row>
-                  <Row label="Saham, reksa dana, kripto"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("investasi")} /></Row>
-                  <Row label="Piutang yang bisa ditagih"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("piutang")} /></Row>
-                  <Row label="Hutang jatuh tempo (pengurang)"><input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hutang")} /></Row>
+                  <Row label="Emas / perak (nilai rupiah)" htmlFor={`${uid}-emas`}><input id={`${uid}-emas`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("emas")} /></Row>
+                  <Row label="Saham, reksa dana, kripto" htmlFor={`${uid}-investasi`}><input id={`${uid}-investasi`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("investasi")} /></Row>
+                  <Row label="Piutang yang bisa ditagih" htmlFor={`${uid}-piutang`}><input id={`${uid}-piutang`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("piutang")} /></Row>
+                  <Row label="Hutang jatuh tempo (pengurang)" htmlFor={`${uid}-hutang`}><input id={`${uid}-hutang`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("hutang")} /></Row>
                 </>
               ) : (
-                <Row label="Penghasilan per bulan">
-                  <input className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("gaji")} />
+                <Row label="Penghasilan per bulan" htmlFor={`${uid}-gaji`}>
+                  <input id={`${uid}-gaji`} className="input-base tabular-nums" inputMode="numeric" placeholder="Rp0" {...num("gaji")} />
                 </Row>
               )}
               {v.hargaEmas > 0 && (
@@ -162,19 +177,23 @@ export default function ZakatPage() {
           )}
         </div>
 
-        <p className="px-1 text-[11px] leading-snug text-text-4">
+        <p className="px-1 text-[12px] leading-snug text-text-4">
           Perhitungan ini perkiraan berdasarkan ketentuan umum (nisab 85 gram emas, kadar 2,5%).
-          Untuk kepastian, tanyakan ke ustadz/lembaga amil zakat (mis. BAZNAS).
+          Untuk kepastian, tanyakan ke ustadz atau lembaga amil zakat (mis. BAZNAS).
         </p>
       </div>
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1.5 text-[12px] font-semibold text-text-3">{label}</div>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className="mb-1.5 block text-[12px] font-semibold text-text-3">{label}</label>
+      ) : (
+        <div className="mb-1.5 text-[12px] font-semibold text-text-3">{label}</div>
+      )}
       {children}
     </div>
   );

@@ -52,9 +52,9 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
               goBack(router);
             }}
             aria-label="Kembali"
-            className="-ml-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-text-1 transition-transform active:scale-90 active:bg-bg-elev2"
+            className="-ml-3 grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-1 transition-transform active:scale-90 active:bg-bg-elev2"
           >
-            <ChevronLeft size={24} strokeWidth={2.2} />
+            <ChevronLeft size={24} strokeWidth={2.2} aria-hidden="true" />
           </button>
         )}
         <div className="min-w-0 flex-1">
@@ -63,10 +63,10 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
               {eyebrow}
             </div>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <h1
               className={`${
-                eyebrow ? "line-clamp-2 text-[24px]" : "truncate text-[22px]"
+                eyebrow ? "truncate text-[20px] sm:text-[23px]" : "truncate text-[22px]"
               } min-w-0 font-bold leading-tight tracking-tight text-text-1`}
             >
               {title}
@@ -79,7 +79,7 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
             </div>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5">
           <button
             type="button"
             onClick={() => {
@@ -87,9 +87,9 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
               setSearchOpen(true);
             }}
             aria-label="Cari"
-            className="grid h-9 w-9 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
+            className="grid h-11 w-11 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
           >
-            <Search size={18} strokeWidth={2} />
+            <Search size={19} strokeWidth={2} aria-hidden="true" />
           </button>
           {actions}
           {/* Sub-pages already have the back button; the gear there only
@@ -99,9 +99,9 @@ export function AppHeader({ title, subtitle, eyebrow, actions, titleIcon }: AppH
               href="/settings"
               onClick={() => hapticTap()}
               aria-label="Pengaturan"
-              className="grid h-9 w-9 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
+              className="-mr-2 grid h-11 w-11 place-items-center rounded-full text-text-3 transition-transform hover:bg-bg-elev2 active:scale-90"
             >
-              <Settings size={18} strokeWidth={2} />
+              <Settings size={19} strokeWidth={2} aria-hidden="true" />
             </Link>
           )}
         </div>

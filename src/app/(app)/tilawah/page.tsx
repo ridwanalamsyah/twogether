@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
@@ -25,6 +26,7 @@ interface KhatamPayload {
 }
 
 export default function TilawahPage() {
+  const reduceMotion = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const { me, partner } = usePeople();
   const { nick } = useNick();
@@ -76,26 +78,26 @@ export default function TilawahPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {!active ? (
           <div className="surface p-6 text-center">
-            <IconTile spec={{ Icon: BookOpen, tint: "#10b981" }} size={64} radius={22} className="mx-auto" />
+            <IconTile spec={{ Icon: BookOpen, tint: "var(--tint-emerald)" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">Mulai target khatam</div>
             <p className="mt-1 text-[13px] text-text-3">
               Khatam berdua (bagi tugas) atau masing-masing. Catat halaman yang dibaca tiap hari.
             </p>
-            <button onClick={() => setCreating(true)} className="btn-accent mt-4 w-full">
+            <button type="button" onClick={() => setCreating(true)} className="btn-accent mt-4 w-full">
               Buat target
             </button>
             {done.length > 0 && (
-              <p className="mt-3 text-[12px] text-text-4">Sudah khatam {done.length}× bersama Twogether.</p>
+              <p className="mt-3 text-[12px] text-text-4">Sudah khatam {done.length}x bersama Twogether.</p>
             )}
           </div>
         ) : (
           <>
             <div
               className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-              style={{ ["--hero" as string]: "#0f7a5c" }}
+              style={{ ["--hero" as string]: "var(--tint-pine)" }}
             >
               <div className="flex items-center gap-4">
-                <Ring pct={pct} label={`${Math.min(30, Math.floor(progress / PAGES_PER_JUZ))}`} />
+                <Ring pct={pct} label={`${Math.min(30, Math.floor(progress / PAGES_PER_JUZ))}`} reduceMotion={!!reduceMotion} />
                 <div className="min-w-0">
                   <div className="text-[13px] font-semibold text-white/85">
                     {kp.together ? "Khatam berdua" : "Khatam pribadi"}
@@ -112,7 +114,7 @@ export default function TilawahPage() {
               </div>
               <div className="mt-4 rounded-2xl bg-white/15 px-3.5 py-2.5 text-[13px]">
                 Hari ini kamu: <b>{todayPages} halaman</b>
-                {perDay ? (todayPages >= perDay ? " — target hari ini tercapai" : ` · kurang ${perDay - todayPages}`) : ""}
+                {perDay ? (todayPages >= perDay ? ", target hari ini tercapai" : ` · kurang ${perDay - todayPages}`) : ""}
               </div>
             </div>
 
@@ -127,8 +129,9 @@ export default function TilawahPage() {
                 ].map(([n, l]) => (
                   <button
                     key={n}
+                    type="button"
                     onClick={() => add(n as number)}
-                    className="rounded-2xl bg-bg-elev1 py-3 text-[14px] font-bold text-text-1 active:scale-95"
+                    className="min-h-[44px] rounded-2xl bg-bg-elev1 py-3 text-[14px] font-bold text-text-1 active:scale-95"
                   >
                     {l}
                   </button>
@@ -142,14 +145,16 @@ export default function TilawahPage() {
                   setCustom("");
                 }}
               >
+                <label htmlFor="tilawah-custom-pages" className="sr-only">Jumlah halaman lain</label>
                 <input
+                  id="tilawah-custom-pages"
                   className="input-base h-11 flex-1"
                   inputMode="numeric"
-                  placeholder="Jumlah halaman lain…"
+                  placeholder="Jumlah halaman lain..."
                   value={custom}
                   onChange={(e) => setCustom(e.target.value.replace(/\D/g, ""))}
                 />
-                <button disabled={!custom} className="rounded-full bg-accent px-4 text-[14px] font-bold text-accent-fg disabled:opacity-40">
+                <button type="submit" disabled={!custom} className="min-h-[44px] rounded-full bg-accent px-4 text-[14px] font-bold text-accent-fg disabled:opacity-40">
                   Catat
                 </button>
               </form>
@@ -170,9 +175,11 @@ export default function TilawahPage() {
                       </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-bg-elev2">
-                      <div
-                        className="h-full rounded-full bg-accent"
-                        style={{ width: `${Math.min(100, (x.pages / TOTAL_PAGES) * 100)}%` }}
+                      <motion.div
+                        className="h-full origin-left rounded-full bg-accent"
+                        initial={false}
+                        animate={{ scaleX: Math.max(0, Math.min(1, x.pages / TOTAL_PAGES)) }}
+                        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 28 }}
                       />
                     </div>
                   </div>
@@ -208,39 +215,54 @@ export default function TilawahPage() {
                 </ul>
               )}
             </div>
-            <button onClick={() => setCreating(true)} className="w-full py-2 text-[13px] font-semibold text-text-3">
+            <button type="button" onClick={() => setCreating(true)} className="min-h-[44px] w-full py-2 text-[13px] font-semibold text-text-3">
               Mulai target baru
             </button>
           </>
         )}
       </div>
 
-      {creating && userId && (
-        <NewKhatamSheet
-          userId={userId}
-          me={me}
-          hasPartner={!!partner}
-          previous={active}
-          ramadhanEnd={ramadhanRange(today, offset)?.end ?? null}
-          onClose={() => setCreating(false)}
-        />
-      )}
+      <AnimatePresence>
+        {creating && userId && (
+          <NewKhatamSheet
+            key="tilawah-new"
+            userId={userId}
+            me={me}
+            hasPartner={!!partner}
+            previous={active}
+            ramadhanEnd={ramadhanRange(today, offset)?.end ?? null}
+            onClose={() => setCreating(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function Ring({ pct, label }: { pct: number; label: string }) {
+function Ring({ pct, label, reduceMotion }: { pct: number; label: string; reduceMotion: boolean }) {
   const r = 30;
   const c = 2 * Math.PI * r;
   return (
     <div className="relative grid h-[76px] w-[76px] shrink-0 place-items-center">
-      <svg viewBox="0 0 76 76" className="absolute inset-0 -rotate-90">
+      <svg viewBox="0 0 76 76" className="absolute inset-0 -rotate-90" aria-hidden="true">
         <circle cx="38" cy="38" r={r} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="7" />
-        <circle cx="38" cy="38" r={r} fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct)} style={{ transition: "stroke-dashoffset 600ms var(--ease-out)" }} />
+        <motion.circle
+          cx="38"
+          cy="38"
+          r={r}
+          fill="none"
+          stroke="#fff"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={false}
+          animate={{ strokeDashoffset: c * (1 - pct) }}
+          transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 220, damping: 28 }}
+        />
       </svg>
       <div className="text-center leading-none">
         <div className="text-[22px] font-extrabold">{label}</div>
-        <div className="mt-0.5 text-[10px] text-white/80">juz</div>
+        <div className="mt-0.5 text-[12px] text-white/85">juz</div>
       </div>
     </div>
   );
@@ -284,7 +306,7 @@ function NewKhatamSheet({
     onClose();
   }
   return (
-    <Sheet title="Target khatam" onClose={onClose} footer={<button onClick={save} className="btn-accent w-full">Mulai</button>}>
+    <Sheet title="Target khatam" onClose={onClose} footer={<button type="button" onClick={save} className="btn-accent w-full">Mulai</button>}>
       {hasPartner && (
         <FieldGroup label="Mode">
           <Chips

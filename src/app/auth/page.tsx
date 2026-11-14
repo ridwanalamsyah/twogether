@@ -127,7 +127,7 @@ export default function AuthPage() {
                   setMode(m);
                   setError(null);
                 }}
-                className={`relative rounded-[9px] py-2 font-semibold transition-colors duration-200 ${
+                className={`relative min-h-[44px] rounded-[9px] py-2 font-semibold transition-colors duration-200 ${
                   active ? "text-bg-app" : "text-text-3"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function AuthPage() {
           <Field label="Password">
             <div className="relative">
               <input
-                className="input-base pr-16"
+                className="input-base pr-20"
                 type={showPw ? "text" : "password"}
                 autoComplete={
                   mode === "signin" ? "current-password" : "new-password"
@@ -173,7 +173,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
-                className="absolute inset-y-0 right-2 my-auto h-8 rounded-md px-2 text-[12px] font-medium text-text-3 active:opacity-60"
+                className="absolute inset-y-0 right-1 my-auto min-h-[44px] min-w-[44px] rounded-md px-2.5 text-[12px] font-medium text-text-3 active:opacity-60"
               >
                 {showPw ? "Sembunyi" : "Lihat"}
               </button>
@@ -183,11 +183,11 @@ export default function AuthPage() {
             {mode === "signup" && (
               <motion.div
                 key="signup-fields"
-                initial={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
-                animate={reduce ? { opacity: 1 } : { opacity: 1, height: "auto" }}
-                exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-3 overflow-hidden"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-3"
               >
                 <Field label="Nama">
                   <input
@@ -206,12 +206,12 @@ export default function AuthPage() {
                     onChange={(e) => setBirthday(e.target.value)}
                   />
                 </Field>
-                <label className="flex cursor-pointer items-start gap-2 py-1">
+                <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5 py-1">
                   <input
                     type="checkbox"
                     checked={seed}
                     onChange={(e) => setSeed(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
+                    className="h-5 w-5 accent-[color:var(--accent)]"
                   />
                   <span className="text-[12px] leading-snug text-text-2">
                     Isi dengan contoh data supaya bisa langsung dijelajah.
@@ -238,7 +238,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={busy}
-            className="btn-accent mt-2 w-full disabled:opacity-60"
+            className="btn-accent mt-2 min-h-[48px] w-full disabled:opacity-60"
           >
             {busy
               ? mode === "signin"
@@ -250,7 +250,7 @@ export default function AuthPage() {
           </button>
         </form>
         {mode === "signin" && (
-          <div className="mt-5 flex flex-col items-center gap-3 text-[12px]">
+          <div className="mt-4 flex flex-col items-center gap-1 text-[12px]">
             <button
               type="button"
               disabled={busy}
@@ -272,7 +272,7 @@ export default function AuthPage() {
                   setBusy(false);
                 }
               }}
-              className="font-medium text-text-2 active:opacity-60 disabled:opacity-50"
+              className="min-h-[44px] px-3 font-medium text-text-2 active:opacity-60 disabled:opacity-50"
             >
               Lupa password?
             </button>
@@ -294,7 +294,7 @@ export default function AuthPage() {
                     setBusy(false);
                   }
                 }}
-                className="text-text-3 underline underline-offset-2 active:opacity-60 disabled:opacity-50"
+                className="min-h-[44px] px-3 text-text-3 underline underline-offset-2 active:opacity-60 disabled:opacity-50"
               >
                 Masuk tanpa password (lewat link di email)
               </button>

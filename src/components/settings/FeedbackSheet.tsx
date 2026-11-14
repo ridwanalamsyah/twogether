@@ -34,7 +34,7 @@ export function FeedbackSheet({ onClose }: { onClose: () => void }) {
       toast("Belum terkirim. Cek internet lalu coba lagi.", "warn");
       return;
     }
-    toast("Terima kasih! Masukanmu sudah terkirim 💌");
+    toast("Terima kasih! Masukanmu sudah terkirim.");
     onClose();
   }
 
@@ -43,15 +43,17 @@ export function FeedbackSheet({ onClose }: { onClose: () => void }) {
       title="Kirim masukan"
       onClose={onClose}
       footer={
-        <button onClick={send} disabled={!text.trim() || sending} className="btn-accent w-full disabled:opacity-50">
+        <button type="button" onClick={send} disabled={!text.trim() || sending} className="btn-accent min-h-[48px] w-full disabled:opacity-50">
           {sending ? "Mengirim…" : "Kirim"}
         </button>
       }
     >
       <p className="mb-3 text-[13px] text-text-3">
-        Ada yang error, membingungkan, atau ide fitur? Tulis saja, sesingkat apa pun.
+        Ada yang error, membingungkan, atau ide fitur? Tulis saja di bawah.
       </p>
+      <label htmlFor="feedback-message" className="sr-only">Masukan</label>
       <textarea
+        id="feedback-message"
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={5}

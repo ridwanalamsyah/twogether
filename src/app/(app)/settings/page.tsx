@@ -1,11 +1,12 @@
 "use client";
 
 import { IconTile, type IconSpec } from "@/lib/icons";
-import { Archive, Bell, Heart, LayoutDashboard, LockKeyhole, MessageCircleHeart, Palette, Sparkles, Trash2, UserRound, Wallet } from "lucide-react";
+import { Archive, Bell, Heart, LayoutDashboard, LockKeyhole, Megaphone, MessageCircleHeart, Palette, Trash2, UserRound, Wallet } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -20,25 +21,25 @@ const SECTIONS: { title: string; rows: { href: string; icon: IconSpec; label: st
   {
     title: "Akun",
     rows: [
-      { href: "/settings/profile", icon: { Icon: UserRound, tint: "#3b82f6" }, label: "Profil", hint: "Nama, foto, ulang tahun" },
-      { href: "/settings/security", icon: { Icon: LockKeyhole, tint: "#64748b" }, label: "Password & keamanan", hint: "Ganti password, PIN, privasi" },
-      { href: "/settings/workspace", icon: { Icon: Heart, tint: "#ec4899" }, label: "Pasangan", hint: "Undang & kelola anggota" },
+      { href: "/settings/profile", icon: { Icon: UserRound, tint: "var(--tint-blue)" }, label: "Profil", hint: "Nama, foto, ulang tahun" },
+      { href: "/settings/security", icon: { Icon: LockKeyhole, tint: "var(--tint-slate)" }, label: "Password & keamanan", hint: "Ganti password, PIN, privasi" },
+      { href: "/settings/workspace", icon: { Icon: Heart, tint: "var(--tint-pink)" }, label: "Pasangan", hint: "Undang & kelola anggota" },
     ],
   },
   {
     title: "Tampilan",
     rows: [
-      { href: "/settings/dashboard", icon: { Icon: LayoutDashboard, tint: "#8b5cf6" }, label: "Susun Beranda" },
-      { href: "/settings/theme", icon: { Icon: Palette, tint: "#f97316" }, label: "Tema & warna" },
-      { href: "/settings/pengingat", icon: { Icon: Bell, tint: "#ef4444" }, label: "Pengingat", hint: "Tagihan, tanggal penting, catat uang" },
+      { href: "/settings/dashboard", icon: { Icon: LayoutDashboard, tint: "var(--tint-violet)" }, label: "Susun Beranda" },
+      { href: "/settings/theme", icon: { Icon: Palette, tint: "var(--tint-orange)" }, label: "Tema & warna" },
+      { href: "/settings/pengingat", icon: { Icon: Bell, tint: "var(--tint-red)" }, label: "Pengingat", hint: "Tagihan, tanggal penting, catat uang" },
     ],
   },
   {
     title: "Lainnya",
     rows: [
-      { href: "/settings/finance", icon: { Icon: Wallet, tint: "#f59e0b" }, label: "Uang & anggaran" },
-      { href: "/settings/privacy", icon: { Icon: Archive, tint: "#0ea5e9" }, label: "Data & cadangan", hint: "Unduh atau hapus data" },
-      { href: "/settings/trash", icon: { Icon: Trash2, tint: "#94a3b8" }, label: "Baru dihapus" },
+      { href: "/settings/finance", icon: { Icon: Wallet, tint: "var(--tint-amber)" }, label: "Uang & anggaran" },
+      { href: "/settings/privacy", icon: { Icon: Archive, tint: "var(--tint-sky)" }, label: "Data & cadangan", hint: "Unduh atau hapus data" },
+      { href: "/settings/trash", icon: { Icon: Trash2, tint: "var(--tint-slate)" }, label: "Baru dihapus" },
     ],
   },
 ];
@@ -100,12 +101,12 @@ export default function SettingsPage() {
             </div>
             <div className="truncate text-[12px] text-text-3">{auth.email}</div>
           </div>
-          <span className="text-text-4">›</span>
+          <span className="text-text-4" aria-hidden>›</span>
         </Link>
 
         {SECTIONS.map((sec) => (
           <div key={sec.title} className="mt-6">
-            <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mb-2 text-[12px] font-medium section-label text-text-4">
               {sec.title}
             </div>
             <ul className="divide-y divide-border overflow-hidden rounded-[20px] bg-bg-card shadow-card">
@@ -113,7 +114,7 @@ export default function SettingsPage() {
                 <li key={r.href}>
                   <Link
                     href={r.href}
-                    className="flex items-center gap-3 px-4 py-3 text-[15px] text-text-1 active:bg-bg-elev1"
+                    className="flex min-h-[48px] items-center gap-3 px-4 py-3 text-[15px] text-text-1 active:bg-bg-elev1"
                   >
                     <IconTile spec={r.icon} size={36} radius={11} />
                     <span className="min-w-0 flex-1">
@@ -124,7 +125,7 @@ export default function SettingsPage() {
                         <span className="block text-[12px] text-text-4">{r.hint}</span>
                       )}
                     </span>
-                    <span className="text-text-4">›</span>
+                    <span className="text-text-4" aria-hidden>›</span>
                   </Link>
                 </li>
               ))}
@@ -133,38 +134,42 @@ export default function SettingsPage() {
         ))}
 
         <div className="mt-6">
-          <div className="mb-2 text-[11px] font-medium section-label text-text-4">Bantuan</div>
+          <div className="mb-2 text-[12px] font-medium section-label text-text-4">Bantuan</div>
           <ul className="divide-y divide-border overflow-hidden rounded-[20px] bg-bg-card shadow-card">
             {(
               [
-                ["new", { Icon: Sparkles, tint: "#a855f7" }, "Yang baru", "Perubahan terakhir di app"],
-                ["feedback", { Icon: MessageCircleHeart, tint: "#ec4899" }, "Kirim masukan", "Lapor error atau usul fitur"],
+                ["new", { Icon: Megaphone, tint: "var(--tint-purple)" }, "Yang baru", "Perubahan terakhir di app"],
+                ["feedback", { Icon: MessageCircleHeart, tint: "var(--tint-pink)" }, "Kirim masukan", "Lapor error atau usul fitur"],
               ] as const
             ).map(([id, icon, label, hint]) => (
               <li key={id}>
                 <button
+                  type="button"
                   onClick={() => setSheet(id)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-[15px] text-text-1 active:bg-bg-elev1"
+                  className="flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left text-[15px] text-text-1 active:bg-bg-elev1"
                 >
                   <IconTile spec={icon} size={36} radius={11} />
                   <span className="min-w-0 flex-1">
                     <span className="block">{label}</span>
                     <span className="block text-[12px] text-text-4">{hint}</span>
                   </span>
-                  <span className="text-text-4">›</span>
+                  <span className="text-text-4" aria-hidden>›</span>
                 </button>
               </li>
             ))}
           </ul>
         </div>
-        {sheet === "feedback" && <FeedbackSheet onClose={() => setSheet(null)} />}
-        {sheet === "new" && <WhatsNewSheet onClose={() => setSheet(null)} />}
+        <AnimatePresence>
+          {sheet === "feedback" && <FeedbackSheet key="feedback-sheet" onClose={() => setSheet(null)} />}
+          {sheet === "new" && <WhatsNewSheet key="whats-new-sheet" onClose={() => setSheet(null)} />}
+        </AnimatePresence>
 
         <SaveStatus snap={snap} />
 
         <button
+          type="button"
           onClick={logout}
-          className="mt-4 w-full rounded-[18px] bg-bg-card py-3.5 text-[14px] font-semibold text-[color:var(--negative)] shadow-card active:scale-[0.99]"
+          className="mt-4 min-h-[48px] w-full rounded-[18px] bg-bg-card py-3.5 text-[14px] font-semibold text-[color:var(--negative)] shadow-card active:scale-[0.99]"
         >
           Keluar
         </button>
@@ -179,7 +184,7 @@ function SaveStatus({ snap }: { snap: SyncSnapshot }) {
   const offline = !local && snap.connection === "offline";
   const waiting = local ? 0 : snap.pending + snap.failed;
   const text = offline
-    ? "Sedang tidak ada internet — semua tetap tersimpan di HP ini."
+    ? "Sedang tidak ada internet, semua tetap tersimpan di HP ini."
     : waiting > 0
       ? `Menyimpan ${waiting} perubahan…`
       : local
@@ -193,16 +198,18 @@ function SaveStatus({ snap }: { snap: SyncSnapshot }) {
             offline
               ? "bg-[color:var(--warning)]"
               : waiting > 0
-                ? "animate-pulse bg-[color:var(--info)]"
+                ? "bg-[color:var(--info)]"
                 : "bg-[color:var(--positive)]"
           }`}
+          aria-hidden="true"
         />
         {text}
       </div>
       {!offline && waiting > 0 && (
         <button
+          type="button"
           onClick={() => void sync.retryFailed()}
-          className="shrink-0 text-[12px] font-semibold text-text-1 active:opacity-60"
+          className="min-h-[44px] shrink-0 px-2 text-[12px] font-semibold text-text-1 active:opacity-60"
         >
           Coba lagi
         </button>

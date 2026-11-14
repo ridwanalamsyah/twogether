@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
+import { Sheet } from "@/components/ui/Sheet";
 import { useAuth, loadWorkspaceContext } from "@/stores/auth";
 import { useWorkspace, type WorkspaceMember } from "@/stores/workspace";
 import { getSupabase, hasSupabase } from "@/lib/supabase";
@@ -177,7 +179,7 @@ export default function WorkspaceSettingsPage() {
         if (typeof navigator !== "undefined" && navigator.share) {
           await navigator.share({
             title: "Gabung Twogether bareng aku",
-            text: "Yuk pakai Twogether bareng — buka link ini:",
+            text: "Yuk pakai Twogether bareng, buka link ini:",
             url: link,
           });
           setShareMsg("Link sudah dibagikan.");
@@ -264,19 +266,21 @@ export default function WorkspaceSettingsPage() {
       />
 
       <div className="px-5 pb-8">
-        <div className="mt-4 mb-2 text-[11px] font-medium section-label text-text-4">
+        <label htmlFor="ws-name" className="mt-4 mb-2 block text-[12px] font-medium section-label text-text-4">
           Nama
-        </div>
+        </label>
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <input
-            className="flex-1 bg-transparent text-[14px] text-text-1 outline-none"
+            id="ws-name"
+            className="min-h-[44px] flex-1 rounded bg-transparent px-1 text-[14px] text-text-1 focus-visible:outline-2 focus-visible:outline-[color:var(--accent)] focus-visible:outline-offset-2"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={`Ruang ${auth.name ?? "kita"}`}
           />
           <button
+            type="button"
             onClick={() => renameWorkspace(name.trim() || workspaceName)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg active:opacity-80"
+            className="min-h-[44px] rounded-md bg-accent px-3.5 py-2 text-[12px] font-medium text-accent-fg active:opacity-80"
           >
             Simpan
           </button>
@@ -284,49 +288,52 @@ export default function WorkspaceSettingsPage() {
 
         {hasSupabase() && supaWorkspaceId && (
           <>
-            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mt-6 mb-2 text-[12px] font-medium section-label text-text-4">
               Undang pasangan
             </div>
             <div className="border-y border-border py-3">
               <button
+                type="button"
                 onClick={handleShareInvite}
                 disabled={shareBusy}
-                className="w-full rounded-md bg-accent px-3 py-2 text-[12px] font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
+                className="min-h-[44px] w-full rounded-md bg-accent px-3 py-2 text-[13px] font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
               >
                 {shareBusy ? "Membuat link…" : "Buat link undangan"}
               </button>
               {shareLink && (
                 <div className="mt-3 rounded-md border border-border bg-bg-elev1 p-3">
-                  <div className="break-all font-mono text-[11px] text-text-2">
+                  <div className="break-all font-mono text-[12px] text-text-2">
                     {shareLink}
                   </div>
                   <button
+                    type="button"
                     onClick={copyShareLink}
-                    className="mt-2 rounded-md border border-border px-2.5 py-1 text-[11px] text-text-2 active:opacity-50"
+                    className="mt-2 min-h-[44px] rounded-md border border-border px-3 py-2 text-[12px] text-text-2 active:opacity-50"
                   >
                     {shareCopied ? "Tersalin" : "Salin lagi"}
                   </button>
                 </div>
               )}
               {shareMsg && (
-                <p className="mt-2 text-[11px] text-text-3">{shareMsg}</p>
+                <p className="mt-2 text-[12px] text-text-3">{shareMsg}</p>
               )}
-              <p className="mt-3 text-[11px] text-text-4">
+              <p className="mt-3 text-[12px] text-text-4">
                 Link berlaku 7 hari dan cuma bisa dipakai sekali. Pasanganmu
-                tinggal buka link-nya lalu masuk — langsung tersambung.
+                tinggal buka link-nya lalu masuk agar langsung tersambung.
               </p>
 
               <details className="mt-4">
-                <summary className="cursor-pointer text-[11px] text-text-4">
+                <summary className="flex min-h-[44px] cursor-pointer items-center text-[12px] text-text-4">
                   Atau pakai kode
                 </summary>
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 truncate font-mono text-[11px] text-text-2">
+                  <div className="flex-1 truncate font-mono text-[12px] text-text-2">
                     {supaWorkspaceId}
                   </div>
                   <button
+                    type="button"
                     onClick={copyId}
-                    className="rounded-md border border-border px-2.5 py-1 text-[11px] text-text-2 active:opacity-50"
+                    className="min-h-[44px] rounded-md border border-border px-3 py-2 text-[12px] text-text-2 active:opacity-50"
                   >
                     {copied ? "Tersalin" : "Salin"}
                   </button>
@@ -334,40 +341,43 @@ export default function WorkspaceSettingsPage() {
               </details>
             </div>
 
-            <div className="mt-6 mb-2 text-[11px] font-medium section-label text-text-4">
+            <label htmlFor="ws-join-id" className="mt-6 mb-2 block text-[12px] font-medium section-label text-text-4">
               Punya kode dari pasangan?
-            </div>
+            </label>
             <div className="border-y border-border py-3">
               <input
-                className="w-full bg-transparent text-[12px] font-mono text-text-1 outline-none"
+                id="ws-join-id"
+                className="min-h-[44px] w-full rounded bg-transparent px-1 font-mono text-[13px] text-text-1 focus-visible:outline-2 focus-visible:outline-[color:var(--accent)] focus-visible:outline-offset-2"
                 value={joinId}
                 onChange={(e) => setJoinId(e.target.value)}
                 placeholder="Tempel kode dari pasanganmu"
               />
               <button
+                type="button"
                 onClick={handleJoinClick}
                 disabled={joining || !joinId.trim()}
-                className="mt-3 w-full rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
+                className="mt-3 min-h-[44px] w-full rounded-md bg-accent px-3 py-2 text-[13px] font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
               >
                 {joining ? "Menggabungkan…" : "Gabung"}
               </button>
               {joinMsg && (
-                <p className="mt-2 text-[11px] text-text-3">{joinMsg}</p>
+                <p className="mt-2 text-[12px] text-text-3">{joinMsg}</p>
               )}
-              <p className="mt-2 text-[11px] text-text-4">
+              <p className="mt-2 text-[12px] text-text-4">
                 Lebih gampang: minta pasanganmu kirim link undangan.
               </p>
             </div>
           </>
         )}
 
-        <div className="mt-6 mb-2 flex items-end justify-between">
-          <div className="text-[11px] font-medium section-label text-text-4">
+        <div className="mt-6 mb-2 flex items-center justify-between">
+          <div className="text-[12px] font-medium section-label text-text-4">
             Anggota
           </div>
           <button
+            type="button"
             onClick={() => setShowAdd(true)}
-            className="rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg active:opacity-80"
+            className="min-h-[44px] rounded-md bg-accent px-3.5 py-2 text-[12px] font-medium text-accent-fg active:opacity-80"
           >
             + Tambah
           </button>
@@ -387,125 +397,131 @@ export default function WorkspaceSettingsPage() {
           )}
         </div>
 
-        <div className="mt-6 text-[11px] text-text-4">
+        <div className="mt-6 text-[12px] text-text-4">
           Kalau sudah berdua, pilihan <b>{sharedLabel}</b> muncul untuk
           pengeluaran bersama.
         </div>
 
         {hasSupabase() && supaWorkspaceId && otherMembersCount > 0 && (
           <>
-            <div className="mt-8 mb-2 text-[11px] font-medium section-label text-text-4">
+            <div className="mt-8 mb-2 text-[12px] font-medium section-label text-text-4">
               Lainnya
             </div>
             <div className="border-y border-border py-3">
               <button
+                type="button"
                 onClick={() => setConfirmLeave(true)}
                 disabled={leaving}
-                className="w-full rounded-md border border-[color:var(--negative)] px-3 py-2 text-[12px] font-medium text-[color:var(--negative)] active:opacity-60 disabled:opacity-40"
+                className="min-h-[44px] w-full rounded-md border border-[color:var(--negative)] px-3 py-2 text-[13px] font-medium text-[color:var(--negative)] active:opacity-60 disabled:opacity-40"
               >
                 {leaving ? "Memproses…" : "Keluar dari ruang berdua"}
               </button>
-              <p className="mt-2 text-[11px] text-text-4">
+              <p className="mt-2 text-[12px] text-text-4">
                 Kamu akan punya ruang sendiri lagi. Catatan bersama tetap aman
                 untuk pasanganmu.
               </p>
               {leaveMsg && (
-                <p className="mt-2 text-[11px] text-text-3">{leaveMsg}</p>
+                <p className="mt-2 text-[12px] text-text-3">{leaveMsg}</p>
               )}
             </div>
           </>
         )}
       </div>
 
-      {showAdd && (
-        <AddMemberSheet
-          onSave={(m) => {
-            upsertMember(m);
-            setShowAdd(false);
-          }}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showAdd && (
+          <AddMemberSheet
+            key="ws-add-member"
+            onSave={(m) => {
+              upsertMember(m);
+              setShowAdd(false);
+            }}
+            onClose={() => setShowAdd(false)}
+          />
+        )}
 
-      {confirmJoin && (
-        <ConfirmDialog
-          title="Gabung dengan pasangan?"
-          body={
-            <>
-              <p>
-                Catatanmu (<b>{describeCounts(confirmJoin.counts)}</b>) akan
-                ikut digabung dan bisa dilihat pasanganmu.
-              </p>
-              <p className="mt-2">
-                Kalau ragu, unduh cadangan dulu di{" "}
-                <span className="font-medium">Pengaturan → Data &amp; cadangan</span>.
-              </p>
-            </>
-          }
-          confirmLabel="Ya, gabung"
-          cancelLabel="Batal"
-          danger={false}
-          onCancel={() => setConfirmJoin(null)}
-          onConfirm={() => {
-            const id = confirmJoin.pendingId;
-            setConfirmJoin(null);
-            void actuallyJoin(id);
-          }}
-        />
-      )}
+        {confirmJoin && (
+          <ConfirmDialog
+            key="ws-confirm-join"
+            title="Gabung dengan pasangan?"
+            body={
+              <>
+                <p>
+                  Catatanmu (<b>{describeCounts(confirmJoin.counts)}</b>) akan
+                  ikut digabung dan bisa dilihat pasanganmu.
+                </p>
+                <p className="mt-2">
+                  Kalau ragu, unduh cadangan dulu di{" "}
+                  <span className="font-medium">Pengaturan &gt; Data &amp; cadangan</span>.
+                </p>
+              </>
+            }
+            confirmLabel="Ya, gabung"
+            cancelLabel="Batal"
+            danger={false}
+            onCancel={() => setConfirmJoin(null)}
+            onConfirm={() => {
+              const id = confirmJoin.pendingId;
+              setConfirmJoin(null);
+              void actuallyJoin(id);
+            }}
+          />
+        )}
 
-      {confirmLeave && (
-        <ConfirmDialog
-          title="Keluar dari ruang berdua?"
-          body={
-            <>
-              <p>
-                Kamu akan keluar dari <b>{workspaceName}</b> dan mulai dengan
-                ruang sendiri yang kosong.
-              </p>
-              <ul className="mt-2 list-disc space-y-1 pl-4 text-[12px] text-text-3">
-                <li>
-                  Semua catatan bersama, termasuk yang kamu tulis, tetap ada di
-                  ruang lama dan masih bisa dilihat pasanganmu. Kalau ada yang
-                  tidak ingin ditinggalkan, hapus dulu sebelum keluar.
-                </li>
-                <li>Pasanganmu tidak bisa melihat apa pun yang kamu catat setelah ini.</li>
-              </ul>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!auth.userId) return;
-                  await downloadExport(await exportAll(auth.userId));
-                  setBackedUp(true);
-                }}
-                className="mt-3 w-full rounded-full bg-bg-elev2 px-3 py-2 text-[13px] font-semibold text-text-1 active:scale-[0.98]"
-              >
-                {backedUp ? "Cadangan tersimpan ✓" : "Simpan cadangan dulu"}
-              </button>
-              <label className="mt-3 flex items-start gap-2.5 text-[12px] text-text-2">
-                <input
-                  type="checkbox"
-                  checked={wipeCopy}
-                  onChange={(e) => setWipeCopy(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-[color:var(--accent)]"
-                />
-                <span>
-                  Hapus juga salinan catatan bersama dari HP ini. Kalau tidak
-                  dicentang, salinannya tetap bisa kamu lihat di HP ini.
-                </span>
-              </label>
-            </>
-          }
-          confirmLabel="Ya, keluar"
-          cancelLabel="Batal"
-          danger
-          onCancel={() => setConfirmLeave(false)}
-          onConfirm={() => {
-            setConfirmLeave(false);
-            void handleLeave();
-          }}
-        />
-      )}
+        {confirmLeave && (
+          <ConfirmDialog
+            key="ws-confirm-leave"
+            title="Keluar dari ruang berdua?"
+            body={
+              <>
+                <p>
+                  Kamu akan keluar dari <b>{workspaceName}</b> dan mulai dengan
+                  ruang sendiri yang kosong.
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-[12px] text-text-3">
+                  <li>
+                    Semua catatan bersama, termasuk yang kamu tulis, tetap ada di
+                    ruang lama dan masih bisa dilihat pasanganmu. Kalau ada yang
+                    tidak ingin ditinggalkan, hapus dulu sebelum keluar.
+                  </li>
+                  <li>Pasanganmu tidak bisa melihat apa pun yang kamu catat setelah ini.</li>
+                </ul>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!auth.userId) return;
+                    await downloadExport(await exportAll(auth.userId));
+                    setBackedUp(true);
+                  }}
+                  className="mt-3 min-h-[44px] w-full rounded-full bg-bg-elev2 px-3 py-2 text-[13px] font-semibold text-text-1 active:scale-[0.98]"
+                >
+                  {backedUp ? "Cadangan tersimpan" : "Simpan cadangan dulu"}
+                </button>
+                <label className="mt-3 flex min-h-[44px] items-start gap-2.5 text-[12px] text-text-2">
+                  <input
+                    type="checkbox"
+                    checked={wipeCopy}
+                    onChange={(e) => setWipeCopy(e.target.checked)}
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-[color:var(--accent)]"
+                  />
+                  <span>
+                    Hapus juga salinan catatan bersama dari HP ini. Kalau tidak
+                    dicentang, salinannya tetap bisa kamu lihat di HP ini.
+                  </span>
+                </label>
+              </>
+            }
+            confirmLabel="Ya, keluar"
+            cancelLabel="Batal"
+            danger
+            onCancel={() => setConfirmLeave(false)}
+            onConfirm={() => {
+              setConfirmLeave(false);
+              void handleLeave();
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -520,7 +536,7 @@ function MemberRow({
   return (
     <div className="flex items-center gap-3 py-2.5">
       <div
-        className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-medium text-white"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold text-white"
         style={{ background: member.color }}
       >
         {member.name[0]?.toUpperCase() ?? "?"}
@@ -529,29 +545,30 @@ function MemberRow({
         <div className="truncate text-[13px] text-text-1">
           {member.name}
           {member.isMe && (
-            <span className="ml-1.5 text-[10px] section-label text-text-4">
+            <span className="ml-1.5 text-[12px] section-label text-text-4">
               kamu
             </span>
           )}
           {member.isOwner && !member.isMe && (
-            <span className="ml-1.5 text-[10px] section-label text-text-4">
+            <span className="ml-1.5 text-[12px] section-label text-text-4">
               pembuat
             </span>
           )}
           {member.pending && (
-            <span className="ml-1.5 text-[10px] section-label text-text-4">
+            <span className="ml-1.5 text-[12px] section-label text-text-4">
               menunggu
             </span>
           )}
         </div>
         {member.email && (
-          <div className="truncate text-[11px] text-text-4">{member.email}</div>
+          <div className="truncate text-[12px] text-text-4">{member.email}</div>
         )}
       </div>
       {!member.isMe && !member.isOwner && (
         <button
+          type="button"
           onClick={onRemove}
-          className="text-[11px] text-[color:var(--negative)] active:opacity-50"
+          className="min-h-[44px] px-2 text-[12px] font-medium text-[color:var(--negative)] active:opacity-50"
         >
           Hapus
         </button>
@@ -577,6 +594,7 @@ function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const reduced = useReducedMotion();
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onCancel();
@@ -587,16 +605,24 @@ function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button
+      <motion.button
         type="button"
         aria-label="Tutup dialog"
         onClick={onCancel}
+        initial={reduced ? undefined : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={reduced ? undefined : { opacity: 0 }}
+        transition={{ duration: 0.2 }}
         className="backdrop-in fixed inset-0 bg-black/40"
       />
-      <div
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        initial={reduced ? undefined : { opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={reduced ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
+        transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 32 }}
         className="relative z-10 w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
       >
         <h2 className="text-[16px] font-semibold text-text-1">{title}</h2>
@@ -605,23 +631,23 @@ function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-md border border-border px-3 py-2 text-[13px] text-text-2 active:opacity-60"
+            className="min-h-[44px] flex-1 rounded-md border border-border px-3 py-2 text-[13px] text-text-2 active:opacity-60"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`flex-1 rounded-md px-3 py-2 text-[13px] font-medium active:opacity-80 ${
+            className={`min-h-[44px] flex-1 rounded-md px-3 py-2 text-[13px] font-medium active:opacity-80 ${
               danger
-                ? "bg-[color:var(--negative)] text-white"
+                ? "bg-[color:var(--negative)] text-[color:var(--negative-fg)]"
                 : "bg-accent text-accent-fg"
             }`}
           >
             {confirmLabel}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -635,14 +661,6 @@ function AddMemberSheet({
 }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
 
   function submit() {
     const trimmed = name.trim();
@@ -659,75 +677,71 @@ function AddMemberSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button
-        type="button"
-        aria-label="Tutup dialog"
-        onClick={onClose}
-        className="backdrop-in fixed inset-0 bg-black/40"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Tambah anggota"
-        className="relative z-10 w-full max-w-md rounded-t-2xl bg-bg-app p-5 shadow-xl sm:rounded-2xl"
-      >
-        <h2 className="text-[16px] font-semibold text-text-1">
-          Tambah anggota
-        </h2>
-        <p className="mt-1 text-[12px] text-text-4">
-          Anggota lokal (tanpa akun) muncul di list buat tagging transaksi
-          bersama. Untuk anggota dengan akun, pakai &quot;Buat link
-          undangan&quot;.
-        </p>
-        <div className="mt-4 space-y-3">
-          <div>
-            <div className="mb-1 text-[11px] text-text-4">Nama</div>
-            <input
-              className="input-base"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nama anggota"
-            />
-          </div>
-          <div>
-            <div className="mb-1 text-[11px] text-text-4">Email (opsional)</div>
-            <input
-              className="input-base"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="opsional"
-            />
-          </div>
-        </div>
-        <div className="mt-5 flex gap-2">
+    <Sheet
+      title="Tambah anggota"
+      onClose={onClose}
+      footer={
+        <div className="flex gap-2">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 rounded-md border border-border px-3 py-2 text-[13px] text-text-2 active:opacity-60"
+            className="min-h-[44px] flex-1 rounded-md border border-border px-3 py-2 text-[13px] text-text-2 active:opacity-60"
           >
             Batal
           </button>
           <button
+            type="button"
             onClick={submit}
             disabled={!name.trim()}
-            className="flex-1 rounded-md bg-accent px-3 py-2 text-[13px] font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
+            className="min-h-[44px] flex-1 rounded-md bg-accent px-3 py-2 text-[13px] font-medium text-accent-fg active:opacity-80 disabled:opacity-40"
           >
             Simpan
           </button>
         </div>
+      }
+    >
+      <p className="mb-4 text-[12px] text-text-4">
+        Anggota lokal (tanpa akun) muncul di list buat tagging transaksi
+        bersama. Untuk anggota dengan akun, pakai Buat link undangan.
+      </p>
+      <div className="space-y-3">
+        <div>
+          <label htmlFor="ws-add-name" className="mb-1 block text-[12px] text-text-4">
+            Nama
+          </label>
+          <input
+            id="ws-add-name"
+            className="input-base"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nama anggota"
+          />
+        </div>
+        <div>
+          <label htmlFor="ws-add-email" className="mb-1 block text-[12px] text-text-4">
+            Email (opsional)
+          </label>
+          <input
+            id="ws-add-email"
+            className="input-base"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="opsional"
+          />
+        </div>
       </div>
-    </div>
+    </Sheet>
   );
 }
 
 const PALETTE = [
-  "#0d0d0d",
-  "#2563eb",
-  "#7c3aed",
-  "#16a34a",
-  "#ea580c",
-  "#db2777",
+  "var(--tint-stone)",
+  "var(--tint-cobalt)",
+  "var(--tint-iris)",
+  "var(--tint-forest)",
+  "var(--tint-bronze)",
+  "var(--tint-crimson)",
 ];
 function pickColor(seed: string): string {
   let h = 0;

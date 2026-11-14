@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
@@ -32,6 +33,7 @@ const CATEGORIES = [
 ];
 
 export default function FinancePage() {
+  const reduce = useReducedMotion();
   const userId = useAuth((s) => s.userId);
   const recurring = useRecurring(userId) ?? [];
   const budgets = useBudgets(userId) ?? [];
@@ -65,12 +67,13 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold section-label text-text-3">
+            <div className="text-[12px] font-bold section-label text-text-3">
               Transaksi rutin
             </div>
             <button
+              type="button"
               onClick={() => setAddR(true)}
-              className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-fg"
+              className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[12px] font-semibold text-accent-fg"
             >
               + Tambah
             </button>
@@ -84,22 +87,23 @@ export default function FinancePage() {
               {recurring.map((r) => (
                 <li key={r.id}>
                   <button
+                    type="button"
                     onClick={() => setEditingR(r)}
-                    className="flex w-full items-center justify-between rounded-md bg-bg-elev2 px-3 py-2 text-left theme-transition"
+                    className="flex min-h-[48px] w-full items-center justify-between rounded-[14px] bg-bg-elev2 px-3 py-2 text-left theme-transition"
                   >
                     <div>
                       <div className="text-sm font-semibold">
                         {r.kind === "in" ? "+" : "−"} {formatRupiah(r.amount)}
-                        <span className="ml-2 text-[10px] text-text-3">
+                        <span className="ml-2 text-[12px] text-text-3">
                           {r.category} · {r.interval}
                         </span>
                       </div>
-                      <div className="text-[11px] text-text-3">
+                      <div className="text-[12px] text-text-3">
                         Selanjutnya {r.nextDue} · {r.who}
                       </div>
                     </div>
                     <span
-                      className={`text-[10px] font-semibold ${
+                      className={`text-[12px] font-semibold ${
                         r.active ? "text-[color:var(--positive)]" : "text-text-4"
                       }`}
                     >
@@ -114,20 +118,20 @@ export default function FinancePage() {
 
         <section className="surface p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-bold section-label text-text-3">
+            <div className="text-[12px] font-bold section-label text-text-3">
               Anggaran per kategori
             </div>
             <button
+              type="button"
               onClick={() => setAddB(true)}
-              className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-fg"
+              className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[12px] font-semibold text-accent-fg"
             >
               + Set
             </button>
           </div>
           {budgets.length === 0 ? (
             <p className="text-xs text-text-4">
-              Set limit bulanan per kategori untuk dapet alert kalau hampir
-              kelewat.
+              Pasang batas bulanan per kategori supaya diingatkan sebelum lewat.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -141,8 +145,9 @@ export default function FinancePage() {
                 return (
                   <li key={b.id}>
                     <button
+                      type="button"
                       onClick={() => setEditingB(b)}
-                      className="block w-full rounded-md bg-bg-elev2 p-3 text-left theme-transition"
+                      className="block min-h-[48px] w-full rounded-[14px] bg-bg-elev2 p-3 text-left theme-transition"
                     >
                       <div className="flex items-baseline justify-between">
                         <span className="text-sm font-semibold">
@@ -159,11 +164,13 @@ export default function FinancePage() {
                         </span>
                       </div>
                       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bg-elev3">
-                        <div
-                          className={`h-full ${
+                        <motion.div
+                          className={`h-full origin-left ${
                             warn ? "bg-[color:var(--negative)]" : "bg-accent"
                           }`}
-                          style={{ width: `${pct}%` }}
+                          initial={reduce ? false : { scaleX: 0 }}
+                          animate={{ scaleX: pct / 100 }}
+                          transition={reduce ? { duration: 0.1 } : { duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                         />
                       </div>
                     </button>
@@ -175,26 +182,30 @@ export default function FinancePage() {
         </section>
       </div>
 
-      {(addR || editingR) && (
-        <RecurringSheet
-          record={editingR}
-          categories={CATEGORIES}
-          onClose={() => {
-            setAddR(false);
-            setEditingR(null);
-          }}
-        />
-      )}
-      {(addB || editingB) && (
-        <BudgetSheet
-          record={editingB}
-          categories={CATEGORIES}
-          onClose={() => {
-            setAddB(false);
-            setEditingB(null);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {(addR || editingR) && (
+          <RecurringSheet
+            key={editingR ? `rec-${editingR.id}` : "rec-new"}
+            record={editingR}
+            categories={CATEGORIES}
+            onClose={() => {
+              setAddR(false);
+              setEditingR(null);
+            }}
+          />
+        )}
+        {(addB || editingB) && (
+          <BudgetSheet
+            key={editingB ? `bud-${editingB.id}` : "bud-new"}
+            record={editingB}
+            categories={CATEGORIES}
+            onClose={() => {
+              setAddB(false);
+              setEditingB(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -267,10 +278,12 @@ function RecurringSheet({
           {(["out", "in"] as const).map((k) => (
             <button
               key={k}
+              type="button"
+              aria-pressed={kind === k}
               onClick={() => setKind(k)}
-              className={`flex-1 rounded-md py-2 text-xs font-semibold ${
+              className={`min-h-[44px] flex-1 rounded-[14px] py-2 text-xs font-semibold transition-colors ${
                 kind === k
-                  ? "bg-accent text-accent-fg"
+                  ? "bg-text-1 text-bg-app"
                   : "bg-bg-elev2 text-text-2"
               }`}
             >
@@ -351,20 +364,21 @@ function RecurringSheet({
             placeholder="misal: Netflix, kos bulanan"
           />
         </Field>
-        <label className="flex items-center gap-2 rounded-md bg-bg-elev2 p-2.5 text-xs">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-[14px] bg-bg-elev2 px-3 py-2 text-xs">
           <input
             type="checkbox"
             checked={active === 1}
             onChange={(e) => setActive(e.target.checked ? 1 : 0)}
+            className="h-5 w-5 accent-[color:var(--accent)]"
           />
-          Aktif (akan auto-tambah transaksi)
+          Aktif (auto-tambah transaksi)
         </label>
         <div className="flex gap-2">
-          <button onClick={save} className="btn-accent flex-1 text-sm">
+          <button type="button" onClick={save} className="btn-accent flex-1 text-sm">
             Simpan
           </button>
           {record && (
-            <button onClick={del} className="btn-danger text-sm">
+            <button type="button" onClick={del} className="btn-danger text-sm">
               Hapus
             </button>
           )}
@@ -425,11 +439,11 @@ function BudgetSheet({
           />
         </Field>
         <div className="flex gap-2">
-          <button onClick={save} className="btn-accent flex-1 text-sm">
+          <button type="button" onClick={save} className="btn-accent flex-1 text-sm">
             Simpan
           </button>
           {record && (
-            <button onClick={del} className="btn-danger text-sm">
+            <button type="button" onClick={del} className="btn-danger text-sm">
               Hapus
             </button>
           )}
@@ -448,7 +462,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-bold section-label text-text-3">
+      <div className="mb-1 text-[12px] font-bold section-label text-text-3">
         {label}
       </div>
       {children}
@@ -472,10 +486,10 @@ function CurrencySection() {
   return (
     <section className="surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold section-label text-text-3">
+        <div className="text-[12px] font-bold section-label text-text-3">
           Mata uang
         </div>
-        <span className="text-[10px] text-text-4">
+        <span className="text-[12px] text-text-4">
           {active.symbol} · {active.code}
         </span>
       </div>
@@ -486,17 +500,16 @@ function CurrencySection() {
         id="currency-pick"
         value={code}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md bg-bg-elev2 px-3 py-2 text-sm theme-transition"
+        className="min-h-[44px] w-full rounded-[14px] bg-bg-elev2 px-3 py-2 text-sm theme-transition"
       >
         {CURRENCIES.map((c) => (
           <option key={c.code} value={c.code}>
-            {c.symbol} {c.code} — {c.label}
+            {c.symbol} {c.code} ({c.label})
           </option>
         ))}
       </select>
-      <p className="mt-2 text-[11px] text-text-4">
-        Mengubah mata uang akan me-reload halaman supaya semua angka tampil di
-        format yang baru.
+      <p className="mt-2 text-[12px] text-text-4">
+        Halaman akan dimuat ulang agar format angka menyesuaikan.
       </p>
     </section>
   );

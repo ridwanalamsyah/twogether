@@ -45,21 +45,23 @@ export class ErrorBoundary extends React.Component<
           App ketemu error tak terduga. Data lokal kamu aman, coba reload
           atau lanjut ke halaman lain.
         </p>
-        <pre className="mt-3 max-h-32 max-w-[320px] overflow-auto rounded bg-bg-elev2 p-2 text-left text-[10px] text-text-3">
+        <pre className="mt-3 max-h-32 max-w-[320px] overflow-auto rounded bg-bg-elev2 p-2.5 text-left text-[12px] text-text-3">
           {this.state.error.message}
         </pre>
         <div className="mt-4 flex gap-2">
           <button
+            type="button"
             onClick={this.reset}
-            className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg"
+            className="min-h-[44px] rounded-full bg-accent px-4 text-xs font-semibold text-accent-fg"
           >
             Coba lagi
           </button>
           <button
+            type="button"
             onClick={() => {
               if (typeof window !== "undefined") window.location.replace("/home");
             }}
-            className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
+            className="min-h-[44px] rounded-full bg-bg-elev2 px-4 text-xs font-semibold text-text-2"
           >
             Ke beranda
           </button>

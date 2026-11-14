@@ -33,9 +33,10 @@
   /* Semantic */
   --positive: #147438;
   --positive-bg: #ddf4e8;
-  --negative: #c82832;
+  --negative: #c22530;
+  --negative-fg: #ffffff;
   --negative-bg: #fde4e1;
-  --warning: #9a5b04;
+  --warning: #945603;
   --warning-bg: #fdf0d5;
   --info: #2251d1;
   --info-bg: #e0e8ff;
@@ -45,11 +46,43 @@
   --note-fg: #5b4300;
   --note-shadow: 0 1px 0 rgba(120, 90, 0, 0.08), 0 10px 22px -14px rgba(120, 90, 0, 0.45);
 
-  /* Accent — warm rose/coral, the "us" colour (5.06:1 vs #fff, 4.58:1 on app/soft) */
-  --accent: #d02d47;
+  /* Accent — warm rose/coral, the "us" colour (5.83:1 vs #fff, >=4.70:1 on elev2/soft) */
+  --accent: #c2233d;
   --accent-2: #f46d54;
   --accent-fg: #ffffff;
   --accent-soft: #fff0f1;
+
+  /* Category & icon semantic tints (purpose: space/data coding without hardcoded TSX hexes) */
+  --tint-red: #ef4444;
+  --tint-rose: #f43f5e;
+  --tint-crimson: #e11d48;
+  --tint-pink: #ec4899;
+  --tint-mauve: #b76e79;
+  --tint-orange: #f97316;
+  --tint-ochre: #d97706;
+  --tint-amber: #f59e0b;
+  --tint-yellow: #eab308;
+  --tint-gold: #d9b24c;
+  --tint-bronze: #a16207;
+  --tint-sun: #facc15;
+  --tint-lime: #84cc16;
+  --tint-green: #22c55e;
+  --tint-leaf: #16a34a;
+  --tint-emerald: #10b981;
+  --tint-pine: #0f7a5c;
+  --tint-forest: #0f766e;
+  --tint-teal: #14b8a6;
+  --tint-cyan: #06b6d4;
+  --tint-sky: #0ea5e9;
+  --tint-blue: #3b82f6;
+  --tint-cobalt: #2563eb;
+  --tint-indigo: #6366f1;
+  --tint-violet: #8b5cf6;
+  --tint-iris: #7c3aed;
+  --tint-purple: #a855f7;
+  --tint-slate: #94a3b8;
+  --tint-stone: #64748b;
+  --tint-ink: #0d0d0d;
 
   /* Radius — soft and friendly */
   --r-sm: 10px;
@@ -97,8 +130,9 @@
 
   --positive: #4ade80;
   --positive-bg: rgba(74, 222, 128, 0.14);
-  --negative: #ff7a7a;
-  --negative-bg: rgba(255, 107, 107, 0.16);
+  --negative: #ff8f8f;
+  --negative-fg: #1b0a0e;
+  --negative-bg: rgba(255, 143, 143, 0.14);
   --warning: #ffb84d;
   --warning-bg: rgba(255, 181, 71, 0.16);
   --info: #8bb0ff;
@@ -107,11 +141,12 @@
   --note-bg: #3a3220;
   --note-fg: #ffe9a8;
 
-  --accent: #ff7083;
+  --accent: #ff8a9b;
   --accent-2: #ff9a6c;
   --accent-fg: #1b0a0e;
-  --accent-soft: rgba(255, 112, 131, 0.16);
+  --accent-soft: rgba(255, 138, 155, 0.14);
   --hairline: rgba(255, 240, 235, 0.08);
+  --tint-ink: #f6f2ef;
 }
 
 /* Accent presets — applied independently of light/dark */
@@ -128,10 +163,10 @@
   --accent-soft: #29222c;
 }
 [data-accent="blue"] {
-  --accent: #2563eb;
+  --accent: #1d58dc;
   --accent-2: #5b8cff;
   --accent-fg: #ffffff;
-  --accent-soft: #dbeafe;
+  --accent-soft: #eff6ff;
 }
 [data-theme="dark"][data-accent="blue"] {
   --accent: #3b9eff;
@@ -147,10 +182,10 @@
   --accent-soft: #ede9fe;
 }
 [data-theme="dark"][data-accent="purple"] {
-  --accent: #bf5af2;
-  --accent-2: #d48cff;
+  --accent: #cf84ff;
+  --accent-2: #dfb0ff;
   --accent-fg: #14091b;
-  --accent-soft: rgba(191, 90, 242, 0.18);
+  --accent-soft: rgba(191, 90, 242, 0.14);
 }
 
 [data-accent="green"] {
@@ -167,7 +202,7 @@
 }
 
 [data-accent="orange"] {
-  --accent: #c2410c;
+  --accent: #b83a08;
   --accent-2: #f97316;
   --accent-fg: #ffffff;
   --accent-soft: #ffedd5;
@@ -176,7 +211,7 @@
   --accent: #ff9f0a;
   --accent-2: #ffc266;
   --accent-fg: #0d0d0d;
-  --accent-soft: rgba(255, 159, 10, 0.18);
+  --accent-soft: rgba(255, 159, 10, 0.14);
 }
 
 [data-accent="pink"] {
@@ -186,10 +221,10 @@
   --accent-soft: #fce7f3;
 }
 [data-theme="dark"][data-accent="pink"] {
-  --accent: #ff5c7c;
-  --accent-2: #ff8fb0;
+  --accent: #ff8aa3;
+  --accent-2: #ffa3b8;
   --accent-fg: #1a080e;
-  --accent-soft: rgba(255, 92, 124, 0.18);
+  --accent-soft: rgba(255, 138, 163, 0.14);
 }
 
 /* ── BASE ─────────────────────────────────────────────── */
@@ -276,17 +311,30 @@ button {
   color: inherit;
 }
 
+a[href],
 button,
-[role="button"] {
+summary,
+select,
+label[for],
+label:has(> input[type="checkbox"]),
+label:has(> input[type="radio"]),
+input[type="checkbox"],
+input[type="radio"],
+[role="button"],
+[role="tab"],
+[role="switch"] {
   cursor: pointer;
 }
 
 button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled,
 [aria-disabled="true"] {
   cursor: not-allowed;
 }
 
-:where(a, button, summary, [role="button"], [tabindex]):focus-visible {
+:where(a, button, summary, [role="button"], [role="tab"], [role="switch"], [tabindex], input, select, textarea):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -353,6 +401,7 @@ html.theme-switching *::after {
 }
 
 .btn-accent {
+  min-height: 44px;
   background: var(--accent);
   color: var(--accent-fg);
   border-radius: 999px;
@@ -370,6 +419,7 @@ html.theme-switching *::after {
 }
 
 .btn-soft {
+  min-height: 44px;
   background: var(--accent-soft);
   color: var(--accent);
   border-radius: var(--r-md);
@@ -380,6 +430,7 @@ html.theme-switching *::after {
 }
 
 .btn-ghost {
+  min-height: 44px;
   background: var(--bg-elev2);
   color: var(--text-1);
   border-radius: var(--r-md);
@@ -390,6 +441,7 @@ html.theme-switching *::after {
 }
 
 .btn-danger {
+  min-height: 44px;
   background: var(--negative-bg);
   color: var(--negative);
   border-radius: var(--r-md);
@@ -409,7 +461,6 @@ html.theme-switching *::after {
   border-radius: var(--r-md);
   font-size: 16px;
   color: var(--text-1);
-  outline: none;
   transition: border-color var(--transition), background var(--transition);
 }
 @media (min-width: 768px) {
@@ -420,6 +471,10 @@ html.theme-switching *::after {
 .input-base:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.input-base:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .input-base::placeholder {
   color: var(--text-4);
@@ -624,6 +679,10 @@ input::-webkit-date-and-time-value {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+  .boot-pulse,
+  .animate-pulse {
+    animation: none !important;
+  }
 }
 
 /* Skeleton */
@@ -637,8 +696,10 @@ input::-webkit-date-and-time-value {
   }
 }
 /* Loading placeholder: a soft band of light sweeps across, like iOS. */
-.skeleton {
+:where(.skeleton) {
   border-radius: 8px;
+}
+.skeleton {
   background-color: var(--bg-elev2);
   background-image: linear-gradient(
     100deg,
@@ -661,13 +722,6 @@ input::-webkit-date-and-time-value {
 
 .backdrop-in {
   animation: fade-in 200ms var(--ease-out) backwards;
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-}
-
-.surface-blur {
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
 }
 
 /* Section tab switch — slides in from the side you swiped towards. */
@@ -756,7 +810,7 @@ h3, .h3 {
 
 .text-\[10px\].section-label,
 .text-\[9px\].section-label {
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
   letter-spacing: 0.03em;
   color: var(--text-3) !important;
@@ -811,11 +865,10 @@ h3, .h3 {
   animation: float-heart 3.2s ease-in-out 2 0.4s;
 }
 
-/* Frosted header & tab bar (Tailwind's /opacity can't tint CSS-var colours). */
+/* Solid sticky header with hairline border; frosted glass reserved for .app-nav (1 element). */
 .app-header {
-  background: color-mix(in srgb, var(--bg-app) 94%, transparent);
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
-  backdrop-filter: saturate(160%) blur(18px);
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--hairline);
 }
 .app-nav {
   background: color-mix(in srgb, var(--bg-card) 86%, transparent);
@@ -828,8 +881,6 @@ h3, .h3 {
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .app-header {
     background: var(--bg-app);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
   .app-nav {
     background: var(--bg-card);
@@ -838,9 +889,9 @@ h3, .h3 {
     border-color: var(--border-strong);
   }
   .backdrop-in,
-  .surface-blur {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 }
 
@@ -920,7 +971,7 @@ h3, .h3 {
 
 /* ── SEASONAL SKINS (accent + warm background tint) ───── */
 [data-accent="ramadhan"] {
-  --accent: #0f7a54;
+  --accent: #0c734e;
   --accent-2: #d9b24c;
   --accent-fg: #ffffff;
   --accent-soft: #e2f3ea;
@@ -938,35 +989,35 @@ h3, .h3 {
   --bg-elev2: #1c2620;
 }
 [data-accent="valentine"] {
-  --accent: #d01a42;
+  --accent: #c4173c;
   --accent-2: #fb7185;
   --accent-fg: #ffffff;
-  --accent-soft: #ffe1e7;
+  --accent-soft: #fff0f3;
   --bg-app: #fff5f6;
   --bg-elev1: #ffecef;
   --bg-elev2: #fde2e7;
 }
 [data-theme="dark"][data-accent="valentine"] {
-  --accent: #ff6b8b;
-  --accent-2: #ff9eb4;
+  --accent: #ff89a2;
+  --accent-2: #ffa6ba;
   --accent-fg: #1c070d;
-  --accent-soft: rgba(255, 107, 139, 0.16);
+  --accent-soft: rgba(255, 137, 162, 0.14);
   --bg-app: #170d10;
   --bg-elev1: #1f1215;
   --bg-elev2: #2a181d;
 }
 [data-accent="senja"] {
-  --accent: #c2410c;
+  --accent: #b83a08;
   --accent-2: #a855f7;
   --accent-fg: #ffffff;
-  --accent-soft: #ffead9;
+  --accent-soft: #fff3eb;
   --bg-app: #fdf5ef;
 }
 [data-theme="dark"][data-accent="senja"] {
-  --accent: #ff8a3d;
+  --accent: #ff9a57;
   --accent-2: #c084fc;
   --accent-fg: #1c0b04;
-  --accent-soft: rgba(255, 138, 61, 0.16);
+  --accent-soft: rgba(255, 154, 87, 0.14);
   --bg-app: #16101a;
 }
 [data-accent="laut"] {
@@ -988,10 +1039,10 @@ h3, .h3 {
   --bg-elev2: #18262c;
 }
 [data-accent="matcha"] {
-  --accent: #4d7c0f;
+  --accent: #436e0b;
   --accent-2: #84a942;
   --accent-fg: #ffffff;
-  --accent-soft: #ecf5dc;
+  --accent-soft: #f4fae9;
   --bg-app: #f7f8f1;
 }
 [data-theme="dark"][data-accent="matcha"] {
@@ -1036,7 +1087,7 @@ h3, .h3 {
   background: var(--bg-elev1);
   border-radius: 12px;
   padding: 10px 12px;
-  min-height: 42px;
+  min-height: 44px;
   font-size: 16px;
   color: var(--text-1);
 }
@@ -1057,9 +1108,9 @@ h3, .h3 {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-/* ── Minimum readable text: 9–11px looked blurry ("pixel") on phones ── */
-.text-\[9px\] { font-size: 10.5px; }
-.text-\[10px\] { font-size: 11px; }
+/* ── Minimum readable text: 12px floor for clarity across mobile and desktop ── */
+.text-\[9px\] { font-size: 12px; }
+.text-\[10px\] { font-size: 12px; }
 .text-\[11px\] { font-size: 12px; }
 
 /* ── Space hero cards: plain card with accent data marks ── */

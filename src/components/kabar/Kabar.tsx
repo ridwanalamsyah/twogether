@@ -63,13 +63,13 @@ export function KabarWidget() {
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="shrink-0 rounded-full bg-bg-elev2 px-3 py-1.5 text-[12px] font-semibold text-text-2 transition-transform active:scale-95"
+          className="min-h-[44px] shrink-0 rounded-[14px] bg-bg-elev2 px-3.5 py-2 text-[12px] font-semibold text-text-2 transition-transform active:scale-95"
         >
-          {myStatus ? `${myStatus.emoji} Aku` : "Statusku"}
+          {myStatus ? "Statusku" : "Statusku"}
         </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="no-scrollbar -mx-1 mt-3 flex flex-nowrap items-center gap-1.5 overflow-x-auto px-1">
         {PINGS.map((p) => (
           <motion.button
             key={p.id}
@@ -78,7 +78,7 @@ export function KabarWidget() {
             onClick={() => ping(p.id)}
             whileTap={reduce ? undefined : { scale: 0.92 }}
             transition={{ type: "spring", stiffness: 520, damping: 30 }}
-            className={`flex items-center gap-1.5 overflow-hidden rounded-full px-3 py-2 text-[13px] font-semibold transition-colors duration-200 ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors duration-200 ${
               sent === p.id ? "bg-accent text-accent-fg" : "bg-bg-elev1 text-text-2 hover:bg-bg-elev2"
             }`}
           >
@@ -86,9 +86,9 @@ export function KabarWidget() {
               <motion.span
                 key={sent === p.id ? "sent" : "label"}
                 className="flex items-center gap-1"
-                initial={reduce ? { opacity: 0 } : { y: 12, opacity: 0 }}
+                initial={reduce ? { opacity: 0 } : { y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={reduce ? { opacity: 0 } : { y: -12, opacity: 0 }}
+                exit={reduce ? { opacity: 0 } : { y: -10, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 520, damping: 32 }}
               >
                 {sent === p.id ? (
@@ -103,14 +103,21 @@ export function KabarWidget() {
           </motion.button>
         ))}
       </div>
-      <Link
-        href="/kabar"
-        className="mt-2.5 inline-flex w-full items-center justify-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
-      >
-        Riwayat kabar
-        <ChevronRight size={14} strokeWidth={2.2} aria-hidden />
-      </Link>
-      {editing && <StatusSheet onClose={() => setEditing(false)} />}
+      <div className="mt-2 flex items-center justify-between border-t border-[color:var(--hairline)] pt-1.5">
+        <span className="truncate text-[12px] text-text-3">
+          {myStatus ? `Kamu: ${myStatus.text}` : "Ketuk satu untuk kirim cepat"}
+        </span>
+        <Link
+          href="/kabar"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-0.5 pl-2 text-[12px] font-semibold text-text-2 hover:text-text-1"
+        >
+          Riwayat
+          <ChevronRight size={14} strokeWidth={2.2} aria-hidden />
+        </Link>
+      </div>
+      <AnimatePresence>
+        {editing && <StatusSheet onClose={() => setEditing(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
@@ -146,18 +153,19 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
     <Sheet
       title="Statusku"
       onClose={onClose}
-      footer={<button type="button" onClick={save} className="btn-accent w-full">Pasang status</button>}
+      footer={<button type="button" onClick={save} className="btn-accent min-h-[48px] w-full">Pasang status</button>}
     >
       <div className="mb-3 grid grid-cols-2 gap-2">
         {STATUS_PRESETS.map((s) => (
           <button
             key={s.text}
             type="button"
+            aria-pressed={text === s.text}
             onClick={() => {
               setEmoji(s.emoji);
               setText(s.text);
             }}
-            className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[13px] font-medium transition-transform active:scale-95 ${
+            className={`flex min-h-[44px] items-center gap-2 rounded-[14px] px-3 py-2.5 text-left text-[13px] font-medium transition-transform active:scale-95 ${
               text === s.text
                 ? "bg-text-1 text-bg-app shadow-card"
                 : "bg-bg-card text-text-2 shadow-card"
@@ -168,7 +176,11 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
           </button>
         ))}
       </div>
+      <label htmlFor="kabar-custom-status" className="sr-only">
+        Status singkat
+      </label>
       <input
+        id="kabar-custom-status"
         className="input-base mb-4"
         placeholder="Atau tulis sendiri…"
         maxLength={40}
@@ -183,7 +195,8 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={() => setEnergy(n)}
             aria-label={`Energi ${n} dari 5`}
-            className={`flex-1 rounded-xl py-2.5 text-[15px] font-bold transition-transform active:scale-95 ${
+            aria-pressed={energy === n}
+            className={`min-h-[44px] flex-1 rounded-[14px] py-2.5 text-[15px] font-bold transition-transform active:scale-95 ${
               energy === n ? "bg-text-1 text-bg-app shadow-card" : "bg-bg-card text-text-3 shadow-card"
             }`}
           >
@@ -191,7 +204,7 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
           </button>
         ))}
       </div>
-      <p className="mt-3 text-[12px] text-text-4">Status hilang sendiri setelah 12 jam.</p>
+      <p className="mt-3 text-[12px] text-text-4">Status hilang otomatis dalam 12 jam.</p>
     </Sheet>
   );
 }
@@ -204,6 +217,7 @@ export function StatusSheet({ onClose }: { onClose: () => void }) {
 export function PingListener() {
   const { nick } = useNick();
   const { pings, me, sendPing } = useKabar();
+  const reduce = useReducedMotion();
   const [toast, setToast] = useState<{ id: string; emoji: string; text: string } | null>(null);
   const seen = useRef<number | null>(null);
 
@@ -235,7 +249,7 @@ export function PingListener() {
     hapticSuccess();
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
       void navigator.serviceWorker?.getRegistration().then((reg) => {
-        const n = notificationText(`${t.emoji} Twogether`, t.text);
+        const n = notificationText("Twogether", t.text);
         return reg?.showNotification(n.title, { body: n.body, tag: "ping", icon: "/icons/icon-192.png" });
       });
     }
@@ -250,34 +264,45 @@ export function PingListener() {
     return () => clearTimeout(timer);
   }, [toastId]);
 
-  if (!toast || typeof document === "undefined") return null;
+  if (typeof document === "undefined") return null;
   return createPortal(
-    <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--sat)+10px)] z-[90] flex justify-center px-4">
-      <div className="pop-in pointer-events-auto flex w-full max-w-[440px] items-center gap-3 rounded-[20px] bg-bg-card p-3 pr-2 shadow-float">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-[24px]">
-          {toast.emoji}
-        </span>
-        <span className="min-w-0 flex-1 text-[14px] font-semibold text-text-1">{toast.text}</span>
-        <button
-          type="button"
-          onClick={async () => {
-            await sendPing("kangen");
-            setToast(null);
-          }}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent px-3 py-2 text-[12px] font-bold text-accent-fg transition-transform active:scale-95"
-        >
-          <Heart size={13} fill="currentColor" aria-hidden /> Balas
-        </button>
-        <button
-          type="button"
-          onClick={() => setToast(null)}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-text-3 hover:bg-bg-elev1"
-          aria-label="Tutup"
-        >
-          <X size={16} strokeWidth={2.2} />
-        </button>
-      </div>
-    </div>,
+    <AnimatePresence>
+      {toast && (
+        <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--sat)+10px)] z-[90] flex justify-center px-4">
+          <motion.div
+            key={toast.id}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.96 }}
+            transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 480, damping: 32 }}
+            className="pointer-events-auto flex w-full max-w-[440px] items-center gap-3 rounded-[20px] bg-bg-card p-3 pr-1.5 shadow-float"
+          >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-[24px]">
+              {toast.emoji}
+            </span>
+            <span className="min-w-0 flex-1 text-[14px] font-semibold text-text-1">{toast.text}</span>
+            <button
+              type="button"
+              onClick={async () => {
+                await sendPing("kangen");
+                setToast(null);
+              }}
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-accent px-3.5 text-[12px] font-bold text-accent-fg transition-transform active:scale-95"
+            >
+              <Heart size={13} fill="currentColor" aria-hidden /> Balas
+            </button>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-3 hover:bg-bg-elev1"
+              aria-label="Tutup"
+            >
+              <X size={16} strokeWidth={2.2} aria-hidden />
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }

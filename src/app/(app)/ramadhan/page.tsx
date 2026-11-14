@@ -1,6 +1,7 @@
 "use client";
 
-import { BookOpen, Moon, NotebookPen } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { BookOpen, CheckCircle2, Flower2, Moon, NotebookPen, PauseCircle, Plane, Thermometer, type LucideIcon } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
@@ -18,12 +19,12 @@ import { computeCycle, isPeriodDay, DEFAULT_CYCLE_SETTINGS, type CycleSettings }
 import { hapticSuccess, hapticTap } from "@/lib/haptic";
 
 type DayStatus = "puasa" | "haid" | "sakit" | "safar" | "tidak";
-const STATUS: { id: DayStatus; label: string; emoji: string }[] = [
-  { id: "puasa", label: "Puasa", emoji: "✅" },
-  { id: "haid", label: "Haid / nifas", emoji: "🌸" },
-  { id: "sakit", label: "Sakit", emoji: "🤒" },
-  { id: "safar", label: "Perjalanan", emoji: "✈️" },
-  { id: "tidak", label: "Tidak puasa", emoji: "⏸️" },
+const STATUS: { id: DayStatus; label: string; Icon: LucideIcon }[] = [
+  { id: "puasa", label: "Puasa", Icon: CheckCircle2 },
+  { id: "haid", label: "Haid / nifas", Icon: Flower2 },
+  { id: "sakit", label: "Sakit", Icon: Thermometer },
+  { id: "safar", label: "Perjalanan", Icon: Plane },
+  { id: "tidak", label: "Tidak puasa", Icon: PauseCircle },
 ];
 
 export default function RamadhanPage() {
@@ -107,9 +108,8 @@ export default function RamadhanPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         <div
           className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
-          style={{ ["--hero" as string]: "#7a5c12" }}
+          style={{ ["--hero" as string]: "var(--tint-bronze)" }}
         >
-          <span aria-hidden className="absolute -right-3 -top-3 text-[90px] opacity-20">🌙</span>
           {inRamadhan ? (
             <>
               <div className="text-[13px] font-semibold text-white/85">
@@ -133,16 +133,20 @@ export default function RamadhanPage() {
               </div>
               <div className="mt-4 flex gap-2">
                 <button
+                  type="button"
+                  aria-pressed={statusOf(me, today) === "puasa"}
                   onClick={() => setDay(today, statusOf(me, today) === "puasa" ? null : "puasa")}
-                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${statusOf(me, today) === "puasa" ? "bg-white text-accent" : "bg-white/20"}`}
+                  className={`min-h-[44px] flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${statusOf(me, today) === "puasa" ? "bg-white text-accent" : "bg-white/20"}`}
                 >
-                  {statusOf(me, today) === "puasa" ? "Puasa hari ini" : "Puasa hari ini"}
+                  {statusOf(me, today) === "puasa" ? "Puasa tercatat" : "Puasa hari ini"}
                 </button>
                 <button
+                  type="button"
+                  aria-pressed={tarawihOn(me, today)}
                   onClick={() => toggleTarawih(today)}
-                  className={`flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${tarawihOn(me, today) ? "bg-white text-accent" : "bg-white/20"}`}
+                  className={`min-h-[44px] flex-1 rounded-full py-2.5 text-[14px] font-bold active:scale-[0.98] ${tarawihOn(me, today) ? "bg-white text-accent" : "bg-white/20"}`}
                 >
-                  {tarawihOn(me, today) ? "Tarawih" : "Tarawih"}
+                  {tarawihOn(me, today) ? "Tarawih tercatat" : "Tarawih"}
                 </button>
               </div>
             </>
@@ -159,10 +163,11 @@ export default function RamadhanPage() {
 
         {myCycle.onPeriod && inRamadhan && statusOf(me, today) !== "haid" && (
           <button
+            type="button"
             onClick={() => setDay(today, "haid")}
-            className="w-full rounded-[18px] bg-accent-soft px-4 py-3 text-left text-[13px] text-text-2"
+            className="min-h-[44px] w-full rounded-[18px] bg-accent-soft px-4 py-3 text-left text-[13px] text-text-2"
           >
-            Sedang haid — tap untuk tandai hari ini sebagai libur (otomatis masuk hutang puasa).
+            Sedang haid, tap untuk tandai hari ini sebagai libur (otomatis masuk hutang puasa).
           </button>
         )}
 
@@ -175,7 +180,7 @@ export default function RamadhanPage() {
                 {inRamadhan ? "Diganti setelah Ramadhan ya." : "Yuk dicicil sebelum Ramadhan datang."}
               </div>
             </div>
-            <Link href="/shalat" className="text-[12px] font-semibold text-accent">Atur ›</Link>
+            <Link href="/shalat" className="inline-flex min-h-[44px] items-center px-2 text-[12px] font-semibold text-accent">Atur</Link>
           </div>
         )}
 
@@ -192,12 +197,17 @@ export default function RamadhanPage() {
               const s = statusOf(me, d);
               const future = d > today;
               const period = !s && isPeriodDay(myCycle, d);
+              const found = s ? STATUS.find((x) => x.id === s) : undefined;
+              const StatusIcon = found?.Icon;
+              const hasTarawih = tarawihOn(me, d);
               return (
                 <button
                   key={d}
+                  type="button"
                   disabled={future}
+                  aria-label={`Ramadhan hari ke-${i + 1}${found ? `, ${found.label}` : ""}${hasTarawih ? ", tarawih" : ""}`}
                   onClick={() => setPick(d)}
-                  className={`relative grid aspect-square place-items-center rounded-2xl text-[13px] font-bold transition-transform active:scale-90 disabled:opacity-40 ${
+                  className={`relative grid min-h-[44px] aspect-square place-items-center rounded-2xl text-[13px] font-bold transition-transform active:scale-90 disabled:opacity-40 ${
                     s === "puasa"
                       ? "bg-text-1 text-bg-app"
                       : s
@@ -209,61 +219,67 @@ export default function RamadhanPage() {
                             : "bg-bg-elev1 text-text-2"
                   }`}
                 >
-                  {s && s !== "puasa" ? STATUS.find((x) => x.id === s)?.emoji : i + 1}
-                  {tarawihOn(me, d) && <span className="absolute -right-0.5 -top-0.5 text-[10px]">🌙</span>}
+                  {s && s !== "puasa" && StatusIcon ? <StatusIcon size={16} aria-hidden="true" /> : i + 1}
+                  {hasTarawih && <Moon size={10} aria-hidden="true" className="absolute right-1 top-1 text-[color:var(--accent)]" />}
                 </button>
               );
             })}
           </div>
-          <p className="mt-3 text-[11px] text-text-4">
+          <p className="mt-3 text-[12px] text-text-4">
             Tanggal mengikuti kalender Hijriah (bisa dikoreksi di Kalender Hijriah). Tap hari untuk ubah status.
           </p>
         </div>
 
-        <Link href="/tilawah" className="pressable surface flex items-center gap-3 p-4">
+        <Link href="/tilawah" className="pressable surface flex min-h-[44px] items-center gap-3 p-4">
           <IconTile spec={{ Icon: BookOpen, tint: "" }} size={40} radius={12} />
           <div className="flex-1">
             <div className="text-[14px] font-bold text-text-1">Target khatam Ramadhan</div>
             <div className="text-[12px] text-text-3">Catat tilawah berdua</div>
           </div>
-          <span className="text-text-4">›</span>
+          <span aria-hidden="true" className="text-text-4">›</span>
         </Link>
       </div>
 
-      {pick && (
-        <Sheet
-          title={`Ramadhan hari ke-${daysBetween(range.start, pick) + 1}`}
-          onClose={() => setPick(null)}
-        >
-          <div className="space-y-2">
-            {STATUS.map((s) => (
+      <AnimatePresence>
+        {pick && (
+          <Sheet
+            key={`ramadhan-pick-${pick}`}
+            title={`Ramadhan hari ke-${daysBetween(range.start, pick) + 1}`}
+            onClose={() => setPick(null)}
+          >
+            <div className="space-y-2">
+              {STATUS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={async () => {
+                    await setDay(pick, statusOf(me, pick) === s.id ? null : s.id);
+                    setPick(null);
+                  }}
+                  className={`flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-semibold ${
+                    statusOf(me, pick) === s.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-1 shadow-card"
+                  }`}
+                >
+                  <s.Icon size={18} aria-hidden="true" />
+                  {s.label}
+                </button>
+              ))}
               <button
-                key={s.id}
-                onClick={async () => {
-                  await setDay(pick, statusOf(me, pick) === s.id ? null : s.id);
-                  setPick(null);
-                }}
-                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-semibold ${
-                  statusOf(me, pick) === s.id ? "bg-accent text-accent-fg" : "bg-bg-card text-text-1 shadow-card"
+                type="button"
+                aria-pressed={tarawihOn(me, pick)}
+                onClick={() => toggleTarawih(pick)}
+                className={`flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-semibold ${
+                  tarawihOn(me, pick) ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"
                 }`}
               >
-                <span className="text-[20px]">{s.emoji}</span>
-                {s.label}
+                <Moon size={18} aria-hidden="true" />
+                {tarawihOn(me, pick) ? "Tarawih tercatat" : "Tarawih"}
               </button>
-            ))}
-            <button
-              onClick={() => toggleTarawih(pick)}
-              className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-semibold ${
-                tarawihOn(me, pick) ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-1 shadow-card"
-              }`}
-            >
-              <Moon size={18} />
-              {tarawihOn(me, pick) ? "Tarawih" : "Tarawih"}
-            </button>
-          </div>
-          <p className="mt-3 text-[12px] text-text-4">Hari tidak puasa otomatis ditambahkan ke hutang puasa.</p>
-        </Sheet>
-      )}
+            </div>
+            <p className="mt-3 text-[12px] text-text-4">Hari tidak puasa otomatis ditambahkan ke hutang puasa.</p>
+          </Sheet>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

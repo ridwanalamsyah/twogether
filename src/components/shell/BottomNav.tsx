@@ -22,19 +22,19 @@ export const ITEMS: NavItem[] = [
     href: "/home",
     label: "Beranda",
     match: ["/home", "/settings"],
-    icon: <House size={21} strokeWidth={2} />,
+    icon: <House size={21} strokeWidth={2} aria-hidden="true" />,
   },
   {
     href: "/tracker",
     label: "Uang",
     match: ["/tracker", "/uang", "/goals", "/insights", "/patungan", "/dompet", "/laporan", "/impor", "/zakat", "/tagihan", "/aset"],
-    icon: <Wallet size={21} strokeWidth={2} />,
+    icon: <Wallet size={21} strokeWidth={2} aria-hidden="true" />,
   },
   {
     href: "/kita",
     label: "Kita",
     match: ["/kita", "/moments", "/wrapped", "/pencapaian", "/nikah", "/kabar", "/tantangan"],
-    icon: <Heart size={21} strokeWidth={2} />,
+    icon: <Heart size={21} strokeWidth={2} aria-hidden="true" />,
   },
   {
     href: "/fitur",
@@ -62,7 +62,7 @@ export const ITEMS: NavItem[] = [
       "/target",
       "/fokus",
     ],
-    icon: <LayoutGrid size={21} strokeWidth={2} />,
+    icon: <LayoutGrid size={21} strokeWidth={2} aria-hidden="true" />,
   },
 ];
 
@@ -87,6 +87,15 @@ export function BottomNav() {
 
   useEffect(() => setMenu(false), [pathname]);
 
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenu(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menu]);
+
   function pick(a: CaptureAction) {
     hapticTap();
     setMenu(false);
@@ -102,11 +111,11 @@ export function BottomNav() {
             type="button"
             aria-label="Tutup"
             onClick={() => setMenu(false)}
-            className="surface-blur fixed inset-0 z-30 bg-black/50 md:hidden"
+            className="fixed inset-0 z-30 bg-black/55 md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: reduce ? 0.08 : 0.18 }}
           />
         )}
       </AnimatePresence>
@@ -136,10 +145,10 @@ export function BottomNav() {
                       exit={reduce ? { opacity: 0 } : { x: 0, y: 0, scale: 0.4, opacity: 0 }}
                       transition={reduce ? { duration: 0.12 } : { type: "spring", stiffness: 520, damping: 30, delay: i * 0.03 }}
                     >
-                      <span className="grid h-[54px] w-[54px] place-items-center rounded-full bg-bg-card text-text-1 shadow-float ring-1 ring-[color:var(--hairline)]">
+                      <span className="grid h-[54px] w-[54px] place-items-center rounded-full bg-bg-card text-text-1 shadow-float ring-1 ring-[color:var(--hairline)]" aria-hidden="true">
                         <a.Icon size={22} strokeWidth={2} />
                       </span>
-                      <span className="rounded-full bg-bg-card px-2 py-0.5 text-[11px] font-semibold text-text-1 shadow-card">
+                      <span className="rounded-full bg-bg-card px-2 py-0.5 text-[12px] font-semibold text-text-1 shadow-card">
                         {a.label}
                       </span>
                     </motion.button>
@@ -156,7 +165,11 @@ export function BottomNav() {
                 }}
                 className="relative z-10 -mt-7 grid h-[56px] w-[56px] place-items-center rounded-full bg-accent text-accent-fg shadow-float ring-[5px] ring-[color:var(--bg-app)] transition-transform duration-150 ease-ios active:scale-90"
               >
-                <motion.span animate={{ rotate: menu ? 45 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 28 }}>
+                <motion.span
+                  aria-hidden="true"
+                  animate={{ rotate: menu ? 45 : 0 }}
+                  transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 500, damping: 28 }}
+                >
                   <Plus size={24} strokeWidth={2.4} />
                 </motion.span>
               </button>
@@ -191,16 +204,16 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
         }}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[11px] leading-none transition-transform duration-150 active:scale-90 select-none",
+          "relative flex flex-1 flex-col items-center justify-center gap-1 text-[12px] leading-none transition-transform duration-150 active:scale-90 select-none",
           active ? "text-text-1" : "text-text-4",
         )}
       >
         {active && (
           <motion.span
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-[7px] h-[30px] w-[54px] rounded-full bg-bg-elev2"
-            transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 520, damping: 34 }}
+            layoutId="bottom-nav-pill"
+            aria-hidden
+            className="absolute top-[6px] h-[30px] w-[54px] rounded-full bg-bg-elev2"
+            transition={reduce ? { duration: 0.08 } : { type: "spring", stiffness: 520, damping: 34 }}
           />
         )}
         <motion.span

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Moon, Sparkle, Sun, Sunrise, Sunset } from "lucide-react";
+import { Moon, Sun, Sunrise, Sunset } from "lucide-react";
 
 export type DayPart = "dini" | "pagi" | "siang" | "sore" | "malam";
 
@@ -27,9 +27,9 @@ export function TimeOfDayIcon({ part }: { part: DayPart }) {
       type="button"
       aria-label={`Suasana ${part}`}
       onClick={() => setBurst((n) => n + 1)}
-      whileHover={reduce ? undefined : { scale: 1.14, rotate: part === "siang" ? 25 : -8 }}
+      whileHover={reduce ? undefined : { scale: 1.12, rotate: part === "siang" ? 25 : -8 }}
       whileTap={reduce ? undefined : { scale: 0.9 }}
-      className="relative inline-grid h-7 w-7 shrink-0 place-items-center rounded-full text-accent"
+      className="relative -my-2 -mx-1 inline-grid h-11 w-11 shrink-0 place-items-center rounded-full text-accent"
       initial={reduce ? false : { opacity: 0, scale: 0.6, rotate: -24 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ type: "spring", stiffness: 360, damping: 20 }}
@@ -41,7 +41,7 @@ export function TimeOfDayIcon({ part }: { part: DayPart }) {
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 18 }}
         >
-          <Sunrise size={24} strokeWidth={2.1} aria-hidden />
+          <Sunrise size={23} strokeWidth={2.1} aria-hidden />
         </motion.span>
       )}
       {part === "siang" && (
@@ -51,7 +51,7 @@ export function TimeOfDayIcon({ part }: { part: DayPart }) {
           animate={{ rotate: 0, scale: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 18 }}
         >
-          <Sun size={24} strokeWidth={2.1} aria-hidden />
+          <Sun size={23} strokeWidth={2.1} aria-hidden />
         </motion.span>
       )}
       {part === "sore" && (
@@ -61,7 +61,7 @@ export function TimeOfDayIcon({ part }: { part: DayPart }) {
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 18 }}
         >
-          <Sunset size={24} strokeWidth={2.1} aria-hidden />
+          <Sunset size={23} strokeWidth={2.1} aria-hidden />
         </motion.span>
       )}
       {(part === "malam" || part === "dini") && (
@@ -75,18 +75,18 @@ export function TimeOfDayIcon({ part }: { part: DayPart }) {
             <Moon size={22} strokeWidth={2.1} aria-hidden />
           </motion.span>
           {[
-            { cls: "-right-1.5 -top-1", size: 10, delay: 0.05 },
-            { cls: "-left-1 bottom-0", size: 8, delay: 0.12 },
+            { cls: "right-1.5 top-2", size: 4, delay: 0.05 },
+            { cls: "left-2 bottom-2.5", size: 3, delay: 0.12 },
           ].map((s, i) => (
             <motion.span
               key={`${burst}-${i}`}
-              className={`absolute ${s.cls}`}
+              aria-hidden
+              className={`absolute rounded-full bg-current ${s.cls}`}
+              style={{ width: s.size, height: s.size }}
               initial={reduce ? false : { opacity: 0, scale: 0.4 }}
-              animate={reduce ? { opacity: 1 } : { opacity: [0, 1, 0.85], scale: [0.5, 1.15, 1] }}
+              animate={reduce ? { opacity: 1 } : { opacity: [0, 1, 0.85], scale: [0.5, 1.25, 1] }}
               transition={{ duration: 0.45, delay: s.delay, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Sparkle size={s.size} strokeWidth={2.4} fill="currentColor" aria-hidden />
-            </motion.span>
+            />
           ))}
         </>
       )}

@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useNick } from "@/lib/nick";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
 import { useAuth } from "@/stores/auth";
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [greeting, setGreeting] = useState("Halo");
   const [today, setToday] = useState("");
   const [part, setPart] = useState<DayPart | null>(null);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     const now = new Date();
@@ -36,7 +38,7 @@ export default function HomePage() {
     setGreeting(
       h < 4
         ? n
-          ? `Belum tidur, ${n}?`
+          ? hi("Malam")
           : "Belum tidur?"
         : h < 11
           ? hi("Pagi")
@@ -47,7 +49,7 @@ export default function HomePage() {
               : hi("Malam"),
     );
     setToday(
-      now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" }),
+      now.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" }),
     );
   }, [name, custom]);
 
@@ -61,8 +63,9 @@ export default function HomePage() {
         titleIcon={part && <TimeOfDayIcon key={part} part={part} />}
         actions={
           <button
+            type="button"
             onClick={() => setEditing((v) => !v)}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`min-h-[44px] rounded-full px-3.5 text-xs font-semibold transition-colors ${
               editing ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"
             }`}
             aria-pressed={editing}
@@ -71,17 +74,25 @@ export default function HomePage() {
           </button>
         }
       />
-      {editing && (
-        <div className="pop-in mx-5 mt-3 flex items-center justify-between gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-[13px] text-text-2">
-          <span>Geser kartu untuk pindah posisi. Tap − untuk sembunyikan.</span>
-          <Link
-            href="/settings/dashboard"
-            className="shrink-0 font-semibold text-accent"
+      <AnimatePresence>
+        {editing && (
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, y: -6 }}
+            transition={{ duration: reduce ? 0 : 0.18 }}
+            className="mx-5 mt-3 flex items-center justify-between gap-3 rounded-2xl bg-accent-soft px-4 py-2.5 text-[13px] text-text-2"
           >
-            + Kartu lain
-          </Link>
-        </div>
-      )}
+            <span>Geser kartu, ketuk − untuk sembunyikan</span>
+            <Link
+              href="/settings/dashboard"
+              className="inline-flex min-h-[44px] shrink-0 items-center font-semibold text-accent"
+            >
+              + Kartu lain
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {!editing && <BackupNudge />}
       <DashboardGrid editing={editing} />
       {!editing && <ToolsRow />}
@@ -92,6 +103,7 @@ export default function HomePage() {
 // The couple's own spaces (picked in Jelajah) — nothing they don't use.
 function ToolsRow() {
   const enabled = useFeatures((st) => st.enabled);
+  const reduce = useReducedMotion();
   const spaces = enabled
     .map((href) => FEATURES.find((f) => f.href === href))
     .filter((f): f is (typeof FEATURES)[number] => Boolean(f))
@@ -102,24 +114,42 @@ function ToolsRow() {
         Ruang kalian
       </div>
       <div className="grid grid-cols-4 gap-y-4 md:grid-cols-6 lg:grid-cols-8">
-        {spaces.map((f) => (
-          <Link
+        {spaces.map((f, i) => (
+          <motion.div
             key={f.href}
-            href={f.href}
-            className="pressable flex flex-col items-center gap-1.5"
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={
+              reduce
+                ? { duration: 0.04 }
+                : { duration: 0.28, delay: Math.min(i, 7) * 0.03, ease: [0.22, 1, 0.36, 1] }
+            }
           >
-            <IconTile spec={spaceIcon(f.href)} size={56} radius={18} />
-            <span className="max-w-[72px] truncate text-[11px] font-medium text-text-2">
-              {f.title}
-            </span>
-          </Link>
+            <Link
+              href={f.href}
+              className="pressable flex flex-col items-center gap-1.5"
+            >
+              <IconTile spec={spaceIcon(f.href)} size={56} radius={18} />
+              <span className="max-w-[72px] truncate text-[12px] font-medium text-text-2">
+                {f.title}
+              </span>
+            </Link>
+          </motion.div>
         ))}
-        <Link href="/fitur" className="pressable flex flex-col items-center gap-1.5">
-          <span className="grid h-[56px] w-[56px] place-items-center rounded-[18px] bg-bg-elev2 text-text-3">
-            <Plus size={22} />
-          </span>
-          <span className="text-[11px] font-medium text-text-3">Tambah</span>
-        </Link>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={reduce ? { duration: 0.04 } : { duration: 0.28, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Link href="/fitur" className="pressable flex flex-col items-center gap-1.5">
+            <span aria-hidden="true" className="grid h-[56px] w-[56px] place-items-center rounded-[18px] bg-bg-elev2 text-text-3">
+              <Plus size={22} />
+            </span>
+            <span className="text-[12px] font-medium text-text-3">Tambah</span>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

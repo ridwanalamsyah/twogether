@@ -79,50 +79,51 @@ export function HariIniWidget() {
           type="button"
           onClick={logWater}
           whileTap={reduce ? undefined : { scale: 0.94 }}
-          className="relative flex flex-col items-center gap-0.5 overflow-hidden rounded-xl border border-border bg-bg-elev1 p-2.5"
+          className="relative flex min-h-[76px] flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[14px] border border-border bg-bg-elev1 p-2.5"
           aria-label="Tambah air minum"
         >
           <motion.span
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 bg-[color:var(--info-bg)]"
+            className="pointer-events-none absolute inset-0 bg-[color:var(--info-bg)]"
+            style={{ originY: 1 }}
             initial={false}
-            animate={{ height: `${Math.round(waterPct * 100)}%` }}
+            animate={{ scaleY: waterPct }}
             transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 320, damping: 28 }}
           />
-          <Droplets size={20} className="relative z-10 text-[color:var(--info)]" />
+          <Droplets size={20} className="relative z-10 text-[color:var(--info)]" aria-hidden />
           <span className="relative z-10 tabular-nums text-[15px] font-bold text-text-1">
             {waterToday}
-            <span className="text-[11px] font-normal text-text-3">/8</span>
+            <span className="text-[12px] font-normal text-text-3">/8</span>
           </span>
-          <span className="relative z-10 text-[11px] text-text-3">+1 gelas</span>
+          <span className="relative z-10 text-[12px] text-text-3">+1 gelas</span>
         </motion.button>
 
         <Link
           href="/sehat"
-          className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-bg-elev1 p-2.5 transition-transform active:scale-95"
+          className="flex min-h-[76px] flex-col items-center justify-center gap-0.5 rounded-[14px] border border-border bg-bg-elev1 p-2.5 transition-transform active:scale-95"
         >
-          <Moon size={20} className="text-text-3" />
+          <Moon size={20} className="text-text-3" aria-hidden />
           <span className="tabular-nums text-[15px] font-bold text-text-1">
             {sleepLast?.valueNum != null ? `${sleepLast.valueNum}j` : "0j"}
           </span>
-          <span className="text-[11px] text-text-3">tidur</span>
+          <span className="text-[12px] text-text-3">tidur</span>
         </Link>
 
         <Link
           href="/jadwal"
-          className="flex flex-col items-center gap-0.5 rounded-xl border border-border bg-bg-elev1 p-2.5 transition-transform active:scale-95"
+          className="flex min-h-[76px] flex-col items-center justify-center gap-0.5 rounded-[14px] border border-border bg-bg-elev1 p-2.5 transition-transform active:scale-95"
         >
-          <BookOpen size={20} className="text-text-3" />
+          <BookOpen size={20} className="text-text-3" aria-hidden />
           <span className="text-[15px] font-bold text-text-1">
             {new Date().getHours() < 18 ? "Cek" : "Esok"}
           </span>
-          <span className="text-[11px] text-text-3">jadwal</span>
+          <span className="text-[12px] text-text-3">jadwal</span>
         </Link>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-1.5">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <span className="text-[12px] text-text-3">Mood</span>
-        <div className="flex gap-1">
+        <div className="flex flex-1 justify-end gap-1">
           {MOOD_OPTIONS.map((m) => {
             const active = lastMood?.valueNum === m.value;
             return (
@@ -131,7 +132,7 @@ export function HariIniWidget() {
                 type="button"
                 onClick={() => logMood(m.value, m.emoji)}
                 whileTap={reduce ? undefined : { scale: 0.88 }}
-                className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-bg-elev1 text-base hover:bg-bg-elev2"
+                className="relative flex h-11 min-w-[44px] items-center justify-center rounded-[14px] bg-bg-elev1 text-base hover:bg-bg-elev2"
                 aria-label={m.label}
                 aria-pressed={active}
                 title={m.label}
@@ -139,7 +140,7 @@ export function HariIniWidget() {
                 {active && (
                   <motion.span
                     layoutId="hari-ini-mood"
-                    className="absolute inset-0 rounded-lg bg-bg-elev2 ring-1 ring-text-1/25"
+                    className="absolute inset-0 rounded-[14px] bg-bg-elev2 ring-1 ring-text-1/25"
                     transition={reduce ? { duration: 0.1 } : { type: "spring", stiffness: 520, damping: 32 }}
                   />
                 )}

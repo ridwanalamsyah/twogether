@@ -31,7 +31,7 @@ export function SavingsProgressWidget() {
       action={
         <Link
           href="/goals"
-          className="inline-flex items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
+          className="-my-2 inline-flex min-h-[44px] items-center gap-0.5 text-[12px] font-medium text-text-3 hover:text-text-1"
         >
           Lihat
           <ChevronRight size={13} strokeWidth={2.2} aria-hidden />
@@ -56,9 +56,10 @@ export function SavingsProgressWidget() {
               </div>
               <div className="mt-1 h-[3px] overflow-hidden rounded-full bg-bg-elev2">
                 <motion.div
-                  className="h-full rounded-full bg-accent"
-                  initial={reduce ? false : { width: 0 }}
-                  animate={{ width: `${it.pct}%` }}
+                  className="h-full w-full rounded-full bg-accent"
+                  style={{ originX: 0 }}
+                  initial={reduce ? false : { scaleX: 0 }}
+                  animate={{ scaleX: it.pct / 100 }}
                   transition={reduce ? { duration: 0.1 } : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>

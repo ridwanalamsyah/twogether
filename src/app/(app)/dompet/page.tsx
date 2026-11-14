@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { ArrowLeftRight, ChevronRight, Download, Eye, EyeOff, Plus } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { TransferSheet, WalletSheet, useWallets } from "@/components/wallet/Wallets";
@@ -63,11 +64,12 @@ export default function DompetPage() {
         title="Dompet"
         actions={
           <button
+            type="button"
             onClick={toggleHidden}
             aria-label={hidden ? "Tampilkan saldo" : "Sembunyikan saldo"}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-text-3 hover:bg-bg-elev2"
           >
-            {hidden ? <EyeOff size={17} strokeWidth={1.8} /> : <Eye size={17} strokeWidth={1.8} />}
+            {hidden ? <EyeOff size={17} strokeWidth={1.8} aria-hidden /> : <Eye size={17} strokeWidth={1.8} aria-hidden />}
           </button>
         }
       />
@@ -83,9 +85,10 @@ export default function DompetPage() {
             return (
               <button
                 key={w.id}
+                type="button"
                 onClick={() => setEdit(w)}
-                className="relative flex aspect-[1.65] w-[78%] max-w-[340px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[24px] p-5 text-left text-white shadow-float active:scale-[0.99]"
-                style={{ background: `linear-gradient(140deg, ${look.bg}, ${look.bg2})` }}
+                className="relative flex aspect-[1.65] w-[78%] max-w-[340px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[24px] p-5 text-left shadow-float active:scale-[0.99]"
+                style={{ background: `linear-gradient(140deg, ${look.bg}, ${look.bg2})`, color: look.fg }}
               >
                 <span aria-hidden className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/10" />
                 <span aria-hidden className="pointer-events-none absolute -bottom-20 -left-8 h-44 w-44 rounded-full bg-black/10" />
@@ -96,7 +99,7 @@ export default function DompetPage() {
                   </span>
                 </div>
                 <div className="relative">
-                  <div className="text-[12px] text-white/75">{w.note || "Saldo"}</div>
+                  <div className="text-[12px] opacity-90">{w.note || "Saldo"}</div>
                   <div className="num mt-0.5 text-[22px] font-semibold tracking-tight">{money(balances[w.id] ?? 0)}</div>
                 </div>
               </button>
@@ -108,18 +111,19 @@ export default function DompetPage() {
       <div className="space-y-3 px-4 pt-3">
         <div className="grid grid-cols-2 gap-2.5">
           <button
+            type="button"
             onClick={() => setTransfer(true)}
             disabled={wallets.length < 2}
-            className="surface flex min-w-0 items-center gap-2 p-3 text-left disabled:opacity-50"
+            className="surface flex min-h-[48px] min-w-0 items-center gap-2 p-3 text-left disabled:opacity-50"
           >
-            <IconTile spec={{ Icon: ArrowLeftRight, tint: "#94a3b8" }} size={36} radius={11} />
+            <IconTile spec={{ Icon: ArrowLeftRight, tint: "var(--tint-slate)" }} size={36} radius={11} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[14px] font-semibold text-text-1">Transfer</span>
               <span className="block truncate text-[12px] text-text-3">Pindah saldo</span>
             </span>
           </button>
-          <button onClick={() => setEdit("new")} className="surface flex min-w-0 items-center gap-2 p-3 text-left">
-            <IconTile spec={{ Icon: Plus, tint: "#22c55e" }} size={36} radius={11} />
+          <button type="button" onClick={() => setEdit("new")} className="surface flex min-h-[48px] min-w-0 items-center gap-2 p-3 text-left">
+            <IconTile spec={{ Icon: Plus, tint: "var(--tint-pine)" }} size={36} radius={11} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[14px] font-semibold text-text-1">Akun baru</span>
               <span className="block truncate text-[12px] text-text-3">Tambah dompet</span>
@@ -130,10 +134,10 @@ export default function DompetPage() {
         {wallets.length === 0 ? (
           <section className="surface p-4">
             <div className="text-[16px] font-semibold text-text-1">Mulai dari rekening yang kalian pakai</div>
-            <p className="mb-3 mt-0.5 text-[13px] text-text-3">Ketuk untuk menambah. Saldo awalnya bisa diisi setelahnya.</p>
+            <p className="mb-3 mt-0.5 text-[13px] text-text-3">Ketuk untuk menambah. Saldo awal menyusul.</p>
             <div className="grid grid-cols-2 gap-2">
               {SUGGEST.map(([t, note]) => (
-                <button key={t} onClick={() => quickAdd(t, note)} className="flex items-center gap-2.5 rounded-2xl bg-bg-elev1 p-2.5 text-left active:scale-[0.98]">
+                <button key={t} type="button" onClick={() => quickAdd(t, note)} className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-bg-elev1 p-2.5 text-left active:scale-[0.98]">
                   <WalletBadge name={t} size={34} />
                   <span className="text-[14px] font-semibold text-text-1">{t}</span>
                 </button>
@@ -149,7 +153,7 @@ export default function DompetPage() {
             <ul className="space-y-2">
               {wallets.map((w) => (
                 <li key={w.id}>
-                  <button onClick={() => setEdit(w)} className="surface flex w-full items-center gap-3 px-3.5 py-3 text-left active:scale-[0.99]">
+                  <button type="button" onClick={() => setEdit(w)} className="surface flex min-h-[48px] w-full items-center gap-3 px-3.5 py-3 text-left active:scale-[0.99]">
                     <WalletBadge name={w.name} size={44} />
                     <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-text-1">{w.name}</span>
                     <span className="text-right">
@@ -198,17 +202,19 @@ export default function DompetPage() {
           </section>
         )}
 
-        <Link href="/impor" className="surface flex items-center gap-3 p-3">
-          <IconTile spec={{ Icon: Download, tint: "#64748b" }} size={40} radius={12} />
+        <Link href="/impor" className="surface flex min-h-[48px] items-center gap-3 p-3">
+          <IconTile spec={{ Icon: Download, tint: "var(--tint-slate)" }} size={40} radius={12} />
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] font-semibold text-text-1">Impor mutasi rekening</span>
             <span className="block text-[12px] text-text-3">Masukkan file CSV dari m-banking</span>
           </span>
-          <ChevronRight size={16} className="text-text-4" />
+          <ChevronRight size={16} className="text-text-4" aria-hidden />
         </Link>
       </div>
-      {edit && <WalletSheet wallet={edit === "new" ? undefined : edit} onClose={() => setEdit(null)} />}
-      {transfer && <TransferSheet onClose={() => setTransfer(false)} />}
+      <AnimatePresence>
+        {edit && <WalletSheet key={edit === "new" ? "wallet-new" : `wallet-${edit.id}`} wallet={edit === "new" ? undefined : edit} onClose={() => setEdit(null)} />}
+        {transfer && <TransferSheet key="wallet-transfer" onClose={() => setTransfer(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

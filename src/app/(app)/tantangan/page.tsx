@@ -1,6 +1,7 @@
 "use client";
 
-import { Flame } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { Check, Flame } from "lucide-react";
 import { IconTile } from "@/lib/icons";
 import { useNick } from "@/lib/nick";
 import { useState } from "react";
@@ -48,7 +49,7 @@ export default function TantanganPage() {
       <AppHeader
         title="Tantangan"
         actions={
-          <button onClick={() => setCreating(true)} className="rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-bold text-accent-fg">
+          <button type="button" onClick={() => setCreating(true)} className="min-h-[44px] rounded-full bg-accent px-3.5 py-2 text-[13px] font-bold text-accent-fg">
             + Baru
           </button>
         }
@@ -56,12 +57,12 @@ export default function TantanganPage() {
       <div className="space-y-4 px-5 pb-10 pt-3">
         {active.length === 0 ? (
           <div className="surface p-6 text-center">
-            <IconTile spec={{ Icon: Flame, tint: "#f97316" }} size={64} radius={22} className="mx-auto" />
+            <IconTile spec={{ Icon: Flame, tint: "var(--tint-orange)" }} size={64} radius={22} className="mx-auto" />
             <div className="mt-2 text-[17px] font-extrabold text-text-1">Tantangan berdua</div>
             <p className="mt-1 text-[13px] text-text-3">
               Pilih satu kebiasaan, jalani bareng beberapa hari, centang tiap hari. Lebih gampang konsisten kalau ada yang nemenin.
             </p>
-            <button onClick={() => setCreating(true)} className="btn-accent mt-4 w-full">Mulai tantangan</button>
+            <button type="button" onClick={() => setCreating(true)} className="btn-accent mt-4 w-full">Mulai tantangan</button>
           </div>
         ) : (
           active.map((c) => (
@@ -90,7 +91,7 @@ export default function TantanganPage() {
                       <div className="truncate text-[14px] font-semibold text-text-1">{c.title}</div>
                       <div className="text-[12px] text-text-4">{n} centang</div>
                     </div>
-                    <button onClick={() => userId && deleteItem(userId, c.id)} className="text-[12px] text-text-4">Hapus</button>
+                    <button type="button" onClick={() => userId && deleteItem(userId, c.id)} className="min-h-[44px] px-2 text-[12px] text-text-4">Hapus</button>
                   </li>
                 );
               })}
@@ -99,7 +100,9 @@ export default function TantanganPage() {
         )}
       </div>
 
-      {creating && userId && <NewChallengeSheet userId={userId} me={me} onClose={() => setCreating(false)} />}
+      <AnimatePresence>
+        {creating && userId && <NewChallengeSheet key="challenge-new" userId={userId} me={me} onClose={() => setCreating(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
@@ -174,7 +177,13 @@ function ChallengeCard({
               : ended
                 ? "Waktunya sudah habis"
                 : `Hari ke-${dayNo} dari ${total}`}
-            {streak > 1 && ` · 🔥 ${streak} hari beruntun`}
+            {streak > 1 && (
+              <>
+                {" · "}
+                <Flame size={12} className="-mt-0.5 inline text-[color:var(--warning)]" aria-hidden="true" />
+                {` ${streak} hari beruntun`}
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -205,26 +214,46 @@ function ChallengeCard({
 
       {partner && !notStarted && !ended && (
         <div className="mt-3 flex gap-2 text-[12px]">
-          {people.map((w) => (
-            <span key={w} className={`rounded-full px-2.5 py-1 font-semibold ${did(w, today) ? "bg-accent/10 text-accent" : "bg-bg-elev2 text-text-3"}`}>
-              {w === me ? "Kamu" : nick(w)} {did(w, today) ? "✓ hari ini" : "belum"}
-            </span>
-          ))}
+          {people.map((w) => {
+            const doneToday = !!did(w, today);
+            return (
+              <span key={w} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${doneToday ? "bg-accent/10 text-accent" : "bg-bg-elev2 text-text-3"}`}>
+                {w === me ? "Kamu" : nick(w)}
+                {doneToday ? (
+                  <>
+                    <Check size={12} aria-hidden="true" />
+                    <span>hari ini</span>
+                  </>
+                ) : (
+                  " belum"
+                )}
+              </span>
+            );
+          })}
         </div>
       )}
 
       {ended ? (
-        <button onClick={finish} className="btn-accent mt-3 w-full">Tutup tantangan</button>
+        <button type="button" onClick={finish} className="btn-accent mt-3 w-full">Tutup tantangan</button>
       ) : !notStarted ? (
         <button
+          type="button"
+          aria-pressed={!!did(me, today)}
           onClick={toggle}
-          className={`mt-3 w-full rounded-full py-3 text-[15px] font-bold transition-colors ${did(me, today) ? "bg-bg-elev2 text-text-2" : "bg-accent text-accent-fg"}`}
+          className={`mt-3 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-full py-3 text-[15px] font-bold transition-colors ${did(me, today) ? "bg-bg-elev2 text-text-2" : "bg-accent text-accent-fg"}`}
         >
-          {did(me, today) ? "✓ Sudah hari ini (batalkan)" : "Aku sudah hari ini"}
+          {did(me, today) ? (
+            <>
+              <Check size={16} aria-hidden="true" />
+              <span>Sudah hari ini (batalkan)</span>
+            </>
+          ) : (
+            "Aku sudah hari ini"
+          )}
         </button>
       ) : null}
       {!ended && (
-        <button onClick={finish} className="mt-1 w-full py-1.5 text-[12px] font-semibold text-text-4">
+        <button type="button" onClick={finish} className="mt-1 min-h-[44px] w-full py-2 text-[12px] font-semibold text-text-4">
           Akhiri sekarang
         </button>
       )}
@@ -258,19 +287,21 @@ function NewChallengeSheet({ userId, me, onClose }: { userId: string; me: string
     <Sheet
       title="Tantangan baru"
       onClose={onClose}
-      footer={<button onClick={save} disabled={!title.trim()} className="btn-accent w-full disabled:opacity-50">Mulai</button>}
+      footer={<button type="button" onClick={save} disabled={!title.trim()} className="btn-accent w-full disabled:opacity-50">Mulai</button>}
     >
       <FieldGroup label="Ide">
         <div className="flex flex-wrap gap-1.5">
           {TEMPLATES.map((t) => (
             <button
               key={t.title}
+              type="button"
+              aria-pressed={title === t.title}
               onClick={() => {
                 setTitle(t.title);
                 setEmoji(t.emoji);
                 setDays(t.days);
               }}
-              className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${title === t.title ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
+              className={`min-h-[44px] rounded-full px-3 py-2 text-[12px] font-semibold ${title === t.title ? "bg-accent text-accent-fg" : "bg-bg-elev2 text-text-2"}`}
             >
               {t.emoji} {t.title}
             </button>
@@ -283,7 +314,7 @@ function NewChallengeSheet({ userId, me, onClose }: { userId: string; me: string
       <FieldGroup label="Ikon">
         <div className="flex flex-wrap gap-1.5">
           {EMOJIS.map((e) => (
-            <button key={e} onClick={() => setEmoji(e)} className={`grid h-10 w-10 place-items-center rounded-xl text-[20px] ${emoji === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev2"}`}>
+            <button key={e} type="button" aria-label={`Pilih ikon ${e}`} aria-pressed={emoji === e} onClick={() => setEmoji(e)} className={`grid h-11 w-11 place-items-center rounded-xl text-[20px] ${emoji === e ? "bg-accent/10 ring-2 ring-accent" : "bg-bg-elev2"}`}>
               {e}
             </button>
           ))}

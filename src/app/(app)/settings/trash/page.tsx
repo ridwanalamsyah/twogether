@@ -27,9 +27,8 @@ export default function TrashPage() {
         subtitle={`${items.length} catatan`}
       />
       <div className="space-y-3 px-4 pb-8">
-        <div className="rounded-md bg-bg-elev2 p-3 text-[11px] text-text-3">
-          Item dipindahkan ke sini saat dihapus. Kamu bisa pulihkan dalam 30
-          hari sebelum benar-benar hilang.
+        <div className="rounded-[14px] bg-bg-elev2 p-3 text-[12px] text-text-3">
+          Item yang dihapus disimpan 30 hari sebelum hilang permanen.
         </div>
 
         {items.length === 0 ? (
@@ -39,28 +38,30 @@ export default function TrashPage() {
             {items.map((it) => (
               <li
                 key={`${it.table}:${it.id}`}
-                className="surface flex items-center justify-between p-3"
+                className="surface flex items-center justify-between gap-2 p-3"
               >
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">
                     {it.preview}
                   </div>
-                  <div className="text-[11px] text-text-3">
+                  <div className="text-[12px] text-text-3">
                     {it.table} · {fmtAge(it.deletedAt)}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
                     onClick={() => restoreFromTrash(it.table, it.id)}
-                    className="rounded-full bg-accent px-3 py-1.5 text-[11px] font-semibold text-accent-fg"
+                    className="min-h-[44px] rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-accent-fg"
                   >
                     Pulihkan
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       if (confirm("Hapus permanen?")) purgeFromTrash(it.table, it.id);
                     }}
-                    className="rounded-full bg-bg-elev2 px-3 py-1.5 text-[11px] font-semibold text-[color:var(--negative)]"
+                    className="min-h-[44px] rounded-full bg-bg-elev2 px-4 py-2 text-[12px] font-semibold text-[color:var(--negative)]"
                   >
                     Hapus
                   </button>
@@ -72,6 +73,7 @@ export default function TrashPage() {
 
         {items.length > 0 && userId && (
           <button
+            type="button"
             onClick={() => {
               if (
                 confirm(

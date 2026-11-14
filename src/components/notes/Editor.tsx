@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check, FileText, Image as ImageIcon, X } from "lucide-react";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
 import { deleteItem, upsertItem, useItems } from "@/stores/data";
@@ -21,14 +22,14 @@ import { pageStack } from "@/lib/nav";
 import { FileView, ImageView, MAX_FILE_BYTES, saveAttachment } from "@/components/notes/Attachment";
 
 const TYPE_MENU: { type: BlockType; label: string; icon: string }[] = [
-  { type: "p", label: "Teks", icon: "¶" },
+  { type: "p", label: "Teks", icon: "T" },
   { type: "h1", label: "Judul besar", icon: "H1" },
   { type: "h2", label: "Judul", icon: "H2" },
-  { type: "todo", label: "Checklist", icon: "☑" },
+  { type: "todo", label: "Checklist", icon: "[ ]" },
   { type: "bullet", label: "Poin", icon: "•" },
-  { type: "quote", label: "Kutipan", icon: "❝" },
-  { type: "divider", label: "Garis", icon: "—" },
-  { type: "image", label: "Foto / file", icon: "🖼️" },
+  { type: "quote", label: "Kutipan", icon: "“”" },
+  { type: "divider", label: "Garis", icon: "---" },
+  { type: "image", label: "Foto / file", icon: "IMG" },
 ];
 
 /** The block editor of a note (split out of app/(app)/catatan/page.tsx). */
@@ -60,6 +61,19 @@ export function Editor({ id }: { id: string }) {
     setTitle(item.title);
     setNote({ ...p, blocks: p.blocks.length ? p.blocks : [block("p")] });
   }, [item, note]);
+
+  // Close popovers via Escape for keyboard users.
+  useEffect(() => {
+    if (!showEmoji && !slashFor) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowEmoji(false);
+        setSlashFor(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showEmoji, slashFor]);
 
   const save = useCallback(
     async (t: string, n: NotePayload) => {
@@ -106,7 +120,11 @@ export function Editor({ id }: { id: string }) {
     return (
       <div className="px-5 pt-16 text-center text-text-3">
         Catatan tidak ditemukan.{" "}
-        <button className="font-semibold text-accent" onClick={() => router.replace("/catatan")}>
+        <button
+          type="button"
+          className="min-h-[44px] px-3 font-semibold text-accent"
+          onClick={() => router.replace("/catatan")}
+        >
           Kembali
         </button>
       </div>
@@ -318,7 +336,11 @@ export function Editor({ id }: { id: string }) {
       <AppHeader
         title={parent ? `${readNote(parent).emoji} ${parent.title || "Tanpa judul"}` : "Catatan"}
         actions={
-          <button onClick={removePage} className="rounded-full px-2 py-1.5 text-xs font-semibold text-[color:var(--negative)]">
+          <button
+            type="button"
+            onClick={removePage}
+            className="min-h-[44px] rounded-full px-3 text-xs font-semibold text-[color:var(--negative)]"
+          >
             Hapus
           </button>
         }
@@ -326,23 +348,27 @@ export function Editor({ id }: { id: string }) {
       <article className="mx-auto max-w-[760px] px-5 pb-40 pt-4">
         <div className="relative">
           <button
+            type="button"
             onClick={() => setShowEmoji((v) => !v)}
-            className="text-[44px] leading-none transition-transform active:scale-90"
-            aria-label="Ganti ikon"
+            aria-expanded={showEmoji}
+            className="min-h-[44px] min-w-[44px] text-[44px] leading-none transition-transform active:scale-90"
+            aria-label="Ganti ikon catatan"
           >
             {note.emoji}
           </button>
           {showEmoji && (
-            <div className="pop-in absolute left-0 top-14 z-20 grid w-[264px] grid-cols-8 gap-1 rounded-2xl bg-bg-card p-2 shadow-float">
+            <div className="pop-in absolute left-0 top-14 z-20 grid w-[252px] grid-cols-5 gap-1 rounded-2xl bg-bg-card p-2 shadow-float">
               {NOTE_EMOJIS.map((em) => (
                 <button
                   key={em}
+                  type="button"
+                  aria-label={`Pilih ikon ${em}`}
                   onClick={() => {
                     dirty.current = true;
                     setNote({ ...note, emoji: em });
                     setShowEmoji(false);
                   }}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-[20px] hover:bg-bg-elev1"
+                  className="grid h-11 w-11 place-items-center rounded-lg text-[20px] hover:bg-bg-elev1"
                 >
                   {em}
                 </button>
@@ -352,6 +378,7 @@ export function Editor({ id }: { id: string }) {
         </div>
         <AutoText
           value={title}
+          ariaLabel="Judul catatan"
           onChange={(v) => {
             dirty.current = true;
             setTitle(v);
@@ -404,13 +431,14 @@ export function Editor({ id }: { id: string }) {
         </div>
 
         <button
+          type="button"
           onClick={() => {
             const nb = block("p");
             update((bs) => [...bs, nb]);
             setCaretTo({ id: nb.id, pos: 0 });
             setFocusId(nb.id);
           }}
-          className="mt-2 w-full rounded-xl py-3 text-left text-[14px] text-text-4 hover:bg-bg-elev1"
+          className="mt-2 min-h-[44px] w-full rounded-xl py-3 text-left text-[14px] text-text-4 hover:bg-bg-elev1"
         >
           + Tulis di sini…
         </button>
@@ -423,8 +451,9 @@ export function Editor({ id }: { id: string }) {
               .map((c) => (
                 <button
                   key={c.id}
+                  type="button"
                   onClick={() => router.push(`/catatan?id=${c.id}`)}
-                  className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[15px] text-text-1 hover:bg-bg-elev1"
+                  className="flex min-h-[44px] w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[15px] text-text-1 hover:bg-bg-elev1"
                 >
                   {readNote(c).emoji} <span className="underline decoration-border-strong underline-offset-4">{c.title || "Tanpa judul"}</span>
                 </button>
@@ -438,6 +467,7 @@ export function Editor({ id }: { id: string }) {
         type="file"
         multiple
         hidden
+        aria-label="Lampirkan foto atau file"
         accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
         onChange={(e) => {
           if (e.target.files?.length) void attach(e.target.files);
@@ -448,37 +478,43 @@ export function Editor({ id }: { id: string }) {
       <div className="fixed inset-x-0 bottom-[calc(var(--nav-h)+8px)] z-30 mx-auto flex max-w-[480px] justify-center px-3 md:bottom-6 md:left-[var(--sidebar-w)] md:max-w-none">
         <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-bg-card p-1.5 shadow-float">
           <button
+            type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               attachAfter.current = focused?.id ?? null;
               fileRef.current?.click();
             }}
             disabled={uploading}
-            className="h-9 shrink-0 rounded-full px-3 text-[13px] font-semibold text-text-2 disabled:opacity-40"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-text-2 disabled:opacity-40"
           >
-            {uploading ? "Mengunggah…" : "🖼️ Foto"}
+            <ImageIcon size={15} aria-hidden />
+            <span>{uploading ? "Mengunggah…" : "Foto"}</span>
           </button>
           {TYPE_MENU.filter((t) => t.type !== "divider" && t.type !== "image").map((t) => (
             <button
               key={t.type}
+              type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => focused && setType(focused, t.type)}
               disabled={!focused}
-              className={`h-9 min-w-9 shrink-0 rounded-full px-3 text-[13px] font-bold ${
+              className={`min-h-[44px] min-w-[44px] shrink-0 rounded-full px-3 text-[13px] font-bold ${
                 focused?.type === t.type ? "bg-accent text-accent-fg" : "text-text-2 disabled:opacity-40"
               }`}
               aria-label={t.label}
+              aria-pressed={focused?.type === t.type}
               title={t.label}
             >
               {t.icon}
             </button>
           ))}
           <button
+            type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => addSubPage(focused?.id)}
-            className="h-9 shrink-0 rounded-full px-3 text-[13px] font-semibold text-text-2"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-text-2"
           >
-            📄 Sub-halaman
+            <FileText size={15} aria-hidden />
+            <span>Sub-halaman</span>
           </button>
         </div>
       </div>
@@ -519,10 +555,15 @@ function BlockRow({
 }) {
   if (b.type === "divider") {
     return (
-      <div className="group flex items-center py-3">
+      <div className="group flex items-center py-2">
         <hr className="flex-1 border-border-strong" />
-        <button aria-label="Hapus lampiran" onClick={onRemove} className="ml-2 text-[12px] text-text-4 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
-          ✕
+        <button
+          type="button"
+          aria-label="Hapus garis pemisah"
+          onClick={onRemove}
+          className="ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-4 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+        >
+          <X size={16} aria-hidden />
         </button>
       </div>
     );
@@ -533,6 +574,7 @@ function BlockRow({
         <ImageView fileId={b.fileId} onRemove={onRemove} />
         <AutoText
           value={b.text}
+          ariaLabel="Keterangan foto"
           focus={focus}
           caret={caret}
           onCaretDone={onCaretDone}
@@ -554,7 +596,11 @@ function BlockRow({
   }
   if (b.type === "page") {
     return (
-      <button onClick={onOpenPage} className="flex w-full items-center gap-2 rounded-xl px-1 py-1.5 text-left text-[16px] text-text-1 hover:bg-bg-elev1">
+      <button
+        type="button"
+        onClick={onOpenPage}
+        className="flex min-h-[44px] w-full items-center gap-2 rounded-xl px-1 py-1.5 text-left text-[16px] text-text-1 hover:bg-bg-elev1"
+      >
         {pageTitle ? (
           <span className="underline decoration-border-strong underline-offset-4">{pageTitle}</span>
         ) : (
@@ -575,21 +621,29 @@ function BlockRow({
 
   return (
     <div className="relative">
-      <div className={`flex items-start gap-2 ${b.type === "quote" ? "border-l-4 border-accent pl-3" : ""}`}>
+      <div className={`flex items-start gap-1 ${b.type === "quote" ? "border-l-4 border-accent pl-3" : ""}`}>
         {b.type === "todo" && (
           <button
+            type="button"
+            role="checkbox"
+            aria-checked={!!b.checked}
             onClick={onToggle}
-            className={`mt-[5px] grid h-5 w-5 shrink-0 place-items-center rounded-md border-2 text-[12px] font-bold ${
-              b.checked ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"
-            }`}
-            aria-label={b.checked ? "Belum" : "Selesai"}
+            className="-ml-2.5 grid h-11 w-11 shrink-0 place-items-center rounded-xl"
+            aria-label={b.checked ? "Tandai belum selesai" : "Tandai selesai"}
           >
-            ✓
+            <span
+              className={`grid h-5 w-5 place-items-center rounded-md border-2 ${
+                b.checked ? "border-accent bg-accent text-accent-fg" : "border-border-strong text-transparent"
+              }`}
+            >
+              <Check size={12} strokeWidth={2.5} aria-hidden />
+            </span>
           </button>
         )}
         {b.type === "bullet" && <span className="mt-[2px] w-5 shrink-0 text-center text-[18px] leading-6 text-text-3">•</span>}
         <AutoText
           value={b.text}
+          ariaLabel="Isi blok catatan"
           focus={focus}
           caret={caret}
           onCaretDone={onCaretDone}
@@ -605,9 +659,10 @@ function BlockRow({
           {TYPE_MENU.map((t) => (
             <button
               key={t.type}
+              type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onPickType(t.type)}
-              className="flex w-full items-center gap-3 px-3 py-2 text-left text-[14px] text-text-1 hover:bg-bg-elev1"
+              className="flex min-h-[44px] w-full items-center gap-3 px-3 py-2 text-left text-[14px] text-text-1 hover:bg-bg-elev1"
             >
               <span className="grid h-7 w-7 place-items-center rounded-lg bg-bg-elev1 text-[12px] font-bold">{t.icon}</span>
               {t.label}
@@ -622,6 +677,7 @@ function BlockRow({
 /** Auto-growing borderless textarea. */
 function AutoText({
   value,
+  ariaLabel,
   onChange,
   onKeyDown,
   onFocus,
@@ -632,6 +688,7 @@ function AutoText({
   onCaretDone,
 }: {
   value: string;
+  ariaLabel: string;
   onChange: (v: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onFocus?: () => void;
@@ -660,12 +717,13 @@ function AutoText({
     <textarea
       ref={ref}
       rows={1}
+      aria-label={ariaLabel}
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={onKeyDown}
       onFocus={onFocus}
-      className={`resize-none overflow-hidden bg-transparent outline-none placeholder:text-text-5 ${className ?? ""}`}
+      className={`resize-none overflow-hidden rounded-md bg-transparent placeholder:text-text-5 ${className ?? ""}`}
     />
   );
 }

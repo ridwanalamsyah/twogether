@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import type { DepositRecord, GoalRecord } from "@/lib/db";
 import { predictGoal } from "@/services/prediction";
 import { formatRupiahShort } from "@/lib/utils";
@@ -20,6 +20,7 @@ export function GoalSimulator({
   deposits: DepositRecord[];
 }) {
   const [extra, setExtra] = useState(0);
+  const sliderId = useId();
 
   const baseline = useMemo(() => predictGoal(goal, deposits), [goal, deposits]);
   const projected = useMemo(
@@ -37,10 +38,10 @@ export function GoalSimulator({
 
   return (
     <div className="surface p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <div className="text-[11px] font-bold section-label text-text-3">
-          What-if simulator
-        </div>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <label htmlFor={sliderId} className="text-[12px] font-bold section-label text-text-3">
+          Simulasi tambahan mingguan
+        </label>
         <span className="tabular-nums text-xs text-text-3">
           +{formatRupiahShort(extra)}/minggu
         </span>
@@ -54,20 +55,23 @@ export function GoalSimulator({
 
       <div className="mt-3">
         <input
+          id={sliderId}
           type="range"
           min={0}
           max={2_000_000}
           step={50_000}
           value={extra}
           onChange={(e) => setExtra(parseInt(e.target.value, 10))}
-          className="w-full accent-[var(--accent)]"
+          className="h-11 w-full cursor-pointer accent-[var(--accent)]"
         />
         <div className="mt-2 flex flex-wrap gap-1.5">
           {PRESETS.map((p) => (
             <button
               key={p}
+              type="button"
+              aria-pressed={extra === p}
               onClick={() => setExtra(p)}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+              className={`min-h-[44px] rounded-full px-3.5 text-[12px] font-semibold transition-colors ${
                 extra === p
                   ? "bg-accent text-accent-fg"
                   : "bg-bg-elev2 text-text-3"
@@ -81,7 +85,7 @@ export function GoalSimulator({
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div className="rounded-md bg-bg-elev2 p-2.5 theme-transition">
-          <div className="text-[10px] section-label text-text-3">
+          <div className="text-[12px] section-label text-text-3">
             Saat ini
           </div>
           <div className="tabular-nums text-sm font-bold text-text-1">
@@ -89,7 +93,7 @@ export function GoalSimulator({
           </div>
         </div>
         <div className="rounded-md bg-accent-soft p-2.5 theme-transition">
-          <div className="text-[10px] section-label text-accent">
+          <div className="text-[12px] section-label text-accent">
             Proyeksi
           </div>
           <div className="tabular-nums text-sm font-bold text-accent">
@@ -106,7 +110,7 @@ export function GoalSimulator({
 
       {saved && saved >= 1 && (
         <p className="mt-2 text-xs text-[color:var(--positive)]">
-          🎉 Lebih cepat ~{Math.round(saved)} minggu
+          Lebih cepat sekitar {Math.round(saved)} minggu
         </p>
       )}
     </div>
@@ -114,7 +118,7 @@ export function GoalSimulator({
 }
 
 function fmtWeeks(w: number): string {
-  if (!Number.isFinite(w)) return "—";
+  if (!Number.isFinite(w)) return "-";
   if (w < 1) return "tercapai";
   const months = w / 4.345;
   if (months < 1.2) return `${Math.round(w)} mgg`;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { useAuth } from "@/stores/auth";
@@ -38,7 +39,7 @@ interface Entry {
     | "item";
   label: string;
   href?: string;
-  emoji: string;
+  tint: string;
   cal?: CalEvent;
 }
 
@@ -63,13 +64,13 @@ export default function CalendarPage() {
       map.set(date, arr);
     };
     for (const d of deadlines ?? []) {
-      push(d.date, { kind: "deadline", label: d.title, emoji: "📌", cal: { uid: d.id, title: d.title, date: d.date } });
+      push(d.date, { kind: "deadline", label: d.title, tint: "var(--accent)", cal: { uid: d.id, title: d.title, date: d.date } });
     }
     for (const b of bimbingan ?? []) {
       push(b.date, {
         kind: "skripsi",
         label: b.topic,
-        emoji: "🎓",
+        tint: "var(--tint-indigo)",
         href: "/skripsi",
         cal: { uid: b.id, title: `Bimbingan: ${b.topic}`, date: b.date },
       });
@@ -78,7 +79,7 @@ export default function CalendarPage() {
       push(t.date, {
         kind: "tx",
         label: `${t.kind === "in" ? "+" : "-"} ${t.category}`,
-        emoji: t.kind === "in" ? "💰" : "💸",
+        tint: t.kind === "in" ? "var(--positive)" : "var(--negative)",
       });
     }
     // Hari libur Indonesia
@@ -86,21 +87,21 @@ export default function CalendarPage() {
       push(h.date, {
         kind: "holiday",
         label: h.name,
-        emoji: h.type === "libur" ? "🇮🇩" : "📅",
+        tint: h.type === "libur" ? "var(--tint-crimson)" : "var(--text-3)",
       });
     }
     // Items: anniv, datenight, maintenance, subscription, meal, debt
-    const ITEM_MAP: Record<string, { emoji: string; href: string; kind: Entry["kind"] }> = {
-      anniv: { emoji: "❤️", href: "/kita", kind: "anniv" },
-      datenight: { emoji: "🍽️", href: "/kita", kind: "datenight" },
-      maintenance: { emoji: "🔧", href: "/rumah", kind: "maintenance" },
-      meal: { emoji: "🍲", href: "/rumah", kind: "meal" },
-      subscription: { emoji: "📺", href: "/uang", kind: "subscription" },
-      debt: { emoji: "💳", href: "/uang", kind: "debt" },
-      gift: { emoji: "🎁", href: "/list", kind: "item" },
-      bucket: { emoji: "📌", href: "/kita", kind: "item" },
-      surprise: { emoji: "🎉", href: "/kita", kind: "item" },
-      wishlist: { emoji: "🛒", href: "/list", kind: "item" },
+    const ITEM_MAP: Record<string, { tint: string; href: string; kind: Entry["kind"] }> = {
+      anniv: { tint: "var(--tint-rose)", href: "/kita", kind: "anniv" },
+      datenight: { tint: "var(--tint-mauve)", href: "/kita", kind: "datenight" },
+      maintenance: { tint: "var(--tint-amber)", href: "/rumah", kind: "maintenance" },
+      meal: { tint: "var(--tint-orange)", href: "/rumah", kind: "meal" },
+      subscription: { tint: "var(--tint-indigo)", href: "/uang", kind: "subscription" },
+      debt: { tint: "var(--negative)", href: "/uang", kind: "debt" },
+      gift: { tint: "var(--tint-crimson)", href: "/list", kind: "item" },
+      bucket: { tint: "var(--tint-teal)", href: "/kita", kind: "item" },
+      surprise: { tint: "var(--accent)", href: "/kita", kind: "item" },
+      wishlist: { tint: "var(--tint-cobalt)", href: "/list", kind: "item" },
     };
     for (const it of items ?? []) {
       const cfg = ITEM_MAP[it.kind];
@@ -110,7 +111,7 @@ export default function CalendarPage() {
       push(date, {
         kind: cfg.kind,
         label: it.title,
-        emoji: cfg.emoji,
+        tint: cfg.tint,
         href: cfg.href,
         cal: { uid: it.id, title: it.title, date, repeat: it.kind === "anniv" ? "yearly" : undefined },
       });
@@ -126,7 +127,7 @@ export default function CalendarPage() {
               push(projected, {
                 kind: "anniv",
                 label: `${it.title} (anniv)`,
-                emoji: "❤️",
+                tint: "var(--tint-rose)",
                 href: "/kita",
               });
             }
@@ -165,7 +166,7 @@ export default function CalendarPage() {
             push(iso, {
               kind: "class",
               label: `${c.start} ${c.title}`,
-              emoji: "📚",
+              tint: "var(--tint-cobalt)",
               href: "/jadwal",
               cal: {
                 uid: `class-${c.day}-${c.start}-${c.title}`.replace(/\W+/g, "-"),
@@ -192,7 +193,7 @@ export default function CalendarPage() {
         push(isoDay(next), {
           kind: "period",
           label: "Prediksi siklus",
-          emoji: "🌸",
+          tint: "var(--tint-rose)",
           href: "/sehat",
         });
       }
@@ -241,7 +242,7 @@ export default function CalendarPage() {
       <AppHeader
         title="Kalender"
         actions={
-          <button onClick={() => setExporting(true)} aria-label="Sambungkan ke Google Calendar" className="whitespace-nowrap rounded-full bg-bg-card px-3 py-1.5 text-[13px] font-semibold text-text-2 shadow-card">
+          <button type="button" onClick={() => setExporting(true)} aria-label="Sambungkan ke Google Calendar" className="min-h-[44px] whitespace-nowrap rounded-full bg-bg-card px-4 py-2 text-[13px] font-semibold text-text-2 shadow-card">
             Sinkron
           </button>
         }
@@ -250,30 +251,32 @@ export default function CalendarPage() {
       <div className="px-5 pt-4 pb-8">
         <div className="flex items-center justify-between">
           <button
+            type="button"
             aria-label="Bulan sebelumnya"
             onClick={() =>
               setCursor((c) =>
                 c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 },
               )
             }
-            className="rounded-md px-2 py-1 text-text-2 active:opacity-50"
+            className="grid h-11 w-11 place-items-center rounded-md text-text-2 active:opacity-50"
           >
             ‹
           </button>
           <div className="text-[14px] font-medium tracking-tight">{monthName}</div>
           <button
+            type="button"
             aria-label="Bulan berikutnya"
             onClick={() =>
               setCursor((c) =>
                 c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 },
               )
             }
-            className="rounded-md px-2 py-1 text-text-2 active:opacity-50"
+            className="grid h-11 w-11 place-items-center rounded-md text-text-2 active:opacity-50"
           >
             ›
           </button>
         </div>
-        <div className="mt-3 grid grid-cols-7 gap-0.5 text-center text-[10px] font-medium uppercase text-text-4">
+        <div className="mt-3 grid grid-cols-7 gap-0.5 text-center text-[12px] font-medium uppercase text-text-4">
           {["S", "S", "R", "K", "J", "S", "M"].map((d, i) => (
             <div key={i}>{d}</div>
           ))}
@@ -285,9 +288,10 @@ export default function CalendarPage() {
             const isFocused = d.date === focused;
             return (
               <button
+                type="button"
                 key={d.date}
                 onClick={() => setFocused(d.date)}
-                className={`relative flex aspect-square items-center justify-center rounded-md text-[12px] ${
+                className={`relative flex aspect-square min-h-[44px] items-center justify-center rounded-md text-[12px] ${
                   isFocused
                     ? "bg-text-1 text-bg-app font-medium"
                     : isToday
@@ -299,7 +303,7 @@ export default function CalendarPage() {
               >
                 {parseInt(d.date.slice(-2))}
                 {has && !isFocused && (
-                  <span className="absolute bottom-1 h-[3px] w-[3px] rounded-full bg-accent" />
+                  <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-accent" />
                 )}
               </button>
             );
@@ -307,7 +311,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="mt-6">
-          <div className="mb-2 text-[11px] font-medium section-label text-text-4">
+          <div className="mb-2 text-[12px] font-medium section-label text-text-4">
             {formatDateShort(focused)}
           </div>
           {(() => {
@@ -330,14 +334,14 @@ export default function CalendarPage() {
             const classes = userClasses.filter((c) => c.day === indoDay);
             if (classes.length === 0) return null;
             return (
-              <div className="mb-3 rounded-md border border-border p-2">
-                <div className="mb-1 text-[10px] section-label text-text-4">
+              <div className="mb-3 rounded-md border border-border p-3">
+                <div className="mb-1 text-[12px] section-label text-text-4">
                   Jadwal kuliah {indoDay}
                 </div>
                 {classes.sort((a, b) => a.start.localeCompare(b.start)).map((c, i) => (
-                  <div key={i} className="flex items-baseline justify-between py-0.5 text-[11px]">
+                  <div key={i} className="flex items-baseline justify-between py-0.5 text-[12px]">
                     <span className="text-text-1">{c.title}</span>
-                    <span className="text-text-3">{c.start}–{c.end}{c.room ? ` · ${c.room}` : ""}</span>
+                    <span className="text-text-3">{c.start}-{c.end}{c.room ? ` · ${c.room}` : ""}</span>
                   </div>
                 ))}
               </div>
@@ -351,8 +355,12 @@ export default function CalendarPage() {
             <ul className="list-card">
               {focusedEntries.map((e, i) => {
                 const content = (
-                  <div className="flex items-center gap-2 py-2.5">
-                    <span className="text-[12px]">{e.emoji}</span>
+                  <div className="flex min-h-[44px] items-center gap-2.5 py-2.5">
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ background: e.tint }}
+                    />
                     <span className="flex-1 truncate text-[13px] text-text-1">{e.label}</span>
                   </div>
                 );
@@ -366,7 +374,7 @@ export default function CalendarPage() {
                         href={googleCalendarUrl(e.cal)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0 rounded-full bg-bg-elev2 px-2.5 py-1 text-[11px] font-semibold text-text-2"
+                        className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-bg-elev2 px-3 py-1.5 text-[12px] font-semibold text-text-2"
                         aria-label={`Tambah ${e.label} ke Google Calendar`}
                       >
                         + Google
@@ -379,34 +387,38 @@ export default function CalendarPage() {
           )}
         </div>
       </div>
-      {exporting && (
-        <Sheet
-          title="Ke Google Calendar"
-          onClose={() => setExporting(false)}
-          footer={
-            <button
-              onClick={() => void saveIcs(buildIcs(exportEvents)).then(() => setExporting(false))}
-              disabled={!exportEvents.length}
-              className="btn-accent w-full disabled:opacity-50"
-            >
-              Unduh {exportEvents.length} agenda (.ics)
-            </button>
-          }
-        >
-          <p className="text-[13px] leading-relaxed text-text-2">
-            Semua tenggat, bimbingan, jadwal kuliah (berulang tiap minggu), anniversary (tiap tahun), dan rencana kencan
-            dijadikan satu file kalender.
-          </p>
-          <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[13px] text-text-2">
-            <li><b>iPhone/iPad:</b> buka filenya → Tambahkan semua. Kalau Google Calendar tersambung di Pengaturan iPhone, pilih kalender Google-nya.</li>
-            <li><b>Laptop:</b> buka calendar.google.com → ⚙️ Setelan → Impor &amp; ekspor → pilih file tadi.</li>
-            <li>Untuk satu agenda saja, ketuk <b>+ Google</b> di samping agendanya.</li>
-          </ol>
-          <p className="mt-3 text-[12px] text-text-4">
-            Ini salinan sekali jalan: kalau nanti ada agenda baru, unduh lagi atau pakai tombol + Google.
-          </p>
-        </Sheet>
-      )}
+      <AnimatePresence>
+        {exporting && (
+          <Sheet
+            key="cal-export"
+            title="Ke Google Calendar"
+            onClose={() => setExporting(false)}
+            footer={
+              <button
+                type="button"
+                onClick={() => void saveIcs(buildIcs(exportEvents)).then(() => setExporting(false))}
+                disabled={!exportEvents.length}
+                className="btn-accent w-full disabled:opacity-50"
+              >
+                Unduh {exportEvents.length} agenda (.ics)
+              </button>
+            }
+          >
+            <p className="text-[13px] leading-relaxed text-text-2">
+              Semua tenggat, bimbingan, jadwal kuliah (berulang tiap minggu), anniversary (tiap tahun), dan rencana kencan
+              dijadikan satu file kalender.
+            </p>
+            <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[13px] text-text-2">
+              <li><b>iPhone/iPad:</b> buka filenya &gt; Tambahkan semua. Kalau Google Calendar tersambung di Pengaturan iPhone, pilih kalender Google-nya.</li>
+              <li><b>Laptop:</b> buka calendar.google.com &gt; Setelan &gt; Impor &amp; ekspor &gt; pilih file tadi.</li>
+              <li>Untuk satu agenda saja, ketuk <b>+ Google</b> di samping agendanya.</li>
+            </ol>
+            <p className="mt-3 text-[12px] text-text-4">
+              Ini salinan sekali jalan: kalau nanti ada agenda baru, unduh lagi atau pakai tombol + Google.
+            </p>
+          </Sheet>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

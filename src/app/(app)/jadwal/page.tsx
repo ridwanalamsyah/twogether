@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
@@ -77,23 +78,26 @@ export default function JadwalPage() {
         subtitle="Tap kelas untuk mengubah"
       />
       <div className="px-5">
-        <div className="mb-3 flex gap-1 overflow-x-auto no-scrollbar">
+        <div role="tablist" aria-label="Pilih hari kuliah" className="mb-3 flex gap-1.5 overflow-x-auto no-scrollbar">
           {DAY_ORDER.map((d) => {
             const count = grouped.get(d)?.length ?? 0;
             const isActive = activeDay === d;
             return (
               <button
                 key={d}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => setActiveDay(d)}
-                className={`flex-shrink-0 rounded-md border px-3 py-1.5 text-[12px] ${
+                className={`min-h-[44px] flex-shrink-0 rounded-md border px-3 py-2 text-[12px] transition-colors ${
                   isActive
-                    ? "border-text-1 text-text-1"
+                    ? "border-accent bg-accent-soft text-accent font-semibold"
                     : "border-border text-text-3"
-                } ${d === today ? "font-medium" : ""}`}
+                } ${d === today && !isActive ? "font-medium" : ""}`}
               >
                 {d}
                 {count > 0 && (
-                  <span className="ml-1.5 text-[10px] text-text-4">{count}</span>
+                  <span className="ml-1.5 text-[12px] opacity-80">{count}</span>
                 )}
               </button>
             );
@@ -107,17 +111,18 @@ export default function JadwalPage() {
             {dayClasses.map((c) => (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => setEditing(c)}
-                className="block w-full rounded-md border-b border-border px-1 py-3 text-left transition-colors hover:bg-bg-elev1"
+                className="block min-h-[44px] w-full rounded-md border-b border-border px-1 py-3 text-left transition-colors hover:bg-bg-elev1"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px] font-medium">{c._parsed.title}</div>
-                    <div className="mt-0.5 text-[11px] text-text-3">
+                    <div className="mt-0.5 text-[12px] text-text-3">
                       {c._parsed.lecturer}
                     </div>
                     {(c._parsed.pj || c._parsed.cp) && (
-                      <div className="mt-1 text-[11px] text-text-3">
+                      <div className="mt-1 text-[12px] text-text-3">
                         {c._parsed.pj && (
                           <span>
                             PJ:{" "}
@@ -131,12 +136,12 @@ export default function JadwalPage() {
                       </div>
                     )}
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="shrink-0 text-right">
                     <div className="text-[13px] tabular-nums">
-                      {c._parsed.start}–{c._parsed.end}
+                      {c._parsed.start}-{c._parsed.end}
                     </div>
                     {c._parsed.room && (
-                      <div className="mt-0.5 text-[10px] section-label text-text-4">
+                      <div className="mt-0.5 text-[12px] section-label text-text-3">
                         Ruang {c._parsed.room}
                       </div>
                     )}
@@ -150,7 +155,7 @@ export default function JadwalPage() {
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="mt-4 w-full rounded-full border border-border bg-bg-app py-2.5 text-[13px] font-medium text-text-2 active:bg-bg-elev1"
+          className="mt-4 min-h-[44px] w-full rounded-full border border-border bg-bg-app py-2.5 text-[13px] font-medium text-text-2 transition-colors hover:bg-bg-elev1 active:scale-[0.99]"
         >
           + Tambah kelas
         </button>
@@ -168,7 +173,7 @@ export default function JadwalPage() {
                     className="flex justify-between border-b border-border py-2"
                   >
                     <span className="text-text-3">{d}</span>
-                    <span className="text-text-4">—</span>
+                    <span className="text-text-3">Kosong</span>
                   </div>
                 );
               return (
@@ -177,7 +182,7 @@ export default function JadwalPage() {
                   className="flex items-start justify-between gap-3 border-b border-border py-2"
                 >
                   <span className="text-text-3">{d}</span>
-                  <div className="flex-1 text-right text-[11px] text-text-2">
+                  <div className="flex-1 text-right text-[12px] text-text-2">
                     {list.map((c) => (
                       <div key={c.id}>
                         {c._parsed.start} {c._parsed.title}
@@ -191,17 +196,20 @@ export default function JadwalPage() {
         </Section>
       </div>
 
-      {(editing || adding) && userId && (
-        <ClassEditor
-          userId={userId}
-          item={editing}
-          defaultDay={activeDay}
-          onClose={() => {
-            setEditing(null);
-            setAdding(false);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {(editing || adding) && userId && (
+          <ClassEditor
+            key={editing?.id ?? "new"}
+            userId={userId}
+            item={editing}
+            defaultDay={activeDay}
+            onClose={() => {
+              setEditing(null);
+              setAdding(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -217,6 +225,7 @@ function ClassEditor({
   defaultDay: ClassDay;
   onClose: () => void;
 }) {
+  const reduceMotion = useReducedMotion();
   const initial: ClassItem =
     item?._parsed ??
     {
@@ -283,17 +292,25 @@ function ClassEditor({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <button
+      <motion.button
         type="button"
         aria-label="Tutup dialog"
         onClick={onClose}
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
         className="backdrop-in absolute inset-0 bg-black/50"
       />
-      <div
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-label={item ? "Edit kelas" : "Tambah kelas"}
-        className="relative z-10 mx-auto max-h-[88vh] w-full max-w-[480px] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))] sheet-up"
+        initial={reduceMotion ? false : { y: "100%" }}
+        animate={{ y: 0 }}
+        exit={reduceMotion ? { opacity: 0 } : { y: "100%" }}
+        transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 360, damping: 36 }}
+        className="relative z-10 mx-auto max-h-[88vh] w-full max-w-[480px] overflow-y-auto rounded-t-[24px] bg-bg-app p-5 pb-[calc(96px+var(--sab))]"
       >
         <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-bg-elev3" />
         <div className="mb-3 text-center text-[15px] font-semibold">
@@ -305,7 +322,7 @@ function ClassEditor({
             <input
               value={form.title}
               onChange={(e) => set("title", e.target.value)}
-              className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+              className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
               placeholder="Pegadaian Syariah"
             />
           </Field>
@@ -313,23 +330,24 @@ function ClassEditor({
             <input
               value={form.lecturer}
               onChange={(e) => set("lecturer", e.target.value)}
-              className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+              className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
               placeholder="Ibu Wiedya"
             />
           </Field>
 
           {/* Not a <label>: tapping its text or gaps would press the first day. */}
           <div role="group" aria-label="Hari">
-            <div className="mb-1 text-[11px] font-medium text-text-3">Hari</div>
-            <div className="flex flex-wrap gap-1">
+            <div className="mb-1 text-[12px] font-medium text-text-3">Hari</div>
+            <div className="flex flex-wrap gap-1.5">
               {DAY_ORDER.map((d) => (
                 <button
                   key={d}
                   type="button"
+                  aria-pressed={form.day === d}
                   onClick={() => set("day", d)}
-                  className={`rounded-md border px-2.5 py-1 text-[11px] ${
+                  className={`min-h-[44px] rounded-md border px-3 py-1.5 text-[12px] font-medium ${
                     form.day === d
-                      ? "border-text-1 bg-text-1 text-bg-app"
+                      ? "border-accent bg-accent-soft text-accent"
                       : "border-border text-text-2"
                   }`}
                 >
@@ -345,7 +363,7 @@ function ClassEditor({
                 type="time"
                 value={form.start}
                 onChange={(e) => set("start", e.target.value)}
-                className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+                className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
               />
             </Field>
             <Field label="Selesai">
@@ -353,7 +371,7 @@ function ClassEditor({
                 type="time"
                 value={form.end}
                 onChange={(e) => set("end", e.target.value)}
-                className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+                className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
               />
             </Field>
           </div>
@@ -362,7 +380,7 @@ function ClassEditor({
             <input
               value={form.room ?? ""}
               onChange={(e) => set("room", e.target.value)}
-              className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+              className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
               placeholder="4.21"
             />
           </Field>
@@ -372,7 +390,7 @@ function ClassEditor({
               <input
                 value={form.pj ?? ""}
                 onChange={(e) => set("pj", e.target.value)}
-                className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+                className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
                 placeholder="Ihsan"
               />
             </Field>
@@ -380,7 +398,7 @@ function ClassEditor({
               <input
                 value={form.cp ?? ""}
                 onChange={(e) => set("cp", e.target.value)}
-                className="w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] outline-none focus:border-text-1"
+                className="min-h-[44px] w-full rounded-md border border-border bg-bg-app px-3 py-2 text-[14px] focus:border-text-1"
                 placeholder="+62 812..."
               />
             </Field>
@@ -393,7 +411,7 @@ function ClassEditor({
               type="button"
               onClick={remove}
               disabled={busy}
-              className="rounded-full border border-border px-4 py-2.5 text-[13px] font-medium text-rose-600"
+              className="min-h-[44px] rounded-full border border-border px-4 py-2.5 text-[13px] font-medium text-[color:var(--negative)]"
             >
               Hapus
             </button>
@@ -402,7 +420,7 @@ function ClassEditor({
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="flex-1 rounded-full bg-bg-elev2 py-2.5 text-[13px] font-semibold text-text-2"
+            className="min-h-[44px] flex-1 rounded-full bg-bg-elev2 py-2.5 text-[13px] font-semibold text-text-2"
           >
             Batal
           </button>
@@ -410,12 +428,12 @@ function ClassEditor({
             type="button"
             onClick={save}
             disabled={busy || !form.title.trim() || !timeOk}
-            className="flex-1 rounded-full bg-accent py-2.5 text-[13px] font-semibold text-accent-fg disabled:opacity-50"
+            className="min-h-[44px] flex-1 rounded-full bg-accent py-2.5 text-[13px] font-semibold text-accent-fg disabled:opacity-50"
           >
             {busy ? "Menyimpan..." : "Simpan"}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -429,7 +447,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-[11px] font-medium text-text-3">{label}</div>
+      <div className="mb-1 text-[12px] font-medium text-text-3">{label}</div>
       {children}
     </label>
   );
@@ -445,13 +463,13 @@ type Slot = {
 
 const BASE_DAY_PLAN: Slot[] = [
   { start: "04:30", end: "05:30", Icon: Sunrise, title: "Subuh + dzikir", detail: "Mulai hari dengan tenang" },
-  { start: "05:30", end: "06:30", Icon: Footprints, title: "Olahraga ringan / jalan", detail: "15–30 menit, naikkan energi" },
+  { start: "05:30", end: "06:30", Icon: Footprints, title: "Olahraga ringan / jalan", detail: "15-30 menit, naikkan energi" },
   { start: "06:30", end: "07:00", Icon: Coffee, title: "Sarapan + siapkan kuliah", detail: "Protein + air 1 gelas" },
   { start: "12:00", end: "13:00", Icon: Utensils, title: "Makan siang + Dzuhur", detail: "Istirahat aktif, jauhi layar" },
   { start: "13:00", end: "14:00", Icon: Moon, title: "Power nap (opsional)", detail: "Maks 20 menit, jangan kelamaan" },
   { start: "15:30", end: "16:30", Icon: BookOpen, title: "Review materi kuliah", detail: "Tulis 3 poin penting hari ini" },
   { start: "16:30", end: "17:00", Icon: Trees, title: "Outdoor / refresh", detail: "Asar + jalan ringan" },
-  { start: "19:00", end: "21:00", Icon: Timer, title: "Pomodoro deep work", detail: "Tugas / skripsi / usaha (25×4)" },
+  { start: "19:00", end: "21:00", Icon: Timer, title: "Pomodoro deep work", detail: "Tugas / skripsi / usaha (25x4)" },
   { start: "21:00", end: "21:30", Icon: Heart, title: "Check-in pasangan", detail: "Apresiasi + rencana besok" },
   { start: "21:30", end: "22:00", Icon: NotebookPen, title: "Jurnal + refleksi", detail: "1 hal disyukuri, 1 yang diperbaiki" },
   { start: "22:00", end: "04:30", Icon: Moon, title: "Tidur 7+ jam", detail: "No screen 30 menit sebelumnya" },
@@ -486,11 +504,11 @@ function Recommendations({
         <h3 className="text-[13px] font-semibold text-text-1">
           Rekomendasi 24 jam produktif
         </h3>
-        <span className="text-[10px] section-label text-text-4">
+        <span className="text-[12px] section-label text-text-3">
           {day}
         </span>
       </div>
-      <p className="mb-3 text-[11px] text-text-3">
+      <p className="mb-3 text-[12px] text-text-3">
         Slot kosong di luar kuliah: tap kelas tetap muncul di atas, disesuaikan bila bentrok jadwal.
       </p>
       <ul className="space-y-1.5">
@@ -503,7 +521,7 @@ function Recommendations({
                 active ? "bg-bg-app ring-1 ring-text-1" : ""
               }`}
             >
-              <span className="pt-0.5 text-text-3" aria-hidden>
+              <span className="pt-0.5 text-text-3" aria-hidden="true">
                 <s.Icon size={15} strokeWidth={1.9} />
               </span>
               <div className="min-w-0 flex-1">
@@ -511,11 +529,11 @@ function Recommendations({
                   <span className="text-[12px] font-medium text-text-1">
                     {s.title}
                   </span>
-                  <span className="text-[11px] tabular-nums text-text-3">
-                    {s.start}–{s.end}
+                  <span className="text-[12px] tabular-nums text-text-3">
+                    {s.start}-{s.end}
                   </span>
                 </div>
-                <div className="text-[11px] leading-tight text-text-3">
+                <div className="text-[12px] leading-tight text-text-3">
                   {s.detail}
                 </div>
               </div>

@@ -69,8 +69,8 @@ export function HariKitaWidget() {
             <div className="mt-1 text-[22px] font-bold leading-tight tracking-tight">
               Tandai tanggal jadian
             </div>
-            <p className="mt-1 text-[13px] opacity-85">
-              Hitung hari bersama dan rayakan tiap fase berdua.
+             <p className="mt-1 text-[13px] opacity-85">
+              Hitung hari dan milestone berdua.
             </p>
           </div>
           <span
@@ -84,7 +84,7 @@ export function HariKitaWidget() {
           </span>
         </div>
         <span
-          className="mt-4 inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[12px] font-semibold"
+          className="mt-4 inline-flex min-h-[44px] items-center gap-1 rounded-full px-4 py-2 text-[12px] font-semibold"
           style={{ background: "var(--accent-fg)", color: "var(--accent)" }}
         >
           Atur sekarang <ChevronRight size={14} strokeWidth={2.4} aria-hidden />
@@ -150,7 +150,7 @@ export function HariKitaWidget() {
             setMilestoneView((v) => ((v + 1) % 3) as 0 | 1 | 2);
           }}
           aria-label="Ubah ringkasan milestone"
-          className="mt-4 flex w-full items-center gap-3 rounded-xl py-1 text-left transition-opacity active:opacity-75"
+          className="mt-2.5 flex min-h-[44px] w-full items-center gap-3 rounded-xl py-2 text-left transition-opacity active:opacity-75"
         >
           <div
             className="h-1.5 flex-1 overflow-hidden rounded-full"
@@ -174,8 +174,8 @@ export function HariKitaWidget() {
               className="shrink-0 tabular-nums text-[12px] font-semibold tracking-tight opacity-90"
             >
               {milestoneView === 0 && `${toMilestone} hari lagi ke ${nextMilestone.toLocaleString("id-ID")}`}
-              {milestoneView === 1 && `${Math.round(progress * 100)}% perjalanan fase ini`}
-              {milestoneView === 2 && `Total ${Math.floor(days / 7)} minggu bersama`}
+              {milestoneView === 1 && `${Math.round(progress * 100)}% menuju ${nextMilestone.toLocaleString("id-ID")}`}
+              {milestoneView === 2 && `Total ${Math.floor(days / 7)} minggu`}
             </motion.span>
           </AnimatePresence>
         </button>

@@ -32,7 +32,7 @@ export default function PlacesPage() {
             {places.map((p, i) => (
               <li key={p.name} className="slide-up flex items-center gap-3 px-4 py-3" style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-bg-elev1 text-accent">
-                  <MapPin size={18} />
+                  <MapPin size={18} aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-semibold text-text-1">{p.name}</span>
@@ -48,9 +48,9 @@ export default function PlacesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`Buka ${p.name} di Maps`}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-bg-elev1 text-text-2 active:scale-90"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-bg-elev1 text-text-2 active:scale-90"
                 >
-                  <ExternalLink size={16} />
+                  <ExternalLink size={16} aria-hidden="true" />
                 </a>
               </li>
             ))}

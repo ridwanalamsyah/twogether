@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { Sheet, Field, Chips } from "@/components/ui/Sheet";
 import { useAuth } from "@/stores/auth";
@@ -19,7 +20,7 @@ import { hapticSuccess } from "@/lib/haptic";
 import type { EntryRecord } from "@/lib/db";
 
 const FLOW = [
-  { value: 0, label: "–" },
+  { value: 0, label: "-" },
   { value: 1, label: "Sedikit" },
   { value: 2, label: "Sedang" },
   { value: 3, label: "Banyak" },
@@ -91,8 +92,9 @@ export default function SiklusPage() {
         actions={
           isMine ? (
             <button
+              type="button"
               onClick={() => setShowSettings(true)}
-              className="rounded-full bg-bg-elev2 px-3 py-1.5 text-xs font-semibold text-text-2"
+              className="min-h-[44px] rounded-full bg-bg-elev2 px-4 py-2 text-[12px] font-semibold text-text-2"
             >
               Atur
             </button>
@@ -123,14 +125,18 @@ export default function SiklusPage() {
               className="hero-soft relative overflow-hidden rounded-[24px] p-5 text-white shadow-float"
               style={{
                 ["--hero" as string]:
-                  state.phase === "subur" ? "#14a085" : state.phase === "tenang" || state.phase === "belum" ? "#7c6bd0" : "#e8476b",
+                  state.phase === "subur"
+                    ? "var(--tint-teal)"
+                    : state.phase === "tenang" || state.phase === "belum"
+                      ? "var(--tint-iris)"
+                      : "var(--tint-rose)",
               }}
             >
               <div className="flex items-center gap-4">
-                <Ring value={progress} label={state.dayOfCycle ? `${state.dayOfCycle}` : "–"} />
+                <Ring value={progress} label={state.dayOfCycle ? `${state.dayOfCycle}` : "-"} />
                 <div className="min-w-0">
                   <div className="text-[13px] font-semibold text-white/85">
-                    {copy.emoji} {copy.label}
+                    {copy.label}
                     {state.phase === "haid" && state.lastStart
                       ? ` · hari ke-${state.dayOfCycle}`
                       : ""}
@@ -160,22 +166,25 @@ export default function SiklusPage() {
                 <div className="mt-3 flex gap-2">
                   {state.onPeriod ? (
                     <button
+                      type="button"
                       onClick={() => mark("end")}
-                      className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[#c23a5a] active:scale-[0.98]"
+                      className="min-h-[44px] flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--tint-crimson)] active:scale-[0.98]"
                     >
                       Haid selesai hari ini
                     </button>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => mark("start")}
-                      className="flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[#c23a5a] active:scale-[0.98]"
+                      className="min-h-[44px] flex-1 rounded-full bg-white py-2.5 text-[14px] font-bold text-[color:var(--tint-crimson)] active:scale-[0.98]"
                     >
                       Haid mulai hari ini
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => setOpenDay(today)}
-                    className="rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold active:scale-[0.98]"
+                    className="min-h-[44px] rounded-full bg-white/20 px-4 py-2.5 text-[14px] font-semibold active:scale-[0.98]"
                   >
                     Catat
                   </button>
@@ -196,13 +205,13 @@ export default function SiklusPage() {
             />
 
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-[12px] text-text-3">
-              <Legend className="bg-[#ef5a7a]" label="Haid" />
-              <Legend className="border-2 border-dashed border-[#ef5a7a]" label="Perkiraan haid" />
-              <Legend className="bg-[#2bb59a]/70" label="Masa subur" />
+              <Legend className="bg-[color:var(--tint-crimson)]" label="Haid" />
+              <Legend className="border-2 border-dashed border-[color:var(--negative)]" label="Perkiraan haid" />
+              <Legend className="bg-[color:var(--positive)]" label="Masa subur" />
               <Legend className="bg-text-4" label="Ada catatan" dot />
             </div>
 
-            <p className="px-1 text-[11px] leading-snug text-text-4">
+            <p className="px-1 text-[12px] leading-snug text-text-4">
               Perkiraan dihitung dari rata-rata siklusmu, jadi bisa meleset. Bukan alat
               kontrasepsi dan bukan pengganti saran dokter.
             </p>
@@ -210,25 +219,29 @@ export default function SiklusPage() {
         )}
       </div>
 
-      {openDay && userId && (
-        <DaySheet
-          day={openDay}
-          me={me}
-          userId={userId}
-          entries={entries}
-          log={logs.find((l) => l.date === openDay && (l.who || me) === me)}
-          onClose={() => setOpenDay(null)}
-        />
-      )}
-      {showSettings && userId && (
-        <SettingsSheet
-          userId={userId}
-          me={me}
-          itemId={settingsItem?.id}
-          settings={settings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
+      <AnimatePresence>
+        {openDay && userId && (
+          <DaySheet
+            key="siklus-day"
+            day={openDay}
+            me={me}
+            userId={userId}
+            entries={entries}
+            log={logs.find((l) => l.date === openDay && (l.who || me) === me)}
+            onClose={() => setOpenDay(null)}
+          />
+        )}
+        {showSettings && userId && (
+          <SettingsSheet
+            key="siklus-settings"
+            userId={userId}
+            me={me}
+            itemId={settingsItem?.id}
+            settings={settings}
+            onClose={() => setShowSettings(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -238,28 +251,30 @@ function fmt(day: string) {
 }
 
 function Ring({ value, label }: { value: number; label: string }) {
+  const reduced = useReducedMotion();
   const r = 30;
   const c = 2 * Math.PI * r;
   return (
     <div className="relative grid h-[76px] w-[76px] shrink-0 place-items-center">
-      <svg viewBox="0 0 76 76" className="absolute inset-0 -rotate-90">
+      <svg viewBox="0 0 76 76" className="absolute inset-0 -rotate-90" aria-hidden="true">
         <circle cx="38" cy="38" r={r} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="7" />
-        <circle
+        <motion.circle
           cx="38"
           cy="38"
           r={r}
           fill="none"
-          stroke="#fff"
+          stroke="currentColor"
           strokeWidth="7"
           strokeLinecap="round"
           strokeDasharray={c}
-          strokeDashoffset={c * (1 - value)}
-          style={{ transition: "stroke-dashoffset 600ms var(--ease-out)" }}
+          initial={reduced ? { strokeDashoffset: c * (1 - value) } : { strokeDashoffset: c }}
+          animate={{ strokeDashoffset: c * (1 - value) }}
+          transition={reduced ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </svg>
       <div className="text-center leading-none">
         <div className="text-[22px] font-extrabold">{label}</div>
-        <div className="mt-0.5 text-[10px] text-white/80">hari</div>
+        <div className="mt-0.5 text-[12px] text-white/80">hari</div>
       </div>
     </div>
   );
@@ -310,13 +325,13 @@ function Calendar({
   return (
     <div className="surface p-4">
       <div className="mb-3 flex items-center justify-between">
-        <button onClick={() => shift(-1)} className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan sebelumnya">‹</button>
+        <button type="button" onClick={() => shift(-1)} className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan sebelumnya">‹</button>
         <div className="text-[15px] font-bold text-text-1">
           {first.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
         </div>
-        <button onClick={() => shift(1)} className="grid h-8 w-8 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan berikutnya">›</button>
+        <button type="button" onClick={() => shift(1)} className="grid h-11 w-11 place-items-center rounded-full bg-bg-elev1 text-text-2" aria-label="Bulan berikutnya">›</button>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-text-4">
+      <div className="grid grid-cols-7 gap-1 text-center text-[12px] font-semibold text-text-4">
         {WEEKDAYS.map((w) => (
           <div key={w}>{w}</div>
         ))}
@@ -325,23 +340,29 @@ function Calendar({
         {cells.map((d, i) =>
           d ? (
             <button
+              type="button"
               key={d}
               disabled={!onPick}
               onClick={() => onPick?.(d)}
-              className={`relative grid aspect-square place-items-center rounded-full text-[13px] font-semibold transition-transform active:scale-90 ${
+              className={`relative grid aspect-square min-h-[44px] place-items-center rounded-full text-[13px] font-semibold transition-transform active:scale-90 ${
                 isPeriod(d)
-                  ? "bg-[#ef5a7a] text-white"
+                  ? "bg-[color:var(--tint-crimson)] text-white"
                   : isPredicted(d)
-                    ? "border-2 border-dashed border-[#ef5a7a] text-[#ef5a7a]"
+                    ? "border-2 border-dashed border-[color:var(--negative)] text-[color:var(--negative)]"
                     : isFertile(d)
-                      ? "bg-[#2bb59a]/20 text-[#1d8a73]"
+                      ? "bg-[color:var(--positive-bg)] text-[color:var(--positive)]"
                       : "text-text-2"
               } ${d === today ? "ring-2 ring-text-1 ring-offset-2 ring-offset-[color:var(--bg-card)]" : ""}`}
             >
               {Number(d.slice(8))}
-              {isOvulation(d) && <span className="absolute -top-0.5 right-0 text-[9px]">✨</span>}
+              {isOvulation(d) && (
+                <span
+                  aria-label="Perkiraan ovulasi"
+                  className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-current"
+                />
+              )}
               {hasLog(d) && (
-                <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-current opacity-70" />
+                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-current opacity-70" />
               )}
             </button>
           ) : (
@@ -397,21 +418,23 @@ function DaySheet({
       title={fromIsoDay(day).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
       onClose={onClose}
       footer={
-        <button onClick={save} className="btn-accent w-full">
+        <button type="button" onClick={save} className="btn-accent w-full">
           Simpan
         </button>
       }
     >
       <div className="mb-4 flex gap-2">
         <button
+          type="button"
           onClick={() => toggleMarker("start")}
-          className={`flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isStart ? "bg-[#ef5a7a] text-white" : "bg-bg-card text-text-2 shadow-card"}`}
+          className={`min-h-[44px] flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isStart ? "bg-[color:var(--tint-crimson)] text-white" : "bg-bg-card text-text-2 shadow-card"}`}
         >
           Hari pertama haid
         </button>
         <button
+          type="button"
           onClick={() => toggleMarker("end")}
-          className={`flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isEnd ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2 shadow-card"}`}
+          className={`min-h-[44px] flex-1 rounded-2xl py-3 text-[13px] font-semibold ${isEnd ? "bg-text-1 text-bg-app" : "bg-bg-card text-text-2 shadow-card"}`}
         >
           Hari terakhir
         </button>
@@ -423,11 +446,13 @@ function DaySheet({
         <Chips options={PAIN} value={data.pain} onChange={(v) => setData({ ...data, pain: v })} />
       </Field>
       <Field label="Mood">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {MOODS.map((m) => (
             <button
               key={m}
               type="button"
+              aria-pressed={data.mood === m}
+              aria-label={`Mood ${m}`}
               onClick={() => setData({ ...data, mood: data.mood === m ? "" : m })}
               className={`grid h-11 w-11 place-items-center rounded-full text-[22px] transition-transform ${data.mood === m ? "scale-110 bg-accent-soft" : "bg-bg-card shadow-card"}`}
             >
@@ -444,13 +469,14 @@ function DaySheet({
               <button
                 key={s}
                 type="button"
+                aria-pressed={on}
                 onClick={() =>
                   setData({
                     ...data,
                     symptoms: on ? data.symptoms.filter((x) => x !== s) : [...data.symptoms, s],
                   })
                 }
-                className={`rounded-full px-3 py-1.5 text-[13px] ${on ? "bg-accent text-accent-fg" : "bg-bg-card text-text-2 shadow-card"}`}
+                className={`min-h-[44px] rounded-full px-3.5 py-2 text-[13px] ${on ? "bg-accent text-accent-fg" : "bg-bg-card text-text-2 shadow-card"}`}
               >
                 {s}
               </button>
@@ -460,6 +486,7 @@ function DaySheet({
       </Field>
       <Field label="Catatan">
         <textarea
+          aria-label="Catatan"
           className="input-base h-20 py-2"
           value={data.note}
           onChange={(e) => setData({ ...data, note: e.target.value })}
@@ -499,7 +526,7 @@ function SettingsSheet({
       title="Atur siklus"
       onClose={onClose}
       footer={
-        <button onClick={save} className="btn-accent w-full">
+        <button type="button" onClick={save} className="btn-accent w-full">
           Simpan
         </button>
       }
@@ -511,7 +538,7 @@ function SettingsSheet({
           max={40}
           value={s.cycleLength}
           onChange={(e) => setS({ ...s, cycleLength: Number(e.target.value) })}
-          className="w-full accent-[color:var(--accent)]"
+          className="min-h-[44px] w-full accent-[color:var(--accent)]"
         />
       </Field>
       <Field label={`Lama haid biasanya: ${s.periodLength} hari`}>
@@ -521,10 +548,10 @@ function SettingsSheet({
           max={10}
           value={s.periodLength}
           onChange={(e) => setS({ ...s, periodLength: Number(e.target.value) })}
-          className="w-full accent-[color:var(--accent)]"
+          className="min-h-[44px] w-full accent-[color:var(--accent)]"
         />
       </Field>
-      <label className="flex items-center justify-between rounded-2xl bg-bg-card px-4 py-3 shadow-card">
+      <label className="flex min-h-[44px] items-center justify-between rounded-2xl bg-bg-card px-4 py-3 shadow-card">
         <span>
           <span className="block text-[14px] font-semibold text-text-1">Tampilkan ke pasangan</span>
           <span className="block text-[12px] text-text-3">

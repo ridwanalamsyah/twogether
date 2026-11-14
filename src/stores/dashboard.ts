@@ -71,12 +71,12 @@ export interface WidgetConfig {
 // A calm, focused Home: the few things a couple checks every day. Everything
 // else stays one tap away (Jelajah tab) and can be re-enabled in "Atur".
 export const DEFAULT_LAYOUT: WidgetConfig[] = [
+  { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_pinned", kind: "pinned-message", size: "lg", enabled: true },
+  { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
   { id: "w_pengingat", kind: "pengingat", size: "lg", enabled: true },
   { id: "w_sisa", kind: "sisa-bulan", size: "lg", enabled: true },
-  { id: "w_kabar", kind: "kabar", size: "lg", enabled: true },
   { id: "w_tanya", kind: "tanya", size: "lg", enabled: true },
-  { id: "w_haritka", kind: "hari-kita", size: "lg", enabled: true },
   { id: "w_balance", kind: "balance", size: "lg", enabled: true },
   { id: "w_habits_q", kind: "habits-quick", size: "lg", enabled: true },
   { id: "w_jadwal", kind: "jadwal-hari-ini", size: "lg", enabled: false },
@@ -108,7 +108,7 @@ export const DEFAULT_LAYOUT: WidgetConfig[] = [
 const SHOW_WHEN_NEW = new Set(["w_kabar", "w_tanya", "w_pengingat", "w_sisa"]);
 
 /** Bump to re-apply the default (decluttered) Home once for existing users. */
-const LAYOUT_VERSION = 3;
+const LAYOUT_VERSION = 4;
 const layoutVersionKey = (userId: string) => `twogether:home-layout-v:${userId}`;
 
 interface DashboardState {
