@@ -4,12 +4,12 @@
  * won't see it again (still readable from Pengaturan).
  */
 export const WHATS_NEW = {
-  id: "2026-11-13",
+  id: "2026-11-14-v103",
   items: [
-    "Tipografi Plus Jakarta Sans kini aktif penuh di iPhone dan web, termasuk angka tabular yang rapi",
-    "Banner status offline menyatu di header atas agar tidak menumpuk di atas judul atau tombol",
-    "Navigasi bawah dan tombol cepat pakai gerak pegas yang responsif saat ditekan",
-    "Kontras warna terang, gelap, dan seluruh tema musiman disesuaikan ke standar AA",
+    "Kartu 'Sudah bersama' kini selalu di paling atas Beranda dengan animasi angka & tab pegas interaktif",
+    "Tampilan lebih ringkas dan tidak penuh tulisan: kotak jawaban pertanyaan harian dibuka saat tombol 'Jawab' diketuk",
+    "Transisi halaman, sheet, dan daftar ruang memakai gerak pegas halus yang menghormati mode hemat gerak",
+    "Kontras warna terang, gelap, dan seluruh tema musiman dikalibrasi penuh ke standar WCAG AA",
   ],
 };
 
